@@ -31,6 +31,8 @@ public class ControladorInicioSesion implements ActionListener{
         
         inicializarListeners();
     }
+  
+    
 
     /**
      * Enlaza los componentes interactivos de la vista con sus respectivos escuchadores.
