@@ -39,6 +39,6 @@ public class PanelBienvenida extends JPanel {
         add(mensaje);
     }
 
-    
+    //prueba de bush
 
 }
