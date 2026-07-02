@@ -7,6 +7,7 @@ package nexusgo.controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import nexusgo.view.VistaOperarioInventario;
+import nexusgo.view.VistaPdV;
 import nexusgo.view.VistaPrincipalOperario;
 
 /**
@@ -37,12 +38,26 @@ public class ControladorPrincipalOperario implements ActionListener {
         vista.dispose();
 
     }
+    
+     public void abrirPuntodeVenta() {
+        //aqui crea el inventario
+        VistaPdV VistaNexus = new VistaPdV();
+
+        VistaNexus.setVisible(true);
+        //Cierra y guarda la variable vista
+        vista.dispose();
+
+    }
 
     //funcionamiento del boton de inventario
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == vista.getsidebar().bInventario) {
             abrirInventario();
+        }
+        
+        if (e.getSource() == vista.getsidebar().misCitas) {
+            abrirPuntodeVenta();
         }
       
         
