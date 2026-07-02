@@ -18,7 +18,9 @@ public class Conexion {
     String url = "jdbc:mysql://localhost:3306/nexus_go_db?useSSL=false&serverTimezone=UTC";
     String user = "root";
     String pass = "";
-
+    
+    //prueba de commit
+    
     /**
      * Establece y retorna la conexión activa con la base de datos.
      */
