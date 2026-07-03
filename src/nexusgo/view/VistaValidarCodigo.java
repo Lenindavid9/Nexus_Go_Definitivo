@@ -24,7 +24,7 @@ public class VistaValidarCodigo extends JFrame{
     private Container contenedor;
     private JPanel vCodigo;
     private JLabel jVCodigo, fondo;
-    private JButton enviar;
+    public JButton enviar;
     public JTextField tVCodigo;
     private TitledBorder titulo;
     private GridLayout migrid;

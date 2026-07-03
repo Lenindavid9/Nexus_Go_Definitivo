@@ -15,7 +15,7 @@ import javax.swing.JOptionPane;
 public class Conexion {
 
     Connection con;
-    String url = "jdbc:mysql://localhost:3306/nexus_go_db?useSSL=false&serverTimezone=UTC";
+    String url = "jdbc:mysql://localhost:3306/nexus_go_prueba?useSSL=false&serverTimezone=UTC";
     String user = "root";
     String pass = "";
 
