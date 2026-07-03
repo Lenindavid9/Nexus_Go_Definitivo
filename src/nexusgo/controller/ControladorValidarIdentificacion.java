@@ -15,6 +15,7 @@ import java.util.Properties;
 import javax.swing.JOptionPane;
 import nexusgo.model.Usuario;
 import nexusgo.model.UsuarioDao;
+import nexusgo.view.VistaValidarCodigo;
 import nexusgo.view.VistaValidarIdentificacion;
 
 
