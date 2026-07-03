@@ -4,14 +4,8 @@
  */
 package nexusgo.controller;
 
-import com.mysql.cj.Session;
-import com.mysql.cj.protocol.Message;
-import com.sun.jdi.connect.Transport;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
-import java.util.Properties;
 import javax.swing.JOptionPane;
 import nexusgo.model.Usuario;
 import nexusgo.model.UsuarioDao;
@@ -86,7 +80,7 @@ public class ControladorValidarIdentificacion implements ActionListener {
 
                 // Enrutamos hacia la vista y controlador
                 VistaValidarCodigo vistaSiguiente = new VistaValidarCodigo();
-                /*ControladorVerificarCodigo = */ new ControladorVerificarCodigo(vistaSiguiente, tokenGenerado, usuarioEcontrado);
+                /*ControladorVerificarCodigo =  new ControladorVerificarCodigo(vistaSiguiente, tokenGenerado, usuarioEcontrado);*/
                 vistaSiguiente.setLocationRelativeTo(null);
                 vistaSiguiente.setVisible(true);
 
@@ -102,7 +96,7 @@ public class ControladorValidarIdentificacion implements ActionListener {
         }
 
     }catch(Exception ex){
-            JOptionPane.showMessageDialog(vista, "Error del sistema: " + ex.getMessage(), "Error General", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(vista, "Error del sistema: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             vista.confirmar.setEnabled(true);
             vista.confirmar.setText("Confirmar");
         }
