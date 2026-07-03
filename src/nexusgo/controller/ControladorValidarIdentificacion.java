@@ -4,21 +4,29 @@
  */
 package nexusgo.controller;
 
+import com.mysql.cj.Session;
+import com.mysql.cj.protocol.Message;
+import com.sun.jdi.connect.Transport;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.PasswordAuthentication;
+import java.util.Properties;
 import javax.swing.JOptionPane;
+import nexusgo.model.Usuario;
 import nexusgo.model.UsuarioDao;
+import nexusgo.view.VistaValidarIdentificacion;
 
 /**
  *
  * @author USUARIO
  */
+
 public class ControladorValidarIdentificacion implements ActionListener {
 
-    private final ValidarIdentificacion vista;
+    private final VistaValidarIdentificacion vista;
     private final UsuarioDao usuarioDao;
 
-    public ControladorValidarIdentificacion(ValidarIdentificacion vista) {
+    public ControladorValidarIdentificacion(VistaValidarIdentificacion vista) {
         this.vista = vista;
         this.usuarioDao = new UsuarioDao();
         // con esta se hace la escucha del botón de tu vista
@@ -76,8 +84,8 @@ public class ControladorValidarIdentificacion implements ActionListener {
                 // se libera la ventana de la cédula
                 vista.dispose();
 
-                // Enrutamos hacia la vista y controlador independientes del Código
-                VistaVerificarCodigo vistaSiguiente = new VistaVerificarCodigo();
+                // Enrutamos hacia la vista y controlador
+                VistaValidarCodigo vistaSiguiente = new VistaValidarCodigo();
                 /*ControladorVerificarCodigo = */ new ControladorVerificarCodigo(vistaSiguiente, tokenGenerado, usuarioEcontrado);
                 vistaSiguiente.setLocationRelativeTo(null);
                 vistaSiguiente.setVisible(true);
@@ -93,5 +101,58 @@ public class ControladorValidarIdentificacion implements ActionListener {
             "Error de Validación", JOptionPane.ERROR_MESSAGE);
         }
 
+    }catch(Exception ex){
+            JOptionPane.showMessageDialog(vista, "Error del sistema: " + ex.getMessage(), "Error General", JOptionPane.ERROR_MESSAGE);
+            vista.confirmar.setEnabled(true);
+            vista.confirmar.setText("Confirmar");
+        }
     }
-}
+
+    /*
+     Conexión directa y nativa mediante TLS hacia los servidores de correo
+     */
+    private boolean despacharEmail(String emailDestinatario, String nombreUsuario, String codigoToken) {
+        Properties propiedades = new Properties();
+        propiedades.put("mail.smtp.auth", "true");
+        propiedades.put("mail.smtp.starttls.enable", "true");
+        propiedades.put("mail.smtp.host", "smtp.gmail.com");
+        propiedades.put("mail.smtp.port", "587");
+
+         //️ Parámetros de autenticación del remitente (osea con el correo de donde se manda el codigo)
+        final String miCorreoRemitente = "idarragalenindavid@gmail.com"; 
+        final String miClaveDeCorreo = "abcd efgh ijkl mnop"; // Esa clave permite que el programa se autentique y envíe correos.
+
+        Session sesionMail = Session.getInstance(propiedades, new jakarta.mail.Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return
+                   // el programa toma la clave que había guardado y se la entrega a Gmail para autenticarse.
+                    new PasswordAuthentication(miCorreoRemitente, miClaveDeCorreo);
+            }
+        });
+try {
+            Message mensaje = new MimeMessage(sesionMail);
+            mensaje.setFrom(new InternetAddress(miCorreoRemitente));
+            mensaje.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailDestinatario));
+            
+            mensaje.setSubject("Nexus GO - Restablecer Contraseña");
+            
+            String mensajeTexto = "Hola, " + nombreUsuario + ".\n\n"
+                    + "Se ha solicitado un código para cambiar tu contraseña en Nexus GO.\n"
+                    + "Tu código de verificación obligatorio es:\n\n"
+                    + "   👉 " + codigoToken + " 👈\n\n"
+                    + "Usa este token en la ventana del software para actualizar tu clave.";
+            
+            mensaje.setText(mensajeTexto);
+
+            Transport.send(mensaje);
+            return true;
+
+        } catch (MessagingException e) {
+            System.out.println("Error de red SMTP: " + e.getMessage());
+            JOptionPane.showMessageDialog(vista, 
+                "No se pudo establecer la conexión de red con el servidor de correos.", 
+                "Fallo de Comunicación", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+    }

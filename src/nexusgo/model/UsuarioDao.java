@@ -81,5 +81,29 @@ public class UsuarioDao {
         }
 
     }
+    public Usuario buscarUsuarioPorIdentificacion(String identificacion) {
+    String sql = "SELECT * FROM usuarios WHERE identificacion = ?";
+    Usuario usuario = null;
+
+    // Usamos Try-with-resources para cerrar conexiones automáticamente sin fugas de memoria
+    try (Connection con = conexion.getConection(); // Reemplaza por tu método exacto de conexión
+         PreparedStatement ps = con.prepareStatement(sql)) {
+        
+        ps.setString(1, identificacion);
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                usuario = new Usuario();
+                usuario.setIdentificacion(rs.getString("identificacion"));
+                usuario.setNombre(rs.getString("nombre"));
+                usuario.setRol(rs.getString("rol"));
+                // Si tienes columna correo en tu BD, la mapeas aquí:
+                // usuario.setCorreo(rs.getString("correo"));
+            }
+        }
+    } catch (SQLException e) {
+        System.out.println("Error en DAO al buscar identificación: " + e.getMessage());
+    }
+    return usuario;
+}
 
 }
