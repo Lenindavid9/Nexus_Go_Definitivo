@@ -64,7 +64,7 @@ public class ControladorInicioSesion implements ActionListener{
         this.vistaLogin.lblRegistrate.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                try {
+
                     vistaLogin.dispose();
                     
                     VistaRegistroDeUsuario vistaRegistro = new VistaRegistroDeUsuario();
@@ -72,11 +72,6 @@ public class ControladorInicioSesion implements ActionListener{
                     
                     vistaRegistro.setLocationRelativeTo(null);
                     vistaRegistro.setVisible(true);
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(vistaLogin, 
-                        "Error al abrir el módulo de registro: " + ex.getMessage(), 
-                        "Error de Interfaz", JOptionPane.ERROR_MESSAGE);
-                }
             }
         });
 

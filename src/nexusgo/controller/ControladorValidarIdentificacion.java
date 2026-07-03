@@ -73,7 +73,7 @@ public class ControladorValidarIdentificacion implements ActionListener {
             y un token, y guarda en la variable envioExitoso un valor booleano
             que indica si el envío fue exitoso (true) o falló (false). */
             // se despachar el correo utilizando el servidor SMTP integrado con Jakarta Mail
-            boolean envioExitoso = despacharEmail(correoDestino, usuarioEcontrado.getNombre(), tokenGenerado);
+            // (boolean envioExitoso = despacharEmail(correoDestino, usuarioEcontrado.getNombre(), tokenGenerado);)
 
             if (envioExitoso) {
                 JOptionPane.showMessageDialog(vista,
