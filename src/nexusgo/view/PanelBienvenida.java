@@ -36,4 +36,11 @@ public class PanelBienvenida extends JPanel {
         add(titulo);
         add(mensaje);
     }
+
 }
+
+
+
+
+
+

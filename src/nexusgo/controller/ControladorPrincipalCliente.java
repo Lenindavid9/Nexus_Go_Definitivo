@@ -108,5 +108,17 @@ public class ControladorPrincipalCliente implements ActionListener {
         }
     }
 
- 
+ if (e.getSource() == vista.CitasVigentes) {
+    
+    VistaReservarCitas panelReserva = new VistaReservarCitas();
+    
+    // Instanciamos su propio controlador (Pasamos: vista formulario, vista principal, ID de usuario)
+    new ControladorReservarCitas(panelReserva, vista, 1);
+    
+    // Cambiamos la pantalla de inmediato
+    vista.getContenidoCentralDinamico().removeAll();
+    vista.getContenidoCentralDinamico().add(panelReserva);
+    vista.getContenidoCentralDinamico().revalidate();
+    vista.getContenidoCentralDinamico().repaint();
+}
 }
