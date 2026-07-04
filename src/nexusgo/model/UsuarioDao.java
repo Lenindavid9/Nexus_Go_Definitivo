@@ -91,7 +91,7 @@ public java.util.List<Object[]> listarCitasPorCliente(int idCliente) {
                  "INNER JOIN servicios s ON c.id_servicio = s.id_servicio " +
                  "WHERE c.id_cliente = ? AND c.estado = 'Vigente' " +
                  "ORDER BY c.fecha_hora ASC";
-
+    
     try (Connection con = conexion.getConection(); 
          PreparedStatement ps = con.prepareStatement(sql)) {
         
@@ -112,4 +112,21 @@ public java.util.List<Object[]> listarCitasPorCliente(int idCliente) {
     }
     return listaCitas;
 }
+public boolean registrarCita(int idCliente, int idServicio, String fechaHora) {
+        String sql = "INSERT INTO citas (id_cliente, id_servicio, fecha_hora, estado) VALUES (?, ?, ?, 'Vigente')";
+        
+        try (Connection con = Conexion.getConexion(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            
+            ps.setInt(1, idCliente);
+            ps.setInt(2, idServicio);
+            ps.setString(3, fechaHora);
+            
+            // executeUpdate devuelve el número de filas afectadas. Si es > 0, guardó correctamente.
+            return ps.executeUpdate() > 0; 
+            
+        } catch (SQLException e) {
+            System.err.println("Error en UsuarioDAO.registrarCita: " + e.getMessage());
+            return false;
+        }
 }
