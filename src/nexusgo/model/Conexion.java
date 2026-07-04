@@ -32,7 +32,7 @@ public class Conexion {
             System.out.println("Conexion exitosa con nexusGodb");
 
         } catch (Exception e) {
-            // CORREGIDO: Se ordenaron los parámetros correctamente para evitar errores en Swing
+            // Se ordenaron los parámetros correctamente para evitar errores en Swing
             JOptionPane.showMessageDialog(
                     null,
                     "No se pudo conectar a la base de datos.\nDetalle: " + e.getMessage(),

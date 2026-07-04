@@ -3,8 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/C:/Users/USUARIO/Desktop/nexus_go/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorValidarCodigo.java</file>
+            <file>file:/C:/Users/USUARIO/Desktop/nexus_go/Nexus_Go_Definitivo/src/nexusgo/view/VistaInicioSesion.java</file>
             <file>file:/C:/Users/USUARIO/Desktop/nexus_go/Nexus_Go_Definitivo/src/nexusgo/NexusGo.java</file>
-            <file>file:/C:/Users/USUARIO/Desktop/nexus_go/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorValidarIdentificacion.java</file>
+            <file>file:/C:/Users/USUARIO/Desktop/nexus_go/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorInicioSesion.java</file>
+            <file>file:/C:/Users/USUARIO/Desktop/nexus_go/Nexus_Go_Definitivo/src/nexusgo/view/VistaValidarIdentificacion.java</file>
         </group>
     </open-files>
 </project-private>
