@@ -69,5 +69,7 @@ public class VistaValidarIdentificacion extends JFrame{
         identificacion.add(confirmar);        
 
         fondo.add(identificacion);
+        
+        //algo
     }
 }
