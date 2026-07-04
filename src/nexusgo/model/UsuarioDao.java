@@ -81,5 +81,35 @@ public class UsuarioDao {
         }
 
     }
+    
+public java.util.List<Object[]> listarCitasPorCliente(int idCliente) {
+    java.util.List<Object[]> listaCitas = new java.util.ArrayList<>();
+    
+    // Query que une la cita con el servicio/producto correspondiente
+    String sql = "SELECT s.nombre, c.fecha_hora, s.precio " +
+                 "FROM citas c " +
+                 "INNER JOIN servicios s ON c.id_servicio = s.id_servicio " +
+                 "WHERE c.id_cliente = ? AND c.estado = 'Vigente' " +
+                 "ORDER BY c.fecha_hora ASC";
 
+    try (Connection con = conexion.getConection(); 
+         PreparedStatement ps = con.prepareStatement(sql)) {
+        
+        ps.setInt(1, idCliente);
+        
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Object[] fila = new Object[] {
+                    rs.getString("nombre"),
+                    rs.getString("fecha_hora"),
+                    rs.getDouble("precio")
+                };
+                listaCitas.add(fila);
+            }
+        }
+    } catch (SQLException e) {
+        System.err.println("Error en UsuarioDAO.listarCitasPorCliente: " + e.getMessage());
+    }
+    return listaCitas;
+}
 }
