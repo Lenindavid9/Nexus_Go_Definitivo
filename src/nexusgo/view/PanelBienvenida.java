@@ -17,9 +17,16 @@ import javax.swing.JPanel;
  */
 public class PanelBienvenida extends JPanel {
     
-    private JLabel mensaje, titulo;
+    private JLabel mensaje, titulo, fondo;
 
     public PanelBienvenida(String nombre, String rol) {
+        
+        // Fondo con FlowLayout
+        this.fondo = new JLabel(new ImageIcon ("C:\\Users\\USUARIO\\Documents\\NetBeansProjects\\nexusGo/fondito.jpg"));
+        this.fondo.setOpaque(true);
+        this.fondo.setLayout(new FlowLayout());
+        
+        
         // Usamos null layout para posicionar los elementos exactamente donde queramos
         setLayout(null);
         setBackground(new Color(245, 245, 245)); // Un gris muy claro de fondo limpio
@@ -37,6 +44,7 @@ public class PanelBienvenida extends JPanel {
         // Agregamos directamente al JPanel
         add(titulo);
         add(mensaje);
+        add(fondo);
     }
 
     

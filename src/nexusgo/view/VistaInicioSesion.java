@@ -31,12 +31,10 @@ public class VistaInicioSesion extends JFrame {
     
     private JLabel fondo;
     private JPanel tarjetaLogin;
-    
-    // Componentes públicos
     public JTextField tNroIdentidad;
     public JPasswordField tContrasena;
     public JButton btnEntrar;
-    public JButton btnVerContrasena; // 🚀 El botón del ojo añadido de forma nativa
+    public JButton btnVerContrasena; // El botón del ojo añadido de forma nativa
     public JLabel lblRegistrate; 
     public JLabel lblOlvideContrasena;
 
@@ -53,7 +51,7 @@ public class VistaInicioSesion extends JFrame {
     private final Font FUENTE_LINKS = new Font("Segoe UI", Font.BOLD, 12);
 
     public VistaInicioSesion() {
-        super("Nexus Go! - Inicio de Sesión");
+        super("Nexus Go - Inicio de Sesión");
         
         // 1. Imagen de Fondo
         this.fondo = new JLabel(new ImageIcon("src/nexusgo/img/fondito.jpg"));
