@@ -20,7 +20,8 @@ import javax.swing.border.EmptyBorder;
  *
  * @author HOME
  */
-public class VistaReservarCitas extends JPanel{
+public class VistaReservarCitas extends JPanel {
+
     // Componentes públicos que usará tu controlador
     public JButton btnVolver;
     public JComboBox<String> comboServicios;
@@ -44,7 +45,7 @@ public class VistaReservarCitas extends JPanel{
         btnVolver = new JButton("< Volver");
         btnVolver.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         btnVolver.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        panelSuperior.add(btnVolver, BorderLayout.RIGHT);
+        panelSuperior.add(btnVolver, BorderLayout.EAST); // <-- CORREGIDO: Derecha
 
         this.add(panelSuperior, BorderLayout.NORTH);
 

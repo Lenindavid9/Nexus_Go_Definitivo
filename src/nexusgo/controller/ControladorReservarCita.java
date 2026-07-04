@@ -4,6 +4,11 @@
  */
 package nexusgo.controller;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import nexusgo.model.UsuarioDao;
 import nexusgo.view.VistaPrincipalCliente;
 import nexusgo.view.VistaReservarCitas;
 
@@ -11,19 +16,19 @@ import nexusgo.view.VistaReservarCitas;
  *
  * @author HOME
  */
-public class ControladorReservarCita {
+public class ControladorReservarCita implements ActionListener{
     
     private VistaReservarCitas vistaReserva;
     private VistaPrincipalCliente vistaPrincipal;
-    private UsuarioDAO usuarioDao;
+    private UsuarioDao usuarioDao;
     private int idClienteLogueado;
 
    
-    public ControladorReservarCitas(VistaReservarCitas vistaReserva, VistaPrincipalCliente vistaPrincipal, int idClienteLogueado) {
+    public ControladorReservarCita(VistaReservarCitas vistaReserva, VistaPrincipalCliente vistaPrincipal, int idClienteLogueado) {
         this.vistaReserva = vistaReserva;
         this.vistaPrincipal = vistaPrincipal;
         this.idClienteLogueado = idClienteLogueado;
-        this.usuarioDao = new UsuarioDAO();
+        this.usuarioDao = new UsuarioDao();
 
         // Escuchamos las acciones de los botones en la vista
         this.vistaReserva.btnAgendar.addActionListener(this);

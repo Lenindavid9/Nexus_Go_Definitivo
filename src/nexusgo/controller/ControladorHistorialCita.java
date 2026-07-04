@@ -24,7 +24,7 @@ public class ControladorHistorialCita implements ActionListener {
     private int idClienteLogueado;
 
  
-    public ControladorHistorialCitaorialCita(VistaHistorialCita vistaHistorial, VistaPrincipalCliente vistaPrincipal, int idClienteLogueado) {
+    public ControladorHistorialCita(VistaHistorialCita vistaHistorial, VistaPrincipalCliente vistaPrincipal, int idClienteLogueado) {
         this.vistaHistorial = vistaHistorial;
         this.vistaPrincipal = vistaPrincipal;
         this.idClienteLogueado = idClienteLogueado;
