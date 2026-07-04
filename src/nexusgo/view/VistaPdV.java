@@ -1,7 +1,13 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package nexusgo.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import static java.awt.Component.CENTER_ALIGNMENT;
+import static java.awt.Component.LEFT_ALIGNMENT;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -20,14 +26,16 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 
 /**
+ *
  * @author INGRID
  */
-public class VistaPdV extends JPanel {
+public class VistaPdV extends JPanel{
 
     private JPanel titulo, menu, principal, panelproductos, panelBusqueda;
     private JLabel logoyNombre, TituloPrincipal, estado, seccion;
     private JButton btnInicioTitulo, btnReportes, btnInicio, btnProductos, btnServicios, facturar, btnReiniciar;
     private int contadorProductos = 0;
+    private double totalVenta = 0.0; 
     private final Color COLOR_CAFE_OSCURO = new Color(62, 58, 46);
     private final Color COLOR_DORADO = new Color(223, 205, 141);
 
@@ -110,9 +118,9 @@ public class VistaPdV extends JPanel {
         facturar.setPreferredSize(new Dimension(250, 40));
 
         btnReiniciar = new JButton(new ImageIcon("eliminar.png"));
-        btnReiniciar.setPreferredSize(new Dimension(40, 40)); 
-        btnReiniciar.setContentAreaFilled(false);            
-        btnReiniciar.setBorderPainted(false);                
+        btnReiniciar.setPreferredSize(new Dimension(40, 40));
+        btnReiniciar.setContentAreaFilled(false);
+        btnReiniciar.setBorderPainted(false);
 
         panelBusqueda.add(facturar);
         panelBusqueda.add(btnReiniciar);
@@ -134,7 +142,7 @@ public class VistaPdV extends JPanel {
         principal.add(seccion);
         principal.add(panelBusqueda);
         principal.add(Box.createVerticalStrut(80));
-        principal.add(scroll); 
+        principal.add(scroll);
 
         this.add(titulo, BorderLayout.NORTH);
         this.add(menu, BorderLayout.WEST);
@@ -184,10 +192,20 @@ public class VistaPdV extends JPanel {
         btnAgregar.setContentAreaFilled(false);
         btnAgregar.setBorderPainted(false);
 
+       
         btnAgregar.addActionListener(e -> {
-            contadorProductos += 1; 
+            int cantidad = (int) spinnerCantidad.getValue();
+
+            String precioLimpio = precio.replace("$", "").replace(",", "").trim();
+            double precioUnitario = Double.parseDouble(precioLimpio);
+
+            double subtotal = precioUnitario * cantidad;
+            totalVenta += subtotal;
+
+            contadorProductos += cantidad;
             facturar.setText("Facturar " + contadorProductos + " Productos/Servicios");
-            btnAgregar.setEnabled(false); 
+
+            btnAgregar.setEnabled(false);
         });
 
         acciones.add(btnAgregar);
@@ -203,6 +221,7 @@ public class VistaPdV extends JPanel {
         panelproductos.repaint();
     }
 
+
     public JButton getFacturarButton() {
         return facturar;
     }
@@ -215,8 +234,15 @@ public class VistaPdV extends JPanel {
         return contadorProductos;
     }
 
+    public double getTotalVenta() { 
+        return totalVenta;
+    }
+
     public void reiniciarContador() {
         contadorProductos = 0;
+        totalVenta = 0.0; 
         facturar.setText("Facturar 0 Productos/Servicios");
     }
 }
+
+
