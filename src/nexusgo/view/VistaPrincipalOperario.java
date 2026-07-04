@@ -65,6 +65,8 @@ public class VistaPrincipalOperario extends JFrame {
     public JPanel getContenido() {
         return contenido;
     }
+    
+    
 }
     
 
