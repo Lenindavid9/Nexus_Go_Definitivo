@@ -16,11 +16,9 @@ public class ControladorCaja implements ActionListener{
         this.vista = vista;
         this.dao = new CajaDao();
 
-        // Botones
         vista.getBtnApertura().addActionListener(this);
         vista.getBtnCalcular().addActionListener(this);
 
-        // Al inicio, deshabilitar confirmación y calcular
         vista.getTxtMontoF().setEnabled(false);
         vista.getBtnCalcular().setEnabled(false);
     }
@@ -32,7 +30,7 @@ public class ControladorCaja implements ActionListener{
             if (monto > 0) {
                 dao.guardarApertura(monto);
                 vista.getLbltxtMontoA().setText("$" + monto);
-                vista.getTxtMontoF().setEnabled(true); // habilita confirmación
+                vista.getTxtMontoF().setEnabled(true); 
             }
         } else if (e.getSource() == vista.getBtnCalcular()) {
             double montoFinal = Double.parseDouble(vista.getTxtMontoF().getText().replace("$", "").trim());

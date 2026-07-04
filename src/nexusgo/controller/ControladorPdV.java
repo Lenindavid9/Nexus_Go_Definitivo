@@ -31,12 +31,10 @@ private JFrame framePago;
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // --- EVENTOS DE LA VISTA PRINCIPAL DEL PDV ---
         if (e.getSource() == vista.getFacturarButton()) {
             metodoPago = new MetododePago();
             metodoPago.setTotal(vista.getTotalVenta());
 
-            // Enlazamos los componentes de la nueva ventana a este controlador
             enlazarEventosPago();
 
             framePago = new JFrame("Método de Pago - Nexus");
@@ -51,21 +49,20 @@ private JFrame framePago;
             System.out.println("Contador y total reiniciados desde el Controlador");
         }
 
-        // --- EVENTOS DE LA VENTANA EMERGENTE (MÉTODO DE PAGO) ---
         if (metodoPago != null) {
             if (e.getSource() == metodoPago.getBtnVolver()) {
-                framePago.dispose(); // Cierra la ventana flotante sin alterar el PdV
+                framePago.dispose(); 
             } 
             else if (e.getSource() == metodoPago.getBtnClienteG()) {
                 metodoPago.getBtnConfirmar().setEnabled(true);
             }
             else if (e.getSource() == metodoPago.getBtnBuscarCliente()) {
-                // Lógica de búsqueda de cliente
+                
                 metodoPago.getBtnConfirmar().setEnabled(true);
             }
             else if (e.getSource() == metodoPago.getBtnConfirmar()) {
-                framePago.dispose(); // Cierra al terminar el pago
-                vista.reiniciarContador(); // Limpia el carrito del PdV
+                framePago.dispose(); 
+                vista.reiniciarContador();
             }
         }
     }

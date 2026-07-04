@@ -42,7 +42,6 @@ public class HistorialPagos extends JPanel {
     public JPanel VistaHistorialP() {
         this.setLayout(new BorderLayout());
 
-        // Panel lateral de menú
         menu = new JPanel();
         menu.setLayout(new BoxLayout(menu, BoxLayout.Y_AXIS));
         menu.setBackground(Color.WHITE);
@@ -65,7 +64,6 @@ public class HistorialPagos extends JPanel {
         menu.add(btnHistorialS);
         menu.add(Box.createVerticalGlue());
 
-        // Panel principal con fondo
         principal = new JPanel() {
             private Image fondo = new ImageIcon("fondo.png").getImage();
             @Override
@@ -77,7 +75,6 @@ public class HistorialPagos extends JPanel {
         principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
         principal.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
-        // Títulos
         TituloPrincipal = new JLabel("Visualiza tus transacciones recientes y descarga los soportes de tus pagos");
         TituloPrincipal.setForeground(Color.BLACK);
         TituloPrincipal.setFont(new Font("SansSerif", Font.BOLD, 32));
@@ -93,7 +90,6 @@ public class HistorialPagos extends JPanel {
         txtSub.setFont(new Font("SansSerif", Font.PLAIN, 25));
         txtSub.setAlignmentX(CENTER_ALIGNMENT);
 
-        // JComboBox de meses
         UIManager.put("ComboBox.selectionBackground", new Color(240, 225, 180));
         String[] meses = {
             "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
@@ -105,24 +101,19 @@ public class HistorialPagos extends JPanel {
         comboMeses.setMaximumSize(new Dimension(200, 40));
         comboMeses.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Tabla vacía con títulos
         String[] columnas = {"Fecha", "Servicio / Producto", "Monto Total", "Acción"};
         modeloTabla = new DefaultTableModel(columnas, 0);
         tablaPagos = new JTable(modeloTabla);
 
-        // 🔑 Encabezados fijos y no movibles
         tablaPagos.getTableHeader().setReorderingAllowed(false);
 
-        // Render y editor para el botón
         tablaPagos.getColumn("Acción").setCellRenderer(new ButtonRenderer());
         tablaPagos.getColumn("Acción").setCellEditor(new ButtonEditor());
 
-        // ScrollPane para que los títulos queden fijos
         JScrollPane scrollTabla = new JScrollPane(tablaPagos);
         scrollTabla.setMaximumSize(new Dimension(800, 300));
         scrollTabla.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        // Agregar componentes al panel principal
         principal.add(TituloPrincipal);
         principal.add(Box.createVerticalStrut(20));
         principal.add(subTitulo);
@@ -146,7 +137,6 @@ public class HistorialPagos extends JPanel {
         boton.setAlignmentX(LEFT_ALIGNMENT);
     }
 
-    // Renderer para mostrar botón
     class ButtonRenderer extends JButton implements TableCellRenderer {
         public ButtonRenderer() {
             setText("Descargar PDF");
@@ -160,7 +150,6 @@ public class HistorialPagos extends JPanel {
         }
     }
 
-    // Editor para que el botón sea clickeable
     class ButtonEditor extends AbstractCellEditor implements TableCellEditor {
         private JButton button;
 

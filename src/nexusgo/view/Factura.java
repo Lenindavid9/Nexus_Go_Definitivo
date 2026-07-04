@@ -24,7 +24,6 @@ import javax.swing.SwingConstants;
  */
 public class Factura extends JPanel {
     
-    // --- Atributos / Componentes Globales ---
     private JPanel principal, infoFactura, pnlOpciones, pnlDatos, 
             tablaC, detalleT, linea1, linea2, pnlTotal;
     private JLabel lblEmpresa, lblGiro, lblOperario, lblCliente, lblFecha, lblEstado, SoP, 
@@ -44,7 +43,6 @@ public class Factura extends JPanel {
         principal.setBorder(BorderFactory.createEmptyBorder(25, 50, 25, 50));
 
         
-        //PANEL IZQUIERDO: 
         
         infoFactura = new JPanel();
         infoFactura.setLayout(new BoxLayout(infoFactura, BoxLayout.Y_AXIS));
@@ -54,7 +52,6 @@ public class Factura extends JPanel {
             BorderFactory.createEmptyBorder(25, 30, 25, 30)
         ));
 
-        //TITULO DE RECIBO:
         
         lblEmpresa = new JLabel("N E X U S");
         lblEmpresa.setFont(new Font("SansSerif", Font.BOLD, 34));
@@ -65,7 +62,6 @@ public class Factura extends JPanel {
         lblGiro.setForeground(Color.GRAY);
         lblGiro.setAlignmentX(CENTER_ALIGNMENT);
 
-        //DATOS CLIENTE Y OPERARIO
         
         pnlDatos = new JPanel();
         pnlDatos.setLayout(new BoxLayout(pnlDatos, BoxLayout.Y_AXIS));
@@ -103,9 +99,6 @@ public class Factura extends JPanel {
         linea1.setMaximumSize(new Dimension(700, 2));
         linea1.setAlignmentX(CENTER_ALIGNMENT);
 
-        // TABLA DE CONTENIDO
-        
-        
         tablaC = new JPanel(new GridLayout(1, 4, 10, 0));
         tablaC.setOpaque(false);
         tablaC.setMaximumSize(new Dimension(650, 25));
@@ -127,8 +120,6 @@ public class Factura extends JPanel {
             }
         }
 
-        //DETALLE TABLA
-        
         detalleT = new JPanel(new GridLayout(1, 4, 10, 0));
         detalleT.setOpaque(false);
         detalleT.setMaximumSize(new Dimension(650, 25));
@@ -151,20 +142,16 @@ public class Factura extends JPanel {
         }
        
 
-        //LINEA 2 DECORACION
         linea2 = new JPanel();
         linea2.setBackground(COLOR_GRIS_CLARITO);
         linea2.setMaximumSize(new Dimension(700, 2));
         linea2.setAlignmentX(CENTER_ALIGNMENT);
 
-        // MENSAJE DE DESCUENTO
-        
         lblFelicidades = new JLabel("¡Felicidades por tu lealtad! Se ha aplicado un descuento automático.");
         lblFelicidades.setFont(new Font("SansSerif", Font.ITALIC, 15));
         lblFelicidades.setForeground(COLOR_DORADO);
         lblFelicidades.setAlignmentX(CENTER_ALIGNMENT);
         
-        // PANEL DE TOTAL
         
         pnlTotal = new JPanel(new BorderLayout());
         pnlTotal.setOpaque(false);
@@ -204,8 +191,6 @@ public class Factura extends JPanel {
             BorderFactory.createEmptyBorder(25, 35, 25, 35)
         ));
 
-        //BOTON IMPRIMIR 
-        
         btnImprimir = new JButton("Imprimir Factura");
         btnImprimir.setBackground(COLOR_DORADO);
         btnImprimir.setForeground(Color.WHITE);
@@ -215,7 +200,6 @@ public class Factura extends JPanel {
         btnImprimir.setBorderPainted(false);
         btnImprimir.setAlignmentX(CENTER_ALIGNMENT);
 
-        //BOTON ENVIAR
         
         btnEnviar = new JButton("Enviar Factura");
         btnEnviar.setBackground(Color.WHITE);
@@ -225,13 +209,11 @@ public class Factura extends JPanel {
         btnEnviar.setBorder(BorderFactory.createLineBorder(COLOR_DORADO, 1));
         btnEnviar.setAlignmentX(CENTER_ALIGNMENT);
 
-        //MENSAJE DE ANULACION
         
         lbltxtA = new JLabel("¿Hay algún error en el dinero?");
         lbltxtA.setFont(new Font("SansSerif", Font.BOLD, 17));
         lbltxtA.setAlignmentX(CENTER_ALIGNMENT);
 
-        //BOTON ANULAR
         
         btnAnular = new JButton("Anular Factura");
         btnAnular.setBackground(Color.WHITE);
@@ -242,7 +224,6 @@ public class Factura extends JPanel {
         btnAnular.setBorder(BorderFactory.createLineBorder(new Color(203, 67, 53), 1));
         btnAnular.setAlignmentX(CENTER_ALIGNMENT);
 
-        //MENSAJE DE JUSTIFICACION
         
         lbltxtJ = new JLabel("Justificación requerida para anulación:");
         lbltxtJ.setFont(new Font("SansSerif", Font.PLAIN, 17));
@@ -293,13 +274,11 @@ public class Factura extends JPanel {
         return this;
     }  
     
-    // Método para mostrar cliente registrado
 public void setClienteRegistrado(String nombre, String numeroId) {
     lblCliente.setText("Cliente: " + nombre + " / " + numeroId);
     lblEstado.setText("Cliente Registrado");
 }
 
-// Método para mostrar cliente general
 public void setClienteGeneral() {
     lblCliente.setText("Cliente General");
     lblEstado.setText("Cliente General");

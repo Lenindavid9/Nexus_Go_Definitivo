@@ -27,12 +27,11 @@ public class MetododePago extends JPanel {
     
     private final Color COLOR_DORADO = new Color(223, 205, 141);
  public MetododePago() {
-        VistaMdP(); // inicializa la interfaz al crear el objeto
+        VistaMdP(); 
     }
     public JPanel VistaMdP() {
         this.setLayout(new BorderLayout());
 
-        //PANEL PRINCIPAL
         principal = new JPanel() {
             private Image fondo = new ImageIcon("fondo.png").getImage();
             @Override
@@ -44,7 +43,6 @@ public class MetododePago extends JPanel {
         principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
         principal.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
         
-        //PANEL BOTON < VOLVER
         pnlbtnVolver = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         pnlbtnVolver.setOpaque(false);
         pnlbtnVolver.setMaximumSize(new Dimension(Short.MAX_VALUE, 35));
@@ -58,21 +56,18 @@ public class MetododePago extends JPanel {
         pnlbtnVolver.add(btnVolver);
         
         
-        //PANEL CLIENTES
         pnlClientes = new JPanel();
         pnlClientes.setOpaque(false);
         pnlClientes.setLayout(new BoxLayout(pnlClientes, BoxLayout.X_AXIS));
         pnlClientes.setPreferredSize(new Dimension(400, 60)); 
         pnlClientes.setMaximumSize(new Dimension(400, 45));
 
-        //BOTON CLIENTE REGISTRADO
         btnClienteR = new JButton("Cliente Registrado");
         btnClienteR.setFont(new Font("SansSerif", Font.PLAIN, 16));
         btnClienteR.setBackground(COLOR_DORADO); 
         btnClienteR.setBorder(null);
         btnClienteR.setMaximumSize(new Dimension(180, 50));
 
-        //BOTON CLIENTE GENERAL
         btnClienteG = new JButton("Cliente General");
         btnClienteG.setFont(new Font("SansSerif", Font.PLAIN, 16));
         btnClienteG.setBackground(COLOR_DORADO); 
@@ -83,7 +78,6 @@ public class MetododePago extends JPanel {
         pnlClientes.add(Box.createHorizontalStrut(20));
         pnlClientes.add(btnClienteG);
 
-        //PANEL INGRESO NUMERO DE IDENTIFICACION
         pnlIngresoId = new JPanel();
         pnlIngresoId.setLayout(new BoxLayout(pnlIngresoId, BoxLayout.X_AXIS));
         pnlIngresoId.setOpaque(false);
@@ -109,7 +103,6 @@ public class MetododePago extends JPanel {
         pnlIngresoId.add(btnBuscarCliente);
 
 
-        //PANEL METODOS DE PAGO
         pnlMdP = new JPanel();
         pnlMdP.setLayout(new BoxLayout(pnlMdP, BoxLayout.Y_AXIS));
         pnlMdP.setOpaque(false);
@@ -124,7 +117,6 @@ public class MetododePago extends JPanel {
         lbltxtIndicacion.setForeground(Color.BLACK);
         lbltxtIndicacion.setAlignmentX(CENTER_ALIGNMENT);
 
-        // CONTENEDOR DE OPCIONES 
         JPanel pnlContenedorOpciones = new JPanel(new GridBagLayout());
         pnlContenedorOpciones.setOpaque(false);
 
@@ -132,7 +124,6 @@ public class MetododePago extends JPanel {
         pnlOpcionesPago.setOpaque(false);
         pnlOpcionesPago.setPreferredSize(new Dimension(650, 150)); 
 
-        // --- Subopción 1: EFECTIVO ---
         JPanel pnlEfectivo = new JPanel();
         pnlEfectivo.setLayout(new BoxLayout(pnlEfectivo, BoxLayout.Y_AXIS));
         pnlEfectivo.setBackground(Color.WHITE);
@@ -160,7 +151,6 @@ public class MetododePago extends JPanel {
         pnlEfectivo.add(lblEstadoEfectivo);
         pnlOpcionesPago.add(pnlEfectivo);
 
-        // --- Subopción 2: TARJETA ---
         JPanel pnlTarjeta = new JPanel();
         pnlTarjeta.setLayout(new BoxLayout(pnlTarjeta, BoxLayout.Y_AXIS));
         pnlTarjeta.setBackground(Color.WHITE);
@@ -188,7 +178,6 @@ public class MetododePago extends JPanel {
         pnlTarjeta.add(lblEstadoTarjeta);
         pnlOpcionesPago.add(pnlTarjeta);
 
-        // --- Subopción 3: TRANSFERENCIA ---
         JPanel pnlTransferencia = new JPanel();
         pnlTransferencia.setLayout(new BoxLayout(pnlTransferencia, BoxLayout.Y_AXIS));
         pnlTransferencia.setBackground(Color.WHITE);
@@ -208,7 +197,6 @@ public class MetododePago extends JPanel {
         lblEstadoTransferencia.setForeground(Color.GREEN.darker());
         lblEstadoTransferencia.setAlignmentX(CENTER_ALIGNMENT);
 
-        // --- Subopción 3: TRANSFERENCIA ---
          pnlTransferencia = new JPanel();
         pnlTransferencia.setLayout(new BoxLayout(pnlTransferencia, BoxLayout.Y_AXIS));
         pnlTransferencia.setBackground(Color.WHITE);
@@ -236,7 +224,6 @@ public class MetododePago extends JPanel {
         pnlTransferencia.add(lblEstadoTransferencia);
         pnlOpcionesPago.add(pnlTransferencia);
         
-        // Ensamblaje final del panel de métodos de pago
         pnlMdP.add(Box.createVerticalStrut(20)); 
         pnlMdP.add(lbltxtMdP);
         pnlMdP.add(Box.createVerticalStrut(5));
@@ -246,13 +233,9 @@ public class MetododePago extends JPanel {
         pnlMdP.add(Box.createVerticalStrut(15)); 
 
 
-        // =========================================================================
-        // 6. CONFIGURACIÓN DEL PANEL RESUMEN DE VENTA
-        // =========================================================================
         pnlResumen = new JPanel(new GridLayout(1, 2, 100, 0));
         pnlResumen.setOpaque(false);
 
-        // --- Resumen Izquierda (Títulos y Confirmación) ---
         JPanel pnlResumenIzquierda = new JPanel();
         pnlResumenIzquierda.setLayout(new BoxLayout(pnlResumenIzquierda, BoxLayout.Y_AXIS));
         pnlResumenIzquierda.setBackground(Color.WHITE);
@@ -311,7 +294,6 @@ public class MetododePago extends JPanel {
         pnlResumenDerecha.add(lblNexus);
         pnlResumenDerecha.add(Box.createVerticalGlue());
 
-        // Construcción del panel resumen
         pnlResumen.add(pnlResumenIzquierda);
         pnlResumen.add(pnlResumenDerecha);
 
@@ -321,7 +303,6 @@ public class MetododePago extends JPanel {
         principal.add(pnlMdP);
         principal.add(pnlResumen);
 
-        // Envío de la vista armada al contenedor principal
         this.add(principal, BorderLayout.CENTER);
         return this;
     }
