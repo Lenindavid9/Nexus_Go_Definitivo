@@ -30,7 +30,7 @@ public class NexusGo {
         // Se crea la Vista
         VistaInicioSesion login = new VistaInicioSesion();
         
-//        // Se crea el Controlador y se le vincula la vista
+        // Se crea el Controlador y se le vincula la vista
         ControladorInicioSesion controlador = new ControladorInicioSesion(login);
         
         // Se hace visible el Login en el centro de la pantalla
