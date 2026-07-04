@@ -1,8 +1,8 @@
 
 package nexusgo.controller;
 
-import Nexus_Vista.AperturaCierre;
-import Nexus_Model.CajaDao;
+import nexusgo.view.AperturaCierre;
+import nexusgo.model.CajaDao;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 

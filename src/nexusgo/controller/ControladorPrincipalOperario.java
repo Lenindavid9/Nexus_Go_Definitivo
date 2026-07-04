@@ -59,6 +59,27 @@ public class ControladorPrincipalOperario implements ActionListener {
         if (e.getSource() == vista.getsidebar().bCasa) {
             cambiarPanelCentral(new PanelBienvenida("Operario", "Operario"));
         }
+        
+        if (e.getSource() == vistaOperario.getsidebar().btnPuntoVenta) { // Ajusta al botón real de tu sidebar
+
+        // 1. Instanciamos la vista del Punto de Venta
+        VistaPdV panelPdV = new VistaPdV();
+
+        // 2. Ejecutamos tu método que arma el diseño (VistaNexus)
+        javax.swing.JPanel graficoPdV = panelPdV.VistaNexus(); 
+
+        // 3. Le pasamos la vista a TU controlador existente para activar "Facturar" y "Reiniciar"
+        new ControladorPdV(panelPdV); 
+
+        // 4. Limpiamos el contenedor dinámico del operario e inyectamos el Punto de Venta
+        javax.swing.JPanel contenedorCentral = vistaOperario.getContenido();
+        contenedorCentral.removeAll();
+        contenedorCentral.add(graficoPdV, java.awt.BorderLayout.CENTER);
+
+        // 5. Refrescamos la interfaz gráfica
+        contenedorCentral.revalidate();
+        contenedorCentral.repaint();
+    }
+}
     }
 
-}

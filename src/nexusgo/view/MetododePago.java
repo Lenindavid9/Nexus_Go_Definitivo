@@ -356,6 +356,10 @@ public class MetododePago extends JPanel {
     public JButton getBtnClienteG() {
         return btnClienteG;
     }
+    
+    public JButton getBtnEfectivo() {
+        return btnImgEfectivo;
+    }
 
     public JButton getBtnTarjeta() {
         return btnImgTarjeta;

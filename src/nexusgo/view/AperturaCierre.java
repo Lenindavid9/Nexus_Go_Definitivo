@@ -4,7 +4,7 @@
  */
 package nexusgo.view;
 
-import Nexus_Vista.PanelAdmi;
+import nexusgo.view.PanelAdmi;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;

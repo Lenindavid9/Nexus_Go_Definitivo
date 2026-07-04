@@ -1,13 +1,13 @@
 package nexusgo.controller;
 
-import Nexus_Vista.MetododePago;
-import Nexus_Model.Cliente;
-import Nexus_Model.ClienteDao;
+import nexusgo.view.MetododePago;
+import nexusgo.model.Cliente;
+import nexusgo.model.ClienteDao;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import Nexus_Vista.Factura;
+import nexusgo.view.Factura;
 
 
 public class ControladorMdP implements ActionListener {

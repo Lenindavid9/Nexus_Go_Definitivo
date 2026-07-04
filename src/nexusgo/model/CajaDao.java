@@ -1,7 +1,7 @@
 
 package nexusgo.model;
 
-import Nexus_Model.Conexion;
+import nexusgo.model.Conexion;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
