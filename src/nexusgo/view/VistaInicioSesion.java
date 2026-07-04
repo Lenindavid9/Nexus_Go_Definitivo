@@ -38,8 +38,10 @@ public class VistaInicioSesion extends JFrame {
     public JLabel lblRegistrate; 
     public JLabel lblOlvideContrasena;
 
-    // Paleta de Colores
-    private final Color COLOR_BLANCO = Color.WHITE;
+    /*Se centralizan todos los colores utilizados en la
+      interfaz para mantener una apariencia uniforme y
+      facilitar futuras modificaciones.*/
+    
     private final Color COLOR_INPUT_BG = new Color(225, 225, 225); 
     private final Color COLOR_INPUT_BORDE = new Color(210, 210, 210);
     private final Color COLOR_GRIS_TEXTO = new Color(110, 110, 110);
@@ -61,7 +63,7 @@ public class VistaInicioSesion extends JFrame {
         // 2. Tarjeta Blanca
         tarjetaLogin = new JPanel();
         tarjetaLogin.setLayout(new BoxLayout(tarjetaLogin, BoxLayout.Y_AXIS));
-        tarjetaLogin.setBackground(COLOR_BLANCO);
+        tarjetaLogin.setBackground(Color.WHITE);
         tarjetaLogin.setBorder(new EmptyBorder(35, 45, 35, 45)); 
         tarjetaLogin.setPreferredSize(new Dimension(390, 500)); // Ajustado un poco el alto por el ojo
 
@@ -114,7 +116,7 @@ public class VistaInicioSesion extends JFrame {
         // 8. Botón Entrar
         btnEntrar = new JButton("Entrar");
         btnEntrar.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        btnEntrar.setForeground(COLOR_BLANCO);
+        btnEntrar.setForeground(Color.WHITE);
         btnEntrar.setBackground(COLOR_DORADO);
         btnEntrar.setBorderPainted(false);
         btnEntrar.setFocusPainted(false);
