@@ -27,25 +27,16 @@ public class NexusGo {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-//
-        ////        // 1. Se crea la Vista
+        // Se crea la Vista
         VistaInicioSesion login = new VistaInicioSesion();
-//
-//        // 2. Se crea el Controlador y se le vincula la vista
+        
+//        // Se crea el Controlador y se le vincula la vista
         ControladorInicioSesion controlador = new ControladorInicioSesion(login);
-////
-////        // 3. Se hace visible el Login en el centro de la pantalla
-        login.setSize(450, 450); // Ajusta las dimensiones según tu fondito.jpg
+        
+        // Se hace visible el Login en el centro de la pantalla
+        login.setSize(450, 450); // Ajusta las dimensiones según fondito.jpg
         login.setLocationRelativeTo(null);
         login.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
         login.setVisible(true);
-
-//            VistaPrincipalCliente vista = new VistaPrincipalCliente();
-//            vista.setVisible(true);
-
-//           VistaPrincipalCliente vistaCliente = new VistaPrincipalCliente("Lenin","cliente");
-//           ControladorPrincipalCliente controlador = new ControladorPrincipalCliente(vistaCliente);
-//           vistaCliente.setVisible(true);
-
     }
 }
