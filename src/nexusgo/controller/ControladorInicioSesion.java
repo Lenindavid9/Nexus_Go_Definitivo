@@ -32,16 +32,15 @@ public class ControladorInicioSesion implements ActionListener{
         inicializarListeners();
     }
   
-    
-
     /**
      * Enlaza los componentes interactivos de la vista con sus respectivos escuchadores.
      */
     private void inicializarListeners() {
         // Escuchar el botón dorado "Entrar"
         this.vistaLogin.btnEntrar.addActionListener(this);
+        
 
-        // 👁️ ACCIÓN PARA EL BOTÓN DEL OJO (Ver/Ocultar contraseña)
+        // Accion para ver la contraseña 
         // Asegúrate de que en tu VistaInicioSesion declaraste un JButton llamado 'btnVerContrasena'
         if (this.vistaLogin.btnVerContrasena != null) {
             this.vistaLogin.btnVerContrasena.addActionListener(new ActionListener() {
