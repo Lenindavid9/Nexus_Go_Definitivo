@@ -115,7 +115,7 @@ public java.util.List<Object[]> listarCitasPorCliente(int idCliente) {
 public boolean registrarCita(int idCliente, int idServicio, String fechaHora) {
         String sql = "INSERT INTO citas (id_cliente, id_servicio, fecha_hora, estado) VALUES (?, ?, ?, 'Vigente')";
         
-        try (Connection con = Conexion.getConexion(); 
+        try (Connection con = conexion.getConection(); 
              PreparedStatement ps = con.prepareStatement(sql)) {
             
             ps.setInt(1, idCliente);
