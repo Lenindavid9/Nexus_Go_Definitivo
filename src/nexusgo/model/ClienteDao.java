@@ -1,8 +1,8 @@
 package nexusgo.model;
 
-import Nexus_Model.Cliente;
-import Nexus_Model.Conexion;
-import Nexus_Model.Crud;
+import nexusgo.model.Cliente;
+import nexusgo.model.Conexion;
+import nexusgo.model.Crud;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
