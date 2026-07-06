@@ -60,7 +60,7 @@ public class ControladorPrincipalOperario implements ActionListener {
             cambiarPanelCentral(new PanelBienvenida("Operario", "Operario"));
         }
         
-        if (e.getSource() == vista.getsidebar().btnPuntoVenta) { // Ajusta al botón real de tu sidebar
+        if (e.getSource() == vista.getsidebar().misCitas) { // Ajusta al botón real de tu sidebar
 
         // 1. Instanciamos la vista del Punto de Venta
         VistaPdV panelPdV = new VistaPdV();
