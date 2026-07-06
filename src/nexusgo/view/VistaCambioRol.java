@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package nexusgo.view;
 
 import java.awt.Container;
@@ -22,10 +18,6 @@ import javax.swing.JTable;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
-/**
- *
- * @author USUARIO
- */
 public class VistaCambioRol extends JFrame {
 
     private Container contenedor;
@@ -41,7 +33,7 @@ public class VistaCambioRol extends JFrame {
     public VistaBarraLateral miBarra;
 
     // Lista de roles
-    private String tipoRol[] = {"", "Cliente", "Peluquero", "Admin. Sotfware", "Admin. Peluqueria", "Supervisor", "Operario",};
+    private String tipoRol[] = {"Cliente", "Peluquero", "Admin. Sotfware", "Admin. Peluqueria", "Supervisor", "Operario",};
 
     public VistaCambioRol() {
 
@@ -50,15 +42,10 @@ public class VistaCambioRol extends JFrame {
 
         // Se utilizará BorderLayout para distribuir los paneles
         contenedor.setLayout(new BorderLayout(20, 20));
-        
-        miBarra = new VistaBarraLateral();
-        contenedor.add(miBarra,  BorderLayout.WEST);
 
         this.fondo = new JLabel(new ImageIcon ("C:\\Users\\USUARIO\\Documents\\NetBeansProjects\\nexusGo/fondito.jpg"));
-        //this.fondo.setOpaque(true);
         this.fondo.setLayout(new BorderLayout(20,20));
         this.setContentPane(fondo);
-        
         
         datos = new JPanel();
         datos.setBackground(Color.WHITE);
@@ -89,16 +76,13 @@ public class VistaCambioRol extends JFrame {
         // Define la altura inicial de cada fila de la tabla en 45 píxeles.
         tabla.setRowHeight(45);
 
-        // Oculta las líneas que separan las filas y las columnas.
-        //tabla.setShowGrid(false);
-
         /*Hace que la tabla ocupe toda la altura disponible dentro del
         JScrollPane, incluso cuando existan pocas filas registradas.
         Esto evita que quede un espacio vacío debajo de la información.*/
         //tabla.setFillsViewportHeight(true);
 
         //Color de cuando tocas un usuario
-        tabla.setSelectionBackground(Color.BLUE);
+        tabla.setSelectionBackground(Color.decode("#EFB810"));
 
         // Personalización del encabezado
         tabla.getTableHeader().setBackground(Color.WHITE);
@@ -113,7 +97,6 @@ public class VistaCambioRol extends JFrame {
         esto permite recorrer todos los registros cuando la cantidad 
         de filas sea superior al espacio disponible.*/
         miscroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-
 
         // Se crea un nuevo panel utilizando BorderLayout.
         // Este panel actuará como el contenedor principal donde se
@@ -136,6 +119,14 @@ public class VistaCambioRol extends JFrame {
         sus barras de desplazamiento*/
         panelCentro.add(miscroll);
 
+        // Se agrega el panel central a la posición CENTER del BorderLayout.
+        fondo.add(panelCentro, BorderLayout.CENTER);
+        
+        miBarra = new VistaBarraLateral();
+        // Se agrega la barra lateral en la posicion OESTE del BorderLayout.
+        fondo.add(miBarra,BorderLayout.WEST);
+        miBarra.add(new JButton("Reportes"));
+        
         // Se agrega el panel central a la posición CENTER del BorderLayout.
         fondo.add(panelCentro, BorderLayout.CENTER);
 
