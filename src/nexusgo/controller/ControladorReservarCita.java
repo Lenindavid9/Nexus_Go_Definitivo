@@ -4,6 +4,10 @@
  */
 package nexusgo.controller;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import nexusgo.model.UsuarioDao;
 import nexusgo.view.VistaPrincipalCliente;
 import nexusgo.view.VistaReservarCitas;
@@ -12,7 +16,7 @@ import nexusgo.view.VistaReservarCitas;
  *
  * @author HOME
  */
-public class ControladorReservarCita {
+public class ControladorReservarCita implements ActionListener{
     
     private VistaReservarCitas vistaReserva;
     private VistaPrincipalCliente vistaPrincipal;

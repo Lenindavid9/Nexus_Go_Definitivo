@@ -4,16 +4,11 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/HOME/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/NexusGo.java</file>
-            <file>file:/C:/Users/HOME/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorInicioSesion.java</file>
-            <file>file:/C:/Users/HOME/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaHistorialCita.java</file>
             <file>file:/C:/Users/HOME/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorHistorialCita.java</file>
             <file>file:/C:/Users/HOME/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/model/UsuarioDao.java</file>
-            <file>file:/C:/Users/HOME/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/model/Conexion.java</file>
             <file>file:/C:/Users/HOME/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaReservarCitas.java</file>
             <file>file:/C:/Users/HOME/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorPrincipalCliente.java</file>
-            <file>file:/C:/Users/HOME/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaPrincipalCliente.java</file>
             <file>file:/C:/Users/HOME/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorReservarCita.java</file>
-            <file>file:/C:/Users/HOME/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaPeluquero.java</file>
         </group>
     </open-files>
 </project-private>

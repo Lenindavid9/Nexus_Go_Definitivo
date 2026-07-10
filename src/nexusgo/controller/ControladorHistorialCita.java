@@ -22,6 +22,7 @@ public class ControladorHistorialCita implements ActionListener {
     private VistaHistorialCita vistaHistorial;
     private VistaPrincipalCliente vistaPrincipal; // Para poder manejar la restauración del centro
     private int idClienteLogueado;
+    private UsuarioDao UsuarioDao;
 
  
     public ControladorHistorialCita(VistaHistorialCita vistaHistorial, VistaPrincipalCliente vistaPrincipal, int idClienteLogueado) {
