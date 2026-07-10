@@ -140,7 +140,7 @@ public class ControladorValidarIdentificacion implements ActionListener {
         propiedades.put("mail.smtp.port", "587");
 
         //️ Parámetros de autenticación del remitente (osea con el correo de donde se manda el codigo)
-        final String miCorreoRemitente = "idarragalenindavid@gmail.com";
+        final String miCorreoRemitente = "liliannysbaptistap@gmail.com";
         
         /*No es la contraseña normal del correo.
         Google genera esta clave especial para permitir que aplicaciones
