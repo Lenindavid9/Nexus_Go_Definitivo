@@ -4,7 +4,6 @@
  */
 package nexusgo.controller;
 
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -13,18 +12,18 @@ import javax.swing.JPanel;
 import nexusgo.model.UsuarioDao;
 import nexusgo.view.VistaHistorialCita;
 import nexusgo.view.VistaPrincipalCliente;
+
 /**
  *
  * @author HOME
  */
 public class ControladorHistorialCita implements ActionListener {
-    
+
     private VistaHistorialCita vistaHistorial;
     private VistaPrincipalCliente vistaPrincipal; // Para poder manejar la restauración del centro
     private int idClienteLogueado;
     private UsuarioDao UsuarioDao;
 
- 
     public ControladorHistorialCita(VistaHistorialCita vistaHistorial, VistaPrincipalCliente vistaPrincipal, int idClienteLogueado) {
         this.vistaHistorial = vistaHistorial;
         this.vistaPrincipal = vistaPrincipal;
@@ -36,7 +35,8 @@ public class ControladorHistorialCita implements ActionListener {
     }
 
     /**
-     * Método encargado de limpiar la tabla, consultar a MySQL y rellenar la interfaz
+     * Método encargado de limpiar la tabla, consultar a MySQL y rellenar la
+     * interfaz
      */
     public void cargarHistorial() {
         // 1. Limpiamos cualquier residuo visual en el JTable
@@ -64,16 +64,12 @@ public class ControladorHistorialCita implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         // Al presionar el botón "< Volver" desde el historial
         if (e.getSource() == vistaHistorial.btnVolver) {
-            // Limpiamos el centro dinámico y restauramos el catálogo principal
             JPanel contenedorCentral = vistaPrincipal.getContenidoCentralDinamico();
             contenedorCentral.removeAll();
-            
-            // Aquí puedes llamar al método que restaura la bienvenida y los productos en tu Vista Principal
-            // Por ejemplo:
-            // vistaPrincipal.restaurarComponentesIniciales(); 
-            
+
             contenedorCentral.revalidate();
             contenedorCentral.repaint();
         }
+
     }
 }

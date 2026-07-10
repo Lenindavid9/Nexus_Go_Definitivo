@@ -5,9 +5,7 @@
 package nexusgo.view;
 
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.Font;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -39,6 +37,10 @@ public class PanelBienvenida extends JPanel {
         add(mensaje);
     }
 
-    //prueba de bush
-
 }
+
+
+
+
+
+

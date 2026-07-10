@@ -19,6 +19,7 @@ import nexusgo.view.VistaReservarCitas;
  */
 public class ControladorPrincipalCliente implements ActionListener {
 
+
     private VistaPrincipalCliente vista;
     private ProductoDao productoDAO;
     
@@ -68,6 +69,7 @@ public class ControladorPrincipalCliente implements ActionListener {
     
     @Override
     public void actionPerformed(ActionEvent e) {
+
         
         if (e.getSource() == vista.CitasVigentes) {
             
@@ -82,6 +84,7 @@ public class ControladorPrincipalCliente implements ActionListener {
             vista.getContenidoCentralDinamico().revalidate();
             vista.getContenidoCentralDinamico().repaint();
         }
+
         // Clic en el botón "Inicio" (Recarga o refresca el catálogo de productos)
         if (e.getSource() == vista.sidebar.bCasa) {
             cargarCatalogo();
@@ -97,6 +100,7 @@ public class ControladorPrincipalCliente implements ActionListener {
             // new ControladorHistorial(new VistaHistorial()).iniciar();
         }
 
+
         // Clic en el botón "Citas Vigentes" (Creado en tu barra lateral)
         if (e.getSource() == vista.CitasVigentes) {
             JOptionPane.showMessageDialog(vista,
@@ -106,6 +110,7 @@ public class ControladorPrincipalCliente implements ActionListener {
             // En el futuro enlazas tu vista aquí:
             // new ControladorCitasCliente(new VistaCitas()).iniciar();
         }
+
 
         // Clic en el botón central "Cerrar Sesión"
         if (e.getSource() == vista.btnCerrarSesion) {
@@ -124,6 +129,21 @@ public class ControladorPrincipalCliente implements ActionListener {
                 // login.setVisible(true);
             }
         }
-    }
+
+        if (e.getSource() == vista.CitasVigentes) {
+
+            VistaReservarCitas panelReserva = new VistaReservarCitas();
+            new ControladorReservarCita(panelReserva, vista, 1);
+
+            // Cambiamos la pantalla de inmediato
+            vista.getContenidoCentralDinamico().removeAll();
+            vista.getContenidoCentralDinamico().add(panelReserva);
+            vista.getContenidoCentralDinamico().revalidate();
+            vista.getContenidoCentralDinamico().repaint();
+        }
+
+        
+
+}
 
 }
