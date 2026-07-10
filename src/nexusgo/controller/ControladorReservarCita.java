@@ -4,6 +4,7 @@
  */
 package nexusgo.controller;
 
+import nexusgo.model.UsuarioDao;
 import nexusgo.view.VistaPrincipalCliente;
 import nexusgo.view.VistaReservarCitas;
 
@@ -15,15 +16,15 @@ public class ControladorReservarCita {
     
     private VistaReservarCitas vistaReserva;
     private VistaPrincipalCliente vistaPrincipal;
-    private UsuarioDAO usuarioDao;
+    private UsuarioDao usuarioDao;
     private int idClienteLogueado;
 
    
-    public ControladorReservarCitas(VistaReservarCitas vistaReserva, VistaPrincipalCliente vistaPrincipal, int idClienteLogueado) {
+    public ControladorReservarCita(VistaReservarCitas vistaReserva, VistaPrincipalCliente vistaPrincipal, int idClienteLogueado) {
         this.vistaReserva = vistaReserva;
         this.vistaPrincipal = vistaPrincipal;
         this.idClienteLogueado = idClienteLogueado;
-        this.usuarioDao = new UsuarioDAO();
+        this.usuarioDao = new UsuarioDao();
 
         // Escuchamos las acciones de los botones en la vista
         this.vistaReserva.btnAgendar.addActionListener(this);
