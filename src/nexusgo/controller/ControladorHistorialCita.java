@@ -22,9 +22,10 @@ public class ControladorHistorialCita implements ActionListener {
     private VistaHistorialCita vistaHistorial;
     private VistaPrincipalCliente vistaPrincipal; // Para poder manejar la restauración del centro
     private int idClienteLogueado;
+    private UsuarioDao UsuarioDao;
 
  
-    public ControladorHistorialCitaorialCita(VistaHistorialCita vistaHistorial, VistaPrincipalCliente vistaPrincipal, int idClienteLogueado) {
+    public ControladorHistorialCita(VistaHistorialCita vistaHistorial, VistaPrincipalCliente vistaPrincipal, int idClienteLogueado) {
         this.vistaHistorial = vistaHistorial;
         this.vistaPrincipal = vistaPrincipal;
         this.idClienteLogueado = idClienteLogueado;

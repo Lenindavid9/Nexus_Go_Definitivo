@@ -194,7 +194,10 @@ public class VistaPrincipalCliente extends JFrame {
         panelGridProductos.revalidate();
         panelGridProductos.repaint();
     }
-    
+    // Getter para que los controladores puedan acceder al panel del centro
+    public JPanel getContenidoCentralDinamico() {
+        return this.contenidoCentralDinamico;
+    }
     
     
 }

@@ -132,6 +132,7 @@ public class ControladorInicioSesion implements ActionListener {
                 //muestra la ventana
                 validarIdentificacion.setVisible(true);
                 
+                //esto queda mientras tanto
                 JOptionPane.showMessageDialog(vistaLogin,
                         "Módulo de recuperación de contraseña en desarrollo, ACTUALMENTE TIENE ERRORES.",
                         "Nexus Go! Info", JOptionPane.ERROR_MESSAGE);
@@ -142,27 +143,43 @@ public class ControladorInicioSesion implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == vistaLogin.btnEntrar) {
+            /* Se llama al método encargado de realizar
+            todo el proceso de autenticación del usuario*/
             ejecutarLogin();
         }
     }
 
-    /**
-     * Extrae los datos ingresados por el usuario, valida contra MySQL y da paso
-     * al sistema general.
-     */
+        /* Aquí se obtienen los datos escritos por el usuario,
+        se validan y despues se consulta la base de datos
+        para verificar si las credenciales son correctas */
     private void ejecutarLogin() {
         try {
-            String identificacion = vistaLogin.tNroIdentidad.getText().trim();
+            //Se obtiene el número de documento escrito por el usuario
+            String identificacion = vistaLogin.tNroIdentidad.getText();
+            /*Se obtiene la contraseña.
+            
+            getPassword() devuelve un arreglo de caracteres,
+            por lo que primero se convierte en String.
+            
+            y se eliminan posibles espacios innecesarios*/
             String contrasena = new String(vistaLogin.tContrasena.getPassword()).trim();
 
-            // Validación de campos vacíos o placeholders por defecto
+            /*Antes de consultar la base de datos se verifica
+            que ambos campos contengan información válida
+            
+            También se evita que el usuario intente iniciar
+            sesión dejando los textos de ayuda*/
             if (identificacion.isEmpty() || contrasena.isEmpty()
-                    || identificacion.equals("Ingrese su número de documento") || contrasena.equals("Ingresar su contraseña")) {
-                JOptionPane.showMessageDialog(vistaLogin, "Por favor, complete todos los campos.", "Campos Vacíos", JOptionPane.WARNING_MESSAGE);
+                || identificacion.equals("Ingrese su número de documento")
+                || contrasena.equals("Ingresar su contraseña")){
+                // Si alguno de los campos no es válido y se le informa al usuario
+                JOptionPane.showMessageDialog(vistaLogin, 
+                "Por favor, complete todos los campos.", "Campos Vacíos",
+                JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
-            // Consulta relacional controlando posibles excepciones de base de datos
+            /*se declara una variable*/
             Usuario usuarioLogueado = null;
             try {
                 usuarioLogueado = usuarioDao.autenticarUsuario(identificacion, contrasena);
@@ -220,5 +237,5 @@ public class ControladorInicioSesion implements ActionListener {
                     "Ocurrió un error inesperado al procesar el ingreso: " + ex.getMessage(),
                     "Error Inesperado", JOptionPane.ERROR_MESSAGE);
         }
-    }
+}
 }

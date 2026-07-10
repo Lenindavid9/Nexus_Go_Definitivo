@@ -60,7 +60,7 @@ public class ControladorPrincipalOperario implements ActionListener {
             cambiarPanelCentral(new PanelBienvenida("Operario", "Operario"));
         }
         
-        if (e.getSource() == vistaOperario.getsidebar().btnPuntoVenta) { // Ajusta al botón real de tu sidebar
+        if (e.getSource() == vista.getsidebar().misCitas) { // Ajusta al botón real de tu sidebar
 
         // 1. Instanciamos la vista del Punto de Venta
         VistaPdV panelPdV = new VistaPdV();
@@ -72,7 +72,7 @@ public class ControladorPrincipalOperario implements ActionListener {
         new ControladorPdV(panelPdV); 
 
         // 4. Limpiamos el contenedor dinámico del operario e inyectamos el Punto de Venta
-        javax.swing.JPanel contenedorCentral = vistaOperario.getContenido();
+        javax.swing.JPanel contenedorCentral = vista.getContenido();
         contenedorCentral.removeAll();
         contenedorCentral.add(graficoPdV, java.awt.BorderLayout.CENTER);
 
