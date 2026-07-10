@@ -4,6 +4,8 @@
  */
 package nexusgo.controller;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JOptionPane;
@@ -24,7 +26,9 @@ public class ControladorReservarCita implements ActionListener{
     private int idClienteLogueado;
 
    
-    public ControladorReservarCita (VistaReservarCitas vistaReserva, VistaPrincipalCliente vistaPrincipal, int idClienteLogueado) {
+
+    public ControladorReservarCita(VistaReservarCitas vistaReserva, VistaPrincipalCliente vistaPrincipal, int idClienteLogueado) {
+
         this.vistaReserva = vistaReserva;
         this.vistaPrincipal = vistaPrincipal;
         this.idClienteLogueado = idClienteLogueado;

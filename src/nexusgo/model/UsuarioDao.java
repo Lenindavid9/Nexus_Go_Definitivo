@@ -155,5 +155,25 @@ public class UsuarioDao {
         }
 
     }
-
+    
+    public boolean actualizarContrasena(String correo, String nuevaContrasena) {
+        String sql = "UPDATE usuarios SET contrasena = ? WHERE correo = ?";
+        
+        // Usamos Try-with-resources para asegurar el cierre automático de la conexión y el statement
+        try (Connection con = conexion.getConection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            
+            ps.setString(1, nuevaContrasena);
+            ps.setString(2, correo);
+            
+            int filasAfectadas = ps.executeUpdate();
+            return filasAfectadas > 0; // Si modificó 1 o más filas, devuelve true
+            
+        } catch (SQLException e) {
+            System.err.println("Error en UsuarioDao.actualizarContrasena: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    
 }

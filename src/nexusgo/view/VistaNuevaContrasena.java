@@ -24,7 +24,7 @@ public class VistaNuevaContrasena extends JFrame{
     private Container contenedor;
     private JPanel recuperar;
     private JLabel fondo, jContrasena, jConfirmar;
-    private JButton cambiar;
+    public JButton cambiar;
     public JTextField tContrasena, tConfirmar;
     private TitledBorder titulo;
     private GridLayout migrid;

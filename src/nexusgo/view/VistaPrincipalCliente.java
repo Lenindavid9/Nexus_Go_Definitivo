@@ -22,24 +22,23 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
-
 /**
  *
  * @author USUARIO
  */
 public class VistaPrincipalCliente extends JFrame {
-    
+
     // Componentes estructurales de la ventana
     private JLabel fondo;
-    private JPanel panelContenedorFlotante; 
+    private JPanel panelContenedorFlotante;
     private JPanel contenidoCentralDinamico; // Panel central equivalente al 'contenido' del Operario
-    private JPanel panelGridProductos; 
+    private JPanel panelGridProductos;
     private JScrollPane scrollContenido;
     public JButton historial;
     public JButton CitasVigentes;
 
     // Componentes modulares tuyos inyectados directamente
-    public VistaBarraLateral sidebar; 
+    public VistaBarraLateral sidebar;
     public PanelBienvenida panelBienvenida;
 
     // Botón superior de cierre rápido
@@ -47,30 +46,28 @@ public class VistaPrincipalCliente extends JFrame {
 
     public VistaPrincipalCliente(String nombreUsuario, String rolUsuario) {
         super("Nexus GO - Panel de Cliente");
-        
+
         // 1. Fondo de mármol con centrado automático de la interfaz
-        this.fondo = new JLabel(new ImageIcon("src/nexusgo/img/fondito.jpg")); 
-        this.fondo.setLayout(new GridBagLayout()); 
+        this.fondo = new JLabel(new ImageIcon("src/nexusgo/img/fondito.jpg"));
+        this.fondo.setLayout(new GridBagLayout());
         this.setContentPane(fondo);
 
         // 2. Contenedor "tarjeta" que flotará en medio del mármol
         panelContenedorFlotante = new JPanel(new BorderLayout());
-        panelContenedorFlotante.setPreferredSize(new Dimension(980, 680)); 
-        panelContenedorFlotante.setOpaque(false); 
+        panelContenedorFlotante.setPreferredSize(new Dimension(980, 680));
+        panelContenedorFlotante.setOpaque(false);
 
         // 3. BARRA LATERAL 
         sidebar = new VistaBarraLateral();
         sidebar.setPreferredSize(new Dimension(110, 680));
-        sidebar.setOpaque(false); 
-        sidebar.setBorder(new EmptyBorder(120, 10, 20, 10)); 
+        sidebar.setOpaque(false);
+        sidebar.setBorder(new EmptyBorder(120, 10, 20, 10));
         sidebar.add(historial = new JButton("Historial"));
         sidebar.add(CitasVigentes = new JButton("Citas Vigentes"));
-        
-        
 
         // Capamos los botones administrativos para el rol Cliente
-        sidebar.bInventario.setVisible(false); 
-        sidebar.misCitas.setVisible(false);    
+        sidebar.bInventario.setVisible(false);
+        sidebar.misCitas.setVisible(false);
 
         // 4. PANEL CENTRAL DINÁMICO (Misma lógica que usas en el operario)
         contenidoCentralDinamico = new JPanel();
@@ -113,7 +110,7 @@ public class VistaPrincipalCliente extends JFrame {
         scrollContenido.setBorder(null);
 
         // 6. Ensamblaje final en el cuerpo flotante
-        panelContenedorFlotante.add(sidebar, BorderLayout.WEST); 
+        panelContenedorFlotante.add(sidebar, BorderLayout.WEST);
         panelContenedorFlotante.add(scrollContenido, BorderLayout.CENTER);
 
         this.add(panelContenedorFlotante);
@@ -125,7 +122,8 @@ public class VistaPrincipalCliente extends JFrame {
     }
 
     /**
-     * Dibuja los productos de la base de datos de manera limpia en la cuadrícula
+     * Dibuja los productos de la base de datos de manera limpia en la
+     * cuadrícula
      */
     public void cargarProductosEnInterfaz(List<nexusgo.model.Producto> listaProductos) {
         panelGridProductos.removeAll();
@@ -139,12 +137,12 @@ public class VistaPrincipalCliente extends JFrame {
             // Imagen del producto
             JLabel lblImg = new JLabel();
             lblImg.setAlignmentX(CENTER_ALIGNMENT);
-            
+
             String rutaImagen = prod.getUrlImagen();
             if (rutaImagen == null || rutaImagen.isEmpty()) {
-                rutaImagen = "src/nexusgo/img/default.jpg"; 
+                rutaImagen = "src/nexusgo/img/default.jpg";
             }
-            
+
             ImageIcon iconoOriginal = new ImageIcon(rutaImagen);
             if (iconoOriginal.getImage() != null) {
                 ImageIcon iconoEscalado = new ImageIcon(iconoOriginal.getImage().getScaledInstance(180, 130, java.awt.Image.SCALE_SMOOTH));
@@ -164,7 +162,7 @@ public class VistaPrincipalCliente extends JFrame {
 
             // Stock
             String estado = "Disponible";
-            Color colorEstado = new Color(34, 139, 34); 
+            Color colorEstado = new Color(34, 139, 34);
 
             if (prod.getStockActual() <= 0) {
                 estado = "AGOTADO";
@@ -194,10 +192,10 @@ public class VistaPrincipalCliente extends JFrame {
         panelGridProductos.revalidate();
         panelGridProductos.repaint();
     }
+
     // Getter para que los controladores puedan acceder al panel del centro
     public JPanel getContenidoCentralDinamico() {
         return this.contenidoCentralDinamico;
     }
-    
-    
+
 }

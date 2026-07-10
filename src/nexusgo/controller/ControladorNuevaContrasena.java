@@ -5,6 +5,7 @@
 package nexusgo.controller;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
 import nexusgo.model.Conexion;
 import nexusgo.model.UsuarioDao;
@@ -14,13 +15,13 @@ import nexusgo.view.VistaNuevaContrasena;
  *
  * @author USUARIO
  */
-public class ControladorNuevaContrasena {
+public class ControladorNuevaContrasena implements ActionListener{
  
     private VistaNuevaContrasena vista;
     private UsuarioDao usuarioDAO;
     private String correoUsuario;
 
-    public ControladorNuevaContrasenarasena(VistaNuevaContrasena vista, String correo) {
+    public ControladorNuevaContrasena(VistaNuevaContrasena vista, String correo) {
         this.vista = vista;
         this.correoUsuario = correo;
         this.usuarioDAO = new UsuarioDao();
@@ -61,26 +62,5 @@ public class ControladorNuevaContrasena {
         }
     }
     
-    public boolean actualizarContrasena(String correo, String nuevaContrasena) {
-        String sql = "UPDATE usuarios SET contrasena = ? WHERE correo = ?";
-        
-        try {
-            con = Conexion.getConnection(); // Ajusta a tu método de conexión
-            ps = con.prepareStatement(sql);
-            ps.setString(1, nuevaContrasena);
-            ps.setString(2, correo);
-            
-            int filasAfectadas = ps.executeUpdate();
-            return filasAfectadas > 0;
-            
-        } catch (Exception e) {
-            return false;
-        } finally {
-            try {
-                if (ps != null) ps.close();
-                if (con != null) con.close();
-            } catch (Exception e) {
-            }
-        }
-    }
+    
 }

@@ -40,13 +40,19 @@ public class ClienteDao implements Crud<Cliente> {
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.toString(),
-                "Error de consulta: " + e.getMessage(),
-                JOptionPane.ERROR_MESSAGE);
+                    "Error de consulta: " + e.getMessage(),
+                    JOptionPane.ERROR_MESSAGE);
         } finally {
             try {
-                if (rs != null) rs.close();
-                if (ps != null) ps.close();
-                if (con != null) con.close();
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -55,7 +61,7 @@ public class ClienteDao implements Crud<Cliente> {
     }
 
     @Override
-    public int setAgregar(Cliente c) {
+    public int agregar(Cliente c) {
         String sql = "INSERT INTO clientes (id_usuario, nombre_cliente, numero_identificacion, correo, numero_compras) VALUES (?,?,?,?,?)";
         try {
             con = conectar.getConection();
@@ -68,21 +74,24 @@ public class ClienteDao implements Crud<Cliente> {
             return ps.executeUpdate();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.toString(),
-                "Error en la inserción: " + e.getMessage(),
-                JOptionPane.ERROR_MESSAGE);
+                    "Error en la inserción: " + e.getMessage(),
+                    JOptionPane.ERROR_MESSAGE);
             return 0;
         } finally {
             try {
-                if (ps != null) ps.close();
-                if (con != null) con.close();
+                if (ps != null) {
+                    ps.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    @Override
-    public int setActualizar(Cliente c) {
+    public int actualizar(Cliente c) {
         String sql = "UPDATE clientes SET id_usuario=?, nombre_cliente=?, numero_identificacion=?, correo=?, numero_compras=? WHERE id_cliente=?";
         try {
             con = conectar.getConection();
@@ -96,13 +105,17 @@ public class ClienteDao implements Crud<Cliente> {
             return ps.executeUpdate();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.toString(),
-                "Error en la actualización: " + e.getMessage(),
-                JOptionPane.ERROR_MESSAGE);
+                    "Error en la actualización: " + e.getMessage(),
+                    JOptionPane.ERROR_MESSAGE);
             return 0;
         } finally {
             try {
-                if (ps != null) ps.close();
-                if (con != null) con.close();
+                if (ps != null) {
+                    ps.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -110,7 +123,7 @@ public class ClienteDao implements Crud<Cliente> {
     }
 
     @Override
-    public int setEliminar(int id) {
+    public int eliminar(int id) {
         String sql = "DELETE FROM clientes WHERE id_cliente=?";
         try {
             con = conectar.getConection();
@@ -119,13 +132,17 @@ public class ClienteDao implements Crud<Cliente> {
             return ps.executeUpdate();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.toString(),
-                "Error en la eliminación: " + e.getMessage(),
-                JOptionPane.ERROR_MESSAGE);
+                    "Error en la eliminación: " + e.getMessage(),
+                    JOptionPane.ERROR_MESSAGE);
             return 0;
         } finally {
             try {
-                if (ps != null) ps.close();
-                if (con != null) con.close();
+                if (ps != null) {
+                    ps.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -154,17 +171,30 @@ public class ClienteDao implements Crud<Cliente> {
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.toString(),
-                "Error en la búsqueda: " + e.getMessage(),
-                JOptionPane.ERROR_MESSAGE);
+                    "Error en la búsqueda: " + e.getMessage(),
+                    JOptionPane.ERROR_MESSAGE);
         } finally {
             try {
-                if (rs != null) rs.close();
-                if (ps != null) ps.close();
-                if (con != null) con.close();
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         return null;
     }
+
+    @Override
+    public int editar(Cliente t) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    //
 }
