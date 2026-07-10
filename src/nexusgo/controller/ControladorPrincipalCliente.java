@@ -83,8 +83,6 @@ public class ControladorPrincipalCliente implements ActionListener {
             // new ControladorHistorial(new VistaHistorial()).iniciar();
         }
 
-      
-
         // Clic en el botón central "Cerrar Sesión"
         if (e.getSource() == vista.btnCerrarSesion) {
             int respuesta = JOptionPane.showConfirmDialog(vista,
@@ -102,6 +100,7 @@ public class ControladorPrincipalCliente implements ActionListener {
                 // login.setVisible(true);
             }
         }
+
         if (e.getSource() == vista.CitasVigentes) {
 
             VistaReservarCitas panelReserva = new VistaReservarCitas();
@@ -113,6 +112,21 @@ public class ControladorPrincipalCliente implements ActionListener {
             vista.getContenidoCentralDinamico().revalidate();
             vista.getContenidoCentralDinamico().repaint();
         }
+
+        if (e.getSource() == vista.CitasVigentes) {
+
+            VistaReservarCitas panelReserva = new VistaReservarCitas();
+
+            // Instanciamos su propio controlador (Pasamos: vista formulario, vista principal, ID de usuario)
+            new ControladorReservarCita(panelReserva, vista, 1);
+
+            // Cambiamos la pantalla de inmediato
+            vista.getContenidoCentralDinamico().removeAll();
+            vista.getContenidoCentralDinamico().add(panelReserva);
+            vista.getContenidoCentralDinamico().revalidate();
+            vista.getContenidoCentralDinamico().repaint();
+        }
+
     }
 
 }

@@ -45,6 +45,7 @@ public class VistaReservarCitas extends JPanel {
         btnVolver = new JButton("< Volver");
         btnVolver.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         btnVolver.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
         panelSuperior.add(btnVolver, BorderLayout.EAST); // <-- CORREGIDO: Derecha
 
         this.add(panelSuperior, BorderLayout.NORTH);

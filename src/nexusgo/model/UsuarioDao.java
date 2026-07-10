@@ -81,54 +81,99 @@ public class UsuarioDao {
         }
 
     }
-    
-public java.util.List<Object[]> listarCitasPorCliente(int idCliente) {
-    java.util.List<Object[]> listaCitas = new java.util.ArrayList<>();
-    
-    // Query que une la cita con el servicio/producto correspondiente
-    String sql = "SELECT s.nombre, c.fecha_hora, s.precio " +
-                 "FROM citas c " +
-                 "INNER JOIN servicios s ON c.id_servicio = s.id_servicio " +
-                 "WHERE c.id_cliente = ? AND c.estado = 'Vigente' " +
-                 "ORDER BY c.fecha_hora ASC";
-    
-    try (Connection con = conexion.getConection(); 
-         PreparedStatement ps = con.prepareStatement(sql)) {
-        
-        ps.setInt(1, idCliente);
-        
-        try (ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                Object[] fila = new Object[] {
-                    rs.getString("nombre"),
-                    rs.getString("fecha_hora"),
-                    rs.getDouble("precio")
-                };
-                listaCitas.add(fila);
+
+    public Usuario buscarUsuarioPorIdentificacion(String identificacion) {
+        String sql = "SELECT * FROM usuarios WHERE identificacion = ?";
+        Usuario usuario = null;
+
+        // Usamos Try-with-resources para cerrar conexiones automáticamente sin fugas de memoria
+        try (Connection con = conexion.getConection(); // Reemplaza por tu método exacto de conexión
+                 PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, identificacion);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    usuario = new Usuario();
+                    usuario.setIdentificacion(rs.getString("identificacion"));
+                    usuario.setNombre(rs.getString("nombre"));
+                    usuario.setRol(rs.getString("rol"));
+                    // Si tienes columna correo en tu BD, la mapeas aquí:
+                    // usuario.setCorreo(rs.getString("correo"));
+                }
             }
+        } catch (SQLException e) {
+            System.out.println("Error en DAO al buscar identificación: " + e.getMessage());
         }
-    } catch (SQLException e) {
-        System.err.println("Error en UsuarioDAO.listarCitasPorCliente: " + e.getMessage());
+        return usuario;
     }
-    return listaCitas;
-}
-public boolean registrarCita(int idCliente, int idServicio, String fechaHora) {
+
+    public java.util.List<Object[]> listarCitasPorCliente(int idCliente) {
+        java.util.List<Object[]> listaCitas = new java.util.ArrayList<>();
+
+        // Query que une la cita con el servicio/producto correspondiente
+        String sql = "SELECT s.nombre, c.fecha_hora, s.precio "
+                + "FROM citas c "
+                + "INNER JOIN servicios s ON c.id_servicio = s.id_servicio "
+                + "WHERE c.id_cliente = ? AND c.estado = 'Vigente' "
+                + "ORDER BY c.fecha_hora ASC";
+
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idCliente);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Object[] fila = new Object[]{
+                        rs.getString("nombre"),
+                        rs.getString("fecha_hora"),
+                        rs.getDouble("precio")
+                    };
+                    listaCitas.add(fila);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error en UsuarioDAO.listarCitasPorCliente: " + e.getMessage());
+        }
+        return listaCitas;
+    }
+
+    public boolean registrarCita(int idCliente, int idServicio, String fechaHora) {
         String sql = "INSERT INTO citas (id_cliente, id_servicio, fecha_hora, estado) VALUES (?, ?, ?, 'Vigente')";
-        
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
+
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setInt(1, idCliente);
             ps.setInt(2, idServicio);
             ps.setString(3, fechaHora);
-            
+
             // executeUpdate devuelve el número de filas afectadas. Si es > 0, guardó correctamente.
-            return ps.executeUpdate() > 0; 
-            
+            return ps.executeUpdate() > 0;
+
         } catch (SQLException e) {
             System.err.println("Error en UsuarioDAO.registrarCita: " + e.getMessage());
             return false;
         }
-}
 
+    }
+    
+    public boolean actualizarContrasena(String correo, String nuevaContrasena) {
+        String sql = "UPDATE usuarios SET contrasena = ? WHERE correo = ?";
+        
+        // Usamos Try-with-resources para asegurar el cierre automático de la conexión y el statement
+        try (Connection con = conexion.getConection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            
+            ps.setString(1, nuevaContrasena);
+            ps.setString(2, correo);
+            
+            int filasAfectadas = ps.executeUpdate();
+            return filasAfectadas > 0; // Si modificó 1 o más filas, devuelve true
+            
+        } catch (SQLException e) {
+            System.err.println("Error en UsuarioDao.actualizarContrasena: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    
 }
