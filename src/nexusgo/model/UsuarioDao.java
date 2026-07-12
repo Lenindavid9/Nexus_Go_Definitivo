@@ -83,26 +83,41 @@ public class UsuarioDao {
     }
 
     public Usuario buscarUsuarioPorIdentificacion(String identificacion) {
-        String sql = "SELECT * FROM usuarios WHERE identificacion = ?";
+        // Usamos INNER JOIN para poder traer el nombre real del rol sin romper el modelo
+        String sql = """
+                 SELECT u.*, r.nombre_rol AS rol 
+                 FROM usuarios u 
+                 INNER JOIN roles r ON u.id_rol = r.id_rol 
+                 WHERE u.numero_identificacion = ?
+                 """;
         Usuario usuario = null;
 
-        // Usamos Try-with-resources para cerrar conexiones automáticamente sin fugas de memoria
-        try (Connection con = conexion.getConection(); // Reemplaza por tu método exacto de conexión
-                 PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setString(1, identificacion);
+            // Limpiamos espacios invisibles por seguridad (.trim())
+            ps.setString(1, identificacion.trim());
+
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     usuario = new Usuario();
-                    usuario.setIdentificacion(rs.getString("identificacion"));
+
+                    // 1. Cargamos el ID único (Esencial para futuras consultas del flujo)
+                    usuario.setIdUsuario(rs.getInt("id_usuario"));
+
+                    // 2. Mapeamos la identificación y el nombre
+                    usuario.setIdentificacion(rs.getString("numero_identificacion"));
                     usuario.setNombre(rs.getString("nombre"));
+                    usuario.setApellido(rs.getString("apellido"));
+
+                    // 3. CORREGIDO: Extraemos el alias 'rol' del INNER JOIN sin que explote
                     usuario.setRol(rs.getString("rol"));
-                    // Si tienes columna correo en tu BD, la mapeas aquí:
-                    // usuario.setCorreo(rs.getString("correo"));
+
+                    // 4. CORREGIDO: Activamos el correo para que se lo puedas pasar al despachador de emails
+                    usuario.setCorreo(rs.getString("correo"));
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error en DAO al buscar identificación: " + e.getMessage());
+            System.out.println("❌ Error en DAO al buscar identificación: " + e.getMessage());
         }
         return usuario;
     }
@@ -155,25 +170,23 @@ public class UsuarioDao {
         }
 
     }
-    
+
     public boolean actualizarContrasena(String correo, String nuevaContrasena) {
         String sql = "UPDATE usuarios SET contrasena = ? WHERE correo = ?";
-        
+
         // Usamos Try-with-resources para asegurar el cierre automático de la conexión y el statement
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setString(1, nuevaContrasena);
             ps.setString(2, correo);
-            
+
             int filasAfectadas = ps.executeUpdate();
             return filasAfectadas > 0; // Si modificó 1 o más filas, devuelve true
-            
+
         } catch (SQLException e) {
             System.err.println("Error en UsuarioDao.actualizarContrasena: " + e.getMessage());
             return false;
         }
     }
-    
-    
+
 }
