@@ -19,6 +19,8 @@ import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 import nexusgo.model.Herramientas;
 import nexusgo.model.HerramientaDao;
+import nexusgo.model.Mantenimiento;
+import nexusgo.model.MantenimientoDao;
 import nexusgo.model.Producto;
 import nexusgo.model.ProductoDao;
 import nexusgo.model.Usuario;
@@ -33,14 +35,17 @@ import nexusgo.view.VistaProgramarMantenimiento;
  */
 public class ControladorInventarioSupervisor implements ActionListener {
     
-  private final VistaPrincipalSupervisor vistaPrincipal;
+    private final VistaPrincipalSupervisor vistaPrincipal;
     private VistaInventarioSupervisor panelInventario;
     private VistaProgramarMantenimiento panelProgramarMantenimiento;
 
-    // Componentes de datos y estado de sesión
+    // Instancia de los DAOs del proyecto (Cada uno para su respectiva tabla)
     private final ProductoDao productoDao = new ProductoDao();
     private final HerramientaDao herramientaDao = new HerramientaDao();
+    private final MantenimientoDao mantenimientoDao = new MantenimientoDao();
+    
     private final Usuario usuarioLogueado;
+    
     private int idHerramientaSeleccionada = -1;
     private String nombreHerramientaSeleccionada = "";
 
@@ -49,7 +54,7 @@ public class ControladorInventarioSupervisor implements ActionListener {
         this.usuarioLogueado = usuarioLogueado;
 
         try {
-            // Inicialización de componentes gráficos (Ya no requerimos VistaOpcionesHerramientas)
+            // Inicialización de las vistas del módulo
             this.panelInventario = new VistaInventarioSupervisor();
             this.panelProgramarMantenimiento = new VistaProgramarMantenimiento();
 
@@ -59,9 +64,7 @@ public class ControladorInventarioSupervisor implements ActionListener {
             listarProductosEnTabla();
             listarHerramientasEnTabla();
 
-            aplicarPermisosPorRol();
-
-            // Panel de bienvenida inicial
+            // Panel de bienvenida por defecto al cargar el sistema
             cambiarPanelCentral(new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol()));
 
         } catch (Exception e) {
@@ -71,20 +74,17 @@ public class ControladorInventarioSupervisor implements ActionListener {
         }
     }
 
-    private void aplicarPermisosPorRol() {
-        vistaPrincipal.setTitle("Sistema NexusGO - Panel de Supervisión: " + usuarioLogueado.getNombre());
-    }
-
     private void inicializarListeners() {
         try {
+            // Escuchar clics en los botones de la barra lateral izquierda
             this.vistaPrincipal.sidebar.bCasa.addActionListener(this);
             this.vistaPrincipal.sidebar.bInventario.addActionListener(this);
 
-            // Listeners del formulario de programación
+            // Escuchar los botones de la vista sencilla de programación
             this.panelProgramarMantenimiento.btnGuardarMantenimiento.addActionListener(this);
             this.panelProgramarMantenimiento.btnVolver.addActionListener(this);
 
-            // Clics en Tabla de Productos (Solo lectura)
+            // Clic en Productos -> Modo Solo Lectura para el Rol de Supervisor
             this.panelInventario.tablaProductos.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -97,7 +97,7 @@ public class ControladorInventarioSupervisor implements ActionListener {
                 }
             });
 
-            // Clics en Tabla de Herramientas -> Aquí disparamos el JOptionPane de decisión
+            // Clic en Herramientas -> Dispara las opciones de gestión de mantenimiento
             this.panelInventario.tablaHerramientas.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -106,7 +106,6 @@ public class ControladorInventarioSupervisor implements ActionListener {
                         idHerramientaSeleccionada = (int) panelInventario.tablaHerramientas.getValueAt(fila, 0);
                         nombreHerramientaSeleccionada = panelInventario.tablaHerramientas.getValueAt(fila, 1).toString();
                         
-                        // Llamamos al cuadro de diálogo directo
                         lanzarMenuDecisionMantenimiento();
                     }
                 }
@@ -117,11 +116,7 @@ public class ControladorInventarioSupervisor implements ActionListener {
         }
     }
 
-    /**
-     * Muestra las opciones de mantenimiento usando los botones integrados de un JOptionPane.
-     */
     private void lanzarMenuDecisionMantenimiento() {
-        // Personalizamos las opciones del cuadro de diálogo
         String[] opciones = {"Registrar Ejecutado", "Programar Agenda", "Cancelar"};
         
         int seleccion = JOptionPane.showOptionDialog(panelInventario,
@@ -133,17 +128,8 @@ public class ControladorInventarioSupervisor implements ActionListener {
                 opciones, 
                 opciones[0]);
 
-        // Opción 0: Registrar Ejecutado
-        if (seleccion == 0) { 
-            JOptionPane.showMessageDialog(panelInventario, 
-                    "Abriendo registro inmediato de mantenimientos ejecutados para:\n" + nombreHerramientaSeleccionada, 
-                    "Módulo Herramientas", JOptionPane.INFORMATION_MESSAGE);
-            // Aquí puedes integrar el panel final de registro si lo creas después
-        } 
-        // Opción 1: Programar Agenda (Abre el panel del JSpinner)
-        else if (seleccion == 1) { 
+        if (seleccion == 1) { // Programar Agenda (Abre el formulario básico)
             panelProgramarMantenimiento.txtEquipo.setText(nombreHerramientaSeleccionada);
-            panelProgramarMantenimiento.txtEquipo.setEditable(false); 
             cambiarPanelCentral(this.panelProgramarMantenimiento);
         }
     }
@@ -151,6 +137,7 @@ public class ControladorInventarioSupervisor implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
+            // --- EVENTOS DE NAVEGACIÓN ---
             if (e.getSource() == vistaPrincipal.sidebar.bCasa) {
                 cambiarPanelCentral(new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol()));
             }
@@ -161,59 +148,111 @@ public class ControladorInventarioSupervisor implements ActionListener {
                 listarHerramientasEnTabla();
             }
 
-            // Botón Volver del formulario -> Regresa directamente a las pestañas del inventario
             if (e.getSource() == panelProgramarMantenimiento.btnVolver) {
                 cambiarPanelCentral(this.panelInventario);
                 listarHerramientasEnTabla();
             }
 
+            // --- BOTÓN PRINCIPAL GUARDAR ---
             if (e.getSource() == panelProgramarMantenimiento.btnGuardarMantenimiento) {
                 ejecutarGuardadoProgramacion();
             }
 
         } catch (Exception ex) {
-            System.err.println("Error en eventos del Supervisor: " + ex.getMessage());
+            System.err.println("Error en enrutamiento de eventos: " + ex.getMessage());
         }
     }
 
     private void ejecutarGuardadoProgramacion() {
-        Date fechaSeleccionada = (Date) panelProgramarMantenimiento.spinnerFechaHora.getValue();
+        try {
+            // 1. Extraer los datos desde la interfaz de usuario sencilla
+            Date fechaSeleccionada = (Date) panelProgramarMantenimiento.spinnerFechaHora.getValue(); 
+            String tipoMantenimiento = panelProgramarMantenimiento.cbTipoMantenimiento.getSelectedItem().toString();
+            String fallaProblema = panelProgramarMantenimiento.txtFallaProblema.getText().trim();
+            String observaciones = panelProgramarMantenimiento.txtObservaciones.getText().trim();
 
-        Calendar calSeleccionada = Calendar.getInstance();
-        calSeleccionada.setTime(fechaSeleccionada);
+            // Juntamos falla y observaciones en una sola cadena de texto para la BD
+            String notasCompletas = "Falla: " + fallaProblema + " | Obs: " + observaciones;
 
-        Calendar calLimiteHoy = Calendar.getInstance();
-        calLimiteHoy.set(Calendar.HOUR_OF_DAY, 23);
-        calLimiteHoy.set(Calendar.MINUTE, 59);
-        calLimiteHoy.set(Calendar.SECOND, 59);
+            // 2. Validación obligatoria de campos vacíos
+            if (tipoMantenimiento.equals("Seleccione su tipo de mantenimiento") || fallaProblema.isEmpty()) {
+                JOptionPane.showMessageDialog(panelProgramarMantenimiento,
+                        "Por favor, seleccione un tipo de mantenimiento e ingrese la falla o problema.",
+                        "Campos Incompletos", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
-        if (calSeleccionada.before(calLimiteHoy)) {
-            JOptionPane.showMessageDialog(panelProgramarMantenimiento,
-                    "Excepción de Agenda: No se puede programar mantenimiento para hoy mismo ni para fechas pasadas.\nDebe agendarse con un mínimo de anticipación a partir de mañana.",
-                    "Fecha No Permitida", JOptionPane.WARNING_MESSAGE);
-            return;
+            // 3. Validación de Regra de Negocio para la Fecha (No hoy, no pasados)
+            Calendar calSeleccionada = Calendar.getInstance();
+            calSeleccionada.setTime(fechaSeleccionada);
+
+            Calendar calLimiteHoy = Calendar.getInstance();
+            calLimiteHoy.set(Calendar.HOUR_OF_DAY, 23);
+            calLimiteHoy.set(Calendar.MINUTE, 59);
+            calLimiteHoy.set(Calendar.SECOND, 59);
+
+            if (calSeleccionada.before(calLimiteHoy)) {
+                JOptionPane.showMessageDialog(panelProgramarMantenimiento,
+                        "Excepción de Agenda: No se puede programar mantenimiento para hoy mismo ni para fechas pasadas.\nDebe agendarse a partir de mañana.",
+                        "Fecha No Permitida", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // 4. Instanciar la clase normal Mantenimiento con la sesión activa
+            Mantenimiento nuevoMantenimiento = new Mantenimiento(
+                    idHerramientaSeleccionada, 
+                    tipoMantenimiento, 
+                    fechaSeleccionada, 
+                    notasCompletas, 
+                    usuarioLogueado.getIdUsuario() // ID del supervisor que agendó en la BD
+            );
+
+            // 5. Enviar el objeto al nuevo MantenimientoDao independiente
+            boolean guardadoExitoso = mantenimientoDao.registrarProgramacion(nuevoMantenimiento);
+
+            if (guardadoExitoso) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                JOptionPane.showMessageDialog(panelProgramarMantenimiento,
+                        "¡Mantenimiento programado con éxito en la Base de Datos!\n\n" +
+                        "Herramienta: " + nombreHerramientaSeleccionada + "\n" +
+                        "Tipo: " + tipoMantenimiento + "\n" +
+                        "Fecha: " + sdf.format(fechaSeleccionada),
+                        "NEXUS GO - Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+                // 6. Limpieza de interfaz y redirección al inventario
+                limpiarCamposProgramacion();
+                cambiarPanelCentral(this.panelInventario);
+                listarHerramientasEnTabla();
+            } else {
+                JOptionPane.showMessageDialog(panelProgramarMantenimiento,
+                        "No se pudo guardar la programación. Revise la consola del servidor.",
+                        "Error de Conexión", JOptionPane.ERROR_MESSAGE);
+            }
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(panelProgramarMantenimiento, 
+                    "Error al procesar el guardado: " + ex.getMessage(), 
+                    "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        JOptionPane.showMessageDialog(panelProgramarMantenimiento,
-                "Mantenimiento para la herramienta '" + nombreHerramientaSeleccionada + "' programado con éxito.\nFecha asignada: " + sdf.format(fechaSeleccionada),
-                "Programación Guardada", JOptionPane.INFORMATION_MESSAGE);
-
-        // Regresar al inventario
-        cambiarPanelCentral(this.panelInventario);
-        listarHerramientasEnTabla();
+    private void limpiarCamposProgramacion() {
+        panelProgramarMantenimiento.cbTipoMantenimiento.setSelectedIndex(0);
+        panelProgramarMantenimiento.txtFallaProblema.setText("");
+        panelProgramarMantenimiento.txtObservaciones.setText("");
+        panelProgramarMantenimiento.lblNombreImagen.setText("tratamiento.png");
     }
 
     public void listarProductosEnTabla() {
         try {
-            DefaultTableModel modeloBlindado = new DefaultTableModel(new Object[]{"ID", "Nombre", "Precio", "Stock", "Tipo"}, 0) {
+            DefaultTableModel modelo = new DefaultTableModel(new Object[]{"ID", "Nombre", "Precio", "Stock", "Tipo"}, 0) {
                 @Override public boolean isCellEditable(int row, int column) { return false; }
             };
-            panelInventario.tablaProductos.setModel(modeloBlindado);
+            panelInventario.tablaProductos.setModel(modelo);
             List<Producto> lista = productoDao.listar();
             if (lista != null) {
                 for (Producto p : lista) {
-                    modeloBlindado.addRow(new Object[]{p.getIdProducto(), p.getNombreProducto(), p.getPrecioCompra(), p.getStockActual(), "Insumo Interno"});
+                    modelo.addRow(new Object[]{p.getIdProducto(), p.getNombreProducto(), p.getPrecioCompra(), p.getStockActual(), "Insumo Interno"});
                 }
             }
         } catch (Exception e) {
@@ -223,14 +262,14 @@ public class ControladorInventarioSupervisor implements ActionListener {
 
     public void listarHerramientasEnTabla() {
         try {
-            DefaultTableModel modeloBlindado = new DefaultTableModel(new Object[]{"ID", "Nombre", "Estado", "Tipo"}, 0) {
+            DefaultTableModel modelo = new DefaultTableModel(new Object[]{"ID", "Nombre", "Estado", "Tipo"}, 0) {
                 @Override public boolean isCellEditable(int row, int column) { return false; }
             };
-            panelInventario.tablaHerramientas.setModel(modeloBlindado);
+            panelInventario.tablaHerramientas.setModel(modelo);
             List<Herramientas> lista = herramientaDao.listar();
             if (lista != null) {
                 for (Herramientas h : lista) {
-                    modeloBlindado.addRow(new Object[]{h.getIdHerramienta(), h.getNombreHerramienta(), h.getEstadoActual(), "Activo"});
+                    modelo.addRow(new Object[]{h.getIdHerramienta(), h.getNombreHerramienta(), h.getEstadoActual(), "Activo"});
                 }
             }
         } catch (Exception e) {
@@ -245,10 +284,10 @@ public class ControladorInventarioSupervisor implements ActionListener {
             vistaPrincipal.getContenidoCentralDinamico().revalidate();
             vistaPrincipal.getContenidoCentralDinamico().repaint();
         } catch (Exception e) {
-            System.err.println("Error en enrutador de vistas de Supervisor: " + e.getMessage());
+            System.err.println("Error en el enrutador dinámico de vistas: " + e.getMessage());
         }
     }
-   
     
+
     
 }
