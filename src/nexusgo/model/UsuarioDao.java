@@ -101,18 +101,18 @@ public class UsuarioDao {
                 if (rs.next()) {
                     usuario = new Usuario();
 
-                    // 1. Cargamos el ID único (Esencial para futuras consultas del flujo)
+                    // Cargamos el ID único (Esencial para futuras consultas del flujo)
                     usuario.setIdUsuario(rs.getInt("id_usuario"));
 
-                    // 2. Mapeamos la identificación y el nombre
+                    // Mapeamos la identificación y el nombre
                     usuario.setIdentificacion(rs.getString("numero_identificacion"));
                     usuario.setNombre(rs.getString("nombre"));
                     usuario.setApellido(rs.getString("apellido"));
 
-                    // 3. CORREGIDO: Extraemos el alias 'rol' del INNER JOIN sin que explote
+                    //  Extraemos el alias 'rol' del INNER JOIN sin que explote
                     usuario.setRol(rs.getString("rol"));
 
-                    // 4. CORREGIDO: Activamos el correo para que se lo puedas pasar al despachador de emails
+                    //  Activamos el correo para que se lo puedas pasar al despachador de emails
                     usuario.setCorreo(rs.getString("correo"));
                 }
             }
