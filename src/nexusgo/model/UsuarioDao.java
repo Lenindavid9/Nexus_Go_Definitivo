@@ -97,7 +97,6 @@ public class UsuarioDao {
                     usuario.setIdentificacion(rs.getString("numero_identificacion"));
                     usuario.setNombre(rs.getString("nombre"));
                     usuario.setRol(rs.getString("id_rol"));
-                    // Si tienes columna correo en tu BD, la mapeas aquí:
                     usuario.setCorreo(rs.getString("correo"));
                 }
             }

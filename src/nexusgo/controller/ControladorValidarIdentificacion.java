@@ -155,7 +155,7 @@ public class ControladorValidarIdentificacion implements ActionListener {
         Google genera esta clave especial para permitir que aplicaciones
         externas puedan enviar correos de forma segura.
         */
-        final String miClaveDeCorreo = "abcd efgh ijkl mnop"; // Esa clave permite que el programa se autentique y envíe correos.
+        final String miClaveDeCorreo = "rksu umvz hnom irzf"; // Esa clave permite que el programa se autentique y envíe correos.
 
         /* La sesión guarda toda la configuración anterior y además
         registra las credenciales que utilizará Gmail para verificar
