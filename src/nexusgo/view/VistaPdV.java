@@ -71,7 +71,7 @@ public class VistaPdV extends JPanel{
         OpcTitulo.add(btnInicioTitulo);
         OpcTitulo.add(btnReportes);
         titulo.add(OpcTitulo, BorderLayout.EAST);
-
+// panel del menu izaquierdo (quitar) 
         menu = new JPanel();
         menu.setLayout(new BoxLayout(menu, BoxLayout.Y_AXIS));
         menu.setBackground(COLOR_DORADO);

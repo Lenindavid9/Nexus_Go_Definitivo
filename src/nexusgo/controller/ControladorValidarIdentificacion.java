@@ -48,17 +48,18 @@ public class ControladorValidarIdentificacion implements ActionListener {
         String documento = vista.tIdentificacion.getText().trim();
 
         if (documento.isEmpty()) {
-            JOptionPane.showMessageDialog(vista, "Por favor, digite su número de identificación.", "Campo Requerido", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(vista, "Por favor, digite su número de identificación.", "Campo Requerido",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
         try {
             // se valida la existencia del usuario en la base de datos
-            Usuario usuarioEcontrado = usuarioDao.buscarUsuarioPorIdentificacion(documento);
+            Usuario usuarioEncontrado = usuarioDao.buscarUsuarioPorIdentificacion(documento);
 
-            if (usuarioEcontrado != null) {
+            if (usuarioEncontrado != null) {
 
                 // Si el usuario si existe entoncees agrarra el correo desde la bases de datos
-                String correoDestino = usuarioEcontrado.getCorreo();
+                String correoDestino = usuarioEncontrado.getCorreo();
 
                 // Genera el código
                 /* recuerden que el Math.random() genera un número aleatorio, luego se multiplica por 900.000
@@ -74,8 +75,17 @@ public class ControladorValidarIdentificacion implements ActionListener {
                 /* Esta parte llama al método despacharEmail para enviar un correo al usuario con su nombre
             y un token, y guarda en la variable envioExitoso un valor booleano
             que indica si el envío fue exitoso (true) o falló (false). */
-                // se despachar el correo utilizando el servidor SMTP integrado con Jakarta Mail
-                boolean envioExitoso = despacharEmail(correoDestino, usuarioEcontrado.getNombre(), tokenGenerado);
+                // se despachar el correo utilizando el servidor SMTP integrado con Jakarta 
+                
+                
+                //prueva rapida
+                
+                System.out.println("Correo: " + correoDestino);
+                System.out.println("Nombre: " + usuarioEncontrado.getNombre());
+                System.out.println("Token: " + tokenGenerado);
+
+                //comentario
+                boolean envioExitoso = despacharEmail(correoDestino, usuarioEncontrado.getNombre(), tokenGenerado);
                 if (envioExitoso) {
                     JOptionPane.showMessageDialog(vista,
                             "El código de verificación fue enviado con éxito al correo electrónico ya registrado.",
@@ -140,13 +150,13 @@ public class ControladorValidarIdentificacion implements ActionListener {
         propiedades.put("mail.smtp.port", "587");
 
         //️ Parámetros de autenticación del remitente (osea con el correo de donde se manda el codigo)
-        final String miCorreoRemitente = "idarragalenindavid@gmail.com";
+        final String miCorreoRemitente = "liliannysbaptistap@gmail.com";
         
         /*No es la contraseña normal del correo.
         Google genera esta clave especial para permitir que aplicaciones
         externas puedan enviar correos de forma segura.
         */
-        final String miClaveDeCorreo = "abcd efgh ijkl mnop"; // Esa clave permite que el programa se autentique y envíe correos.
+        final String miClaveDeCorreo = "rksu umvz hnom irzf"; // Esa clave permite que el programa se autentique y envíe correos.
 
         /* La sesión guarda toda la configuración anterior y además
         registra las credenciales que utilizará Gmail para verificar
