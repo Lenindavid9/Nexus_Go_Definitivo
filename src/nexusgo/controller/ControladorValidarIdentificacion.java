@@ -84,6 +84,7 @@ public class ControladorValidarIdentificacion implements ActionListener {
                 System.out.println("Nombre: " + usuarioEncontrado.getNombre());
                 System.out.println("Token: " + tokenGenerado);
 
+                //comentario
                 boolean envioExitoso = despacharEmail(correoDestino, usuarioEncontrado.getNombre(), tokenGenerado);
                 if (envioExitoso) {
                     JOptionPane.showMessageDialog(vista,
