@@ -4,6 +4,8 @@
  */
 package nexusgo.model;
 
+import javax.swing.JButton;
+
 /**
  *
  * @author USUARIO
@@ -87,6 +89,9 @@ public class Producto {
     public void setUrlImagen(String urlImagen) {
         this.urlImagen = urlImagen;
     }
+    
+    
+    
     
 }
 
