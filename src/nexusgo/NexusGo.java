@@ -31,14 +31,13 @@ public class NexusGo {
      */
     public static void main(String[] args) {
 
-//
-//        ////        // 1. Se crea la Vista
+ // 1. Se crea la Vista
         VistaInicioSesion login = new VistaInicioSesion();
-////
-////        // 2. Se crea el Controlador y se le vincula la vista
+
+     // 2. Se crea el Controlador y se le vincula la vista
         ControladorInicioSesion controlador = new ControladorInicioSesion(login);
-//        ////
-//////        // 3. Se hace visible el Login en el centro de la pantalla
+
+       // 3. Se hace visible el Login en el centro de la pantalla
         login.setSize(450, 450); // Ajusta las dimensiones según tu fondito.jpg
         login.setLocationRelativeTo(null);
         login.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);

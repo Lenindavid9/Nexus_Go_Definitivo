@@ -83,7 +83,7 @@ public class UsuarioDao {
     }
 
     public Usuario buscarUsuarioPorIdentificacion(String identificacion) {
-        String sql = "SELECT * FROM usuarios WHERE identificacion = ?";
+        String sql = "SELECT * FROM usuarios WHERE numero_identificacion = ?";
         Usuario usuario = null;
 
         // Usamos Try-with-resources para cerrar conexiones automáticamente sin fugas de memoria
@@ -94,11 +94,10 @@ public class UsuarioDao {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     usuario = new Usuario();
-                    usuario.setIdentificacion(rs.getString("identificacion"));
+                    usuario.setIdentificacion(rs.getString("numero_identificacion"));
                     usuario.setNombre(rs.getString("nombre"));
-                    usuario.setRol(rs.getString("rol"));
-                    // Si tienes columna correo en tu BD, la mapeas aquí:
-                    // usuario.setCorreo(rs.getString("correo"));
+                    usuario.setRol(rs.getString("id_rol"));
+                    usuario.setCorreo(rs.getString("correo"));
                 }
             }
         } catch (SQLException e) {
