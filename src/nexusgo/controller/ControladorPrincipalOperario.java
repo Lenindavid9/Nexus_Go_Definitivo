@@ -14,7 +14,7 @@ public class ControladorPrincipalOperario implements ActionListener {
 
    private VistaPrincipalOperario vista;
     private VistaOperarioInventario panelInventario;
-    private VistaPdV panelPdV; // <-- Atributo para el Punto de Venta
+    private VistaPdV panelPdV;
 
     public ControladorPrincipalOperario(VistaPrincipalOperario vista) {
         this.vista = vista;
