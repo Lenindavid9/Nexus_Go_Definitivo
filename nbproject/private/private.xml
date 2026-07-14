@@ -5,6 +5,9 @@
         <group>
             <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorValidarIdentificacion.java</file>
             <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorValidarCodigo.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/model/CajaDao.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorPrincipalCliente.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/model/UsuarioDao.java</file>
         </group>
     </open-files>
 </project-private>

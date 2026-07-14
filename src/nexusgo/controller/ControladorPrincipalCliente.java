@@ -19,9 +19,10 @@ import nexusgo.view.VistaReservarCitas;
  */
 public class ControladorPrincipalCliente implements ActionListener {
 
+
     private VistaPrincipalCliente vista;
     private ProductoDao productoDAO;
-
+    
     /**
      * Constructor que enlaza la vista y activa la escucha de todos sus
      * componentes.
@@ -64,9 +65,25 @@ public class ControladorPrincipalCliente implements ActionListener {
                     JOptionPane.ERROR_MESSAGE);
         }
     }
-
+    
+    
     @Override
     public void actionPerformed(ActionEvent e) {
+
+        
+        if (e.getSource() == vista.CitasVigentes) {
+            
+            VistaReservarCitas panelReserva = new VistaReservarCitas();
+
+            // Instanciamos su propio controlador (Pasamos: vista formulario, vista principal, ID de usuario)
+            new ControladorReservarCita(panelReserva, vista, 1);
+
+            // Cambiamos la pantalla de inmediato
+            vista.getContenidoCentralDinamico().removeAll();
+            vista.getContenidoCentralDinamico().add(panelReserva);
+            vista.getContenidoCentralDinamico().revalidate();
+            vista.getContenidoCentralDinamico().repaint();
+        }
 
         // Clic en el botón "Inicio" (Recarga o refresca el catálogo de productos)
         if (e.getSource() == vista.sidebar.bCasa) {
@@ -82,6 +99,18 @@ public class ControladorPrincipalCliente implements ActionListener {
             // En el futuro enlazas tu vista aquí:
             // new ControladorHistorial(new VistaHistorial()).iniciar();
         }
+
+
+        // Clic en el botón "Citas Vigentes" (Creado en tu barra lateral)
+        if (e.getSource() == vista.CitasVigentes) {
+            JOptionPane.showMessageDialog(vista,
+                    "Mostrando tus próximas citas agendadas en la peluquería.",
+                    "Mis Citas",
+                    JOptionPane.INFORMATION_MESSAGE);
+            // En el futuro enlazas tu vista aquí:
+            // new ControladorCitasCliente(new VistaCitas()).iniciar();
+        }
+
 
         // Clic en el botón central "Cerrar Sesión"
         if (e.getSource() == vista.btnCerrarSesion) {
@@ -113,20 +142,8 @@ public class ControladorPrincipalCliente implements ActionListener {
             vista.getContenidoCentralDinamico().repaint();
         }
 
-        if (e.getSource() == vista.CitasVigentes) {
+        
 
-            VistaReservarCitas panelReserva = new VistaReservarCitas();
-
-            // Instanciamos su propio controlador (Pasamos: vista formulario, vista principal, ID de usuario)
-            new ControladorReservarCita(panelReserva, vista, 1);
-
-            // Cambiamos la pantalla de inmediato
-            vista.getContenidoCentralDinamico().removeAll();
-            vista.getContenidoCentralDinamico().add(panelReserva);
-            vista.getContenidoCentralDinamico().revalidate();
-            vista.getContenidoCentralDinamico().repaint();
-        }
-
-    }
+}
 
 }

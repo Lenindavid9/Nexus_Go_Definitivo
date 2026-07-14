@@ -6,8 +6,10 @@ package nexusgo.controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import nexusgo.model.UsuarioDao;
@@ -18,14 +20,12 @@ import nexusgo.view.VistaReservarCitas;
  *
  * @author HOME
  */
-public class ControladorReservarCita implements ActionListener{
-    
+public class ControladorReservarCita implements ActionListener {
+
     private VistaReservarCitas vistaReserva;
     private VistaPrincipalCliente vistaPrincipal;
     private UsuarioDao usuarioDao;
     private int idClienteLogueado;
-
-   
 
     public ControladorReservarCita(VistaReservarCitas vistaReserva, VistaPrincipalCliente vistaPrincipal, int idClienteLogueado) {
 
@@ -37,7 +37,7 @@ public class ControladorReservarCita implements ActionListener{
         // Escuchamos las acciones de los botones en la vista
         this.vistaReserva.btnAgendar.addActionListener(this);
         this.vistaReserva.btnVolver.addActionListener(this);
-        
+
         // Llenamos el selector de servicios al iniciar
         cargarServicios();
     }
@@ -71,7 +71,7 @@ public class ControladorReservarCita implements ActionListener{
             }
 
             // Usamos el índice seleccionado como el ID del servicio (1, 2, 3...)
-            int idServicio = seleccionIdx; 
+            int idServicio = seleccionIdx;
 
             // Registramos en la base de datos usando el UsuarioDAO
             boolean guardadoExitoso = usuarioDao.registrarCita(idClienteLogueado, idServicio, fechaHora);
