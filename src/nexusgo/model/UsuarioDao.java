@@ -83,13 +83,9 @@ public class UsuarioDao {
     }
 
     public Usuario buscarUsuarioPorIdentificacion(String identificacion) {
-        // Usamos INNER JOIN para poder traer el nombre real del rol sin romper el modelo
-        String sql = """
-                 SELECT u.*, r.nombre_rol AS rol 
-                 FROM usuarios u 
-                 INNER JOIN roles r ON u.id_rol = r.id_rol 
-                 WHERE u.numero_identificacion = ?
-                 """;
+
+        String sql = "SELECT * FROM usuarios WHERE numero_identificacion = ?";
+
         Usuario usuario = null;
 
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -103,16 +99,12 @@ public class UsuarioDao {
 
                     // Cargamos el ID único (Esencial para futuras consultas del flujo)
                     usuario.setIdUsuario(rs.getInt("id_usuario"));
-
-                    // Mapeamos la identificación y el nombre
+                    
+                    
+                    //  Activamos el correo para que se lo puedas pasar al despachador de emails
                     usuario.setIdentificacion(rs.getString("numero_identificacion"));
                     usuario.setNombre(rs.getString("nombre"));
-                    usuario.setApellido(rs.getString("apellido"));
-
-                    //  Extraemos el alias 'rol' del INNER JOIN sin que explote
-                    usuario.setRol(rs.getString("rol"));
-
-                    //  Activamos el correo para que se lo puedas pasar al despachador de emails
+                    usuario.setRol(rs.getString("id_rol"));
                     usuario.setCorreo(rs.getString("correo"));
                 }
             }
