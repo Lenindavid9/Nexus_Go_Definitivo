@@ -18,7 +18,9 @@ public class NexusGo {
      */
     public static void main(String[] args) {
 
- // 1. Se crea la Vista
+
+
+//        ////        // 1. Se crea la Vista
         VistaInicioSesion login = new VistaInicioSesion();
 
      // 2. Se crea el Controlador y se le vincula la vista
