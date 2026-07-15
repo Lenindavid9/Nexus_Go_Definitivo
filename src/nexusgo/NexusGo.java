@@ -4,21 +4,8 @@
  */
 package nexusgo;
 
-import javax.swing.JFrame;
 import nexusgo.controller.ControladorInicioSesion;
-import nexusgo.controller.ControladorInventarioOperario;
-import nexusgo.controller.ControladorInventarioSupervisor;
-import nexusgo.controller.ControladorPrincipalCliente;
-import nexusgo.controller.ControladorPrincipalOperario;
-import nexusgo.model.Conexion;
-import nexusgo.model.Usuario;
-import nexusgo.view.PanelBienvenida;
-import nexusgo.view.VistaBarraLateral;
 import nexusgo.view.VistaInicioSesion;
-import nexusgo.view.VistaOperarioInventario;
-import nexusgo.view.VistaPrincipalCliente;
-import nexusgo.view.VistaPrincipalOperario;
-import nexusgo.view.VistaPrincipalSupervisor;
 
 /**
  *

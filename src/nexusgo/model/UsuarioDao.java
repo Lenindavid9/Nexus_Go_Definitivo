@@ -86,7 +86,6 @@ public class UsuarioDao {
         String sql = "SELECT * FROM usuarios WHERE numero_identificacion = ?";
         Usuario usuario = null;
 
-        // Usamos Try-with-resources para cerrar conexiones automáticamente sin fugas de memoria
         try (Connection con = conexion.getConection(); // Reemplaza por tu método exacto de conexión
                  PreparedStatement ps = con.prepareStatement(sql)) {
 
