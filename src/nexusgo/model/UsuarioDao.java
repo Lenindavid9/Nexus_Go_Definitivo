@@ -55,22 +55,24 @@ public class UsuarioDao {
         return null; // Retorna null si no hubo coincidencia de credenciales o hubo un error
     }
 
+    // Este método se encarga de registrar un nuevo usuario en la base de datos.
     public int registrar(Usuario usuario) {
-        // Ajustamos la consulta para usar id_rol en lugar de rol
-        String sql = "INSERT INTO usuarios (nombre, apellido, numero_identificacion, correo, contrasena, id_rol) VALUES (?, ?, ?, ?, ?, ?)";
+        //Se define los comandos DML del SQL que ingresa un nuevo registro en la tabla "usuarios".
+        String sql = "INSERT INTO usuarios (nombre, apellido, tipo_documento, numero_identificacion, correo, contrasena, id_rol) VALUES (?, ?, ?, ?, ?, ?,?)";
 
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             // Mapeamos los datos exactamente como están en tu script SQL
             ps.setString(1, usuario.getNombre());
             ps.setString(2, usuario.getApellido());
-            ps.setString(3, usuario.getIdentificacion());
-            ps.setString(4, usuario.getCorreo());
-            ps.setString(5, usuario.getContrasena());
+            ps.setString(3, usuario.getTipoDocumento());
+            ps.setString(4, usuario.getIdentificacion());
+            ps.setString(5, usuario.getCorreo());
+            ps.setString(6, usuario.getContrasena());
 
-            // OBLIGATORIO: Asignamos el ID numérico del rol Cliente (ej: 1)
+            // Asignamos el ID numérico del rol Cliente (1)
             // Nota: Cambia este 1 por el id_rol real de 'Cliente' en tu tabla roles
-            ps.setInt(6, 1);
+            ps.setInt(7, 1);
 
             return ps.executeUpdate();
 

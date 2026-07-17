@@ -16,6 +16,15 @@ public class Usuario {
     private String correo;
     private String contrasena;
     private String rol;
+    private String tipoDocumento;
+
+    public String getTipoDocumento() {
+        return tipoDocumento;
+    }
+
+    public void setTipoDocumento(String tipoDocumento) {
+        this.tipoDocumento = tipoDocumento;
+    }
 
     public String getApellido() {
         return apellido;

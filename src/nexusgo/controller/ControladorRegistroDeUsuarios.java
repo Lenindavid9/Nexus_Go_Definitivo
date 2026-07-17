@@ -17,17 +17,16 @@ import nexusgo.view.VistaPrincipalCliente;
  *
  * @author USUARIO
  */
-
 public class ControladorRegistroDeUsuarios implements ActionListener {
 
     private final VistaRegistroDeUsuario vistaRegistro;
     private final UsuarioDao usuarioDao;
 
     public ControladorRegistroDeUsuarios(VistaRegistroDeUsuario vistaRegistro) {
-        
+
         // Se guarda la referencia de la vista recibida.
         this.vistaRegistro = vistaRegistro;
-        
+
         // Instancia del DAO que contiene las consultas SQL
         this.usuarioDao = new UsuarioDao();
 
@@ -42,10 +41,10 @@ public class ControladorRegistroDeUsuarios implements ActionListener {
        automáticamente.
      */
     private void inicializarListeners() {
-        
+
         // Se registra el botón "Registrarse".
         this.vistaRegistro.btnRegistrarse.addActionListener(this);
-        
+
         // Se registra el botón "Volver".
         this.vistaRegistro.btnVolver.addActionListener(this);
     }
@@ -53,7 +52,7 @@ public class ControladorRegistroDeUsuarios implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         // Usamos estructura else if limpia para evitar que hilos duplicados cancelen el evento
-        
+
         // Se verifica si el evento fue generado por el botón "Registrarse".
         if (e.getSource() == vistaRegistro.btnRegistrarse) {
             System.out.println("Botón Registrarse detectado correctamente");
@@ -64,50 +63,73 @@ public class ControladorRegistroDeUsuarios implements ActionListener {
         }
     }
 
-    /**
-     * Captura, valida y procesa la inserción del nuevo usuario en el sistema.
-     */
+    //Captura, valida y procesa la inserción del nuevo usuario en el sistema.
     private void ejecutarRegistro() {
-        // 1. Capturamos los datos de la tarjeta izquierda (Datos personales)
+        /*Se obtiene el nombre ingresado por el usuario.
+        El método trim() es para eliminar los espacios en blanco al inicio
+        y al final del nombre para evitar almacenar datos con
+        espacios innecesarios.*/
         String nombre = vistaRegistro.tNombre.getText().trim();
+
+        // Se obtiene el apellido ingresado por el usuario.
         String apellido = vistaRegistro.tApellido.getText().trim();
+
+        /*Se obtiene la posición del tipo de documento seleccionado en el JComboBox,
+        con este valor permitira verificar más adelante
+        si el usuario seleccionó una opción válida*/
         int indiceDocumento = vistaRegistro.miTipoDocumento.getSelectedIndex();
+
+        // Se obtiene el nombre del tipo de documento
+        String tipoDocumento = vistaRegistro.miTipoDocumento.getSelectedItem().toString();
+
+        // Se obtiene el número de identificación
         String identificacion = vistaRegistro.tNroIdentificacion.getText().trim();
 
-        // 2. Capturamos los datos de la tarjeta derecha (Credenciales)
+        // Se obtiene el correo electrónico ingresado
         String correo = vistaRegistro.tCorreo.getText().trim();
+
+        // Se obtiene la contraseña
         String contrasena = new String(vistaRegistro.tContrasena.getPassword()).trim();
+
+        // Se obtiene la contraseña de confirmación para comprobar que el usuario escribió lo mismo en los dos campos.
         String confirmarContrasena = new String(vistaRegistro.tConfirmar.getPassword()).trim();
 
-        // --- VALIDACIÓN 1: Comprobar campos obligatorios vacíos ---
+        // Se verifica que todos los campos obligatorios del formulario contengan información.
         if (nombre.isEmpty() || apellido.isEmpty() || identificacion.isEmpty() || correo.isEmpty() || contrasena.isEmpty()) {
+            // Se informa que se debe completar todos los campos Obligatorios
             JOptionPane.showMessageDialog(vistaRegistro,
                     "Por favor, complete todos los campos obligatorios del formulario.",
                     "Campos Incompletos", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // --- VALIDACIÓN 2: Comprobar si seleccionó el placeholder del ComboBox ---
+        /*Se verifica si se selecciono el primer elemento
+        del JComboBox. en esa esta la posición "Seleccione un tipo de documento", pero esa
+        no es válida para realizar el registro.*/
         if (indiceDocumento == 0) {
+            // Se muestra un mensaje indicando que es obligatorio seleccionar  una opcion
             JOptionPane.showMessageDialog(vistaRegistro,
-                    "Por favor, seleccione un tipo de documento válido.",
+                    "Por favor, seleccione un tipo de documento.",
                     "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // --- VALIDACIÓN 3: Comprobar si las contraseñas coinciden ---
+        /*Se comparan la contraseña y la confirmación de contraseña para verificar que ambas sean iguales.
+        Si uno de los dos valores son diferentes, enotnces... */
         if (!contrasena.equals(confirmarContrasena)) {
+            
+            // Se informa que las contraseñas no coinciden y que debe verificarlas antes de continuar.
             JOptionPane.showMessageDialog(vistaRegistro,
                     "Las contraseñas ingresadas no coinciden. Verifíquelas nuevamente.",
                     "Error de Seguridad", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // 3. Empaquetamos los datos dentro de un objeto de tu modelo Usuario
-        // Se dividen nombre y apellido de forma independiente para engranar con las columnas SQL
+        // Se crea un nuevo objeto de tipo Usuario.
         Usuario nuevoUsuario = new Usuario();
         nuevoUsuario.setNombre(nombre);
         nuevoUsuario.setApellido(apellido);
+        nuevoUsuario.setTipoDocumento(tipoDocumento);
         nuevoUsuario.setIdentificacion(identificacion);
         nuevoUsuario.setCorreo(correo);
         nuevoUsuario.setContrasena(contrasena);
@@ -118,7 +140,7 @@ public class ControladorRegistroDeUsuarios implements ActionListener {
         if (resultado > 0) {
             JOptionPane.showMessageDialog(vistaRegistro,
                     "¡Registro exitoso! Bienvenido a Nexus Go!",
-                    "Nexus Go! Éxito", JOptionPane.INFORMATION_MESSAGE);
+                    "Nexus Go Éxito", JOptionPane.INFORMATION_MESSAGE);
 
             // Cerramos de inmediato la ventana de registro actual
             this.vistaRegistro.dispose();
