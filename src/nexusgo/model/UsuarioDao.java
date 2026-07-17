@@ -79,7 +79,6 @@ public class UsuarioDao {
             e.printStackTrace();
             return 0;
         }
-
     }
 
     public Usuario buscarUsuarioPorIdentificacion(String identificacion) {

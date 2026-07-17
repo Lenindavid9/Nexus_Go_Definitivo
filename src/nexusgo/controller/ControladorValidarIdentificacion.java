@@ -96,7 +96,7 @@ public class ControladorValidarIdentificacion implements ActionListener {
 
                     // Enrutamos hacia la vista y controlador
                     VistaValidarCodigo vistaSiguiente = new VistaValidarCodigo();
-                    /*ControladorVerificarCodigo =  new ControladorVerificarCodigo(vistaSiguiente, tokenGenerado, usuarioEcontrado);*/
+                    ControladorValidarCodigo controlVeriCodigo=  new ControladorValidarCodigo(vistaSiguiente, tokenGenerado);
                     vistaSiguiente.setLocationRelativeTo(null);
                     vistaSiguiente.setVisible(true);
 
@@ -198,7 +198,7 @@ public class ControladorValidarIdentificacion implements ActionListener {
                     + "Se ha solicitado un código para cambiar tu contraseña en Nexus GO.\n"
                     + "Tu código de verificación obligatorio es:\n"
                     + "   👉 " + codigoToken + " 👈\n"
-                    + "Usa este cogido en la ventana ue te lo solicita para actualizar tu clave.";
+                    + "Usa este codigo en la ventana usa este cogido en la ventana te lo solicita para actualizar tu clave.";
 
             //Se asigna el texto anterior como contenido del correo.
             mensaje.setText(mensajeTexto);

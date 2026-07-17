@@ -9,12 +9,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import nexusgo.model.Usuario;
 import nexusgo.model.UsuarioDao;
 import nexusgo.view.VistaInicioSesion;
 import nexusgo.view.VistaPrincipalCliente;
 import nexusgo.view.VistaPrincipalOperario;
+import nexusgo.view.VistaPrincipalPeluquero;
+import nexusgo.view.VistaPrincipalSupervisor;
 import nexusgo.view.VistaValidarIdentificacion;
 import registro.VistaRegistroDeUsuario;
 
@@ -25,11 +28,11 @@ import registro.VistaRegistroDeUsuario;
 public class ControladorInicioSesion implements ActionListener {
 
     private final VistaInicioSesion vistaLogin;
-    
+
     /*A través de UsuarioDao se realizan consultas para verificar
     si el usuario existe y si sus credenciales son correctas.*/
     private final UsuarioDao usuarioDao;
-    
+
     /*Variable utilizada para que contraseña este oculta o visible.
     true = La contraseña esta oculta.
     false = La contraseña se muestra.
@@ -46,59 +49,53 @@ public class ControladorInicioSesion implements ActionListener {
         inicializarListeners();
     }
 
-  
-    /**
-     * Enlaza los componentes interactivos de la vista con sus respectivos escuchadores.
-     */
-
-
-    /*Cada componente recibe un "escuchador"
-    ( osea el Listener), el cual estará pendiente de las acciones
+    /*Enlaza los componentes interactivos de la vista con sus respectivos escuchadores.
+    Cada componente recibe un "escuchador"
+    (osea el Listener), el cual estará pendiente de las acciones
     realizadas por el usuario */
-
     private void inicializarListeners() {
-        
+
         // Escuchar el botón dorado "Entrar"
         this.vistaLogin.btnEntrar.addActionListener(this);
 
-
         // Accion para ver la contraseña 
         // Asegúrate de que en tu VistaInicioSesion declaraste un JButton llamado 'btnVerContrasena'
-
-
         if (this.vistaLogin.btnVerContrasena != null) {
-            
+
             //Se agrega un ActionListener solamente para controlar el botón "Ver".
             this.vistaLogin.btnVerContrasena.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    
+
                     //Si la contraseña ACTUALMENTE está oculta...
                     if (ocultarClave) {
                         /*El valor 0 elimina temporalmente el
                         carácter utilizado para ocultar la contraseña,
-                        permitiendo ver el texto real.*/
-                        // Muestra la contraseña (0 quita el caracter ocultador)
+                        permitiendo ver el texto real.
+                        Se muestra la contraseña ( 0 quita el caracter ocultador)*/
                         vistaLogin.tContrasena.setEchoChar((char) 0);
+
                         // se mantiene el texto del botón
                         vistaLogin.btnVerContrasena.setText("ver");
+
                         /*Se actualiza el estado indicando que
-                         * ahora la contraseña está visible.*/
+                        ahora la contraseña está visible.*/
                         ocultarClave = false;
                     } else {
                         // Vuelve a poner los asteriscos por defecto
                         vistaLogin.tContrasena.setEchoChar('*');
+
                         /* Se actualiza el estado indicando que
                         la contraseña vuelve a estar oculta.*/
                         vistaLogin.btnVerContrasena.setText("ver");
-                        
+
                         ocultarClave = true;
                     }
                 }
             });
         }
 
-        /* esta es la escuchar el clic sobre el enlace interactivo "¡Regístrate aquí!"
+        /*esta es la escuchar el clic sobre el enlace interactivo "¡Regístrate aquí!"
         Como la etiqueta (JLabel) no poseen eventos
         de clic propios, se utiliza MouseListener para
         detectar cuando el usuario hace clic sobre ella. */
@@ -111,13 +108,13 @@ public class ControladorInicioSesion implements ActionListener {
 
                 //Se abre la ventana donde podran registrarse
                 VistaRegistroDeUsuario vistaRegistro = new VistaRegistroDeUsuario();
-                
+
                 // tambien se imvoca su controlador correspondiente
                 ControladorRegistroDeUsuarios controladorRegistro = new ControladorRegistroDeUsuarios(vistaRegistro);
 
                 //Se centra la ventana en la pantalla.
                 vistaRegistro.setLocationRelativeTo(null);
-                
+
                 //muestra la ventana
                 vistaRegistro.setVisible(true);
             }
@@ -127,23 +124,23 @@ public class ControladorInicioSesion implements ActionListener {
         this.vistaLogin.lblOlvideContrasena.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                
+
                 //Primero se cierra la ventana actual de inicio de sesión.
                 vistaLogin.dispose();
-                
+
                 //Se abre la ventana donde podran ingresar su numero de identificacion
                 // parea mirar si existe en la bases de batos
                 VistaValidarIdentificacion validarIdentificacion = new VistaValidarIdentificacion();
-                
+
                 // tambien se imvoca su controlador correspondiente
                 ControladorValidarIdentificacion controladorValidarIdentificacion = new ControladorValidarIdentificacion(validarIdentificacion);
-                
+
                 //Se centra la ventana en la pantalla.
                 validarIdentificacion.setLocationRelativeTo(null);
-                
+
                 //muestra la ventana
                 validarIdentificacion.setVisible(true);
-                
+
                 //esto queda mientras tanto
                 JOptionPane.showMessageDialog(vistaLogin,
                         "Módulo de recuperación de contraseña en desarrollo, ACTUALMENTE TIENE ERRORES.",
@@ -161,81 +158,130 @@ public class ControladorInicioSesion implements ActionListener {
         }
     }
 
-        /* Aquí se obtienen los datos escritos por el usuario,
+    /* Aquí se obtienen los datos escritos por el usuario,
         se validan y despues se consulta la base de datos
         para verificar si las credenciales son correctas */
     private void ejecutarLogin() {
         try {
             //Se obtiene el número de documento escrito por el usuario
             String identificacion = vistaLogin.tNroIdentidad.getText();
+
             /*Se obtiene la contraseña.
-            
             getPassword() devuelve un arreglo de caracteres,
-            por lo que primero se convierte en String.
-            
-            y se eliminan posibles espacios innecesarios*/
+            por lo que primero se convierte en String
+            y se eliminan posibles espacios innecesarios.
+            (Lo de los espacion lo puse solamente por si las moscas pero no es obliatorio aplicarlo)*/
             String contrasena = new String(vistaLogin.tContrasena.getPassword()).trim();
 
             /*Antes de consultar la base de datos se verifica
             que ambos campos contengan información válida
             
-            También se evita que el usuario intente iniciar
+            con esto también se evita que el usuario intente iniciar
             sesión dejando los textos de ayuda*/
             if (identificacion.isEmpty() || contrasena.isEmpty()
-                || identificacion.equals("Ingrese su número de documento")
-                || contrasena.equals("Ingresar su contraseña")){
+                    || identificacion.equals("Ingrese su número de documento")
+                    || contrasena.equals("Ingresar su contraseña")) {
+
                 // Si alguno de los campos no es válido y se le informa al usuario
-                JOptionPane.showMessageDialog(vistaLogin, 
-                "Por favor, complete todos los campos.", "Campos Vacíos",
-                JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(vistaLogin,
+                        "Por favor, complete todos los campos.", "Campos Vacíos",
+                        JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
-            /*se declara una variable*/
+            /*Se declara una variable de tipo Usuario y se inicializa con el valor null.
+            Esto se hace porque al inicio, todavía no se sabe si las credenciales
+            ingresadas pertenecen en vrd a un usuario registrado en la base de datos.
+            Más adelante esta variable almacenará toda la información del usuario
+            que haya iniciado sesión correctamente.*/
             Usuario usuarioLogueado = null;
             try {
+
+                /*Se intenta autenticar al usuario utilizando el numero de identificacion
+                y la contraseña que ingreso.
+                Recuenrden que el metodo autenticarUsuario() hace que consute en la base de datos
+                para verificar si el registro en vrd coincida con esos datos
+                Si las credenciales son correctas, devuelve un objeto de tipo Usuario
+                con toda la información ( osea el nombre, rol, correo, etc.),
+                y se almacena en la variable usuarioLogueado, Si las credenciales no existen,
+                devolverá null, diciendo que no fue posible autenticar al usuario.*/
                 usuarioLogueado = usuarioDao.autenticarUsuario(identificacion, contrasena);
             } catch (Exception sqlEx) {
+
+                /* Si durante la consulta ocurre un problema, como que la base de datos
+                esté apagada, el servidor MySQL de Laragon no se esté ejecutándose por X razon,
+                exista un error de conexión o cualquier otra cosa de la base de datos,
+                el sistema entra en esta exepcion.
+                En lugar que la aplicación se cierre inesperadamente,
+                se captura la excepción para informar al usuario de manera clara
+                ue ocurrió un problema de conexión.*/
                 JOptionPane.showMessageDialog(vistaLogin,
-                        "Error crítico de conexión con la base de datos MySQL (Laragon).\nVerifique que el servicio esté activo.\nDetalle: " + sqlEx.getMessage(),
+                        "Error crítico de conexión con la base de datos MySQL (Laragon).\nVerifique que el servicio esté activo.\nDetalle: "
+                        + sqlEx.getMessage(),
                         "Error de Conexión", JOptionPane.ERROR_MESSAGE);
+
+                /* Esto evita que el sistema continúe intentando iniciar sesión
+                cuando no fue posible consultar la información en la base de datos.*/
                 return;
             }
 
             if (usuarioLogueado != null) {
                 String nombreReal = usuarioLogueado.getNombre();
-                String rolReal = usuarioLogueado.getRol(); // "Operario", "Supervisor", o "Cliente"
+                String rolReal = usuarioLogueado.getRol();
 
                 JOptionPane.showMessageDialog(vistaLogin, "¡Bienvenido " + nombreReal + " al Sistema NEXUS!");
 
-                // --- ENRUTAMIENTO POR ROL ---
-                // 1. Roles Administrativos / Internos
-                if (rolReal.equalsIgnoreCase("Operario") || rolReal.equalsIgnoreCase("Supervisor")) {
-
+                if (rolReal.equalsIgnoreCase("Supervisor")) {
+                    VistaPrincipalSupervisor vistaSupervisor = new VistaPrincipalSupervisor("", "");
+                     ControladorPrincipalSupervisor controladorSupervisor = new ControladorPrincipalSupervisor(vistaSupervisor, usuarioLogueado);
+                    vistaSupervisor.setVisible(true);
+                    vistaLogin.dispose();
+                    
+                } else if (rolReal.equalsIgnoreCase("Operario")) {
                     VistaPrincipalOperario vistaMenu = new VistaPrincipalOperario();
-                    new ControladorInventarioOperario(vistaMenu, usuarioLogueado);
+                    ControladorPrincipalOperario controladorOperario = new ControladorPrincipalOperario(vistaMenu);
 
-                    vistaMenu.setExtendedState(javax.swing.JFrame.MAXIMIZED_BOTH);
+                    vistaMenu.setExtendedState(JFrame.MAXIMIZED_BOTH);
                     vistaMenu.setVisible(true);
                     vistaLogin.dispose();
 
-                    // 2. 🚀 Nuevo Enrutamiento del Módulo de Clientes
+                    // NO EXISTE EL VISTA  DEL ADM PELUQUERO -----------------
+//                } else if (rolReal.equalsIgnoreCase("Administrador_de_la_peluqueria")) {
+//                    VistaPrincipalAdministrador vistaAdminPelu = new VistaPrincipalAdministrador();
+//                    PanelAdmi panelAdmi = new PanelAdmi();
+//
+//                    new ControladorPrincipalAdministrador(vistaAdminPelu, panelAdmi, usuarioLogueado);
+//
+//                    vistaAdminPelu.setExtendedState(JFrame.MAXIMIZED_BOTH);
+//                    vistaAdminPelu.setVisible(true);
+//                    vistaLogin.dispose();
+// --------------------------------------------------------------------
+//                    NO EXISTE EL CONTROLADOR DE ESTE --------------
+//                } else if (rolReal.equalsIgnoreCase("Administrador_del_software")) {
+//                    VistaPrincipalAdminSoftware vistaAdminSoft = new VistaPrincipalAdminSoftware();
+//                    PanelAdmi panelAdmi = new PanelAdmi();
+//
+//                     ControladorPrincipalAdminSoftware controladorAdmin = new ControladorPrincipalAdminSoftware(vistaAdmin, null, usuarioLogueado);
+//
+//                    vistaAdminSoft.setExtendedState(JFrame.MAXIMIZED_BOTH);
+//                    vistaAdminSoft.setVisible(true);
+//                    vistaLogin.dispose();
+//------------------------------------------------------------------------------------------
+// NO TIENE CONTROLADOR ---------------
+//                } else if (rolReal.equalsIgnoreCase("Peluquero")) {
+//                    VistaPrincipalPeluquero vistaPeluquero = new VistaPrincipalPeluquero();
+//                    ControladorPrincipalPeluquero controladorPeluquero = new ControladorPrincipalPeluquero(vistaPeluquero, usuarioLogueado);
+//
+//                    vistaPeluquero.setExtendedState(JFrame.MAXIMIZED_BOTH);
+//                    vistaPeluquero.setVisible(true);
+//                    vistaLogin.dispose();
+// -----------------------------------------------------------------------------------------
                 } else if (rolReal.equalsIgnoreCase("Cliente")) {
-
-                    // Instanciamos la ventana del cliente pasándole sus datos correspondientes
                     VistaPrincipalCliente vistaCliente = new VistaPrincipalCliente(nombreReal, rolReal);
+                    ControladorPrincipalCliente controladorCliente = new ControladorPrincipalCliente(vistaCliente);
 
-                    // Inicializamos su respectivo controlador para mapear el catálogo
-                    new ControladorPrincipalCliente(vistaCliente);
-
-                    // Desplegamos la ventana del cliente a pantalla completa
                     vistaCliente.setVisible(true);
-
-                    // Destruimos el login para liberar memoria RAM
                     vistaLogin.dispose();
-
-                } else if (rolReal.equalsIgnoreCase("Administrador")) {
-                    JOptionPane.showMessageDialog(vistaLogin, "Panel de Administrador en desarrollo.", "Módulo Pendiente", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     JOptionPane.showMessageDialog(vistaLogin, "El rol '" + rolReal + "' no tiene accesos asignados en este panel.", "Error de Permisos", JOptionPane.ERROR_MESSAGE);
                 }
@@ -247,7 +293,7 @@ public class ControladorInicioSesion implements ActionListener {
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(vistaLogin,
                     "Ocurrió un error inesperado al procesar el ingreso: " + ex.getMessage(),
-                    "Error Inesperado", JOptionPane.ERROR_MESSAGE);
+                    "Error Extraño", JOptionPane.ERROR_MESSAGE);
         }
-}
+    }
 }
