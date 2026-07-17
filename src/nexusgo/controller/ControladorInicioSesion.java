@@ -219,7 +219,7 @@ public class ControladorInicioSesion implements ActionListener {
                     vistaMenu.setVisible(true);
                     vistaLogin.dispose();
 
-                    // 2. 🚀 Nuevo Enrutamiento del Módulo de Clientes
+                    // 2. Nuevo Enrutamiento del Módulo de Clientes
                 } else if (rolReal.equalsIgnoreCase("Cliente")) {
 
                     // Instanciamos la ventana del cliente pasándole sus datos correspondientes

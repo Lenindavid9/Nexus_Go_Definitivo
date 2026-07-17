@@ -6,9 +6,11 @@ package nexusgo.controller;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import nexusgo.model.Producto;
 import nexusgo.model.ProductoDao; // Tu manejador de base de datos
 import nexusgo.view.VistaDetallesProducto;
@@ -56,7 +58,7 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
             this.listaProductos = productoDAO.listar();
             
             // Enviamos la lista y "this" (este controlador que escucha los clics de raton) a la vista
-            this.vista.cargarProductosEnInterfaz(this.listaProductos, this);
+            this.vista.cargarProductosEnInterfaz(this.listaProductos);
             
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(vista,
@@ -116,9 +118,7 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
     @Override public void mouseEntered(MouseEvent e) {}
     @Override public void mouseExited(MouseEvent e) {}
 
-    // =========================================================================
-    //               EVENTOS DE ACCION (BOTONES FIJOS)
-    // =========================================================================
+    
     @Override
     public void actionPerformed(ActionEvent e) {
 

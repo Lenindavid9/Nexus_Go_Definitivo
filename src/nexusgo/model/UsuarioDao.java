@@ -1,4 +1,4 @@
-/*
+ /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
@@ -122,7 +122,7 @@ public class UsuarioDao {
                 + "FROM citas c "
                 + "INNER JOIN servicios s ON c.id_servicio = s.id_servicio "
                 + "WHERE c.id_cliente = ? AND c.estado = 'Vigente' "
-                + "ORDER BY c.fecha_hora ASC";
+                + "ORDER BY c.fecha_hora ASC";                 
 
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
