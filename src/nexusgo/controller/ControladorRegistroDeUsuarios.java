@@ -12,44 +12,54 @@ import nexusgo.model.UsuarioDao;
 import nexusgo.view.VistaInicioSesion;
 import registro.VistaRegistroDeUsuario;
 import nexusgo.view.VistaPrincipalCliente;
+
 /**
  *
  * @author USUARIO
  */
 
-
 public class ControladorRegistroDeUsuarios implements ActionListener {
 
-   private final VistaRegistroDeUsuario vistaRegistro;
+    private final VistaRegistroDeUsuario vistaRegistro;
     private final UsuarioDao usuarioDao;
 
-    /**
-     * Constructor que enlaza la vista de registro y prepara el acceso a la base
-     * de datos.
-     */
     public ControladorRegistroDeUsuarios(VistaRegistroDeUsuario vistaRegistro) {
+        
+        // Se guarda la referencia de la vista recibida.
         this.vistaRegistro = vistaRegistro;
-        this.usuarioDao = new UsuarioDao(); // Instancia del DAO que contiene las consultas SQL
+        
+        // Instancia del DAO que contiene las consultas SQL
+        this.usuarioDao = new UsuarioDao();
 
+        //Se llama al método de registrar todos los eventos de los botones
         inicializarListeners();
     }
 
-    /**
-     * Enlaza los botones físicos de la interfaz con este controlador.
+    /* Este método registra los botones que serán escuchados
+       por este controlador. 
+       De esta manera, cuando el usuario haga click en alguno
+       de ellos, el método actionPerformed() será ejecutado
+       automáticamente.
      */
     private void inicializarListeners() {
+        
+        // Se registra el botón "Registrarse".
         this.vistaRegistro.btnRegistrarse.addActionListener(this);
+        
+        // Se registra el botón "Volver".
         this.vistaRegistro.btnVolver.addActionListener(this);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         // Usamos estructura else if limpia para evitar que hilos duplicados cancelen el evento
+        
+        // Se verifica si el evento fue generado por el botón "Registrarse".
         if (e.getSource() == vistaRegistro.btnRegistrarse) {
-            System.out.println("¡Botón Registrarse detectado correctamente!");
+            System.out.println("Botón Registrarse detectado correctamente");
             ejecutarRegistro();
         } else if (e.getSource() == vistaRegistro.btnVolver) {
-            System.out.println("¡Botón Volver detectado correctamente!");
+            System.out.println("Botón Volver detectado correctamente");
             regresarAlLogin();
         }
     }
@@ -109,15 +119,15 @@ public class ControladorRegistroDeUsuarios implements ActionListener {
             JOptionPane.showMessageDialog(vistaRegistro,
                     "¡Registro exitoso! Bienvenido a Nexus Go!",
                     "Nexus Go! Éxito", JOptionPane.INFORMATION_MESSAGE);
-            
+
             // Cerramos de inmediato la ventana de registro actual
             this.vistaRegistro.dispose();
 
             // Redirección Directa: Abrimos la interfaz principal del cliente amarrada a su controlador
-            VistaPrincipalCliente vistaCliente = new VistaPrincipalCliente("","");//////////POR SOLUCIONAR///////////
+            VistaPrincipalCliente vistaCliente = new VistaPrincipalCliente("", "");//////////POR SOLUCIONAR///////////
             new ControladorPrincipalCliente(vistaCliente);
             vistaCliente.setVisible(true);
-            
+
         } else {
             JOptionPane.showMessageDialog(vistaRegistro,
                     "No se pudo completar el registro. Es posible que la identificación o el correo ya existan.",
@@ -138,5 +148,4 @@ public class ControladorRegistroDeUsuarios implements ActionListener {
         loginVista.setLocationRelativeTo(null);
         loginVista.setVisible(true);
     }
-
 }

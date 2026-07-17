@@ -24,13 +24,17 @@ public class ControladorValidarCodigo implements ActionListener {
     public ControladorValidarCodigo(VistaValidarCodigo vista, String tokenCorrecto, Usuario usuario) {
         this.vista = vista;
         this.tokenCorrecto = tokenCorrecto;
-        this.vista.enviar.addActionListener(this);
+        
+        /*Se registra este controlador como escuchador del botón "Entrar".
+        con esto cuando el usuario haga clic sobre el botón,
+        se ejecuta automáticamente el método actionPerformed().*/
+        this.vista.entrar.addActionListener(this);
         this.usuario = usuario;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == vista.enviar) {
+        if (e.getSource() == vista.entrar) {
             // Se llama al método encargado de validar el código.
             procesarVerificacion();
         }
@@ -57,7 +61,7 @@ public class ControladorValidarCodigo implements ActionListener {
 
         /* Esto evita que el usuario haga varios clics seguidos mientra
             se realiza la validación del código.*/
-        vista.enviar.setEnabled(false);
+        vista.entrar.setEnabled(false);
 
         /* Se compara el código escrito por el usuario con el código
         original que fue enviado al correo. */
@@ -98,9 +102,9 @@ public class ControladorValidarCodigo implements ActionListener {
             pueda escribir nuevamente el código.*/
             vista.tVCodigo.setText("");
 
-            /* Se vuelve a habilitar el botón "Enviar"
+            /* Se vuelve a habilitar el botón "Entrar"
             para permitir un nuevo intento de validación. */
-            vista.enviar.setEnabled(true);
+            vista.entrar.setEnabled(true);
         }
     }
 }

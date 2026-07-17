@@ -4,11 +4,10 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/USUARIO/Desktop/nexus_go/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorValidarCodigo.java</file>
-            <file>file:/C:/Users/USUARIO/Desktop/nexus_go/Nexus_Go_Definitivo/src/nexusgo/model/Conexion.java</file>
+            <file>file:/C:/Users/USUARIO/Desktop/nexus_go/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorNuevaContrasena.java</file>
             <file>file:/C:/Users/USUARIO/Desktop/nexus_go/Nexus_Go_Definitivo/src/nexusgo/NexusGo.java</file>
-            <file>file:/C:/Users/USUARIO/Desktop/nexus_go/Nexus_Go_Definitivo/src/nexusgo/model/UsuarioDao.java</file>
+            <file>file:/C:/Users/USUARIO/Desktop/nexus_go/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorInicioSesion.java</file>
             <file>file:/C:/Users/USUARIO/Desktop/nexus_go/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorValidarIdentificacion.java</file>
-            <file>file:/C:/Users/USUARIO/Desktop/nexus_go/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorPrincipalCliente.java</file>
         </group>
     </open-files>
 </project-private>

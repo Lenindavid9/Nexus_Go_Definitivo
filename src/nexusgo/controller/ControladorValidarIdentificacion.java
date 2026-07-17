@@ -33,20 +33,28 @@ public class ControladorValidarIdentificacion implements ActionListener {
     public ControladorValidarIdentificacion(VistaValidarIdentificacion vista) {
         this.vista = vista;
         this.usuarioDao = new UsuarioDao();
-        // con esta se hace la escucha del botón de tu vista
+        /*Se registra este controlador como escuchador del botón "Confirmar".
+        con esto cuando el usuario haga clic sobre el botón,
+        se ejecuta automáticamente el método actionPerformed().*/
         this.vista.confirmar.addActionListener(this);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == vista.confirmar) {
+            /*Si el usuario hizo clic en el botón "Confirmar",
+            se llama al método encargado de ejecutar todo el
+            proceso de validación de la identificación.*/
             ejecutarFlujoValidacion();
         }
     }
 
     private void ejecutarFlujoValidacion() {
-        String documento = vista.tIdentificacion.getText().trim();
 
+        // Se obtiene el contenido del campo que ongreso la identificación.
+        String documento = vista.tIdentificacion.getText();
+
+        // Se verifica si el campo de identificación quedó vacío.
         if (documento.isEmpty()) {
             JOptionPane.showMessageDialog(vista, "Por favor, digite su número de identificación.", "Campo Requerido",
                     JOptionPane.WARNING_MESSAGE);
@@ -71,7 +79,7 @@ public class ControladorValidarIdentificacion implements ActionListener {
                 // Deshabilitamos temporalmente el botón para evitar dobles clics
                 vista.confirmar.setEnabled(false);
                 vista.confirmar.setText("Enviando...");
-                
+
                 // ---------------- prueba rapida -------------------------
                 System.out.println("Correo: " + correoDestino);
                 System.out.println("Nombre: " + usuarioEncontrado.getNombre());
@@ -82,7 +90,6 @@ public class ControladorValidarIdentificacion implements ActionListener {
                 y un token, y guarda en la variable envioExitoso un valor booleano
                 que indica si el envío fue exitoso (true) o falló (false).
                 se despachar el correo utilizando el servidor SMTP integrado con Jakarta (Osea la libreria) */
-
                 boolean envioExitoso = despacharEmail(correoDestino, usuarioEncontrado.getNombre(), tokenGenerado);
                 if (envioExitoso) {
                     JOptionPane.showMessageDialog(vista,
@@ -94,16 +101,16 @@ public class ControladorValidarIdentificacion implements ActionListener {
 
                     // Enrutamos hacia la vista
                     VistaValidarCodigo vistaSiguiente = new VistaValidarCodigo();
-                    
+
                     // tambien se imvoca su controlador correspondiente
                     ControladorValidarCodigo controlVeriCodigo = new ControladorValidarCodigo(vistaSiguiente, tokenGenerado, usuarioEncontrado);
-                    
+
                     //Se establece el tamaño inicial que tendrá la ventana.
                     vistaSiguiente.setSize(450, 450);
-                    
+
                     // La ventana se abre por completo en toda la pantalla
                     vistaSiguiente.setExtendedState(vistaSiguiente.MAXIMIZED_BOTH);
-                    
+
                     //muestra la ventana
                     vistaSiguiente.setVisible(true);
 
@@ -128,9 +135,9 @@ public class ControladorValidarIdentificacion implements ActionListener {
     /* Este método se encarga de enviar un correo electrónico al usuario 
     con el código de verificación que servirá para restablecer su contraseña.
     Parámetros:
-      - emailDestinatario: correo de la persona que recibirá el mensaje.
-      - nombreUsuario: nombre del usuario que aparecerá en el saludo.
-      - codigoToken: código de verificación que el usuario deberá ingresar.
+      emailDestinatario: correo de la persona que recibirá el mensaje.
+      nombreUsuario: nombre del usuario que aparecerá en el saludo.
+      codigoToken: código de verificación que el usuario deberá ingresar.
 
       Retorna:
       - true: si el correo fue enviado correctamente.

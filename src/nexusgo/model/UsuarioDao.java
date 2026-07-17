@@ -56,19 +56,19 @@ public class UsuarioDao {
     }
 
     public int registrar(Usuario usuario) {
-        // 1. Ajustamos la consulta para usar id_rol en lugar de rol
+        // Ajustamos la consulta para usar id_rol en lugar de rol
         String sql = "INSERT INTO usuarios (nombre, apellido, numero_identificacion, correo, contrasena, id_rol) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
-            // 2. Mapeamos los datos exactamente como están en tu script SQL
+            // Mapeamos los datos exactamente como están en tu script SQL
             ps.setString(1, usuario.getNombre());
             ps.setString(2, usuario.getApellido());
             ps.setString(3, usuario.getIdentificacion());
             ps.setString(4, usuario.getCorreo());
             ps.setString(5, usuario.getContrasena());
 
-            // 3. OBLIGATORIO: Asignamos el ID numérico del rol Cliente (ej: 1)
+            // OBLIGATORIO: Asignamos el ID numérico del rol Cliente (ej: 1)
             // Nota: Cambia este 1 por el id_rol real de 'Cliente' en tu tabla roles
             ps.setInt(6, 1);
 
