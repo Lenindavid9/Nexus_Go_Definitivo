@@ -186,11 +186,8 @@ public class VistaInicioSesion extends JFrame {
 
         // la tarjeta se coloca sobre la imagen de fondo
         fondo.add(tarjetaLogin);
-
-        //Tamaño de la ventana.
-        setSize(900, 630);
         
-        // se supone que es minimo permitido.....supuestamente
+        // se supone que es minimo permitido del tamaño de la ventana.....supuestamente
         setMinimumSize(new Dimension(500, 500));
         
         //Centra la ventana en la pantalla

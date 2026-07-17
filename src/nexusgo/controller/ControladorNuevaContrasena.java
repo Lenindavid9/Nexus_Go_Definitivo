@@ -7,16 +7,16 @@ package nexusgo.controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
-import nexusgo.model.Conexion;
 import nexusgo.model.UsuarioDao;
+import nexusgo.view.VistaInicioSesion;
 import nexusgo.view.VistaNuevaContrasena;
 
 /**
  *
  * @author USUARIO
  */
-public class ControladorNuevaContrasena implements ActionListener{
- 
+public class ControladorNuevaContrasena implements ActionListener {
+
     private VistaNuevaContrasena vista;
     private UsuarioDao usuarioDAO;
     private String correoUsuario;
@@ -25,9 +25,7 @@ public class ControladorNuevaContrasena implements ActionListener{
         this.vista = vista;
         this.correoUsuario = correo;
         this.usuarioDAO = new UsuarioDao();
-
         this.vista.cambiar.addActionListener(this);
-        
         this.vista.setSize(450, 350);
         this.vista.setLocationRelativeTo(null);
     }
@@ -35,8 +33,8 @@ public class ControladorNuevaContrasena implements ActionListener{
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == vista.cambiar) {
-            String pass = vista.tContrasena.getText().trim();
-            String confirmarPass = vista.tConfirmar.getText().trim();
+            String pass = vista.tContrasena.getText();
+            String confirmarPass = vista.tConfirmar.getText();
 
             if (pass.isEmpty() || confirmarPass.isEmpty()) {
                 JOptionPane.showMessageDialog(vista, "Por favor, complete todos los campos de contraseña.", "Campos Vacíos", JOptionPane.WARNING_MESSAGE);
@@ -56,11 +54,13 @@ public class ControladorNuevaContrasena implements ActionListener{
             if (exito) {
                 JOptionPane.showMessageDialog(vista, "Su contraseña ha sido reestablecida exitosamente en Nexus GO.", "Actualización Exitosa", JOptionPane.INFORMATION_MESSAGE);
                 vista.dispose();
+
+                VistaInicioSesion login = new VistaInicioSesion();
+                ControladorInicioSesion inicioSesion = new ControladorInicioSesion(login);
+                login.setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(vista, "Hubo un error al intentar actualizar la contraseña.", "Error de Sistema", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
-    
-    
 }

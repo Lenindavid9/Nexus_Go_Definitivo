@@ -76,10 +76,7 @@ public class ControladorValidarIdentificacion implements ActionListener {
             y un token, y guarda en la variable envioExitoso un valor booleano
             que indica si el envío fue exitoso (true) o falló (false). */
                 // se despachar el correo utilizando el servidor SMTP integrado con Jakarta 
-                
-                
                 //prueva rapida
-                
                 System.out.println("Correo: " + correoDestino);
                 System.out.println("Nombre: " + usuarioEncontrado.getNombre());
                 System.out.println("Token: " + tokenGenerado);
@@ -96,7 +93,7 @@ public class ControladorValidarIdentificacion implements ActionListener {
 
                     // Enrutamos hacia la vista y controlador
                     VistaValidarCodigo vistaSiguiente = new VistaValidarCodigo();
-                    ControladorValidarCodigo controlVeriCodigo=  new ControladorValidarCodigo(vistaSiguiente, tokenGenerado);
+                    ControladorValidarCodigo controlVeriCodigo = new ControladorValidarCodigo(vistaSiguiente, tokenGenerado, usuarioEncontrado);
                     vistaSiguiente.setLocationRelativeTo(null);
                     vistaSiguiente.setVisible(true);
 
@@ -134,55 +131,53 @@ public class ControladorValidarIdentificacion implements ActionListener {
         Se crea un objeto Properties donde se almacenan todas las las configuraciones necesarias
         para conectarse con el servidor de correos de Gmail. */
         Properties propiedades = new Properties();
-        
+
         // Indica que para enviar correos será necesario autenticarse con un correo y una contraseña
         propiedades.put("mail.smtp.auth", "true");
-        
+
         // Activa la seguridad TLS.
         // TLS cifra la comunicación entre el programa y Gmail para que la información viaje protegida por Internet.
         propiedades.put("mail.smtp.starttls.enable", "true");
-        
+
         // Dirección del servidor SMTP de Gmail.
         // SMTP es el protocolo encargado de enviar correos electrónicos.
         propiedades.put("mail.smtp.host", "smtp.gmail.com");
-        
+
         // Puerto utilizado por Gmail para conexiones seguras mediante TLS
         propiedades.put("mail.smtp.port", "587");
 
         //️ Parámetros de autenticación del remitente (osea con el correo de donde se manda el codigo)
         final String miCorreoRemitente = "liliannysbaptistap@gmail.com";
-        
+
         /*No es la contraseña normal del correo.
         Google genera esta clave especial para permitir que aplicaciones
         externas puedan enviar correos de forma segura.
-        */
+         */
         final String miClaveDeCorreo = "rksu umvz hnom irzf"; // Esa clave permite que el programa se autentique y envíe correos.
 
         /* La sesión guarda toda la configuración anterior y además
         registra las credenciales que utilizará Gmail para verificar
         que el programa tiene permiso para enviar correos. */
         Session sesionMail = Session.getInstance(propiedades, new Authenticator() {
-            
+
             /*Este método es llamado automáticamente cuando Gmail solicita
             las credenciales del remitente. */
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return
-                        /*Se entregan el correo y la contraseña de aplicación
+                return /*Se entregan el correo y la contraseña de aplicación
                         para que Gmail pueda autenticar al programa.
-                        el programa toma la clave que había guardado y se la entrega a Gmail para autenticarse. */
-                        new PasswordAuthentication(miCorreoRemitente, miClaveDeCorreo);
+                        el programa toma la clave que había guardado y se la entrega a Gmail para autenticarse. */ new PasswordAuthentication(miCorreoRemitente, miClaveDeCorreo);
             }
         });
         try {
-            
+
             /*Se crea el mensaje de correo que será enviado.
             Al principio está vacío y posteriormente se le agregan todos sus datos. */
             Message mensaje = new MimeMessage(sesionMail);
-            
+
             /* Se establece el correo desde el cual será enviado el mensaje. */
             mensaje.setFrom(new InternetAddress(miCorreoRemitente));
-            
+
             /*Se indica quién recibirá el correo.
             InternetAddress.parse convierte el texto del correo en un formato que JavaMail puede interpretar correctamente.*/
             mensaje.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailDestinatario));
@@ -205,12 +200,12 @@ public class ControladorValidarIdentificacion implements ActionListener {
 
             // Finalmente se envía el mensaje al servidor de Gmail.
             Transport.send(mensaje);
-            
+
             //Como el proceso terminó, se devuelve true.
             return true;
 
         } catch (MessagingException e) {
-            
+
             /*Si ocurre algún problema (falta de conexión, error de autenticación o el servidor no responde),
             se captura la excepción para evitar que el programa se cierre.*/
             System.out.println("Error de red SMTP: " + e.getMessage());

@@ -9,10 +9,13 @@ package nexusgo.model;
  * @author USUARIO
  */
 public class Usuario {
-    
+
     private int idUsuario;
     private String nombre;
     private String apellido;
+    private String correo;
+    private String contrasena;
+    private String rol;
 
     public String getApellido() {
         return apellido;
@@ -70,8 +73,4 @@ public class Usuario {
     public void setRol(String rol) {
         this.rol = rol;
     }
-    private String correo;
-    private String contrasena;
-    private String rol;
-    
 }

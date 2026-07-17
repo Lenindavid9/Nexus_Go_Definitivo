@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  *
@@ -98,8 +99,7 @@ public class UsuarioDao {
 
                     // Cargamos el ID único (Esencial para futuras consultas del flujo)
                     usuario.setIdUsuario(rs.getInt("id_usuario"));
-                    
-                    
+
                     //  Activamos el correo para que se lo puedas pasar al despachador de emails
                     usuario.setIdentificacion(rs.getString("numero_identificacion"));
                     usuario.setNombre(rs.getString("nombre"));
@@ -113,7 +113,7 @@ public class UsuarioDao {
         return usuario;
     }
 
-    public java.util.List<Object[]> listarCitasPorCliente(int idCliente) {
+    public List<Object[]> listarCitasPorCliente(int idCliente) {
         java.util.List<Object[]> listaCitas = new java.util.ArrayList<>();
 
         // Query que une la cita con el servicio/producto correspondiente
