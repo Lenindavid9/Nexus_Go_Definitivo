@@ -134,17 +134,15 @@ public class ControladorInicioSesion implements ActionListener {
 
                 // tambien se imvoca su controlador correspondiente
                 ControladorValidarIdentificacion controladorValidarIdentificacion = new ControladorValidarIdentificacion(validarIdentificacion);
+                
+                //Se establece el tamaño inicial que tendrá la ventana.
+                validarIdentificacion.setSize(450, 450);
 
                 //Se centra la ventana en la pantalla.
                 validarIdentificacion.setLocationRelativeTo(null);
 
                 //muestra la ventana
                 validarIdentificacion.setVisible(true);
-
-                //esto queda mientras tanto
-                JOptionPane.showMessageDialog(vistaLogin,
-                        "Módulo de recuperación de contraseña en desarrollo, ACTUALMENTE TIENE ERRORES.",
-                        "Nexus Go! Info", JOptionPane.ERROR_MESSAGE);
             }
         });
     }

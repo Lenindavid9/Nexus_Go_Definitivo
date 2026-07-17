@@ -52,7 +52,6 @@ public class UsuarioDao {
         } catch (SQLException e) {
             System.err.println("Error crítico en la autenticación (UsuarioDao): " + e.getMessage());
         }
-
         return null; // Retorna null si no hubo coincidencia de credenciales o hubo un error
     }
 
