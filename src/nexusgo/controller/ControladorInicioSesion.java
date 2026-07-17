@@ -223,24 +223,52 @@ public class ControladorInicioSesion implements ActionListener {
                 return;
             }
 
+            /* Se verifica si la variable usuarioLogueado contenga un objeto que si sea válido,
+               lo que significa que el método encontró un usuario
+               registrado en la base de datos y las credenciales fueron correctas.
+            
+               Si la variable sigue siendo null, significa que el usuario no existe
+               o que la identificación, o la contraseña no coinciden.*/
             if (usuarioLogueado != null) {
                 String nombreReal = usuarioLogueado.getNombre();
                 String rolReal = usuarioLogueado.getRol();
 
+                //nesaje de Bienvenida para cualquier usuario
                 JOptionPane.showMessageDialog(vistaLogin, "¡Bienvenido " + nombreReal + " al Sistema NEXUS!");
 
+                /* Se comienza a verificar el rol del usuario para decidir
+                qué interfaz principal debe abrir el sistema.*/
                 if (rolReal.equalsIgnoreCase("Supervisor")) {
+                    
+                    // Se llama la ventana principal correspondiente al Supervisor.
                     VistaPrincipalSupervisor vistaSupervisor = new VistaPrincipalSupervisor("", "");
-                     ControladorPrincipalSupervisor controladorSupervisor = new ControladorPrincipalSupervisor(vistaSupervisor, usuarioLogueado);
+                    
+                    //Se llama el controlador encargado de administrar toda la lógica del Supervisor*/
+                    ControladorPrincipalSupervisor controladorSupervisor = new ControladorPrincipalSupervisor(vistaSupervisor, usuarioLogueado);
+                    
+                    //Se hace visible la ventana principal del Supervisor.
                     vistaSupervisor.setVisible(true);
+                    
+                    //Se cierra la ventana de inicio de sesión
                     vistaLogin.dispose();
                     
+                    /*Si el usuario no es Supervisor, se verifica si pertenece al rol de Operario.*/
                 } else if (rolReal.equalsIgnoreCase("Operario")) {
+                    
+                    // Se llama la ventana principal correspondiente al Operario.
                     VistaPrincipalOperario vistaMenu = new VistaPrincipalOperario();
+                    
+                    /*Se llama el controlador encargado de gestionar las acciones
+                    que realizará el Operario en el sistema*/
                     ControladorPrincipalOperario controladorOperario = new ControladorPrincipalOperario(vistaMenu);
 
+                    // La ventana se abre por completo en toda la pantalla
                     vistaMenu.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                    
+                    // Se muestra la ventana principal del Operario.
                     vistaMenu.setVisible(true);
+                    
+                    //Se cierra la ventana de inicio de sesión
                     vistaLogin.dispose();
 
                     // NO EXISTE EL VISTA  DEL ADM PELUQUERO -----------------
@@ -274,21 +302,43 @@ public class ControladorInicioSesion implements ActionListener {
 //                    vistaPeluquero.setVisible(true);
 //                    vistaLogin.dispose();
 // -----------------------------------------------------------------------------------------
+
+                /*Si el usuario no es Peluquero, se verifica si pertenece al rol de Cliente.*/
                 } else if (rolReal.equalsIgnoreCase("Cliente")) {
+                    
+                    // Se llama la ventana principal correspondiente al Cliente.
                     VistaPrincipalCliente vistaCliente = new VistaPrincipalCliente(nombreReal, rolReal);
+                    
+                    //Se llama el controlador encargado de gestionar las acciones del Cliente
                     ControladorPrincipalCliente controladorCliente = new ControladorPrincipalCliente(vistaCliente);
 
+                    // Se muestra la ventana principal del Cliente.
                     vistaCliente.setVisible(true);
+                    
+                    //Se cierra la ventana de inicio de sesión
                     vistaLogin.dispose();
                 } else {
+                    /*Si el rol obtenido desde la base de datos no coincide
+                    con ninguno de los roles que este controlador reconoce,
+                    se informa al usuario que todavía no tiene
+                    permisos para acceder. */
                     JOptionPane.showMessageDialog(vistaLogin, "El rol '" + rolReal + "' no tiene accesos asignados en este panel.", "Error de Permisos", JOptionPane.ERROR_MESSAGE);
                 }
-
+                
+                /*Si usuarioLogueado es null significa que la autenticación falló,
+                osea que no se encontró un usuario con la identificación y
+                contraseña que proporciono.*/
             } else {
+                /*Se informa al usuario que los datos ingresados son incorrectos
+                para que pueda verificarlos e intentar nuevamente.*/
                 JOptionPane.showMessageDialog(vistaLogin, "Número de identificación o contraseña incorrectos.\nInténtelo nuevamente.", "Acceso Denegado", JOptionPane.ERROR_MESSAGE);
             }
 
         } catch (Exception ex) {
+            
+            /*Se muestra un mensaje indicando que ocurrió un error inesperado.
+            es mas que todo para facilitar la identificación del problema durante el desarrollo
+            por si aparece un error que no tengamos en cuenta*/
             JOptionPane.showMessageDialog(vistaLogin,
                     "Ocurrió un error inesperado al procesar el ingreso: " + ex.getMessage(),
                     "Error Extraño", JOptionPane.ERROR_MESSAGE);
