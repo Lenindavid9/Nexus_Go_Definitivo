@@ -128,8 +128,8 @@ public class ControladorInicioSesion implements ActionListener {
                 //Primero se cierra la ventana actual de inicio de sesión.
                 vistaLogin.dispose();
 
-                //Se abre la ventana donde podran ingresar su numero de identificacion
-                // parea mirar si existe en la bases de batos
+                /*Se abre la ventana donde podran ingresar su numero de identificacion
+                para mirar si existe en la bases de batos*/
                 VistaValidarIdentificacion validarIdentificacion = new VistaValidarIdentificacion();
 
                 // tambien se imvoca su controlador correspondiente

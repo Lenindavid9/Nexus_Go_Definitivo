@@ -71,30 +71,40 @@ public class ControladorValidarIdentificacion implements ActionListener {
                 // Deshabilitamos temporalmente el botón para evitar dobles clics
                 vista.confirmar.setEnabled(false);
                 vista.confirmar.setText("Enviando...");
-
-                /* Esta parte llama al método despacharEmail para enviar un correo al usuario con su nombre
-            y un token, y guarda en la variable envioExitoso un valor booleano
-            que indica si el envío fue exitoso (true) o falló (false). */
-                // se despachar el correo utilizando el servidor SMTP integrado con Jakarta 
-                //prueva rapida
+                
+                // ---------------- prueba rapida -------------------------
                 System.out.println("Correo: " + correoDestino);
                 System.out.println("Nombre: " + usuarioEncontrado.getNombre());
                 System.out.println("Token: " + tokenGenerado);
+                // -----------------------------------------------------------
 
-                //comentario
+                /* Esta parte llama al método despacharEmail para enviar un correo al usuario con su nombre
+                y un token, y guarda en la variable envioExitoso un valor booleano
+                que indica si el envío fue exitoso (true) o falló (false).
+                se despachar el correo utilizando el servidor SMTP integrado con Jakarta (Osea la libreria) */
+
                 boolean envioExitoso = despacharEmail(correoDestino, usuarioEncontrado.getNombre(), tokenGenerado);
                 if (envioExitoso) {
                     JOptionPane.showMessageDialog(vista,
                             "El código de verificación fue enviado con éxito al correo electrónico ya registrado.",
                             "Mensaje Enviado", JOptionPane.INFORMATION_MESSAGE);
 
-                    // se libera la ventana de la cédula
+                    // se ccierra la ventana
                     vista.dispose();
 
-                    // Enrutamos hacia la vista y controlador
+                    // Enrutamos hacia la vista
                     VistaValidarCodigo vistaSiguiente = new VistaValidarCodigo();
+                    
+                    // tambien se imvoca su controlador correspondiente
                     ControladorValidarCodigo controlVeriCodigo = new ControladorValidarCodigo(vistaSiguiente, tokenGenerado, usuarioEncontrado);
+                    
+                    //Se establece el tamaño inicial que tendrá la ventana.
+                    vistaSiguiente.setSize(450, 450);
+                    
+                    //Se centra la ventana en la pantalla.
                     vistaSiguiente.setLocationRelativeTo(null);
+                    
+                    //muestra la ventana
                     vistaSiguiente.setVisible(true);
 
                 } else {
