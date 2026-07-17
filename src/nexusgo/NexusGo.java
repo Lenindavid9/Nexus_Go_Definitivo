@@ -12,6 +12,7 @@ import nexusgo.controller.ControladorPrincipalCliente;
 import nexusgo.controller.ControladorPrincipalOperario;
 import nexusgo.model.Conexion;
 import nexusgo.model.Usuario;
+import nexusgo.view.PanelAdmi;
 import nexusgo.view.PanelBienvenida;
 import nexusgo.view.VistaBarraLateral;
 import nexusgo.view.VistaInicioSesion;
@@ -44,6 +45,11 @@ public class NexusGo {
         login.setLocationRelativeTo(null);
         login.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
         login.setVisible(true);
+        
+        JFrame ventana = new JFrame("Probando Panel de Administración");
+
+       PanelAdmi ventanaAdmin = new PanelAdmi();
+        ventanaAdmin.setVisible(true);
 
     }
 }
