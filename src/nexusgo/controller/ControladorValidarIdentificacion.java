@@ -101,8 +101,8 @@ public class ControladorValidarIdentificacion implements ActionListener {
                     //Se establece el tamaño inicial que tendrá la ventana.
                     vistaSiguiente.setSize(450, 450);
                     
-                    //Se centra la ventana en la pantalla.
-                    vistaSiguiente.setLocationRelativeTo(null);
+                    // La ventana se abre por completo en toda la pantalla
+                    vistaSiguiente.setExtendedState(vistaSiguiente.MAXIMIZED_BOTH);
                     
                     //muestra la ventana
                     vistaSiguiente.setVisible(true);

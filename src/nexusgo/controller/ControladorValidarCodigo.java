@@ -20,14 +20,14 @@ public class ControladorValidarCodigo implements ActionListener {
     private final VistaValidarCodigo vista;
     private final String tokenCorrecto;
     private final Usuario usuario;
-    
+
     public ControladorValidarCodigo(VistaValidarCodigo vista, String tokenCorrecto, Usuario usuario) {
         this.vista = vista;
         this.tokenCorrecto = tokenCorrecto;
         this.vista.enviar.addActionListener(this);
         this.usuario = usuario;
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == vista.enviar) {
@@ -72,11 +72,22 @@ public class ControladorValidarCodigo implements ActionListener {
             /* Ya despues que este validado el código,
             ya se cierra automáticamente ese modulo.*/
             vista.dispose();
-            
+
+            // se llama la vista
             VistaNuevaContrasena vistaContrasena = new VistaNuevaContrasena();
+
+            // tambien se imvoca su controlador correspondiente
             ControladorNuevaContrasena controlNuevaContra = new ControladorNuevaContrasena(vistaContrasena, usuario.getCorreo());
+
+            //Se establece el tamaño inicial que tendrá la ventana.
+            vistaContrasena.setSize(450, 450);
+
+            // La ventana se abre por completo en toda la pantalla
+            vistaContrasena.setExtendedState(vistaContrasena.MAXIMIZED_BOTH);
+
+            //muestra la ventana
             vistaContrasena.setVisible(true);
-            
+
         } else {
             // Código incorrecto
             JOptionPane.showMessageDialog(vista,

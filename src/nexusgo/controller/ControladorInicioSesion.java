@@ -16,7 +16,6 @@ import nexusgo.model.UsuarioDao;
 import nexusgo.view.VistaInicioSesion;
 import nexusgo.view.VistaPrincipalCliente;
 import nexusgo.view.VistaPrincipalOperario;
-import nexusgo.view.VistaPrincipalPeluquero;
 import nexusgo.view.VistaPrincipalSupervisor;
 import nexusgo.view.VistaValidarIdentificacion;
 import registro.VistaRegistroDeUsuario;
@@ -134,12 +133,12 @@ public class ControladorInicioSesion implements ActionListener {
 
                 // tambien se imvoca su controlador correspondiente
                 ControladorValidarIdentificacion controladorValidarIdentificacion = new ControladorValidarIdentificacion(validarIdentificacion);
-                
+
                 //Se establece el tamaño inicial que tendrá la ventana.
                 validarIdentificacion.setSize(450, 450);
 
-                //Se centra la ventana en la pantalla.
-                validarIdentificacion.setLocationRelativeTo(null);
+                // La ventana se abre por completo en toda la pantalla
+                validarIdentificacion.setExtendedState(validarIdentificacion.MAXIMIZED_BOTH);
 
                 //muestra la ventana
                 validarIdentificacion.setVisible(true);
@@ -239,35 +238,35 @@ public class ControladorInicioSesion implements ActionListener {
                 /* Se comienza a verificar el rol del usuario para decidir
                 qué interfaz principal debe abrir el sistema.*/
                 if (rolReal.equalsIgnoreCase("Supervisor")) {
-                    
+
                     // Se llama la ventana principal correspondiente al Supervisor.
                     VistaPrincipalSupervisor vistaSupervisor = new VistaPrincipalSupervisor("", "");
-                    
+
                     //Se llama el controlador encargado de administrar toda la lógica del Supervisor*/
                     ControladorPrincipalSupervisor controladorSupervisor = new ControladorPrincipalSupervisor(vistaSupervisor, usuarioLogueado);
-                    
+
                     //Se hace visible la ventana principal del Supervisor.
                     vistaSupervisor.setVisible(true);
-                    
+
                     //Se cierra la ventana de inicio de sesión
                     vistaLogin.dispose();
-                    
+
                     /*Si el usuario no es Supervisor, se verifica si pertenece al rol de Operario.*/
                 } else if (rolReal.equalsIgnoreCase("Operario")) {
-                    
+
                     // Se llama la ventana principal correspondiente al Operario.
                     VistaPrincipalOperario vistaMenu = new VistaPrincipalOperario();
-                    
+
                     /*Se llama el controlador encargado de gestionar las acciones
                     que realizará el Operario en el sistema*/
                     ControladorPrincipalOperario controladorOperario = new ControladorPrincipalOperario(vistaMenu);
 
                     // La ventana se abre por completo en toda la pantalla
                     vistaMenu.setExtendedState(JFrame.MAXIMIZED_BOTH);
-                    
+
                     // Se muestra la ventana principal del Operario.
                     vistaMenu.setVisible(true);
-                    
+
                     //Se cierra la ventana de inicio de sesión
                     vistaLogin.dispose();
 
@@ -303,18 +302,18 @@ public class ControladorInicioSesion implements ActionListener {
 //                    vistaLogin.dispose();
 // -----------------------------------------------------------------------------------------
 
-                /*Si el usuario no es Peluquero, se verifica si pertenece al rol de Cliente.*/
+                    /*Si el usuario no es Peluquero, se verifica si pertenece al rol de Cliente.*/
                 } else if (rolReal.equalsIgnoreCase("Cliente")) {
-                    
+
                     // Se llama la ventana principal correspondiente al Cliente.
                     VistaPrincipalCliente vistaCliente = new VistaPrincipalCliente(nombreReal, rolReal);
-                    
+
                     //Se llama el controlador encargado de gestionar las acciones del Cliente
                     ControladorPrincipalCliente controladorCliente = new ControladorPrincipalCliente(vistaCliente);
 
                     // Se muestra la ventana principal del Cliente.
                     vistaCliente.setVisible(true);
-                    
+
                     //Se cierra la ventana de inicio de sesión
                     vistaLogin.dispose();
                 } else {
@@ -324,7 +323,7 @@ public class ControladorInicioSesion implements ActionListener {
                     permisos para acceder. */
                     JOptionPane.showMessageDialog(vistaLogin, "El rol '" + rolReal + "' no tiene accesos asignados en este panel.", "Error de Permisos", JOptionPane.ERROR_MESSAGE);
                 }
-                
+
                 /*Si usuarioLogueado es null significa que la autenticación falló,
                 osea que no se encontró un usuario con la identificación y
                 contraseña que proporciono.*/
@@ -335,7 +334,7 @@ public class ControladorInicioSesion implements ActionListener {
             }
 
         } catch (Exception ex) {
-            
+
             /*Se muestra un mensaje indicando que ocurrió un error inesperado.
             es mas que todo para facilitar la identificación del problema durante el desarrollo
             por si aparece un error que no tengamos en cuenta*/

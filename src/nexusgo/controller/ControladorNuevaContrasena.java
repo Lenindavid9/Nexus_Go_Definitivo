@@ -53,10 +53,22 @@ public class ControladorNuevaContrasena implements ActionListener {
 
             if (exito) {
                 JOptionPane.showMessageDialog(vista, "Su contraseña ha sido reestablecida exitosamente en Nexus GO.", "Actualización Exitosa", JOptionPane.INFORMATION_MESSAGE);
+                //se cierra la ventana
                 vista.dispose();
 
+                // se llama a la vista
                 VistaInicioSesion login = new VistaInicioSesion();
+
+                //tambien se imvoca su controlador correspondiente
                 ControladorInicioSesion inicioSesion = new ControladorInicioSesion(login);
+
+                //Se establece el tamaño inicial que tendrá la ventana.
+                login.setSize(450, 450);
+
+                // La ventana se abre por completo en toda la pantalla
+                login.setExtendedState(login.MAXIMIZED_BOTH);
+
+                //muestra la ventana
                 login.setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(vista, "Hubo un error al intentar actualizar la contraseña.", "Error de Sistema", JOptionPane.ERROR_MESSAGE);
