@@ -36,6 +36,7 @@ public class VistaPrincipalOperario extends JFrame {
         // 1. Inicializar y posicionar la barra lateral a la izquierda (WEST)
         sidebar = new VistaBarraLateral();
         add(sidebar, BorderLayout.WEST);
+        
 
         // 2. Inicializar el panel 'contenido' explícitamente con BorderLayout.
         contenido = new JPanel(new BorderLayout());
