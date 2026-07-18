@@ -26,10 +26,10 @@ import javax.swing.SwingConstants;
  *
  * @author INGRID
  */
-public class PanelAdmi extends JFrame { // <-- CAMBIADO A JFRAME
+public class PanelAdmi extends JFrame { 
 
     private JPanel titulo, principal;
-    private JButton btnCerrar, btnInicio, btnAP, btnReportesF, btnAggServ, btnAggPromo;
+    private JButton btnCerrar;
     private JLabel logoyNombre, TituloPrincipal, imagen,lblEstado, texto1, texto2, imgJornada, imgVentas,tituloJ, estadoJ, detalleJ, tituloVentas,actividadV, detalleVentas;
     private JPanel OpcTitulo, pnlTarjeta, pnlEstado, Jornada, textoJornada, Ventas, textoVentas;
 
@@ -75,27 +75,6 @@ public class PanelAdmi extends JFrame { // <-- CAMBIADO A JFRAME
         menuLateral.setPreferredSize(new Dimension(250, 0));
         menuLateral.setBorder(BorderFactory.createEmptyBorder(30, 15, 10, 15));
 
-        btnInicio = new JButton("Inicio");
-        btnAP = new JButton("Apertura/Cierre");
-        btnReportesF = new JButton("Reportes Financieros");
-        btnAggServ = new JButton("Agregar Servicio");
-        btnAggPromo = new JButton("Agregar Promocion");
-
-        configurarBotonLateral(btnInicio);
-        configurarBotonLateral(btnAP);
-        configurarBotonLateral(btnReportesF);
-        configurarBotonLateral(btnAggServ);
-        configurarBotonLateral(btnAggPromo);
-
-        menuLateral.add(btnInicio);
-        menuLateral.add(Box.createVerticalStrut(20));
-        menuLateral.add(btnAP);
-        menuLateral.add(Box.createVerticalStrut(20));
-        menuLateral.add(btnReportesF);
-        menuLateral.add(Box.createVerticalStrut(20));
-        menuLateral.add(btnAggServ);
-        menuLateral.add(Box.createVerticalStrut(20));
-        menuLateral.add(btnAggPromo);
 
         // --- PANEL PRINCIPAL (CONTENIDO CENTRAL) ---
         principal = new JPanel();
@@ -232,24 +211,6 @@ public class PanelAdmi extends JFrame { // <-- CAMBIADO A JFRAME
         boton.setAlignmentX(Component.LEFT_ALIGNMENT);
     }
 
-    public JButton getBtnInicio() {
-        return btnInicio;
-    }
-
-    public JButton getBtnAP() {
-        return btnAP;
-    }
-
-    public JButton getBtnReportesF() {
-        return btnReportesF;
-    }
-
-    public JButton getBtnAggServ() {
-        return btnAggServ;
-    }
-
-    public JButton getBtnAggPromo() {
-        return btnAggPromo;
-    }
+   
 
 }
