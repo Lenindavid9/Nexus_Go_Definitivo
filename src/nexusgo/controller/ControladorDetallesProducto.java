@@ -4,70 +4,71 @@
  */
 package nexusgo.controller;
 
-import java.awt.event.ActionListener;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
-import java.io.File;
+import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
 import nexusgo.model.Producto;
-import nexusgo.model.ProductoDao;
 import nexusgo.view.VistaDetallesProducto;
-
 /**
  *
  * @author HOME
  */
 public class ControladorDetallesProducto implements ActionListener {
     
-    private final VistaDetallesProducto vista;
-    private Producto productoActual;
-    
-    
+  private final VistaDetallesProducto vista;
+    private final Producto producto;
+    private final ControladorPrincipalCliente controladorPrincipal;
 
-    public ControladorDetallesProducto(VistaDetallesProducto vista, Producto producto) {
-        // Guardo la vista de detalles que me pasan para poder meterle los datos del producto
+    /*
+     * Constructor que enlaza los datos del producto, la vista de detalles y el controlador principal.
+     */
+    public ControladorDetallesProducto(VistaDetallesProducto vista, Producto producto, ControladorPrincipalCliente controladorPrincipal) {
         this.vista = vista;
+        this.producto = producto;
+        this.controladorPrincipal = controladorPrincipal;
 
-        // Pinto el nombre del producto en mayúscula sostenida en mi etiqueta correspondiente
-        this.vista.lblNombreProducto.setText(producto.getNombreProducto().toUpperCase());
-        // Formateo el precio para que aparezca con el signo de pesos y separado por miles automáticamente
-        this.vista.lblPrecioProducto.setText(String.format("$%,.0f", producto.getPrecioCompra()));
-        // Agrego todo el texto detallado del producto en mi caja de descripción
-        this.vista.txtDescripcion.setText(producto.getDescripcion());
-
-        try {
-            // Busco el archivo de la imagen en la ruta que viene guardada desde la base de datos
-            File archivoImg = new File(producto.getUrlImagen());
-            // Si el archivo físico de la imagen sí existe en mi computadora ejecuto el cambio
-            if (archivoImg.exists()) {
-                // Cargo la imagen original desde la ruta especificada
-                ImageIcon iconoOriginal = new ImageIcon(producto.getUrlImagen());
-
-                // Redimensiono la imagen de forma suave para que encaje exacto en el cuadro morado (320 de ancho por 400 de alto)
-                Image imagenEscalada = iconoOriginal.getImage().getScaledInstance(320, 400, Image.SCALE_SMOOTH);
-                // Le pongo la imagen ya escalada a mi etiqueta de la interfaz
-                this.vista.lblImagenProducto.setIcon(new ImageIcon(imagenEscalada));
-                // Le borro el texto temporal que tenía la etiqueta para que no se sobreponga con la foto
-                this.vista.lblImagenProducto.setText("");
-            } else {
-                // Si la ruta no es válida o no encuentra el archivo muestro un texto de advertencia
-                this.vista.lblImagenProducto.setText("Imagen no encontrada");
-            }
-        } catch (Exception ex) {
-            // Si ocurre algún fallo inesperado al procesar el archivo protejo el sistema mostrando el error en el texto
-            this.vista.lblImagenProducto.setText("Error al cargar imagen");
-        }
-
-        // Pongo a escuchar mi botón de volver para saber cuándo quiere salir el usuario
+        // Escuchar el botón de regresar de la vista de detalles
         this.vista.btnVolver.addActionListener(this);
+
+        mostrarDatosProducto();
+    }
+
+    /*
+     * Inyecta la información del producto en los componentes visuales del panel.
+     */
+    private void mostrarDatosProducto() {
+        if (producto != null) {
+            // Corregido con los nombres exactos de los componentes de la vista
+            vista.lblNombreProducto.setText(producto.getNombreProducto().toUpperCase());
+            vista.lblPrecioProducto.setText("$ " + String.format("%,.0f", producto.getPrecioCompra()));
+            
+            if (producto.getDescripcion()!= null && !producto.getDescripcion().isEmpty()) {
+                vista.txtDescripcion.setText(producto.getDescripcion());
+            } else {
+                vista.txtDescripcion.setText("Este producto no cuenta con una descripción detallada registrada.");
+            }
+            
+            // Cargar y escalar la imagen directamente sobre el JLabel de la vista
+            String rutaImagen = producto.getUrlImagen();
+            if (rutaImagen == null || rutaImagen.isEmpty()) {
+                rutaImagen = "src/nexusgo/img/default.jpg";
+            }
+            
+            ImageIcon imgOriginal = new ImageIcon(rutaImagen);
+            if (imgOriginal.getImage() != null) {
+                Image escalada = imgOriginal.getImage().getScaledInstance(340, 260, Image.SCALE_SMOOTH);
+                vista.lblImagenProducto.setText("");
+                vista.lblImagenProducto.setIcon(new ImageIcon(escalada));
+            }
+        }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // Si el usuario presionó el botón de volver ejecuto el cierre de la pantalla
+        // Regresar al catálogo principal restaurando el panel
         if (e.getSource() == vista.btnVolver) {
-            // Cierro y destruyo la ventana actual para limpiar la memoria caché de mi programa
-            this.vista.dispose();
+            controladorPrincipal.restaurarTiendaYCatalogo();
         }
     }
 }

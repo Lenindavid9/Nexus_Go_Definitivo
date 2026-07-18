@@ -3,18 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-<<<<<<< HEAD
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorValidarIdentificacion.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorValidarCodigo.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/model/CajaDao.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorPrincipalCliente.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/model/UsuarioDao.java</file>
-=======
-            <file>file:/C:/Users/INGRID/OneDrive%20-%20Universidad%20Autonoma%20de%20Occidente/Documentos/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaPdV.java</file>
-            <file>file:/C:/Users/INGRID/OneDrive%20-%20Universidad%20Autonoma%20de%20Occidente/Documentos/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorPrincipalOperario.java</file>
-            <file>file:/C:/Users/INGRID/OneDrive%20-%20Universidad%20Autonoma%20de%20Occidente/Documentos/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/NexusGo.java</file>
-            <file>file:/C:/Users/INGRID/OneDrive%20-%20Universidad%20Autonoma%20de%20Occidente/Documentos/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/model/ClienteDao.java</file>
->>>>>>> main
+            <file>file:/C:/Users/HOME/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorPrincipalCliente.java</file>
+            <file>file:/C:/Users/HOME/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/PanelCitasPeluquero.java</file>
+            <file>file:/C:/Users/HOME/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/PanelInsumosCita.java</file>
+            <file>file:/C:/Users/HOME/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/PanelModificarCita.java</file>
+            <file>file:/C:/Users/HOME/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/PanelInventarioProductosPeluquero.java</file>
+            <file>file:/C:/Users/HOME/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorInventarioPeluquero.java</file>
+            <file>file:/C:/Users/HOME/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorPrincipalPeluquero.java</file>
+            <file>file:/C:/Users/HOME/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaPrincipalPeluquero.java</file>
         </group>
     </open-files>
 </project-private>
