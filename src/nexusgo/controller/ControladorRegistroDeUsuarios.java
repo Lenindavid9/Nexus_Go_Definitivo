@@ -127,47 +127,76 @@ public class ControladorRegistroDeUsuarios implements ActionListener {
 
         // Se crea un nuevo objeto de tipo Usuario.
         Usuario nuevoUsuario = new Usuario();
+        
+        // Se asigna al objeto el nombre.
         nuevoUsuario.setNombre(nombre);
+        
+        // Se asigna el apellido ingresado.
         nuevoUsuario.setApellido(apellido);
+        
+        // Se asigna el tipo de documento que el usuario seleccionó
         nuevoUsuario.setTipoDocumento(tipoDocumento);
+        
+        // Se asigna el número de identificación del usuario.
         nuevoUsuario.setIdentificacion(identificacion);
+        
+        // Se asigna el correo electrónico que utilizará para mandar las recuperacioes y PDF
         nuevoUsuario.setCorreo(correo);
+        
+        // Se asigna la contraseña
         nuevoUsuario.setContrasena(contrasena);
 
-        // 4. Enviamos el objeto al DAO
+        /*El valor devuelto se almacena en la variable resultado.
+        Si el valor es mayor que cero, significa que el registro
+        se realizó correctamente.*/
         int resultado = usuarioDao.registrar(nuevoUsuario);
 
+        // Se verifica si el proceso de registro fue exitoso.
         if (resultado > 0) {
+            
+            // Se informa al usuario que su cuenta fue creada con exito
             JOptionPane.showMessageDialog(vistaRegistro,
-                    "¡Registro exitoso! Bienvenido a Nexus Go!",
+                    "El usuario se ha registrado con éxito, Bienvenido a Nexus Go!",
                     "Nexus Go Éxito", JOptionPane.INFORMATION_MESSAGE);
 
-            // Cerramos de inmediato la ventana de registro actual
+            // Se cierra la ventana de registro,
             this.vistaRegistro.dispose();
 
-            // Redirección Directa: Abrimos la interfaz principal del cliente amarrada a su controlador
+            // Se crea la vista principal correspondiente al cliente.
             VistaPrincipalCliente vistaCliente = new VistaPrincipalCliente("", "");//////////POR SOLUCIONAR///////////
-            new ControladorPrincipalCliente(vistaCliente);
+            
+            // Se llama el controlador encargado de administrar la lógica de la vista del cliente 
+            ControladorPrincipalCliente controlCliete = new ControladorPrincipalCliente(vistaCliente);
+            
+            //Se hace visible la ventana principal del cliente
             vistaCliente.setVisible(true);
 
         } else {
+            
+            /* Si el resultado no es mayor que cero, significa que el
+            registro no pudo completarse correctamente.
+    
+            Esto puede ocurrir si la identificación
+            o el correo electrónico ya se encuentran registrados en la base de datos.*/
             JOptionPane.showMessageDialog(vistaRegistro,
                     "No se pudo completar el registro. Es posible que la identificación o el correo ya existan.",
                     "Error de Inserción", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    /**
-     * Método encargado de cerrar la vista de registro y restablecer el flujo
-     * del login inicial.
-     */
+    //Método encargado de cerrar la vista de registro y restablecer el flujo del login inicial.
     private void regresarAlLogin() {
+        
+        // Se cierra la ventana de registro
         this.vistaRegistro.dispose();
 
+        // Se crea la instancia de la ventana de inicio de sesión.
         VistaInicioSesion loginVista = new VistaInicioSesion();
-        new ControladorInicioSesion(loginVista);
+        
+        // Se crea el controlador de la ventana de inicio de sesión
+        ControladorInicioSesion controlInicioSesion = new ControladorInicioSesion(loginVista);
 
-        loginVista.setLocationRelativeTo(null);
+        //se hace visible la ventana de inicio de sesión,
         loginVista.setVisible(true);
     }
 }
