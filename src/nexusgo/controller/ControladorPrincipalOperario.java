@@ -49,6 +49,7 @@ public class ControladorPrincipalOperario implements ActionListener {
         }
         else if (e.getSource() == vistaMenu.getsidebar().bInventario) {
             VistaPdV panelPdV = new VistaPdV();
+
             panelPdV.VistaNexus();
             new ControladorPdV(panelPdV);
             cambiarPanel(panelPdV);
@@ -60,6 +61,11 @@ public class ControladorPrincipalOperario implements ActionListener {
             ControladorInventarioOperario controlador = new ControladorInventarioOperario(panelInventario, usuarioLogueado, contenedorCentral);
             
             cambiarPanel(panelInventario);
+           
+            // 5. Refrescamos la interfaz gráfica
+            contenedorCentral.revalidate();
+            contenedorCentral.repaint();
+
         }
     }
 
