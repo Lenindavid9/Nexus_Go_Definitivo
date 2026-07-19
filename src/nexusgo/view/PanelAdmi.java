@@ -211,6 +211,4 @@ public class PanelAdmi extends JFrame {
         boton.setAlignmentX(Component.LEFT_ALIGNMENT);
     }
 
-   
-
 }
