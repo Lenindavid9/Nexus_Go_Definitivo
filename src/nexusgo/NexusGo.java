@@ -6,19 +6,7 @@ package nexusgo;
 
 import javax.swing.JFrame;
 import nexusgo.controller.ControladorInicioSesion;
-import nexusgo.controller.ControladorInventarioOperario;
-import nexusgo.controller.ControladorInventarioSupervisor;
-import nexusgo.controller.ControladorPrincipalCliente;
-import nexusgo.controller.ControladorPrincipalOperario;
-import nexusgo.model.Conexion;
-import nexusgo.model.Usuario;
-import nexusgo.view.PanelBienvenida;
-import nexusgo.view.VistaBarraLateral;
 import nexusgo.view.VistaInicioSesion;
-import nexusgo.view.VistaOperarioInventario;
-import nexusgo.view.VistaPrincipalCliente;
-import nexusgo.view.VistaPrincipalOperario;
-import nexusgo.view.VistaPrincipalSupervisor;
 
 /**
  *
@@ -31,19 +19,27 @@ public class NexusGo {
      */
     public static void main(String[] args) {
 
-
-
-//        ////        // 1. Se crea la Vista
+        // Se crea una instancia de la ventana de inicio de sesión.
         VistaInicioSesion login = new VistaInicioSesion();
 
-     // 2. Se crea el Controlador y se le vincula la vista
+        /*Se crea el controlador encargado de administrar el funcionamiento
+        de la ventana de inicio de sesión.*/
         ControladorInicioSesion controlador = new ControladorInicioSesion(login);
 
-       // 3. Se hace visible el Login en el centro de la pantalla
-        login.setSize(450, 450); // Ajusta las dimensiones según tu fondito.jpg
+        //Se establece el tamaño inicial que tendrá la ventana.
+        login.setSize(450, 450);
+        
+        /*Se posiciona la ventana en el centro de la pantalla del usuario.
+        Al utilizar null, se calcula automáticamente
+        la ubicación para centrar la ventana.*/
         login.setLocationRelativeTo(null);
-        login.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
+        
+        /*Se define el comportamiento de la aplicación cuando el usuario
+        presiona el botón de cerrar (X) de la ventana.
+        EXIT_ON_CLOSE cerrará completamente la aplicación y finalizará la continuacion del sistema.*/
+        login.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        // Finalmente, se hace visible la ventana de inicio de sesión.
         login.setVisible(true);
-
     }
 }
