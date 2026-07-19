@@ -40,7 +40,7 @@ public class VistaValidarIdentificacion extends JFrame {
         contenedor = getContentPane();
 
         //fondo de marbolo
-        this.fondo = new JLabel(new ImageIcon("C:\\Users\\USUARIO\\Documents\\NetBeansProjects\\nexusGo/fondito.jpg"));
+        this.fondo = new JLabel(new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg"));
         this.fondo.setOpaque(true);
         this.fondo.setLayout(new FlowLayout());
         this.setContentPane(fondo);

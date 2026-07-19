@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,7 +19,7 @@ public class UsuarioDao {
 
     Conexion conexion = new Conexion();
 
-    public Usuario autenticarUsuario(String identificacion, String contrasena) {
+    public Usuario autenticarUsuario(int identificacion, String contrasena) {
         // Usa 'numero_identificacion' y conecta con la tabla roles
         String sql = """
                      SELECT u.nombre, r.nombre_rol AS rol 
@@ -30,7 +31,7 @@ public class UsuarioDao {
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             // Pasamos los parámetros limpios que vienen de la interfaz visual
-            ps.setString(1, identificacion);
+            ps.setInt(1, identificacion);
             ps.setString(2, contrasena);
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -66,7 +67,7 @@ public class UsuarioDao {
             ps.setString(1, usuario.getNombre());
             ps.setString(2, usuario.getApellido());
             ps.setString(3, usuario.getTipoDocumento());
-            ps.setString(4, usuario.getIdentificacion());
+            ps.setInt(4, usuario.getIdentificacion());
             ps.setString(5, usuario.getCorreo());
             ps.setString(6, usuario.getContrasena());
 
@@ -102,7 +103,7 @@ public class UsuarioDao {
                     usuario.setIdUsuario(rs.getInt("id_usuario"));
 
                     //  Activamos el correo para que se lo puedas pasar al despachador de emails
-                    usuario.setIdentificacion(rs.getString("numero_identificacion"));
+                    usuario.setIdentificacion(rs.getInt("numero_identificacion"));
                     usuario.setNombre(rs.getString("nombre"));
                     usuario.setRol(rs.getString("id_rol"));
                     usuario.setCorreo(rs.getString("correo"));
@@ -143,7 +144,68 @@ public class UsuarioDao {
         }
         return listaCitas;
     }
+    
+    public List<Object[]> obtenerUsuariosParaCambioRol(){
+        List<Object[]> lista = new ArrayList<>();
+        String sql = """
+                    SELECT u.numero_identificacion, u.nombre, u.apellido, r.nombre_rol AS rol, u.correo
+                    FROM usuarios u
+                    INNER JOIN roles r ON u.id_rol = i.id_rol
+                    """;
 
+        try (Connection con = conexion.getConection();
+                PreparedStatement ps = con.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()){
+            while(rs.next()) {
+                Object[] fila = new Object[]{
+                    rs.getInt("numero_identificacion"),
+                    rs.getString("nombre"),
+                    rs.getString("apellido"),
+                    rs.getString("rol"),
+                    rs.getString("correo")
+                };
+                lista.add(fila);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error en UsuarioDao.obtenerUsuariosParaCambioRol: " + e.getMessage());
+        }
+        return lista;
+    }
+    
+    public boolean actualizarRolPorNombre(String identificacion, String nombreRol) {
+        
+        String queryIdRol = "SELECT id_rol FROM roles WHERE nombre_rol = ?";
+        String queryUpdate = "UPDATE usuarios SET id_rol = ? WHERE numero_identificacion = ?";
+
+        try (Connection con = conexion.getConection()) {
+            int idRolFound = -1;
+
+            try (PreparedStatement psId = con.prepareStatement(queryIdRol)) {
+                psId.setString(1, nombreRol);
+                try (ResultSet rs = psId.executeQuery()) {
+                    if (rs.next()) {
+                        idRolFound = rs.getInt("id_rol");
+                    }
+                }
+            }
+
+            if (idRolFound == -1) {
+                System.err.println("❌ Error: No se encontró un id_rol para el nombre: " + nombreRol);
+                return false;
+            }
+
+            try (PreparedStatement psUpdate = con.prepareStatement(queryUpdate)) {
+                psUpdate.setInt(1, idRolFound);
+                psUpdate.setString(2, identificacion);
+
+                return psUpdate.executeUpdate() > 0;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error en UsuarioDao.actualizarRolPorNombre: " + e.getMessage());
+            return false;
+        }
+    }
     public boolean registrarCita(int idCliente, int idServicio, String fechaHora) {
         String sql = "INSERT INTO citas (id_cliente, id_servicio, fecha_hora, estado) VALUES (?, ?, ?, 'Vigente')";
 

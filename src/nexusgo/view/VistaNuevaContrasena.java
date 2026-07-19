@@ -39,7 +39,7 @@ public class VistaNuevaContrasena extends JFrame {
         componentes gráficos de la interfaz*/
         contenedor = getContentPane();
 
-        this.fondo = new JLabel(new ImageIcon("C:\\Users\\USUARIO\\Documents\\NetBeansProjects\\nexusGo/fondito.jpg"));
+        this.fondo = new JLabel(new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg"));
         this.fondo.setOpaque(true);
         this.fondo.setLayout(new FlowLayout());
         this.setContentPane(fondo);

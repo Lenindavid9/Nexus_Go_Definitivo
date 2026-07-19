@@ -2,9 +2,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package registro;
+package nexusgo.view;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -25,9 +24,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
-public class VistaRegistroDeUsuario extends JFrame {
-
-    // Componente para colocar la imagen de fondo de mármol
+public class VistaRegistroDeUsuario extends JFrame {// Componente para colocar la imagen de fondo de mármol
     private JLabel fondo;
 
     // Los dos paneles blancos principales (las tarjetas que flotan en el centro)
@@ -74,15 +71,11 @@ public class VistaRegistroDeUsuario extends JFrame {
      */
     public VistaRegistroDeUsuario() {
         // Le asignamos el título superior a la ventana de Windows
-        super("Nexus Go! - Registro de Usuario");
+        super("Nexus Go - Registro de Usuario");
 
-        // 1. CONFIGURACIÓN DEL FONDO CON RUTA DE RECURSOS (Para evitar fallos de carga)
-        java.net.URL urlFondo = getClass().getResource("/nexusgo/img/fondito.jpg");
-        if (urlFondo != null) {
-            this.fondo = new JLabel(new ImageIcon(urlFondo));
-        } else {
-            this.fondo = new JLabel(new ImageIcon("fondito.jpg")); // Respaldo local
-        }
+        /*Se definen las fuentes utilizadas en toda la interfaz
+        para mantener un diseño consistente*/
+        this.fondo = new JLabel(new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg"));
 
         // GridBagLayout sirve aquí para que las tarjetas blancas se queden perfectamente centradas en la pantalla
         this.fondo.setLayout(new GridBagLayout());

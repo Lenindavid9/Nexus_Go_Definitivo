@@ -18,7 +18,7 @@ import nexusgo.view.VistaPrincipalCliente;
 import nexusgo.view.VistaPrincipalOperario;
 import nexusgo.view.VistaPrincipalSupervisor;
 import nexusgo.view.VistaValidarIdentificacion;
-import registro.VistaRegistroDeUsuario;
+import nexusgo.view.VistaRegistroDeUsuario;
 
 /**
  *
@@ -160,8 +160,8 @@ public class ControladorInicioSesion implements ActionListener {
         para verificar si las credenciales son correctas */
     private void ejecutarLogin() {
         try {
-            //Se obtiene el número de documento escrito por el usuario
-            String identificacion = vistaLogin.tNroIdentidad.getText();
+            //Se obtiene el número de documento en String escrito por el usuario
+            String texIdentificacion = vistaLogin.tNroIdentidad.getText();
 
             /*Se obtiene la contraseña.
             getPassword() devuelve un arreglo de caracteres,
@@ -175,8 +175,8 @@ public class ControladorInicioSesion implements ActionListener {
             
             con esto también se evita que el usuario intente iniciar
             sesión dejando los textos de ayuda*/
-            if (identificacion.isEmpty() || contrasena.isEmpty()
-                    || identificacion.equals("Ingrese su número de documento")
+            if (texIdentificacion.isEmpty() || contrasena.isEmpty()
+                    || texIdentificacion.equals("Ingrese su número de documento")
                     || contrasena.equals("Ingresar su contraseña")) {
 
                 // Si alguno de los campos no es válido y se le informa al usuario
@@ -185,6 +185,9 @@ public class ControladorInicioSesion implements ActionListener {
                         JOptionPane.WARNING_MESSAGE);
                 return;
             }
+            
+            // Se transformo el numero de identificacion que se resibio en String a int 
+            int identificacion = Integer.parseInt(vistaLogin.tNroIdentidad.getText().trim());
 
             /*Se declara una variable de tipo Usuario y se inicializa con el valor null.
             Esto se hace porque al inicio, todavía no se sabe si las credenciales

@@ -10,7 +10,7 @@ import javax.swing.JOptionPane;
 import nexusgo.model.Usuario;
 import nexusgo.model.UsuarioDao;
 import nexusgo.view.VistaInicioSesion;
-import registro.VistaRegistroDeUsuario;
+import nexusgo.view.VistaRegistroDeUsuario;
 import nexusgo.view.VistaPrincipalCliente;
 
 /**
@@ -83,7 +83,7 @@ public class ControladorRegistroDeUsuarios implements ActionListener {
         String tipoDocumento = vistaRegistro.miTipoDocumento.getSelectedItem().toString();
 
         // Se obtiene el número de identificación
-        String identificacion = vistaRegistro.tNroIdentificacion.getText().trim();
+        String texIdentificacion = vistaRegistro.tNroIdentificacion.getText().trim();
 
         // Se obtiene el correo electrónico ingresado
         String correo = vistaRegistro.tCorreo.getText().trim();
@@ -95,11 +95,56 @@ public class ControladorRegistroDeUsuarios implements ActionListener {
         String confirmarContrasena = new String(vistaRegistro.tConfirmar.getPassword()).trim();
 
         // Se verifica que todos los campos obligatorios del formulario contengan información.
-        if (nombre.isEmpty() || apellido.isEmpty() || identificacion.isEmpty() || correo.isEmpty() || contrasena.isEmpty()) {
+        if (nombre.isEmpty() || apellido.isEmpty() || texIdentificacion.isEmpty() || correo.isEmpty() || contrasena.isEmpty()) {
             // Se informa que se debe completar todos los campos Obligatorios
             JOptionPane.showMessageDialog(vistaRegistro,
                     "Por favor, complete todos los campos obligatorios del formulario.",
                     "Campos Incompletos", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        
+        /*Se verica el número de identificación ingresado.
+        Integer.parseInt() solo acepta cadenas que contengan
+        exclusivamente números. Si el usuario escribe letras,
+        símbolos o cualquier otro carácter que no sea numérico,
+        se producirá una excepción.*/
+        try{
+            
+            /*Se obtiene el texto del campo de identificación,
+            si tiene, se eliminan los espacios en blanco al inicio y al final
+            que por error pudo el usuario haber ingresado y se verificar qque el valor sea un número entero.*/
+            Integer.parseInt(vistaRegistro.tNroIdentificacion.getText().trim());
+        }catch (NumberFormatException e){
+            
+            /*Si falla, significa que el usuario ingresó un valor que no es 
+            un número(puede ser un . o una , o cualquier otra cosa)*/
+            JOptionPane.showMessageDialog(vistaRegistro,"El numero de identificacion solo puede contener datos numericos.",
+                    "Error de formato", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        /*Después de comprobar que es válido, se convierte definitivamente el String 
+        y se almacena en una variable int para utilizarla mas a delant edonde obliga el formato int*/
+        int identificacion = Integer.parseInt(texIdentificacion);
+        
+        /*Se utiliza el método matches() para comprobar si el correo cumple con una dirección de correo.
+        La expresión regular LEE asi:
+        ^ = Indica el inicio del texto.
+        \\w+ = Debe comenzar con una o más letras,números o el guion bajo _ 
+        ([.-]?\\w+)* = Permite que después del inicio, puedan aparecer opcionalmente puntos o guiones seguidos de más letras o números.
+        @ = Verifica que exista el símbolo @, lo cual es re obligatorio en toda dirección de correo.
+        \\w+ = Corresponde al nombre del dominio, por ejp: gmail, outlook o sena.
+        ([.-]?\\w+)* = Permite subdominios o dominios compuestos, como "mail.google".
+        (\\.\\w{2,3})+ = Comprueba la extensión del dominio, el punto debe estar presente y debe ir
+        seguido de entre 2 y 3 caracteres, como .com, .co, .net, .org, entre otros.
+        $ = Indica que el texto debe terminar aquí.
+        Si toda la cadena cumple con este patrón, el método matches() devolverá true.*/
+        if(!correo.matches("^\\w+([.-]?\\w+)*@\\w+([.-]?\\w+)*(\\.\\w{2,3})+$")){
+            
+            //se muestra que el correo no tiene un formato valido.
+            JOptionPane.showMessageDialog(vistaRegistro,"El correo ingresado no es valido, por favor verifiquelo y vuelva a intentarlo", 
+                    "Error de expresion regular", JOptionPane.ERROR_MESSAGE);
             return;
         }
 

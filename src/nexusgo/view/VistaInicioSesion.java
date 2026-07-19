@@ -41,7 +41,6 @@ public class VistaInicioSesion extends JFrame {
     /*Se centralizan todos los colores utilizados en la
       interfaz para mantener una apariencia uniforme y
       facilitar futuras modificaciones.*/
-    
     private final Color COLOR_INPUT_BG = new Color(225, 225, 225); 
     private final Color COLOR_INPUT_BORDE = new Color(210, 210, 210);
     
@@ -56,8 +55,8 @@ public class VistaInicioSesion extends JFrame {
         super("Nexus Go - Inicio de Sesión");
         
         /*Se definen las fuentes utilizadas en toda la interfaz
-          para mantener un diseño consistente*/
-        this.fondo = new JLabel(new ImageIcon("src/nexusgo/img/fondito.jpg"));
+        para mantener un diseño consistente*/
+        this.fondo = new JLabel(new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg"));
         
         /*GridBagLayout permite colocar
         la tarjeta blanca del centro. */
@@ -114,11 +113,11 @@ public class VistaInicioSesion extends JFrame {
         panelContrasenaFila.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
         tContrasena = new JPasswordField();
-        configurarEstiloInput(tContrasena, "  Ingresar su contraseña");
+        configurarEstiloInput(tContrasena,"  Ingresar su contraseña");
         
         /* Botón utilizado para mostrar o ocultar
         la contraseña escrita.*/
-        btnVerContrasena = new JButton("ver"); // boton para habilitar ver
+        btnVerContrasena = new JButton("Ver"); // boton para habilitar ver
         btnVerContrasena.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         btnVerContrasena.setPreferredSize(new Dimension(45, 40));
         btnVerContrasena.setMaximumSize(new Dimension(45, 40));
@@ -202,7 +201,7 @@ public class VistaInicioSesion extends JFrame {
     De esta manera se evita repetir el mismo código varias veces,
     haciendo el codigo sea más organizado y fácil de mantener.*/
     
-    private void configurarEstiloInput(JTextField campo, String placeholder) {
+    private void configurarEstiloInput(JTextField campo , String placeholder) {
         
         //Se aplica la fuente definida para los campos.
         campo.setFont(FUENTE_TEXTO_INPUT);
@@ -224,6 +223,4 @@ public class VistaInicioSesion extends JFrame {
         cuando el usuario coloca el cursor arroba de el campo.*/
         campo.setToolTipText(placeholder.trim());
     }
-
-
 }

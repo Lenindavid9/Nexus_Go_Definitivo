@@ -43,7 +43,7 @@ public class VistaCambioRol extends JFrame {
         // Se utilizará BorderLayout para distribuir los paneles
         contenedor.setLayout(new BorderLayout(20, 20));
 
-        this.fondo = new JLabel(new ImageIcon ("C:\\Users\\USUARIO\\Documents\\NetBeansProjects\\nexusGo/fondito.jpg"));
+        this.fondo = new JLabel(new ImageIcon ("src/nexusgo/img/marmol_mejorado.jpg"));
         this.fondo.setLayout(new BorderLayout(20,20));
         this.setContentPane(fondo);
         
