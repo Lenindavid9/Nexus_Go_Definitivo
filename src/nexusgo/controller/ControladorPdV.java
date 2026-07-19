@@ -1,21 +1,23 @@
 package nexusgo.controller;
 
 import nexusgo.view.MetododePago;
-import nexusgo.view.VistaPdV; 
+import nexusgo.view.VistaPdV;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JFrame;
 
 public class ControladorPdV implements ActionListener {
-private VistaPdV vista;
-private MetododePago metodoPago;
-private JFrame framePago;
+
+  private final VistaPdV vista;
+    private MetododePago metodoPago;
+    private JFrame framePago;
 
     public ControladorPdV(VistaPdV vista) {
         this.vista = vista;
 
-        vista.getFacturarButton().addActionListener(this);
-        vista.getReiniciarButton().addActionListener(this);
+        // Se enlazan los listeners usando los getters sobre la vista ya renderizada
+        this.vista.getFacturarButton().addActionListener(this);
+        this.vista.getReiniciarButton().addActionListener(this);
     }
     
     private void enlazarEventosPago() {
@@ -31,6 +33,8 @@ private JFrame framePago;
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        
+        // 1. EVENTOS DE LA VISTA DEL PUNTO DE VENTA (PdV)
         if (e.getSource() == vista.getFacturarButton()) {
             metodoPago = new MetododePago();
             metodoPago.setTotal(vista.getTotalVenta());
@@ -39,6 +43,8 @@ private JFrame framePago;
 
             framePago = new JFrame("Método de Pago - Nexus");
             framePago.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            
+            // Usamos el método que construye tu vista del método de pago
             framePago.setContentPane(metodoPago.VistaMdP());
             framePago.pack();
             framePago.setLocationRelativeTo(null); 
@@ -49,6 +55,7 @@ private JFrame framePago;
             System.out.println("Contador y total reiniciados desde el Controlador");
         }
 
+        //  EVENTOS DE LA VENTANA FLOTANTE DE MÉTODOS DE PAGO
         if (metodoPago != null) {
             if (e.getSource() == metodoPago.getBtnVolver()) {
                 framePago.dispose(); 
@@ -57,7 +64,6 @@ private JFrame framePago;
                 metodoPago.getBtnConfirmar().setEnabled(true);
             }
             else if (e.getSource() == metodoPago.getBtnBuscarCliente()) {
-                
                 metodoPago.getBtnConfirmar().setEnabled(true);
             }
             else if (e.getSource() == metodoPago.getBtnConfirmar()) {

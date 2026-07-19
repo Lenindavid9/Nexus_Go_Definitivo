@@ -28,20 +28,18 @@ public class NexusGo {
 
         //Se establece el tamaño inicial que tendrá la ventana.
         login.setSize(450, 450);
-        
+
         /*Se posiciona la ventana en el centro de la pantalla del usuario.
         Al utilizar null, se calcula automáticamente
         la ubicación para centrar la ventana.*/
         login.setLocationRelativeTo(null);
-        
+
         /*Se define el comportamiento de la aplicación cuando el usuario
         presiona el botón de cerrar (X) de la ventana.
         EXIT_ON_CLOSE cerrará completamente la aplicación y finalizará la continuacion del sistema.*/
         login.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
+
         // Finalmente, se hace visible la ventana de inicio de sesión.
         login.setVisible(true);
-
     }
-    
 }

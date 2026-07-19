@@ -269,7 +269,7 @@ public class ControladorInicioSesion implements ActionListener {
 
                     //Se cierra la ventana de inicio de sesión
                     vistaLogin.dispose();
-
+                    
                     /*Si el usuario no es Supervisor, se verifica si pertenece al rol de Operario.*/
                 } else if (rolReal.equalsIgnoreCase("Operario")) {
 
@@ -278,7 +278,7 @@ public class ControladorInicioSesion implements ActionListener {
 
                     /*Se llama el controlador encargado de gestionar las acciones
                     que realizará el Operario en el sistema*/
-                    ControladorPrincipalOperario controladorOperario = new ControladorPrincipalOperario(vistaMenu);
+                    ControladorPrincipalOperario controladorOperario = new ControladorPrincipalOperario(vistaMenu,usuarioLogueado);
 
                     // La ventana se abre por completo en toda la pantalla
                     vistaMenu.setExtendedState(JFrame.MAXIMIZED_BOTH);
