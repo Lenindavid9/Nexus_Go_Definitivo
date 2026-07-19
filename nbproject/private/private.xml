@@ -3,18 +3,9 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorHistorialCita.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorInicioSesion.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorInventarioOperario.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorPrincipalCliente.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorPrincipalOperario.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaNuevaContrasena.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorNuevaContrasena.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorValidarCodigo.java</file>
             <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorValidarIdentificacion.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorInventarioSupervisor.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorPrincipalAdminSoftware.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorPrincipalSupervisor.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorInicioSesion.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/NexusGo.java</file>
         </group>
     </open-files>
 </project-private>
