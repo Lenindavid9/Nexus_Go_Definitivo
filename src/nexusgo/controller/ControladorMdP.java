@@ -10,16 +10,16 @@ import javax.swing.JOptionPane;
 import nexusgo.view.Factura;
 
 interface EstadoCliente {
-
-    void seleccionarClienteGeneral();
-
-    void seleccionarClienteRegistrado();
-
+    void seleccionarClienteG();
+    void seleccionarClienteR();
     void buscarCliente(String id);
 }
 
-class EstadoInicial implements EstadoCliente {
 
+
+
+
+class EstadoInicial implements EstadoCliente {
     private final ControladorMdP controlador;
 
     public EstadoInicial(ControladorMdP controlador) {
@@ -28,30 +28,34 @@ class EstadoInicial implements EstadoCliente {
         controlador.vista.getBtnConfirmar().setEnabled(false);
     }
 
-    @Override
-    public void seleccionarClienteGeneral() {
+     @Override
+    public void seleccionarClienteG() {
         controlador.habilitarMetodosPago(true);
         controlador.vista.getBtnConfirmar().setEnabled(false);
-        controlador.setEstado(new EstadoClienteGeneral(controlador));
+        controlador.setEstado(new EstadoClienteG(controlador));
     }
 
     @Override
-    public void seleccionarClienteRegistrado() {
+    public void seleccionarClienteR() {
         controlador.habilitarMetodosPago(false);
         controlador.vista.getNumId().setEnabled(true);
         controlador.vista.getBtnConfirmar().setEnabled(false);
-        controlador.setEstado(new EstadoClienteRegistrado(controlador));
+        controlador.setEstado(new EstadoClienteR(controlador));
     }
 
     @Override
     public void buscarCliente(String id) {}
 }
 
-class EstadoClienteGeneral implements EstadoCliente {
 
+
+
+
+
+class EstadoClienteG implements EstadoCliente {
     private final ControladorMdP controlador;
 
-    public EstadoClienteGeneral(ControladorMdP controlador) {
+    public EstadoClienteG(ControladorMdP controlador) {
         this.controlador = controlador;
         controlador.vista.getNumId().setEnabled(false);
         controlador.vista.getNumId().setText("");
@@ -60,37 +64,45 @@ class EstadoClienteGeneral implements EstadoCliente {
     }
 
     @Override
-    public void seleccionarClienteGeneral() {}
+    public void seleccionarClienteG() {}
 
     @Override
-    public void seleccionarClienteRegistrado() {
+    public void seleccionarClienteR() {
         controlador.vista.getNumId().setEnabled(true);
         controlador.habilitarMetodosPago(false);
         controlador.vista.getBtnConfirmar().setEnabled(false);
-        controlador.setEstado(new EstadoClienteRegistrado(controlador));
+        controlador.setEstado(new EstadoClienteR(controlador));
     }
 
     @Override
     public void buscarCliente(String id) {}
 }
 
-class EstadoClienteRegistrado implements EstadoCliente {
 
+
+
+
+
+
+
+
+
+class EstadoClienteR implements EstadoCliente {
     private final ControladorMdP controlador;
 
-    public EstadoClienteRegistrado(ControladorMdP controlador) {
+    public EstadoClienteR(ControladorMdP controlador) {
         this.controlador = controlador;
         controlador.habilitarMetodosPago(false);
         controlador.vista.getBtnConfirmar().setEnabled(false);
     }
 
     @Override
-    public void seleccionarClienteGeneral() {
-        controlador.setEstado(new EstadoClienteGeneral(controlador));
+    public void seleccionarClienteG() {
+        controlador.setEstado(new EstadoClienteG(controlador));
     }
 
     @Override
-    public void seleccionarClienteRegistrado() {}
+    public void seleccionarClienteR() {}
 
     @Override
     public void buscarCliente(String id) {
@@ -105,7 +117,7 @@ class EstadoClienteRegistrado implements EstadoCliente {
             JOptionPane.showMessageDialog(controlador.vista,
                     "Cliente no existe",
                     "Resultado", JOptionPane.WARNING_MESSAGE);
-            controlador.setEstado(new EstadoClienteGeneral(controlador));
+            controlador.setEstado(new EstadoClienteG(controlador));
         }
     }
 }
@@ -124,8 +136,8 @@ public class ControladorMdP implements ActionListener {
         vista.getBtnVolver().addActionListener(this);
         vista.getBtnConfirmar().addActionListener(this);
 
-        vista.getBtnClienteR().addActionListener(e -> estado.seleccionarClienteRegistrado());
-        vista.getBtnClienteG().addActionListener(e -> estado.seleccionarClienteGeneral());
+        vista.getBtnClienteR().addActionListener(e -> estado.seleccionarClienteR());
+        vista.getBtnClienteG().addActionListener(e -> estado.seleccionarClienteG());
         vista.getBtnBuscarCliente().addActionListener(e -> estado.buscarCliente(vista.getNumId().getText().trim()));
 
         vista.getBtnTarjeta().addActionListener(e -> vista.getBtnConfirmar().setEnabled(true));
