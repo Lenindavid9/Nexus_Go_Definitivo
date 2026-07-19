@@ -17,34 +17,41 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+
 /**
  *
  * @author INGRID
  */
-public class PanelAdmi extends JPanel{
-    private JPanel titulo, menu, principal;
-    private JButton btnInicio, btnReportesF, btnAggServ, btnAggPromo,btnCerrar, btnAP;
-    private JLabel logoyNombre,TituloPrincipal,imagen, 
-            lblEstado, texto1,texto2,imgJornada,imgVentas, 
-            tituloJ, estadoJ, detalleJ, tituloVentas, 
-            actividadV, detalleVentas;
+public class PanelAdmi extends JFrame { 
+
+    private JPanel titulo, principal;
+    private JButton btnCerrar;
+    private JLabel logoyNombre, TituloPrincipal, imagen,lblEstado, texto1, texto2, imgJornada, imgVentas,tituloJ, estadoJ, detalleJ, tituloVentas,actividadV, detalleVentas;
     private JPanel OpcTitulo, pnlTarjeta, pnlEstado, Jornada, textoJornada, Ventas, textoVentas;
+
+    // Tu clase VistaBarraLateral integrada
+    private VistaBarraLateral menuLateral;
 
     private final Color COLOR_CAFE_OSCURO = new Color(62, 58, 46);
     private final Color COLOR_DORADO = new Color(223, 205, 141);
 
-    public JPanel VistaAdmi() {
+    // CONSTRUCTOR
+    public PanelAdmi() {
+        // Configuración del JFrame principal
+        super("Panel de Administración - N E X U S GO");
         this.setLayout(new BorderLayout());
-        this.setBackground(Color.white);
+        this.getContentPane().setBackground(Color.white);
 
+        // --- BARRA SUPERIOR (TITULO) ---
         titulo = new JPanel(new BorderLayout());
         titulo.setBackground(COLOR_CAFE_OSCURO);
         titulo.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
-        Icon iconLogo = new ImageIcon("logo.png"); 
+        Icon iconLogo = new ImageIcon("logo.png");
         logoyNombre = new JLabel("Panel de Administracion  - N E X U S", iconLogo, SwingConstants.LEFT);
         logoyNombre.setForeground(Color.WHITE);
         logoyNombre.setFont(new Font("SansSerif", Font.BOLD, 22));
@@ -52,46 +59,24 @@ public class PanelAdmi extends JPanel{
 
         OpcTitulo = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
         OpcTitulo.setOpaque(false);
-        
+
         btnCerrar = new JButton("Cerrar Sesion");
         btnCerrar.setFont(new Font("SansSerif", Font.BOLD, 15));
         btnCerrar.setForeground(Color.WHITE);
         btnCerrar.setContentAreaFilled(false);
         btnCerrar.setBorderPainted(false);
-        
+
         OpcTitulo.add(btnCerrar);
         titulo.add(OpcTitulo, BorderLayout.EAST);
 
-        menu = new JPanel();
-        menu.setLayout(new BoxLayout(menu, BoxLayout.Y_AXIS));
-        menu.setBackground(COLOR_DORADO);
-        menu.setPreferredSize(new Dimension(200, 0));
-        menu.setBorder(BorderFactory.createEmptyBorder(30, 15, 10, 15)); 
-        menu.setPreferredSize(new Dimension(250, 0));
+        // --- TU COMPLEMENTO: VistaBarraLateral ---
+        menuLateral = new VistaBarraLateral();
+        menuLateral.setBackground(COLOR_DORADO);
+        menuLateral.setPreferredSize(new Dimension(250, 0));
+        menuLateral.setBorder(BorderFactory.createEmptyBorder(30, 15, 10, 15));
 
-        
-        btnInicio = new JButton("Inicio");
-        btnAP = new JButton("Apertura/Cierre");
-        btnReportesF = new JButton("Reportes Financieros");
-        btnAggServ = new JButton("Agregar Servicio");
-        btnAggPromo = new JButton("Agregar Promocion");
 
-        BotonMenu(btnInicio);
-        BotonMenu(btnAP);
-        BotonMenu(btnReportesF);
-        BotonMenu(btnAggServ);
-        BotonMenu(btnAggPromo);
-
-        menu.add(btnInicio);
-        menu.add(javax.swing.Box.createVerticalStrut(20));
-        menu.add(btnAP);
-        menu.add(javax.swing.Box.createVerticalStrut(20));
-        menu.add(btnReportesF);
-        menu.add(javax.swing.Box.createVerticalStrut(20));
-        menu.add(btnAggServ);
-        menu.add(javax.swing.Box.createVerticalStrut(20));
-        menu.add(btnAggPromo);
-
+        // --- PANEL PRINCIPAL (CONTENIDO CENTRAL) ---
         principal = new JPanel();
         principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
         principal.setBackground(Color.white);
@@ -123,7 +108,6 @@ public class PanelAdmi extends JPanel{
         pnlTarjeta.add(texto1);
         pnlTarjeta.add(texto2);
 
-
         lblEstado = new JLabel("Estado del Sistema");
         lblEstado.setFont(new Font("SansSerif", Font.BOLD, 22));
         lblEstado.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -147,15 +131,12 @@ public class PanelAdmi extends JPanel{
 
         tituloJ = new JLabel("Jornada");
         tituloJ.setFont(new Font("SansSerif", Font.BOLD, 16));
-        tituloJ.setAlignmentY(Component.CENTER_ALIGNMENT);
 
         estadoJ = new JLabel("Último estado");
         estadoJ.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        estadoJ.setAlignmentY(Component.CENTER_ALIGNMENT);
 
         detalleJ = new JLabel("Sin cambios recientes. Lista para apertura");
         detalleJ.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        detalleJ.setAlignmentY(Component.CENTER_ALIGNMENT);
 
         textoJornada.add(tituloJ);
         textoJornada.add(estadoJ);
@@ -163,32 +144,28 @@ public class PanelAdmi extends JPanel{
 
         Jornada.add(textoJornada, BorderLayout.CENTER);
 
-
         Ventas = new JPanel(new BorderLayout());
         Ventas.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         Ventas.setPreferredSize(new Dimension(450, 100));
         Ventas.setBackground(Color.WHITE);
 
         imgVentas = new JLabel(new ImageIcon("ventas.png"));
-        imgVentas.setBorder(BorderFactory.createEmptyBorder(5,10,5,10));
+        imgVentas.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         Ventas.add(imgVentas, BorderLayout.WEST);
 
         textoVentas = new JPanel();
         textoVentas.setLayout(new BoxLayout(textoVentas, BoxLayout.Y_AXIS));
         textoVentas.setBackground(Color.WHITE);
-        textoVentas.setBorder(BorderFactory.createEmptyBorder(5,10,5,10));
+        textoVentas.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
         tituloVentas = new JLabel("Ventas (Punto de Venta)");
         tituloVentas.setFont(new Font("SansSerif", Font.BOLD, 16));
-        tituloVentas.setAlignmentY(Component.CENTER_ALIGNMENT);
 
         actividadV = new JLabel("Actividad");
         actividadV.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        actividadV.setAlignmentY(Component.CENTER_ALIGNMENT);
 
         detalleVentas = new JLabel("Ventas Desactivadas");
         detalleVentas.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        detalleVentas.setAlignmentY(Component.CENTER_ALIGNMENT);
 
         textoVentas.add(tituloVentas);
         textoVentas.add(actividadV);
@@ -207,22 +184,31 @@ public class PanelAdmi extends JPanel{
         principal.add(Box.createVerticalStrut(20));
         principal.add(pnlEstado);
 
+        // Ensamblar todo el contenido directo en el JFrame
         this.add(titulo, BorderLayout.NORTH);
-        this.add(menu, BorderLayout.WEST);
+        this.add(menuLateral, BorderLayout.WEST);
         this.add(principal, BorderLayout.CENTER);
 
-        return this;
+        // Ajustes de la ventana autónoma
+        this.setSize(1250, 780);
+        this.setLocationRelativeTo(null);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    private void BotonMenu(JButton boton) {
+    public VistaBarraLateral getMenuLateral() {
+        return menuLateral;
+    }
+
+    public JButton getBtnCerrar() {
+        return btnCerrar;
+    }
+
+    private void configurarBotonLateral(JButton boton) {
         boton.setFont(new Font("SansSerif", Font.BOLD, 16));
         boton.setContentAreaFilled(false);
         boton.setBorderPainted(false);
         boton.setHorizontalAlignment(SwingConstants.LEFT);
-        boton.setAlignmentX(LEFT_ALIGNMENT);
+        boton.setAlignmentX(Component.LEFT_ALIGNMENT);
     }
 
-    public JButton getBtnAP() {
-    return btnAP;
-}
 }
