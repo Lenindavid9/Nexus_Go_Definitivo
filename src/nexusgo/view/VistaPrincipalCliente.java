@@ -7,7 +7,6 @@ package nexusgo.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -48,7 +47,7 @@ public class VistaPrincipalCliente extends JFrame {
         super("Nexus GO - Panel de Cliente");
 
         // 1. Fondo de mármol con centrado automático de la interfaz
-        this.fondo = new JLabel(new ImageIcon("src/nexusgo/img/fondito.jpg"));
+        this.fondo = new JLabel(new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg"));
         this.fondo.setLayout(new GridBagLayout());
         this.setContentPane(fondo);
 

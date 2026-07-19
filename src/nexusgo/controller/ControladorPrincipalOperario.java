@@ -66,15 +66,15 @@ public class ControladorPrincipalOperario implements ActionListener {
             VistaPdV panelPdV = new VistaPdV();
 
             // 2. Ejecutamos tu método que arma el diseño (VistaNexus)
-            javax.swing.JPanel graficoPdV = panelPdV.VistaNexus();
+            JPanel graficoPdV = panelPdV.VistaNexus();
 
             // 3. Le pasamos la vista a TU controlador existente para activar "Facturar" y "Reiniciar"
             new ControladorPdV(panelPdV);
 
             // 4. Limpiamos el contenedor dinámico del operario e inyectamos el Punto de Venta
-            javax.swing.JPanel contenedorCentral = vista.getContenido();
+            JPanel contenedorCentral = vista.getContenido();
             contenedorCentral.removeAll();
-            contenedorCentral.add(graficoPdV, java.awt.BorderLayout.CENTER);
+            contenedorCentral.add(graficoPdV, BorderLayout.CENTER);
 
             // 5. Refrescamos la interfaz gráfica
             contenedorCentral.revalidate();

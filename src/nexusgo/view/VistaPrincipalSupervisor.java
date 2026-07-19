@@ -40,7 +40,7 @@ public class VistaPrincipalSupervisor extends JFrame {
         super("Nexus GO - Panel de Supervisor");
         
         // 1. Reutilización del fondo de mármol con centrado GridBagLayout
-        this.fondo = new JLabel(new ImageIcon("src/nexusgo/img/fondito.jpg"));
+        this.fondo = new JLabel(new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg"));
         this.fondo.setLayout(new GridBagLayout());
         this.setContentPane(fondo);
 
