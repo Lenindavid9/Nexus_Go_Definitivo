@@ -33,20 +33,28 @@ public class ControladorValidarIdentificacion implements ActionListener {
     public ControladorValidarIdentificacion(VistaValidarIdentificacion vista) {
         this.vista = vista;
         this.usuarioDao = new UsuarioDao();
-        // con esta se hace la escucha del botón de tu vista
+        /*Se registra este controlador como escuchador del botón "Confirmar".
+        con esto cuando el usuario haga clic sobre el botón,
+        se ejecuta automáticamente el método actionPerformed().*/
         this.vista.confirmar.addActionListener(this);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == vista.confirmar) {
+            /*Si el usuario hizo clic en el botón "Confirmar",
+            se llama al método encargado de ejecutar todo el
+            proceso de validación de la identificación.*/
             ejecutarFlujoValidacion();
         }
     }
 
     private void ejecutarFlujoValidacion() {
-        String documento = vista.tIdentificacion.getText().trim();
 
+        // Se obtiene el contenido del campo que ongreso la identificación.
+        String documento = vista.tIdentificacion.getText();
+
+        // Se verifica si el campo de identificación quedó vacío.
         if (documento.isEmpty()) {
             JOptionPane.showMessageDialog(vista, "Por favor, digite su número de identificación.", "Campo Requerido",
                     JOptionPane.WARNING_MESSAGE);
@@ -72,32 +80,38 @@ public class ControladorValidarIdentificacion implements ActionListener {
                 vista.confirmar.setEnabled(false);
                 vista.confirmar.setText("Enviando...");
 
-                /* Esta parte llama al método despacharEmail para enviar un correo al usuario con su nombre
-            y un token, y guarda en la variable envioExitoso un valor booleano
-            que indica si el envío fue exitoso (true) o falló (false). */
-                // se despachar el correo utilizando el servidor SMTP integrado con Jakarta 
-                
-                
-                //prueva rapida
-                
+                // ---------------- prueba rapida -------------------------
                 System.out.println("Correo: " + correoDestino);
                 System.out.println("Nombre: " + usuarioEncontrado.getNombre());
                 System.out.println("Token: " + tokenGenerado);
+                // -----------------------------------------------------------
 
-                //comentario
+                /* Esta parte llama al método despacharEmail para enviar un correo al usuario con su nombre
+                y un token, y guarda en la variable envioExitoso un valor booleano
+                que indica si el envío fue exitoso (true) o falló (false).
+                se despachar el correo utilizando el servidor SMTP integrado con Jakarta (Osea la libreria) */
                 boolean envioExitoso = despacharEmail(correoDestino, usuarioEncontrado.getNombre(), tokenGenerado);
                 if (envioExitoso) {
                     JOptionPane.showMessageDialog(vista,
                             "El código de verificación fue enviado con éxito al correo electrónico ya registrado.",
                             "Mensaje Enviado", JOptionPane.INFORMATION_MESSAGE);
 
-                    // se libera la ventana de la cédula
+                    // se ccierra la ventana
                     vista.dispose();
 
-                    // Enrutamos hacia la vista y controlador
+                    // Enrutamos hacia la vista
                     VistaValidarCodigo vistaSiguiente = new VistaValidarCodigo();
-                    /*ControladorVerificarCodigo =  new ControladorVerificarCodigo(vistaSiguiente, tokenGenerado, usuarioEcontrado);*/
-                    vistaSiguiente.setLocationRelativeTo(null);
+
+                    // tambien se imvoca su controlador correspondiente
+                    ControladorValidarCodigo controlVeriCodigo = new ControladorValidarCodigo(vistaSiguiente, tokenGenerado, usuarioEncontrado);
+
+                    //Se establece el tamaño inicial que tendrá la ventana.
+                    vistaSiguiente.setSize(450, 450);
+
+                    // La ventana se abre por completo en toda la pantalla
+                    vistaSiguiente.setExtendedState(vistaSiguiente.MAXIMIZED_BOTH);
+
+                    //muestra la ventana
                     vistaSiguiente.setVisible(true);
 
                 } else {
@@ -121,9 +135,9 @@ public class ControladorValidarIdentificacion implements ActionListener {
     /* Este método se encarga de enviar un correo electrónico al usuario 
     con el código de verificación que servirá para restablecer su contraseña.
     Parámetros:
-      - emailDestinatario: correo de la persona que recibirá el mensaje.
-      - nombreUsuario: nombre del usuario que aparecerá en el saludo.
-      - codigoToken: código de verificación que el usuario deberá ingresar.
+      emailDestinatario: correo de la persona que recibirá el mensaje.
+      nombreUsuario: nombre del usuario que aparecerá en el saludo.
+      codigoToken: código de verificación que el usuario deberá ingresar.
 
       Retorna:
       - true: si el correo fue enviado correctamente.
@@ -134,55 +148,53 @@ public class ControladorValidarIdentificacion implements ActionListener {
         Se crea un objeto Properties donde se almacenan todas las las configuraciones necesarias
         para conectarse con el servidor de correos de Gmail. */
         Properties propiedades = new Properties();
-        
+
         // Indica que para enviar correos será necesario autenticarse con un correo y una contraseña
         propiedades.put("mail.smtp.auth", "true");
-        
+
         // Activa la seguridad TLS.
         // TLS cifra la comunicación entre el programa y Gmail para que la información viaje protegida por Internet.
         propiedades.put("mail.smtp.starttls.enable", "true");
-        
+
         // Dirección del servidor SMTP de Gmail.
         // SMTP es el protocolo encargado de enviar correos electrónicos.
         propiedades.put("mail.smtp.host", "smtp.gmail.com");
-        
+
         // Puerto utilizado por Gmail para conexiones seguras mediante TLS
         propiedades.put("mail.smtp.port", "587");
 
         //️ Parámetros de autenticación del remitente (osea con el correo de donde se manda el codigo)
         final String miCorreoRemitente = "liliannysbaptistap@gmail.com";
-        
+
         /*No es la contraseña normal del correo.
         Google genera esta clave especial para permitir que aplicaciones
         externas puedan enviar correos de forma segura.
-        */
+         */
         final String miClaveDeCorreo = "rksu umvz hnom irzf"; // Esa clave permite que el programa se autentique y envíe correos.
 
         /* La sesión guarda toda la configuración anterior y además
         registra las credenciales que utilizará Gmail para verificar
         que el programa tiene permiso para enviar correos. */
         Session sesionMail = Session.getInstance(propiedades, new Authenticator() {
-            
+
             /*Este método es llamado automáticamente cuando Gmail solicita
             las credenciales del remitente. */
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return
-                        /*Se entregan el correo y la contraseña de aplicación
+                return /*Se entregan el correo y la contraseña de aplicación
                         para que Gmail pueda autenticar al programa.
-                        el programa toma la clave que había guardado y se la entrega a Gmail para autenticarse. */
-                        new PasswordAuthentication(miCorreoRemitente, miClaveDeCorreo);
+                        el programa toma la clave que había guardado y se la entrega a Gmail para autenticarse. */ new PasswordAuthentication(miCorreoRemitente, miClaveDeCorreo);
             }
         });
         try {
-            
+
             /*Se crea el mensaje de correo que será enviado.
             Al principio está vacío y posteriormente se le agregan todos sus datos. */
             Message mensaje = new MimeMessage(sesionMail);
-            
+
             /* Se establece el correo desde el cual será enviado el mensaje. */
             mensaje.setFrom(new InternetAddress(miCorreoRemitente));
-            
+
             /*Se indica quién recibirá el correo.
             InternetAddress.parse convierte el texto del correo en un formato que JavaMail puede interpretar correctamente.*/
             mensaje.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailDestinatario));
@@ -198,19 +210,19 @@ public class ControladorValidarIdentificacion implements ActionListener {
                     + "Se ha solicitado un código para cambiar tu contraseña en Nexus GO.\n"
                     + "Tu código de verificación obligatorio es:\n"
                     + "   👉 " + codigoToken + " 👈\n"
-                    + "Usa este cogido en la ventana ue te lo solicita para actualizar tu clave.";
+                    + "Usa este codigo en la ventana usa este cogido en la ventana te lo solicita para actualizar tu clave.";
 
             //Se asigna el texto anterior como contenido del correo.
             mensaje.setText(mensajeTexto);
 
             // Finalmente se envía el mensaje al servidor de Gmail.
             Transport.send(mensaje);
-            
+
             //Como el proceso terminó, se devuelve true.
             return true;
 
         } catch (MessagingException e) {
-            
+
             /*Si ocurre algún problema (falta de conexión, error de autenticación o el servidor no responde),
             se captura la excepción para evitar que el programa se cierre.*/
             System.out.println("Error de red SMTP: " + e.getMessage());

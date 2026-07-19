@@ -2,12 +2,11 @@ package nexusgo.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Image;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -18,298 +17,287 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-
 public class MetododePago extends JPanel {
-    private JPanel principal, pnlClientes, pnlIngresoId, pnlMdP, pnlResumen, pnlbtnVolver;
-    private JLabel lbltxtIngreso, lbltxtMdP, lbltxtIndicacion, lblTotal;
+
+    private JPanel principal, pnlClientes, pnlIngresoId, pnlMdP, pnlResumen, pnlbtnVolver, pnlOpcionesPago;
+    private JLabel lbltxtIngreso, lbltxtMdP, lbltxtIndicacion, lblTotal, lblTituloEfectivo, lblEstadoEfectivo;
     private JButton btnClienteR, btnClienteG, btnVolver, btnConfirmar, btnBuscarCliente, btnImgEfectivo, btnImgTarjeta, btnImgTransferencia;
     private JTextField numId;
-    
+    private JPanel pnlEfectivo, pnlTransferencia, pnlTarjeta;
+
     private final Color COLOR_DORADO = new Color(223, 205, 141);
- public MetododePago() {
-        VistaMdP(); 
+
+    public MetododePago() {
+        VistaMdP();
     }
+
     public JPanel VistaMdP() {
+        
         this.setLayout(new BorderLayout());
+           
+//                                            PANEL PRINCIPAL ;) (Aqui se va agregar todo)
 
         principal = new JPanel() {
             private Image fondo = new ImageIcon("fondo.png").getImage();
+
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 g.drawImage(fondo, 0, 0, getWidth(), getHeight(), this);
             }
         };
-        principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
-        principal.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
-        
-        pnlbtnVolver = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
-        pnlbtnVolver.setOpaque(false);
-        pnlbtnVolver.setMaximumSize(new Dimension(Short.MAX_VALUE, 35));
 
+        //Este es para organizar todo hacia abajo, no podemos usar flowlayout ya que se pondria todo a un lado
+        principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
+        
+        //espaci de los bordes del panel principal
+        principal.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+
+        
+        //                                       PANEL DEL BOTON VOLVER ;)
+        
+        //Creamos el panel del boton volver para dejarlo en la parte superior derecha usando el flowlayout
+        pnlbtnVolver = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        pnlbtnVolver.setOpaque(false);
+        pnlbtnVolver.setMaximumSize(new Dimension(Short.MAX_VALUE, 40));
+
+        //Aqui es importante usar el setPreferredSise ya que le decimos al layout el tamaño que queremos para el boton volver
         btnVolver = new JButton("< Volver");
-        btnVolver.setPreferredSize(new Dimension(110, 40)); 
+        btnVolver.setPreferredSize(new Dimension(110, 40));
         btnVolver.setFont(new Font("SansSerif", Font.BOLD, 16));
         btnVolver.setBackground(COLOR_DORADO);
         btnVolver.setBorder(null);
-        
+
+        //se añade el JButton al JPanel
         pnlbtnVolver.add(btnVolver);
         
         
-        pnlClientes = new JPanel();
-        pnlClientes.setOpaque(false);
-        pnlClientes.setLayout(new BoxLayout(pnlClientes, BoxLayout.X_AXIS));
-        pnlClientes.setPreferredSize(new Dimension(400, 60)); 
-        pnlClientes.setMaximumSize(new Dimension(400, 45));
+        //                                           PANEL DE LOS CLIENTES ;)
+        
 
+        
+        //Aqui creamos el panel de los clientes donde se usa tambien el flowlayout ya que necesitamos que se vea uno al lado del otro no debajo
+        pnlClientes = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        pnlClientes.setOpaque(false);
+        pnlClientes.setBorder(BorderFactory.createEmptyBorder(0, 0, 20, 0));
+
+        //Aqui creamos los botones cliente registrado y cliente general ambos con el mismo tamaño el mismo todo para que se vean simetricos
         btnClienteR = new JButton("Cliente Registrado");
-        btnClienteR.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        btnClienteR.setBackground(COLOR_DORADO); 
+        btnClienteR.setPreferredSize(new Dimension(190, 45));
+        btnClienteR.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        btnClienteR.setBackground(COLOR_DORADO);
         btnClienteR.setBorder(null);
-        btnClienteR.setMaximumSize(new Dimension(180, 50));
 
         btnClienteG = new JButton("Cliente General");
-        btnClienteG.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        btnClienteG.setBackground(COLOR_DORADO); 
+        btnClienteG.setPreferredSize(new Dimension(190, 45));
+        btnClienteG.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        btnClienteG.setBackground(COLOR_DORADO);
         btnClienteG.setBorder(null);
-        btnClienteG.setMaximumSize(new Dimension(180, 50));
 
+        //se añaden los JButton al JPanel
         pnlClientes.add(btnClienteR);
-        pnlClientes.add(Box.createHorizontalStrut(20));
         pnlClientes.add(btnClienteG);
 
-        pnlIngresoId = new JPanel();
-        pnlIngresoId.setLayout(new BoxLayout(pnlIngresoId, BoxLayout.X_AXIS));
+        
+        //                                       PANEL PARA INGRESAR EL NUMERO DE IDENTIFICACION DEL CLIENTE REGISTRADO ;)
+        
+        
+        
+        //Aqui creamos el panel tambien con un flowlayout por que necesitamos que todo quede a un lado no debajo
+        pnlIngresoId = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
         pnlIngresoId.setOpaque(false);
-        pnlIngresoId.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+        pnlIngresoId.setBorder(BorderFactory.createEmptyBorder(0, 0, 25, 0));
+//      
 
-        lbltxtIngreso = new JLabel("Número de Identificación");
-        lbltxtIngreso.setFont(new Font("SansSerif", Font.BOLD, 16));
-        lbltxtIngreso.setAlignmentX(CENTER_ALIGNMENT);
+        //label del texto a mostrar
+        lbltxtIngreso = new JLabel("Número de Identificación: ");
+        lbltxtIngreso.setFont(new Font("SansSerif", Font.BOLD, 18));
 
+        //textfiel para ingresar el numero de identificacion
         numId = new JTextField();
+        numId.setPreferredSize(new Dimension(250, 35));
         numId.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        numId.setMaximumSize(new Dimension(350, 35));
-        numId.setAlignmentX(CENTER_ALIGNMENT);
+
+        //boton de buscar numero de identificacion del cliente registrado
         btnBuscarCliente = new JButton("Buscar");
-        btnBuscarCliente.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        btnBuscarCliente.setPreferredSize(new Dimension(100, 35));
+        btnBuscarCliente.setFont(new Font("SansSerif", Font.PLAIN, 18));
         btnBuscarCliente.setBackground(COLOR_DORADO);
         btnBuscarCliente.setBorder(null);
 
+        //agregar label,textfield y boton al panel de ingreso numero de identificacion
         pnlIngresoId.add(lbltxtIngreso);
-        pnlIngresoId.add(Box.createHorizontalStrut(10));
         pnlIngresoId.add(numId);
-        pnlIngresoId.add(Box.createHorizontalStrut(10));
         pnlIngresoId.add(btnBuscarCliente);
 
-
+        
+        //                                  PANEL DE METODOS DE PAGO ;)
+        
+        //Aqui creamos el panel donde usamos el boxlayout ya que queremos que el subtitulo quede debajo del titulo y no al lado
         pnlMdP = new JPanel();
         pnlMdP.setLayout(new BoxLayout(pnlMdP, BoxLayout.Y_AXIS));
         pnlMdP.setOpaque(false);
-
+        pnlMdP.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+        
+        //Titulo
         lbltxtMdP = new JLabel("Métodos de Pago");
-        lbltxtMdP.setForeground(Color.BLACK);
         lbltxtMdP.setFont(new Font("SansSerif", Font.BOLD, 28));
-        lbltxtMdP.setAlignmentX(CENTER_ALIGNMENT);
+        lbltxtMdP.setAlignmentX(CENTER_ALIGNMENT); //usamos esto para que el texto quede en el centro ya que por defecto se pone a la izquierda
 
+        //Subtitulo
         lbltxtIndicacion = new JLabel("Selecciona un método de pago");
         lbltxtIndicacion.setFont(new Font("SansSerif", Font.BOLD, 16));
-        lbltxtIndicacion.setForeground(Color.BLACK);
         lbltxtIndicacion.setAlignmentX(CENTER_ALIGNMENT);
 
-        JPanel pnlContenedorOpciones = new JPanel(new GridBagLayout());
-        pnlContenedorOpciones.setOpaque(false);
-
-        JPanel pnlOpcionesPago = new JPanel(new GridLayout(1, 3, 15, 0)); 
+        //Agregamos los JLabel al JPanel
+        pnlMdP.add(lbltxtMdP);
+        pnlMdP.add(lbltxtIndicacion);
+        
+        
+        
+        //                                     PANEL DE OPCIONES DE PAGO ;)
+        
+        //Para este usamos un flowlayout  ya que despues vamos a agregarle las opciones que estan en un boxlayout 
+        pnlOpcionesPago = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         pnlOpcionesPago.setOpaque(false);
-        pnlOpcionesPago.setPreferredSize(new Dimension(650, 150)); 
 
-        JPanel pnlEfectivo = new JPanel();
+
+        
+        //                                     PANEL DE EFECTIVO ;)
+        
+        //Aqui creamos el panel de efectivo donde usamos el box para que todo su contenido quede debajo dle otro
+        pnlEfectivo = new JPanel();
         pnlEfectivo.setLayout(new BoxLayout(pnlEfectivo, BoxLayout.Y_AXIS));
-        pnlEfectivo.setBackground(Color.WHITE);
-        pnlEfectivo.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        pnlEfectivo.setPreferredSize(new Dimension(240, 200));
 
         btnImgEfectivo = new JButton(new ImageIcon("efectivo.png"));
-        btnImgEfectivo.setAlignmentX(CENTER_ALIGNMENT);
+        //usamos esto para que no se vea el diseño del boton predeterminado (esta feo)
         btnImgEfectivo.setContentAreaFilled(false);
         btnImgEfectivo.setBorderPainted(false);
+        btnImgEfectivo.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel lblTituloEfectivo = new JLabel("Efectivo");
-        lblTituloEfectivo.setFont(new Font("SansSerif", Font.BOLD, 15));
-        lblTituloEfectivo.setAlignmentX(CENTER_ALIGNMENT);
+        lblTituloEfectivo = new JLabel("Efectivo");
+        lblTituloEfectivo.setFont(new Font("SansSerif", Font.BOLD, 16));
+        lblTituloEfectivo.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel lblEstadoEfectivo = new JLabel("Disponible");
+        lblEstadoEfectivo = new JLabel("Disponible");
         lblEstadoEfectivo.setFont(new Font("SansSerif", Font.PLAIN, 13));
         lblEstadoEfectivo.setForeground(Color.GREEN.darker());
-        lblEstadoEfectivo.setAlignmentX(CENTER_ALIGNMENT);
+        lblEstadoEfectivo.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        pnlEfectivo.add(Box.createVerticalStrut(8)); 
+        //Aqui agregamos todo el contenido al JPanel
+        pnlEfectivo.add(Box.createVerticalGlue());
         pnlEfectivo.add(btnImgEfectivo);
-        pnlEfectivo.add(Box.createVerticalStrut(2));
+        pnlEfectivo.add(Box.createVerticalStrut(8));
         pnlEfectivo.add(lblTituloEfectivo);
-        pnlEfectivo.add(Box.createVerticalStrut(2));
         pnlEfectivo.add(lblEstadoEfectivo);
+        pnlEfectivo.add(Box.createVerticalGlue());
+
+        //Aqui guardamos todo el pnale de efectivo en el de metodo de pago donde se vera al lado de las otras opciones 
         pnlOpcionesPago.add(pnlEfectivo);
 
-        JPanel pnlTarjeta = new JPanel();
+//                                  AQUI SE DUPLICA TODO  PARA TARJETA Y TRANSFERENCIA Y SE CAMBIAN LOS NOMBRES Y LA IMAGEN
+        
+//                                  PANEL TARJETA ;)
+        pnlTarjeta = new JPanel();
         pnlTarjeta.setLayout(new BoxLayout(pnlTarjeta, BoxLayout.Y_AXIS));
-        pnlTarjeta.setBackground(Color.WHITE);
-        pnlTarjeta.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        pnlTarjeta.setPreferredSize(new Dimension(240, 200));
 
         btnImgTarjeta = new JButton(new ImageIcon("tarjeta.png"));
-        btnImgTarjeta.setAlignmentX(CENTER_ALIGNMENT);
         btnImgTarjeta.setContentAreaFilled(false);
         btnImgTarjeta.setBorderPainted(false);
+        btnImgTarjeta.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel lblTituloTarjeta = new JLabel("Tarjeta Débito/Crédito");
-        lblTituloTarjeta.setFont(new Font("SansSerif", Font.BOLD, 15));
-        lblTituloTarjeta.setAlignmentX(CENTER_ALIGNMENT);
+        lblTituloTarjeta.setFont(new Font("SansSerif", Font.BOLD, 16));
+        lblTituloTarjeta.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel lblEstadoTarjeta = new JLabel("Disponible");
         lblEstadoTarjeta.setFont(new Font("SansSerif", Font.PLAIN, 13));
         lblEstadoTarjeta.setForeground(Color.GREEN.darker());
-        lblEstadoTarjeta.setAlignmentX(CENTER_ALIGNMENT);
+        lblEstadoTarjeta.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        pnlTarjeta.add(Box.createVerticalStrut(8));
+        pnlTarjeta.add(Box.createVerticalGlue());
         pnlTarjeta.add(btnImgTarjeta);
-        pnlTarjeta.add(Box.createVerticalStrut(2));
+        pnlTarjeta.add(Box.createVerticalStrut(8));
         pnlTarjeta.add(lblTituloTarjeta);
-        pnlTarjeta.add(Box.createVerticalStrut(2));
         pnlTarjeta.add(lblEstadoTarjeta);
+        pnlTarjeta.add(Box.createVerticalGlue());
+
         pnlOpcionesPago.add(pnlTarjeta);
 
-        JPanel pnlTransferencia = new JPanel();
+//                                  PANEL TRANSFERENCIA ;)
+
+        pnlTransferencia = new JPanel();
         pnlTransferencia.setLayout(new BoxLayout(pnlTransferencia, BoxLayout.Y_AXIS));
-        pnlTransferencia.setBackground(Color.WHITE);
-        pnlTransferencia.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        pnlTransferencia.setPreferredSize(new Dimension(240, 200));
 
         btnImgTransferencia = new JButton(new ImageIcon("transferencia.png"));
-        btnImgTransferencia.setAlignmentX(CENTER_ALIGNMENT);
         btnImgTransferencia.setContentAreaFilled(false);
         btnImgTransferencia.setBorderPainted(false);
+        btnImgTransferencia.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel lblTituloTransferencia = new JLabel("Transferencia");
-        lblTituloTransferencia.setFont(new Font("SansSerif", Font.BOLD, 15));
-        lblTituloTransferencia.setAlignmentX(CENTER_ALIGNMENT);
+        lblTituloTransferencia.setFont(new Font("SansSerif", Font.BOLD, 16));
+        lblTituloTransferencia.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel lblEstadoTransferencia = new JLabel("Disponible");
         lblEstadoTransferencia.setFont(new Font("SansSerif", Font.PLAIN, 13));
         lblEstadoTransferencia.setForeground(Color.GREEN.darker());
-        lblEstadoTransferencia.setAlignmentX(CENTER_ALIGNMENT);
+        lblEstadoTransferencia.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-         pnlTransferencia = new JPanel();
-        pnlTransferencia.setLayout(new BoxLayout(pnlTransferencia, BoxLayout.Y_AXIS));
-        pnlTransferencia.setBackground(Color.WHITE);
-        pnlTransferencia.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-
-         btnImgTransferencia = new JButton(new ImageIcon("transferencia.png"));
-        btnImgTransferencia.setAlignmentX(CENTER_ALIGNMENT);
-        btnImgTransferencia.setContentAreaFilled(false);
-        btnImgTransferencia.setBorderPainted(false);
-
-         lblTituloTransferencia = new JLabel("Transferencia");
-        lblTituloTransferencia.setFont(new Font("SansSerif", Font.BOLD, 15));
-        lblTituloTransferencia.setAlignmentX(CENTER_ALIGNMENT);
-
-         lblEstadoTransferencia = new JLabel("Disponible");
-        lblEstadoTransferencia.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        lblEstadoTransferencia.setForeground(Color.GREEN.darker());
-        lblEstadoTransferencia.setAlignmentX(CENTER_ALIGNMENT);
-
-        pnlTransferencia.add(Box.createVerticalStrut(8));
+        pnlTransferencia.add(Box.createVerticalGlue());
         pnlTransferencia.add(btnImgTransferencia);
-        pnlTransferencia.add(Box.createVerticalStrut(2));
+        pnlTransferencia.add(Box.createVerticalStrut(8));
         pnlTransferencia.add(lblTituloTransferencia);
-        pnlTransferencia.add(Box.createVerticalStrut(2));
         pnlTransferencia.add(lblEstadoTransferencia);
+        pnlTransferencia.add(Box.createVerticalGlue());
+
         pnlOpcionesPago.add(pnlTransferencia);
+
         
-        pnlMdP.add(Box.createVerticalStrut(20)); 
-        pnlMdP.add(lbltxtMdP);
-        pnlMdP.add(Box.createVerticalStrut(5));
-        pnlMdP.add(lbltxtIndicacion);
-        pnlContenedorOpciones.add(pnlOpcionesPago); 
-        pnlMdP.add(pnlContenedorOpciones);
-        pnlMdP.add(Box.createVerticalStrut(15)); 
-
-
-        pnlResumen = new JPanel(new GridLayout(1, 2, 100, 0));
+        //                                  PANEL TARJETA ;)
+        
+        //Aqui creamos el panel del resumen de pago 
+        pnlResumen = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
+        pnlResumen.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 0));
         pnlResumen.setOpaque(false);
 
-        JPanel pnlResumenIzquierda = new JPanel();
-        pnlResumenIzquierda.setLayout(new BoxLayout(pnlResumenIzquierda, BoxLayout.Y_AXIS));
-        pnlResumenIzquierda.setBackground(Color.WHITE);
-        pnlResumenIzquierda.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
+        JLabel lblTotalFactura = new JLabel("Total Factura: ");
+        lblTotalFactura.setFont(new Font("SansSerif", Font.BOLD, 18));
 
-        JLabel lblResumenTitulo = new JLabel("Resumen de Venta");
-        lblResumenTitulo.setFont(new Font("SansSerif", Font.BOLD, 32));
-        lblResumenTitulo.setAlignmentX(LEFT_ALIGNMENT);
-
-        JLabel lblResumenVerifica = new JLabel("Verifica el total antes de confirmar.");
-        lblResumenVerifica.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        lblResumenVerifica.setForeground(Color.BLACK);
-        lblResumenVerifica.setAlignmentX(LEFT_ALIGNMENT);
+        lblTotal = new JLabel("$");
+        lblTotal.setFont(new Font("SansSerif", Font.PLAIN, 18));
 
         btnConfirmar = new JButton("Confirmar Pago");
+        btnConfirmar.setPreferredSize(new Dimension(180, 40));
         btnConfirmar.setFont(new Font("SansSerif", Font.PLAIN, 16));
         btnConfirmar.setBackground(COLOR_DORADO);
         btnConfirmar.setBorder(null);
-        btnConfirmar.setMaximumSize(new Dimension(180, 50));
-        btnConfirmar.setEnabled(false);
+
+        pnlResumen.add(lblTotalFactura);
+        pnlResumen.add(lblTotal);
+        pnlResumen.add(btnConfirmar);
+
         
-        pnlResumenIzquierda.add(Box.createVerticalGlue());
-        pnlResumenIzquierda.add(lblResumenTitulo);
-        pnlResumenIzquierda.add(lblResumenVerifica);
-        pnlResumenIzquierda.add(Box.createVerticalStrut(15));
-        pnlResumenIzquierda.add(btnConfirmar);
-        pnlResumenIzquierda.add(Box.createVerticalGlue());
-
-        // --- Resumen Derecha (Detalle del Total Factura) ---
-        JPanel pnlResumenDerecha = new JPanel();
-        pnlResumenDerecha.setLayout(new BoxLayout(pnlResumenDerecha, BoxLayout.Y_AXIS));
-        pnlResumenDerecha.setBackground(Color.WHITE);
-        pnlResumenDerecha.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(230, 230, 230), 1),
-                BorderFactory.createEmptyBorder(15, 20, 15, 20)
-        ));
-
-        JLabel lblTotalFactura = new JLabel("Total Factura");
-        lblTotalFactura.setFont(new Font("SansSerif", Font.BOLD, 16));
-        lblTotalFactura.setAlignmentX(LEFT_ALIGNMENT);
-
-        lblTotal = new JLabel("$");
-        lblTotal.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        lblTotal.setAlignmentX(LEFT_ALIGNMENT);
-
-        JLabel lblNexus = new JLabel("N E X U S");
-        lblNexus.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        lblNexus.setForeground(Color.GRAY);
-        lblNexus.setAlignmentX(LEFT_ALIGNMENT);
-
-        pnlResumenDerecha.add(Box.createVerticalGlue());
-        pnlResumenDerecha.add(lblTotalFactura);
-        pnlResumenDerecha.add(Box.createVerticalStrut(8));
-        pnlResumenDerecha.add(lblTotal);
-        pnlResumenDerecha.add(Box.createVerticalStrut(8));
-        pnlResumenDerecha.add(lblNexus);
-        pnlResumenDerecha.add(Box.createVerticalGlue());
-
-        pnlResumen.add(pnlResumenIzquierda);
-        pnlResumen.add(pnlResumenDerecha);
-
+        //Aqui agregamos todos los paneles al panel principal
         principal.add(pnlbtnVolver);
         principal.add(pnlClientes);
         principal.add(pnlIngresoId);
         principal.add(pnlMdP);
+        principal.add(pnlOpcionesPago);
         principal.add(pnlResumen);
 
+        //Aqui ponemos el panel principal aqui (this) centrado
         this.add(principal, BorderLayout.CENTER);
+        //lo retornamos para que se pueda ver 
         return this;
     }
 
     public void setTotal(double total) {
         lblTotal.setText("$" + String.format("%,.2f", total));
     }
+
     public JButton getBtnVolver() {
         return btnVolver;
     }
@@ -337,8 +325,8 @@ public class MetododePago extends JPanel {
     public JButton getBtnClienteG() {
         return btnClienteG;
     }
-    
-    public JButton getBtnEfectivo() {
+
+    public JButton getBtnImgEfectivo() {
         return btnImgEfectivo;
     }
 

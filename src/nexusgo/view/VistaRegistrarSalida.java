@@ -25,6 +25,7 @@ public class VistaRegistrarSalida extends JPanel {
     public JButton btnVolver;
     private JLabel lblTitulo;
     private JLabel lblInstruccion;
+   
 
     public VistaRegistrarSalida() {
         this.setBackground(Color.WHITE);

@@ -56,8 +56,8 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
         try {
             this.listaProductos = productoDAO.listar();
             
-            // Pasamos "this" para enlazar los eventos de mouse a las tarjetas autogeneradas
-            this.vista.cargarProductosEnInterfaz(this.listaProductos, this);
+            // Enviamos la lista y "this" (este controlador que escucha los clics de raton) a la vista
+            this.vista.cargarProductosEnInterfaz(this.listaProductos);
             
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(vista,

@@ -1,84 +1,73 @@
 package nexusgo.controller;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JPanel;
+import nexusgo.model.Usuario;
 import nexusgo.view.PanelBienvenida;
 import nexusgo.view.VistaOperarioInventario;
 import nexusgo.view.VistaPdV;
 import nexusgo.view.VistaPrincipalOperario;
 
 public class ControladorPrincipalOperario implements ActionListener {
+    
+    private final VistaPrincipalOperario vistaMenu;
+    private final JPanel contenedorCentral;
+    private final Usuario usuarioLogueado;
 
-    private VistaPrincipalOperario vista;
-    private VistaOperarioInventario panelInventario;
-    private VistaPdV panelPdV;
+    public ControladorPrincipalOperario(VistaPrincipalOperario vistaMenu, Usuario usuarioLogueado) {
+        this.vistaMenu = vistaMenu;
+        this.usuarioLogueado = usuarioLogueado;
+        
+        // Obtenemos la referencia limpia al panel del centro
+        this.contenedorCentral = vistaMenu.getContenedorCentral();
 
-    public ControladorPrincipalOperario(VistaPrincipalOperario vista) {
-        this.vista = vista;
+        // Inicializamos la barra lateral
+        this.vistaMenu.getsidebar().bCasa.addActionListener(this);       
+        this.vistaMenu.getsidebar().bInventario.addActionListener(this); 
+        this.vistaMenu.getsidebar().misCitas.addActionListener(this);    
 
-        // 1. Inicializamos los paneles que se van a intercambiar
-        this.panelInventario = new VistaOperarioInventario();
-        this.panelPdV = new VistaPdV();
-        this.panelPdV.VistaNexus(); // Construye los botones e interfaz del PdV
-
-        // 2. Enlazamos los listeners de la barra lateral
-        this.vista.getsidebar().bInventario.addActionListener(this); // Botón Ventas
-        this.vista.getsidebar().bCasa.addActionListener(this);       // Botón Inicio
-        this.vista.getsidebar().misCitas.addActionListener(this);    // Botón Inventario
-
-        // 3. Vista inicial por defecto (Panel de Bienvenida)
-        // Nota: Si no tienes los datos del usuario aquí, puedes pasar textos fijos temporalmente
-        cambiarPanelCentral(new PanelBienvenida("Operario", "Operario"));
+        // Cargamos la pantalla de bienvenida por defecto
+        cambiarPanel(new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol()));
     }
 
-    // Método genérico para intercambiar los paneles en el centro sin romper la ventana
-    private void cambiarPanelCentral(JPanel panelNuevo) {
-        vista.getContenido().removeAll(); // Limpia lo que esté en el centro
-        vista.getContenido().add(panelNuevo, BorderLayout.CENTER); // Inserta el nuevo panel
-        vista.revalidate(); // Re-calcula el layout
-        vista.repaint();    // Redibuja la interfaz
+    // Método auxiliar limpio para reemplazar el contenido del centro
+    private void cambiarPanel(JPanel nuevoPanel) {
+        contenedorCentral.removeAll();
+        contenedorCentral.setLayout(new BorderLayout());
+        contenedorCentral.add(nuevoPanel, BorderLayout.CENTER);
+        contenedorCentral.revalidate();
+        contenedorCentral.repaint();
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
-        // CLIC EN VENTAS (bInventario) -> Nos lleva al Punto de Venta
-        if (e.getSource() == vista.getsidebar().bInventario) {
-            // NOTA: Si usas este controlador, aquí deberías llamar a un método 
-            // que cargue las tarjetas desde tu base de datos si es necesario.
-            cambiarPanelCentral(this.panelPdV);
+    public void actionPerformed(java.awt.event.ActionEvent e) {
+        if (e.getSource() == vistaMenu.getsidebar().bCasa) {
+            cambiarPanel(new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol()));
         }
-
-        // CLIC EN INVENTARIO (misCitas) -> Nos lleva a las tablas de stock
-        if (e.getSource() == vista.getsidebar().misCitas) {
-            cambiarPanelCentral(this.panelInventario);
-        }
-
-        // CLIC EN CASA (bCasa) -> Regresa a la bienvenida
-        if (e.getSource() == vista.getsidebar().bCasa) {
-            cambiarPanelCentral(new PanelBienvenida("Operario", "Operario"));
-        }
-
-        if (e.getSource() == vista.getsidebar().misCitas) { // Ajusta al botón real de tu sidebar
-
-            // 1. Instanciamos la vista del Punto de Venta
+        else if (e.getSource() == vistaMenu.getsidebar().bInventario) {
             VistaPdV panelPdV = new VistaPdV();
 
-            // 2. Ejecutamos tu método que arma el diseño (VistaNexus)
-            javax.swing.JPanel graficoPdV = panelPdV.VistaNexus();
-
-            // 3. Le pasamos la vista a TU controlador existente para activar "Facturar" y "Reiniciar"
+            panelPdV.VistaNexus();
             new ControladorPdV(panelPdV);
-
-            // 4. Limpiamos el contenedor dinámico del operario e inyectamos el Punto de Venta
-            javax.swing.JPanel contenedorCentral = vista.getContenido();
-            contenedorCentral.removeAll();
-            contenedorCentral.add(graficoPdV, java.awt.BorderLayout.CENTER);
-
+            cambiarPanel(panelPdV);
+        }
+        else if (e.getSource() == vistaMenu.getsidebar().misCitas) {
+            VistaOperarioInventario panelInventario = new VistaOperarioInventario();
+            
+            // ¡Aquí está el truco! Le pasamos el "contenedorCentral" al controlador del inventario
+            ControladorInventarioOperario controlador = new ControladorInventarioOperario(panelInventario, usuarioLogueado, contenedorCentral);
+            
+            cambiarPanel(panelInventario);
+           
             // 5. Refrescamos la interfaz gráfica
             contenedorCentral.revalidate();
             contenedorCentral.repaint();
+
         }
     }
+
+  
 }

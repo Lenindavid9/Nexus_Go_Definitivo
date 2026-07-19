@@ -1,4 +1,4 @@
-/*
+ /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -17,7 +19,7 @@ public class UsuarioDao {
 
     Conexion conexion = new Conexion();
 
-    public Usuario autenticarUsuario(String identificacion, String contrasena) {
+    public Usuario autenticarUsuario(int identificacion, String contrasena) {
         // Usa 'numero_identificacion' y conecta con la tabla roles
         String sql = """
                      SELECT u.nombre, r.nombre_rol AS rol 
@@ -29,7 +31,7 @@ public class UsuarioDao {
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             // Pasamos los parámetros limpios que vienen de la interfaz visual
-            ps.setString(1, identificacion);
+            ps.setInt(1, identificacion);
             ps.setString(2, contrasena);
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -51,26 +53,27 @@ public class UsuarioDao {
         } catch (SQLException e) {
             System.err.println("Error crítico en la autenticación (UsuarioDao): " + e.getMessage());
         }
-
         return null; // Retorna null si no hubo coincidencia de credenciales o hubo un error
     }
 
+    // Este método se encarga de registrar un nuevo usuario en la base de datos.
     public int registrar(Usuario usuario) {
-        // 1. Ajustamos la consulta para usar id_rol en lugar de rol
-        String sql = "INSERT INTO usuarios (nombre, apellido, numero_identificacion, correo, contrasena, id_rol) VALUES (?, ?, ?, ?, ?, ?)";
+        //Se define los comandos DML del SQL que ingresa un nuevo registro en la tabla "usuarios".
+        String sql = "INSERT INTO usuarios (nombre, apellido, tipo_documento, numero_identificacion, correo, contrasena, id_rol) VALUES (?, ?, ?, ?, ?, ?,?)";
 
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
-            // 2. Mapeamos los datos exactamente como están en tu script SQL
+            // Mapeamos los datos exactamente como están en tu script SQL
             ps.setString(1, usuario.getNombre());
             ps.setString(2, usuario.getApellido());
-            ps.setString(3, usuario.getIdentificacion());
-            ps.setString(4, usuario.getCorreo());
-            ps.setString(5, usuario.getContrasena());
+            ps.setString(3, usuario.getTipoDocumento());
+            ps.setInt(4, usuario.getIdentificacion());
+            ps.setString(5, usuario.getCorreo());
+            ps.setString(6, usuario.getContrasena());
 
-            // 3. OBLIGATORIO: Asignamos el ID numérico del rol Cliente (ej: 1)
+            // Asignamos el ID numérico del rol Cliente (1)
             // Nota: Cambia este 1 por el id_rol real de 'Cliente' en tu tabla roles
-            ps.setInt(6, 1);
+            ps.setInt(7, 1);
 
             return ps.executeUpdate();
 
@@ -79,7 +82,6 @@ public class UsuarioDao {
             e.printStackTrace();
             return 0;
         }
-
     }
 
     public Usuario buscarUsuarioPorIdentificacion(String identificacion) {
@@ -88,8 +90,8 @@ public class UsuarioDao {
 
         Usuario usuario = null;
 
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
-
+        try (Connection con = conexion.getConection(); // Reemplaza por tu método exacto de conexión
+                 PreparedStatement ps = con.prepareStatement(sql)) {
             // Limpiamos espacios invisibles por seguridad (.trim())
             ps.setString(1, identificacion.trim());
 
@@ -99,10 +101,9 @@ public class UsuarioDao {
 
                     // Cargamos el ID único (Esencial para futuras consultas del flujo)
                     usuario.setIdUsuario(rs.getInt("id_usuario"));
-                    
-                    
+
                     //  Activamos el correo para que se lo puedas pasar al despachador de emails
-                    usuario.setIdentificacion(rs.getString("numero_identificacion"));
+                    usuario.setIdentificacion(rs.getInt("numero_identificacion"));
                     usuario.setNombre(rs.getString("nombre"));
                     usuario.setRol(rs.getString("id_rol"));
                     usuario.setCorreo(rs.getString("correo"));
@@ -114,7 +115,7 @@ public class UsuarioDao {
         return usuario;
     }
 
-    public java.util.List<Object[]> listarCitasPorCliente(int idCliente) {
+    public List<Object[]> listarCitasPorCliente(int idCliente) {
         java.util.List<Object[]> listaCitas = new java.util.ArrayList<>();
 
         // Query que une la cita con el servicio/producto correspondiente
@@ -122,7 +123,7 @@ public class UsuarioDao {
                 + "FROM citas c "
                 + "INNER JOIN servicios s ON c.id_servicio = s.id_servicio "
                 + "WHERE c.id_cliente = ? AND c.estado = 'Vigente' "
-                + "ORDER BY c.fecha_hora ASC";
+                + "ORDER BY c.fecha_hora ASC";                 
 
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -143,7 +144,68 @@ public class UsuarioDao {
         }
         return listaCitas;
     }
+    
+    public List<Object[]> obtenerUsuariosParaCambioRol(){
+        List<Object[]> lista = new ArrayList<>();
+        String sql = """
+                    SELECT u.numero_identificacion, u.nombre, u.apellido, r.nombre_rol AS rol, u.correo
+                    FROM usuarios u
+                    INNER JOIN roles r ON u.id_rol = i.id_rol
+                    """;
 
+        try (Connection con = conexion.getConection();
+                PreparedStatement ps = con.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()){
+            while(rs.next()) {
+                Object[] fila = new Object[]{
+                    rs.getInt("numero_identificacion"),
+                    rs.getString("nombre"),
+                    rs.getString("apellido"),
+                    rs.getString("rol"),
+                    rs.getString("correo")
+                };
+                lista.add(fila);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error en UsuarioDao.obtenerUsuariosParaCambioRol: " + e.getMessage());
+        }
+        return lista;
+    }
+    
+    public boolean actualizarRolPorNombre(String identificacion, String nombreRol) {
+        
+        String queryIdRol = "SELECT id_rol FROM roles WHERE nombre_rol = ?";
+        String queryUpdate = "UPDATE usuarios SET id_rol = ? WHERE numero_identificacion = ?";
+
+        try (Connection con = conexion.getConection()) {
+            int idRolFound = -1;
+
+            try (PreparedStatement psId = con.prepareStatement(queryIdRol)) {
+                psId.setString(1, nombreRol);
+                try (ResultSet rs = psId.executeQuery()) {
+                    if (rs.next()) {
+                        idRolFound = rs.getInt("id_rol");
+                    }
+                }
+            }
+
+            if (idRolFound == -1) {
+                System.err.println("❌ Error: No se encontró un id_rol para el nombre: " + nombreRol);
+                return false;
+            }
+
+            try (PreparedStatement psUpdate = con.prepareStatement(queryUpdate)) {
+                psUpdate.setInt(1, idRolFound);
+                psUpdate.setString(2, identificacion);
+
+                return psUpdate.executeUpdate() > 0;
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Error en UsuarioDao.actualizarRolPorNombre: " + e.getMessage());
+            return false;
+        }
+    }
     public boolean registrarCita(int idCliente, int idServicio, String fechaHora) {
         String sql = "INSERT INTO citas (id_cliente, id_servicio, fecha_hora, estado) VALUES (?, ?, ?, 'Vigente')";
 

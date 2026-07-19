@@ -2,9 +2,8 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package registro;
+package nexusgo.view;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -25,9 +24,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
-public class VistaRegistroDeUsuario extends JFrame {
-
-    // Componente para colocar la imagen de fondo de mármol
+public class VistaRegistroDeUsuario extends JFrame {// Componente para colocar la imagen de fondo de mármol
     private JLabel fondo;
 
     // Los dos paneles blancos principales (las tarjetas que flotan en el centro)
@@ -56,11 +53,8 @@ public class VistaRegistroDeUsuario extends JFrame {
     };
 
     // --- PALETA DE COLORES (Definimos los tonos elegantes del diseño) ---
-    private final Color COLOR_BLANCO = Color.WHITE; // Fondo de las tarjetas
-    private final Color COLOR_GRIS_TEXTO = new Color(102, 102, 102); // Gris sutil para subtítulos
     private final Color COLOR_INPUT_BG = new Color(250, 250, 250); // Fondo gris muy claro para los inputs
     private final Color COLOR_INPUT_BORDE = new Color(218, 218, 218); // Borde delgado para las cajas
-    private final Color COLOR_DORADO = Color.decode("#EFB810"); // Color corporativo de Nexus
 
     // --- FUENTES TIPOGRÁFICAS (Configuración del tamaño y grosor de las letras) ---
     private final Font FUENTE_TITULO = new Font("Segoe UI", Font.BOLD, 28); // Título grande "Registro"
@@ -74,15 +68,11 @@ public class VistaRegistroDeUsuario extends JFrame {
      */
     public VistaRegistroDeUsuario() {
         // Le asignamos el título superior a la ventana de Windows
-        super("Nexus Go! - Registro de Usuario");
+        super("Nexus Go - Registro de Usuario");
 
-        // 1. CONFIGURACIÓN DEL FONDO CON RUTA DE RECURSOS (Para evitar fallos de carga)
-        java.net.URL urlFondo = getClass().getResource("/nexusgo/img/fondito.jpg");
-        if (urlFondo != null) {
-            this.fondo = new JLabel(new ImageIcon(urlFondo));
-        } else {
-            this.fondo = new JLabel(new ImageIcon("fondito.jpg")); // Respaldo local
-        }
+        /*Se definen las fuentes utilizadas en toda la interfaz
+        para mantener un diseño consistente*/
+        this.fondo = new JLabel(new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg"));
 
         // GridBagLayout sirve aquí para que las tarjetas blancas se queden perfectamente centradas en la pantalla
         this.fondo.setLayout(new GridBagLayout());
@@ -95,7 +85,7 @@ public class VistaRegistroDeUsuario extends JFrame {
 
         // BoxLayout organiza todos los elementos uno debajo del otro, como una torre
         tarjetaIzquierda.setLayout(new BoxLayout(tarjetaIzquierda, BoxLayout.Y_AXIS));
-        tarjetaIzquierda.setBackground(COLOR_BLANCO); // Pintamos la tarjeta de blanco
+        tarjetaIzquierda.setBackground(Color.WHITE); // Pintamos la tarjeta de blanco
 
         // EmptyBorder le da un "colchón" o margen interno para que las letras no toquen las esquinas
         tarjetaIzquierda.setBorder(new EmptyBorder(30, 40, 30, 40));
@@ -106,12 +96,12 @@ public class VistaRegistroDeUsuario extends JFrame {
         // Creación y diseño de los textos del encabezado izquierdo
         JLabel lblLogoSimbolo = new JLabel("NX");
         lblLogoSimbolo.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        lblLogoSimbolo.setForeground(COLOR_DORADO); // Iniciales en dorado
+        lblLogoSimbolo.setForeground(Color.decode("#EFB810"));
         lblLogoSimbolo.setAlignmentX(LEFT_ALIGNMENT); // Lo alineamos a la izquierda
 
         JLabel lblBienvenida = new JLabel("Bienvenido a Nexus Go!");
         lblBienvenida.setFont(FUENTE_SUBTITULO);
-        lblBienvenida.setForeground(COLOR_GRIS_TEXTO);
+        lblBienvenida.setForeground(Color.GRAY);
         lblBienvenida.setAlignmentX(LEFT_ALIGNMENT);
 
         JLabel lblRegistro = new JLabel("Registro");
@@ -121,7 +111,7 @@ public class VistaRegistroDeUsuario extends JFrame {
 
         JLabel lblSlogan = new JLabel("Es un honor ser quien te ayudamos a brillar!!");
         lblSlogan.setFont(FUENTE_SUBTITULO);
-        lblSlogan.setForeground(COLOR_GRIS_TEXTO);
+        lblSlogan.setForeground(Color.GRAY);
         lblSlogan.setAlignmentX(LEFT_ALIGNMENT);
 
         // Inicializamos las cajas de texto llamando a los métodos de estilo que están abajo
@@ -148,17 +138,17 @@ public class VistaRegistroDeUsuario extends JFrame {
         // --- CONSTRUCCIÓN TARJETA DERECHA (Credenciales y Botón de Acción) ---
         tarjetaDerecha = new JPanel();
         tarjetaDerecha.setLayout(new BoxLayout(tarjetaDerecha, BoxLayout.Y_AXIS)); // Formato torre vertical
-        tarjetaDerecha.setBackground(COLOR_BLANCO);
+        tarjetaDerecha.setBackground(Color.WHITE);
         tarjetaDerecha.setBorder(new EmptyBorder(30, 40, 30, 40)); // Margen interno
         tarjetaDerecha.setPreferredSize(new Dimension(380, 520));
 
         // Creamos un pequeño panel invisible alineado a la derecha para poner el botón "Volver"
         JPanel panelVolver = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        panelVolver.setBackground(COLOR_BLANCO);
+        panelVolver.setBackground(Color.WHITE);
 
         btnVolver = new JButton("Volver");
         btnVolver.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnVolver.setForeground(COLOR_GRIS_TEXTO);
+        btnVolver.setForeground(Color.GRAY);
         btnVolver.setBorderPainted(false); // Le quitamos el borde feo de los botones antiguos
         btnVolver.setContentAreaFilled(false); // Lo dejamos transparente para que parezca un link
         btnVolver.setCursor(new Cursor(Cursor.HAND_CURSOR)); // Hace que aparezca la manito de clic del mouse
@@ -173,8 +163,8 @@ public class VistaRegistroDeUsuario extends JFrame {
         // Configuración estética del botón dorado de registro
         btnRegistrarse = new JButton("Registrarse");
         btnRegistrarse.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnRegistrarse.setForeground(COLOR_BLANCO); // Letra blanca
-        btnRegistrarse.setBackground(COLOR_DORADO); // Fondo dorado corporativo
+        btnRegistrarse.setForeground(Color.WHITE); // Letra blanca
+        btnRegistrarse.setBackground(Color.WHITE); // Fondo dorado corporativo
         btnRegistrarse.setBorderPainted(false); // Sin bordes rígidos Windows
         btnRegistrarse.setFocusPainted(false); // Quita el cuadro punteado feo al hacer clic
         btnRegistrarse.setCursor(new Cursor(Cursor.HAND_CURSOR)); // Activa la manito del mouse
