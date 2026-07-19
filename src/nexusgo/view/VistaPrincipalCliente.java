@@ -10,6 +10,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.event.MouseListener;
 import java.util.List;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -27,20 +28,17 @@ import javax.swing.border.EmptyBorder;
  */
 public class VistaPrincipalCliente extends JFrame {
 
-    // Componentes estructurales de la ventana
-    private JLabel fondo;
+  private JLabel fondo;
     private JPanel panelContenedorFlotante;
-    private JPanel contenidoCentralDinamico; // Panel central equivalente al 'contenido' del Operario
+    private JPanel contenidoCentralDinamico; 
     private JPanel panelGridProductos;
     private JScrollPane scrollContenido;
+    private JLabel lblSeccion;
+    
     public JButton historial;
     public JButton CitasVigentes;
-
-    // Componentes modulares tuyos inyectados directamente
     public VistaBarraLateral sidebar;
     public PanelBienvenida panelBienvenida;
-
-    // Botón superior de cierre rápido
     public JButton btnCerrarSesion;
 
     public VistaPrincipalCliente(String nombreUsuario, String rolUsuario) {
@@ -51,80 +49,90 @@ public class VistaPrincipalCliente extends JFrame {
         this.fondo.setLayout(new GridBagLayout());
         this.setContentPane(fondo);
 
-        // 2. Contenedor "tarjeta" que flotará en medio del mármol
+        // 2. Contenedor tarjeta flotante
         panelContenedorFlotante = new JPanel(new BorderLayout());
         panelContenedorFlotante.setPreferredSize(new Dimension(980, 680));
         panelContenedorFlotante.setOpaque(false);
 
-        // 3. BARRA LATERAL 
+        // 3. BARRA LATERAL
         sidebar = new VistaBarraLateral();
         sidebar.setPreferredSize(new Dimension(110, 680));
         sidebar.setOpaque(false);
         sidebar.setBorder(new EmptyBorder(120, 10, 20, 10));
-        sidebar.add(historial = new JButton("Historial"));
-        sidebar.add(CitasVigentes = new JButton("Citas Vigentes"));
+        
+        historial = new JButton("Historial");
+        CitasVigentes = new JButton("Citas Vigentes");
+        sidebar.add(historial);
+        sidebar.add(CitasVigentes);
 
-        // Capamos los botones administrativos para el rol Cliente
+        // Ocultar botones administrativos
         sidebar.bInventario.setVisible(false);
         sidebar.misCitas.setVisible(false);
 
-        // 4. PANEL CENTRAL DINÁMICO (Misma lógica que usas en el operario)
+        // 4. PANEL CENTRAL DINÁMICO
         contenidoCentralDinamico = new JPanel();
         contenidoCentralDinamico.setLayout(new BoxLayout(contenidoCentralDinamico, BoxLayout.Y_AXIS));
         contenidoCentralDinamico.setOpaque(false);
         contenidoCentralDinamico.setBorder(new EmptyBorder(20, 25, 20, 25));
 
-        // INYECTAMOS PANEL BIENVENIDA DIRECTAMENTE
+        // Inicializar componentes de la tienda base
         panelBienvenida = new PanelBienvenida(nombreUsuario, rolUsuario);
         panelBienvenida.setPreferredSize(new Dimension(650, 150));
         panelBienvenida.setMaximumSize(new Dimension(650, 150));
-        panelBienvenida.setOpaque(false); // Para que combine con el fondo de mármol
-        contenidoCentralDinamico.add(panelBienvenida);
-        contenidoCentralDinamico.add(Box.createVerticalStrut(10));
-
-        // Botón cerrar sesión 
+        panelBienvenida.setOpaque(false);
+        
         btnCerrarSesion = new JButton("Cerrar Sesión");
         btnCerrarSesion.setBackground(Color.decode("#EFB810"));
         btnCerrarSesion.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnCerrarSesion.setAlignmentX(CENTER_ALIGNMENT);
-        contenidoCentralDinamico.add(btnCerrarSesion);
-        contenidoCentralDinamico.add(Box.createVerticalStrut(20));
-
-        // Separador del catálogo
-        JLabel lblSeccion = new JLabel(" PRODUCTOS DISPONIBLES ");
+        
+        lblSeccion = new JLabel(" PRODUCTOS DISPONIBLES ");
         lblSeccion.setFont(new Font("Segoe UI", Font.BOLD, 15));
         lblSeccion.setAlignmentX(CENTER_ALIGNMENT);
-        contenidoCentralDinamico.add(lblSeccion);
-        contenidoCentralDinamico.add(Box.createVerticalStrut(15));
 
-        // 5. Cuadrícula de productos (3 columnas)
         panelGridProductos = new JPanel(new GridLayout(0, 3, 20, 20));
         panelGridProductos.setOpaque(false);
-        contenidoCentralDinamico.add(panelGridProductos);
 
-        // ScrollPane automático para navegar los productos
+        // Construir la vista de inicio por defecto
+        restaurarComponentesTienda();
+
+        // ScrollPane automático para navegar la tienda
         scrollContenido = new JScrollPane(contenidoCentralDinamico);
         scrollContenido.setOpaque(false);
         scrollContenido.getViewport().setOpaque(false);
         scrollContenido.setBorder(null);
 
-        // 6. Ensamblaje final en el cuerpo flotante
+        // 6. Ensamblaje final
         panelContenedorFlotante.add(sidebar, BorderLayout.WEST);
         panelContenedorFlotante.add(scrollContenido, BorderLayout.CENTER);
 
         this.add(panelContenedorFlotante);
 
-        // Ajustes del marco
         setSize(1040, 750);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    /**
-     * Dibuja los productos de la base de datos de manera limpia en la
-     * cuadrícula
+    /*
+     * Restaura los elementos básicos del catálogo (Bienvenida, Botones principales, Separador y Grid)
      */
-    public void cargarProductosEnInterfaz(List<nexusgo.model.Producto> listaProductos) {
+    public void restaurarComponentesTienda() {
+        contenidoCentralDinamico.removeAll();
+        contenidoCentralDinamico.add(panelBienvenida);
+        contenidoCentralDinamico.add(Box.createVerticalStrut(10));
+        contenidoCentralDinamico.add(btnCerrarSesion);
+        contenidoCentralDinamico.add(Box.createVerticalStrut(20));
+        contenidoCentralDinamico.add(lblSeccion);
+        contenidoCentralDinamico.add(Box.createVerticalStrut(15));
+        contenidoCentralDinamico.add(panelGridProductos);
+        contenidoCentralDinamico.revalidate();
+        contenidoCentralDinamico.repaint();
+    }
+
+    /*
+     * Dibuja los productos mapeando dinámicamente sus identidades y registrando los eventos de escucha.
+     */
+    public void cargarProductosEnInterfaz(List<nexusgo.model.Producto> listaProductos, MouseListener receptorEventos) {
         panelGridProductos.removeAll();
 
         for (nexusgo.model.Producto prod : listaProductos) {
@@ -132,6 +140,10 @@ public class VistaPrincipalCliente extends JFrame {
             tarjeta.setLayout(new BoxLayout(tarjeta, BoxLayout.Y_AXIS));
             tarjeta.setBackground(Color.WHITE);
             tarjeta.setBorder(new EmptyBorder(15, 15, 15, 15));
+            
+            // !!! CORRECCIÓN CLAVE: Seteamos el ID del producto en el Name del panel y le añadimos el listener
+            tarjeta.setName(String.valueOf(prod.getIdProducto()));
+            tarjeta.addMouseListener(receptorEventos);
 
             // Imagen del producto
             JLabel lblImg = new JLabel();
@@ -192,9 +204,7 @@ public class VistaPrincipalCliente extends JFrame {
         panelGridProductos.repaint();
     }
 
-    // Getter para que los controladores puedan acceder al panel del centro
     public JPanel getContenidoCentralDinamico() {
         return this.contenidoCentralDinamico;
     }
-
 }

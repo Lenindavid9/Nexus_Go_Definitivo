@@ -23,11 +23,11 @@ import nexusgo.view.VistaReservarCitas;
  */
 public class ControladorPrincipalCliente implements ActionListener, MouseListener {
     
-    private final VistaPrincipalCliente vista;
+   private final VistaPrincipalCliente vista;
     private final ProductoDao productoDAO;
-    private List<Producto> listaProductos; // Guarda en memoria los productos cargados para buscarlos facilmente
+    private List<Producto> listaProductos;
 
-    /**
+    /*
      * Constructor que enlaza la vista y activa la escucha de todos los componentes.
      * @param vista Vista principal de la interfaz de cliente.
      */
@@ -35,26 +35,25 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
         this.vista = vista;
         this.productoDAO = new ProductoDao(); 
 
-        // 1. Escuchar el boton base "Inicio" (bCasa) de tu componente modular VistaBarraLateral
+        // 1. Escuchar el botón base "Inicio" de la barra lateral modular
         this.vista.sidebar.bCasa.addActionListener(this);
 
-        // 2. Escuchar los dos botones de la barra lateral del cliente
+        // 2. Escuchar los botones adicionales del cliente
         this.vista.historial.addActionListener(this);
         this.vista.CitasVigentes.addActionListener(this);
 
-        // 3. Escuchar el boton de cerrar sesion
+        // 3. Escuchar el botón de cerrar sesión
         this.vista.btnCerrarSesion.addActionListener(this);
         
-        // Al iniciar, cargamos de inmediato el catalogo de productos
+        // Al iniciar, cargamos de inmediato el catálogo de productos
         cargarCatalogo();
     }
 
-    /**
+    /*
      * Trae los productos desde la base de datos y le pide a la vista que los dibuje.
      */
-    private void cargarCatalogo() {
+    public void cargarCatalogo() {
         try {
-            // Guardamos la lista de productos en nuestra variable global
             this.listaProductos = productoDAO.listar();
             
             // Enviamos la lista y "this" (este controlador que escucha los clics de raton) a la vista
@@ -62,13 +61,13 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
             
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(vista,
-                    "Error al conectar con el catalogo de productos: " + ex.getMessage(),
+                    "Error al conectar con el catálogo de productos: " + ex.getMessage(),
                     "Error de Sistema",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    /**
+    /*
      * Busca un producto en la lista en memoria usando su ID.
      */
     private Producto buscarProductoPorId(int id) {
@@ -82,91 +81,85 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
         return null;
     }
 
-    // =========================================================================
-    //               EVENTOS DE MOUSE (CLIC EN LAS TARJETAS)
-    // =========================================================================
+    // Eventos de mouse para gestionar los clics en las tarjetas de productos
     @Override
     public void mouseClicked(MouseEvent e) {
-        // Verificamos si el usuario hizo clic sobre una tarjeta (JPanel)
         if (e.getSource() instanceof JPanel) {
             JPanel tarjetaPresionada = (JPanel) e.getSource();
             
-            // Si la tarjeta tiene asignado un "Name" (que contiene el ID del producto)
             if (tarjetaPresionada.getName() != null) {
                 try {
                     int idProducto = Integer.parseInt(tarjetaPresionada.getName());
-                    
-                    // Buscamos el producto correspondiente en nuestra lista en memoria
                     Producto productoSeleccionado = buscarProductoPorId(idProducto);
 
                     if (productoSeleccionado != null) {
-                        // Abrimos la vista de detalles de forma limpia pasandole el producto
-                        VistaDetallesProducto vistaDetalle = new VistaDetallesProducto();
-                        new ControladorDetallesProducto(vistaDetalle, productoSeleccionado);
-                        vistaDetalle.setVisible(true);
+                        // Cambiamos el contenedor central dinámico para mostrar el detalle elegantemente
+                        VistaDetallesProducto panelDetalle = new VistaDetallesProducto();
+                        
+                        // Instanciamos su respectivo controlador pasándole la referencia del principal para poder regresar
+                        new ControladorDetallesProducto(panelDetalle, productoSeleccionado, this);
+                        
+                        vista.getContenidoCentralDinamico().removeAll();
+                        vista.getContenidoCentralDinamico().add(panelDetalle);
+                        vista.getContenidoCentralDinamico().revalidate();
+                        vista.getContenidoCentralDinamico().repaint();
                     }
                 } catch (NumberFormatException ex) {
-                    // Previene errores en caso de que algun panel tenga un nombre no numerico
+                    // Previene excepciones si se procesa un nombre no numérico
                 }
             }
         }
     }
 
-    // Metodos obligatorios de la interfaz MouseListener (se dejan vacios)
     @Override public void mousePressed(MouseEvent e) {}
     @Override public void mouseReleased(MouseEvent e) {}
     @Override public void mouseEntered(MouseEvent e) {}
     @Override public void mouseExited(MouseEvent e) {}
 
-    
     @Override
     public void actionPerformed(ActionEvent e) {
-
-        // Clic en el boton "Citas Vigentes" (Abre la vista de reservas y cambia el panel central)
+        // Clic en el botón "Citas Vigentes"
         if (e.getSource() == vista.CitasVigentes) {
-            JOptionPane.showMessageDialog(vista,
-                    "Mostrando tus proximas citas agendadas en la peluqueria.",
-                    "Mis Citas",
-                    JOptionPane.INFORMATION_MESSAGE);
-
             VistaReservarCitas panelReserva = new VistaReservarCitas();
-
-            // Instanciamos su propio controlador (Pasamos: vista formulario, vista principal, ID de usuario de prueba)
             new ControladorReservarCita(panelReserva, vista, 1);
 
-            // Cambiamos la pantalla de inmediato en el panel dinamico central de tu vista
             vista.getContenidoCentralDinamico().removeAll();
             vista.getContenidoCentralDinamico().add(panelReserva);
             vista.getContenidoCentralDinamico().revalidate();
             vista.getContenidoCentralDinamico().repaint();
         }
 
-        // Clic en el boton "Inicio" (Recarga y refresca el catalogo de productos)
+        // Clic en el botón "Inicio" (Recarga el catálogo restaurando la vista base)
         if (e.getSource() == vista.sidebar.bCasa) {
+            // Limpiamos los paneles internos y re-inyectamos los componentes por defecto de la tienda
+            vista.restaurarComponentesTienda();
             cargarCatalogo();
         }
 
-        // Clic en el boton "Historial"
+        // Clic en el botón "Historial"
         if (e.getSource() == vista.historial) {
             JOptionPane.showMessageDialog(vista,
                     "Abriendo el historial completo de tus citas atendidas y productos comprados.",
-                    "Modulo Historial",
+                    "Módulo Historial",
                     JOptionPane.INFORMATION_MESSAGE);
         }
 
-        // Clic en el boton "Cerrar Sesion"
+        // Clic en el botón "Cerrar Sesión"
         if (e.getSource() == vista.btnCerrarSesion) {
             int respuesta = JOptionPane.showConfirmDialog(vista,
-                    "¿Estás seguro de que deseas cerrar tu sesion en Nexus GO?",
-                    "Cerrar Sesion",
+                    "¿Estás seguro de que deseas cerrar tu sesión en Nexus GO?",
+                    "Cerrar Sesión",
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE);
 
             if (respuesta == JOptionPane.YES_OPTION) {
-                vista.dispose(); // Cierra la interfaz actual liberando memoria
+                vista.dispose();
             }
         }
     }
-   
+    public void restaurarTiendaYCatalogo() {
+    this.vista.restaurarComponentesTienda();
+    cargarCatalogo();
+}
 }
 
