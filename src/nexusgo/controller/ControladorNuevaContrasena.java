@@ -48,13 +48,15 @@ public class ControladorNuevaContrasena implements ActionListener {
             /*Se verifica que ambos campos hayan sido diligenciados.
             Si alguno está vacío, el sistema no podra continuar*/
             if (pass.isEmpty() || confirmarPass.isEmpty()) {
-                JOptionPane.showMessageDialog(vista, "Por favor, complete todos los campos de contraseña.", "Campos Vacíos", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(vista, "Por favor, complete todos los campos de contraseña.", 
+                        "Campos Vacíos", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
             // Se comparan ambas contraseñas para verificar que sean iguales.
             if (!pass.equals(confirmarPass)) {
-                JOptionPane.showMessageDialog(vista, "Las contraseñas ingresadas no coinciden. Inténtelo de nuevo.", "Error de Coincidencia", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(vista, "Las contraseñas ingresadas no coinciden. Inténtelo de nuevo.", 
+                        "Error de Coincidencia", JOptionPane.ERROR_MESSAGE);
                 
                 // Se limpia el primer campo de contraseña para que el usuario vuelva a escribirla.
                 vista.tContrasena.setText("");
@@ -76,7 +78,7 @@ public class ControladorNuevaContrasena implements ActionListener {
             boolean exito = usuarioDAO.actualizarContrasena(correoUsuario, pass);
 
             if (exito) {
-                JOptionPane.showMessageDialog(vista, "Su contraseña ha sido reestablecida exitosamente en Nexus GO.", "Actualización Exitosa", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(vista, "Contraseña actualizada. Ya puedes iniciar sesión.", "Actualización Exitosa", JOptionPane.INFORMATION_MESSAGE);
                 //se cierra la ventana
                 vista.dispose();
 

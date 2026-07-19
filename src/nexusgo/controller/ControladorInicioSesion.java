@@ -181,13 +181,29 @@ public class ControladorInicioSesion implements ActionListener {
 
                 // Si alguno de los campos no es válido y se le informa al usuario
                 JOptionPane.showMessageDialog(vistaLogin,
-                        "Por favor, complete todos los campos.", "Campos Vacíos",
+                        "Por favor, Debe completar los campos vacíos para poder iniciar sesión”", "Campos Vacíos",
                         JOptionPane.WARNING_MESSAGE);
                 return;
             }
             
-            // Se transformo el numero de identificacion que se resibio en String a int 
-            int identificacion = Integer.parseInt(vistaLogin.tNroIdentidad.getText().trim());
+            try{
+            
+            /*Se obtiene el texto del campo de identificación,
+            si tiene, se eliminan los espacios en blanco al inicio y al final
+            que por error pudo el usuario haber ingresado y se verificar qque el valor sea un número entero.*/
+            Integer.parseInt(vistaLogin.tNroIdentidad.getText().trim());
+        }catch (NumberFormatException e){
+            
+            /*Si falla, significa que el usuario ingresó un valor que no es 
+            un número(puede ser un . o una , o cualquier otra cosa)*/
+            JOptionPane.showMessageDialog(vistaLogin,"Recuerda que debes ingresar el numero de identificacion y eso solo puede contener datos numericos (Sin puntos).",
+                    "Error de formato", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        /*Después de comprobar que es válido, se convierte definitivamente el String 
+        y se almacena en una variable int para utilizarla mas a delant edonde obliga el formato int*/
+        int identificacion = Integer.parseInt(texIdentificacion);
 
             /*Se declara una variable de tipo Usuario y se inicializa con el valor null.
             Esto se hace porque al inicio, todavía no se sabe si las credenciales
