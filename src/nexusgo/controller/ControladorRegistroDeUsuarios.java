@@ -103,6 +103,19 @@ public class ControladorRegistroDeUsuarios implements ActionListener {
             return;
         }
         
+        /*Se verifica que la opcion de "seleccionar un tipo de documento" si contenga aplicada una opcion
+        
+        El metodo getSelectedIndex() devueve la posicion de la opcion elegida
+        por el usuario, si el resultado es igual a 0 significa que sigue en la
+        primera opcion en la lista que es "Seleccione un tipo de documento"
+        y no es una opcion permitida*/
+        if(vistaRegistro.miTipoDocumento.getSelectedIndex() == 0){
+            
+            //Se le informa que debe seleccionar un tipo de documento ,
+            JOptionPane.showMessageDialog(vistaRegistro,"Debes seleccionar un tipo de documento.",
+                    "Error de seleccion", JOptionPane.ERROR_MESSAGE);
+        }
+        
         
         /*Se verica el número de identificación ingresado.
         Integer.parseInt() solo acepta cadenas que contengan
