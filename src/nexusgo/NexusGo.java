@@ -32,7 +32,6 @@ public class NexusGo {
     public static void main(String[] args) {
 
 
-
 //        ////        // 1. Se crea la Vista
         VistaInicioSesion login = new VistaInicioSesion();
 
