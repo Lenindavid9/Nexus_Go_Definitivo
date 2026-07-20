@@ -13,11 +13,6 @@ import javax.swing.SwingConstants;
 import javax.swing.JTextField;
 
 
-
-/**
- *
- * @author USUARIO
- */
 public class VistaRegistrarSalida extends JPanel {
 
     public JTextField txtCantidadSalida;

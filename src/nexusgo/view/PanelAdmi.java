@@ -11,6 +11,7 @@ import static java.awt.Component.CENTER_ALIGNMENT;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -39,6 +40,14 @@ public class PanelAdmi extends JFrame {
     private final Color COLOR_CAFE_OSCURO = new Color(62, 58, 46);
     private final Color COLOR_DORADO = new Color(223, 205, 141);
 
+    
+  @Override
+public void paint(Graphics g) {
+    super.paint(g);
+    ImageIcon img = new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg");
+    g.drawImage(img.getImage(), 0, 0, getWidth(), getHeight(), this);
+}
+
     // CONSTRUCTOR
     public PanelAdmi() {
         // Configuración del JFrame principal
@@ -46,28 +55,6 @@ public class PanelAdmi extends JFrame {
         this.setLayout(new BorderLayout());
         this.getContentPane().setBackground(Color.white);
 
-        // --- BARRA SUPERIOR (TITULO) ---
-        titulo = new JPanel(new BorderLayout());
-        titulo.setBackground(COLOR_CAFE_OSCURO);
-        titulo.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-
-        Icon iconLogo = new ImageIcon("logo.png");
-        logoyNombre = new JLabel("Panel de Administracion  - N E X U S", iconLogo, SwingConstants.LEFT);
-        logoyNombre.setForeground(Color.WHITE);
-        logoyNombre.setFont(new Font("SansSerif", Font.BOLD, 22));
-        titulo.add(logoyNombre, BorderLayout.WEST);
-
-        OpcTitulo = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
-        OpcTitulo.setOpaque(false);
-
-        btnCerrar = new JButton("Cerrar Sesion");
-        btnCerrar.setFont(new Font("SansSerif", Font.BOLD, 15));
-        btnCerrar.setForeground(Color.WHITE);
-        btnCerrar.setContentAreaFilled(false);
-        btnCerrar.setBorderPainted(false);
-
-        OpcTitulo.add(btnCerrar);
-        titulo.add(OpcTitulo, BorderLayout.EAST);
 
         // --- TU COMPLEMENTO: VistaBarraLateral ---
         menuLateral = new VistaBarraLateral();
@@ -184,8 +171,6 @@ public class PanelAdmi extends JFrame {
         principal.add(Box.createVerticalStrut(20));
         principal.add(pnlEstado);
 
-        // Ensamblar todo el contenido directo en el JFrame
-        this.add(titulo, BorderLayout.NORTH);
         this.add(menuLateral, BorderLayout.WEST);
         this.add(principal, BorderLayout.CENTER);
 

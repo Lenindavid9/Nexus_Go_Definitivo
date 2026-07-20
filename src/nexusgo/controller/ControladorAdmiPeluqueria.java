@@ -8,6 +8,4 @@ package nexusgo.controller;
  *
  * @author INGRID
  */
-public class ControladorAdmiPeluqueria {
-    
-}
+public class ControladorAdmiPeluqueria {}
