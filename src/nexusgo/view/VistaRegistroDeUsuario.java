@@ -35,7 +35,7 @@ public class VistaRegistroDeUsuario extends JFrame {// Componente para colocar l
     public JTextField tNombre, tApellido, tNroIdentificacion, tCorreo;
 
     // Cajas especiales para contraseñas (ocultan las letras con puntos automáticos)
-    public JPasswordField tContrasena, tConfirmar;
+    public JTextField tContrasena, tConfirmar;
 
     // Lista desplegable para seleccionar la cédula o tarjeta
     public JComboBox<String> miTipoDocumento;
@@ -208,8 +208,8 @@ public class VistaRegistroDeUsuario extends JFrame {// Componente para colocar l
         return tf;
     }
 
-    private JPasswordField crearCampoPassword() {
-        JPasswordField pf = new JPasswordField();
+    private JTextField crearCampoPassword() {
+        JTextField pf = new JTextField();
         pf.setFont(FUENTE_INPUTS);
         pf.setBackground(COLOR_INPUT_BG);
         pf.setBorder(new LineBorder(COLOR_INPUT_BORDE, 1));
