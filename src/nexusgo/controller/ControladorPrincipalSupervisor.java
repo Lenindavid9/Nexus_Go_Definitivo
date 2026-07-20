@@ -20,8 +20,10 @@ import nexusgo.model.HerramientaDao;
 import nexusgo.model.Producto;
 import nexusgo.model.ProductoDao;
 import nexusgo.model.Usuario;
+import nexusgo.view.AperturaCierre;
 import nexusgo.view.PanelBienvenida;
 import nexusgo.view.VistaInventarioSupervisor;
+import nexusgo.view.VistaPdV;
 import nexusgo.view.VistaPrincipalSupervisor;
 import nexusgo.view.VistaProgramarMantenimiento;
 
@@ -31,9 +33,12 @@ import nexusgo.view.VistaProgramarMantenimiento;
  */
 public class ControladorPrincipalSupervisor implements ActionListener {
 
-    private final VistaPrincipalSupervisor vistaPrincipal;
+   private final VistaPrincipalSupervisor vistaPrincipal;
     private VistaInventarioSupervisor panelInventario;
     private VistaProgramarMantenimiento panelProgramarMantenimiento;
+    
+    // --- Instancia del panel AperturaCierre ---
+    private AperturaCierre panelAperturaCierre;
 
     // Componentes de datos y sesión
     private final ProductoDao productoDao = new ProductoDao();
@@ -51,6 +56,9 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             // Inicialización de las vistas del módulo
             this.panelInventario = new VistaInventarioSupervisor();
             this.panelProgramarMantenimiento = new VistaProgramarMantenimiento();
+            
+            // Inicializar Vista de Caja
+            this.panelAperturaCierre = new AperturaCierre();
 
             inicializarListeners();
 
@@ -73,15 +81,25 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
     private void inicializarListeners() {
         try {
-            // Escuchar barra lateral de la ventana principal
+            //  Escuchar la barra lateral y botones principales
             this.vistaPrincipal.sidebar.bCasa.addActionListener(this);
             this.vistaPrincipal.sidebar.bInventario.addActionListener(this);
+            this.vistaPrincipal.sidebar.misCitas.addActionListener(this);
+            
+            // Registrar el botón Caja
+            if (this.vistaPrincipal.btnCaja != null) {
+                this.vistaPrincipal.btnCaja.addActionListener(this);
+            }
 
-            // Escuchar los botones de la vista sencilla de programación
+            //  Escuchar botones del panel AperturaCierre (Caja)
+            this.panelAperturaCierre.getBtnApertura().addActionListener(this);
+            this.panelAperturaCierre.getBtnCalcular().addActionListener(this);
+
+            //  Escuchar botones de programación de mantenimiento
             this.panelProgramarMantenimiento.btnGuardarMantenimiento.addActionListener(this);
             this.panelProgramarMantenimiento.btnVolver.addActionListener(this);
 
-            // Clic en Productos -> Modo Solo Lectura
+            //  Tablas (MouseListeners)
             this.panelInventario.tablaProductos.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -94,7 +112,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 }
             });
 
-            // Clic en Herramientas -> Dispara JOptionPane de opciones de mantenimiento
             this.panelInventario.tablaHerramientas.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -125,12 +142,11 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 opciones,
                 opciones[0]);
 
-        if (seleccion == 0) { // Registrar Ejecutado
+        if (seleccion == 0) {
             JOptionPane.showMessageDialog(panelInventario,
                     "Abriendo registro inmediato de mantenimientos ejecutados para:\n" + nombreHerramientaSeleccionada,
                     "Módulo Herramientas", JOptionPane.INFORMATION_MESSAGE);
-            // Aquí llamarías a tu panel de registro directo si lo tienes creado
-        } else if (seleccion == 1) { // Programar Agenda (Abre el panel que creamos)
+        } else if (seleccion == 1) {
             panelProgramarMantenimiento.txtEquipo.setText(nombreHerramientaSeleccionada);
             cambiarPanelCentral(this.panelProgramarMantenimiento);
         }
@@ -139,15 +155,70 @@ public class ControladorPrincipalSupervisor implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            // --- EVENTOS SIDEBAR ---
+            // --- EVENTOS DE NAVEGACIÓN ---
             if (e.getSource() == vistaPrincipal.sidebar.bCasa) {
-                cambiarPanelCentral(new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol()));
+                vistaPrincipal.restaurarVistaInicial();
             }
 
+            // --- ABRIR LA VISTA DEL PUNTO DE VENTA (PdV) 
             if (e.getSource() == vistaPrincipal.sidebar.bInventario) {
+                // 1. Instanciar la vista de Punto de Venta
+                VistaPdV vistaPdV = new VistaPdV();
+                JPanel panelPdV = vistaPdV.VistaNexus();
+
+                //  Enlazar su controlador de eventos (para pagos, facturar y reiniciar)
+                ControladorPdV controladorPdV = new ControladorPdV(vistaPdV);
+
+                //  Obtener los productos reales registrados en la BD nexus_go_db
+                List<Producto> listaProductos = productoDao.listar();
+
+                if (listaProductos != null && !listaProductos.isEmpty()) {
+                    for (Producto p : listaProductos) {
+                        // Formatear precio
+                        String precioFormateado = String.format("$%.0f", p.getPrecioCompra());
+                        
+                        // Validar imagen
+                        String imagen = (p.getUrlImagen() != null && !p.getUrlImagen().isEmpty()) 
+                                        ? p.getUrlImagen() 
+                                        : "tratamiento.png";
+
+                        // Agregar tarjeta dynamicamente
+                        vistaPdV.agregarTarjeta(
+                            p.getNombreProducto(), 
+                            precioFormateado, 
+                            p.getStockActual(), 
+                            imagen
+                        );
+                    }
+                }
+
+                // 4. Cambiar el contenedor central por la vista del PdV
+                cambiarPanelCentral(panelPdV);
+            }
+
+            if (e.getSource() == vistaPrincipal.sidebar.misCitas) {
                 cambiarPanelCentral(this.panelInventario);
                 listarProductosEnTabla();
                 listarHerramientasEnTabla();
+            }
+
+            // --- ACCIÓN AL PRESIONAR BOTÓN CAJA ---
+            if (e.getSource() == vistaPrincipal.btnCaja) {
+                cambiarPanelCentral(this.panelAperturaCierre);
+            }
+
+            // --- LÓGICA DE APERTURA / CIERRE DE CAJA ---
+            if (e.getSource() == panelAperturaCierre.getBtnApertura()) {
+                String montoStr = panelAperturaCierre.getTxtMontoInicial().getText().replace("$", "").trim();
+                if (!montoStr.isEmpty()) {
+                    panelAperturaCierre.getLbltxtMontoA().setText("$" + montoStr);
+                    JOptionPane.showMessageDialog(vistaPrincipal, "Apertura de caja realizada con: $" + montoStr, "Caja Registrada", JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+
+            if (e.getSource() == panelAperturaCierre.getBtnCalcular()) {
+                String montoFisico = panelAperturaCierre.getTxtMontoF().getText().replace("$", "").trim();
+                JOptionPane.showMessageDialog(vistaPrincipal, "Cierre procesado con monto físico en caja: $" + montoFisico, "Cierre de Caja", JOptionPane.INFORMATION_MESSAGE);
             }
 
             // --- EVENTOS PANEL PROGRAMACIÓN ---
@@ -167,13 +238,10 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
     private void ejecutarGuardadoProgramacion() {
         try {
-            // Lectura de datos de los componentes sencillos
             Date fechaSeleccionada = (Date) panelProgramarMantenimiento.spinnerFechaHora.getValue();
             String tipoMantenimiento = panelProgramarMantenimiento.cbTipoMantenimiento.getSelectedItem().toString();
             String fallaProblema = panelProgramarMantenimiento.txtFallaProblema.getText().trim();
-            String observaciones = panelProgramarMantenimiento.txtObservaciones.getText().trim();
 
-            // Validación básica de campos vacíos
             if (tipoMantenimiento.equals("Seleccione su tipo de mantenimiento") || fallaProblema.isEmpty()) {
                 JOptionPane.showMessageDialog(panelProgramarMantenimiento,
                         "Por favor, seleccione un tipo de mantenimiento e ingrese la falla o problema.",
@@ -181,7 +249,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 return;
             }
 
-            // Regla de negocio para la Fecha (No hoy, no pasados)
             Calendar calSeleccionada = Calendar.getInstance();
             calSeleccionada.setTime(fechaSeleccionada);
 
@@ -197,7 +264,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 return;
             }
 
-            // Mensaje de éxito informando al supervisor
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             JOptionPane.showMessageDialog(panelProgramarMantenimiento,
                     "¡Mantenimiento Programado!\n\n"
@@ -206,7 +272,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                     + "Fecha: " + sdf.format(fechaSeleccionada),
                     "NEXUS GO", JOptionPane.INFORMATION_MESSAGE);
 
-            // Limpieza y retorno
             limpiarCamposProgramacion();
             cambiarPanelCentral(this.panelInventario);
             listarHerramientasEnTabla();
@@ -267,7 +332,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
     private void cambiarPanelCentral(JPanel panelNuevo) {
         try {
-            // Nota: Cambia "getContenidoCentralDinamico()" por el método getter exacto de tu VistaPrincipalSupervisor
             vistaPrincipal.getContenidoCentralDinamico().removeAll();
             vistaPrincipal.getContenidoCentralDinamico().add(panelNuevo, java.awt.BorderLayout.CENTER);
             vistaPrincipal.getContenidoCentralDinamico().revalidate();
@@ -275,7 +339,5 @@ public class ControladorPrincipalSupervisor implements ActionListener {
         } catch (Exception e) {
             System.err.println("Error en enrutador de vistas: " + e.getMessage());
         }
-
     }
-
 }

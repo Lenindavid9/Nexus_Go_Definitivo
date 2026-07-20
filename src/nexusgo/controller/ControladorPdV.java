@@ -1,21 +1,26 @@
 package nexusgo.controller;
 
 import nexusgo.view.MetododePago;
-import nexusgo.view.VistaPdV; 
+import nexusgo.view.VistaPdV;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JFrame;
 
 public class ControladorPdV implements ActionListener {
-private VistaPdV vista;
-private MetododePago metodoPago;
-private JFrame framePago;
+
+    private final VistaPdV vista;
+    private MetododePago metodoPago;
+    private JFrame framePago;
 
     public ControladorPdV(VistaPdV vista) {
         this.vista = vista;
 
-        vista.getFacturarButton().addActionListener(this);
-        vista.getReiniciarButton().addActionListener(this);
+        if (this.vista.getFacturarButton() != null) {
+            this.vista.getFacturarButton().addActionListener(this);
+        }
+        if (this.vista.getReiniciarButton() != null) {
+            this.vista.getReiniciarButton().addActionListener(this);
+        }
     }
     
     private void enlazarEventosPago() {
@@ -31,6 +36,7 @@ private JFrame framePago;
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        
         if (e.getSource() == vista.getFacturarButton()) {
             metodoPago = new MetododePago();
             metodoPago.setTotal(vista.getTotalVenta());
@@ -39,6 +45,7 @@ private JFrame framePago;
 
             framePago = new JFrame("Método de Pago - Nexus");
             framePago.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            
             framePago.setContentPane(metodoPago.VistaMdP());
             framePago.pack();
             framePago.setLocationRelativeTo(null); 
@@ -57,7 +64,6 @@ private JFrame framePago;
                 metodoPago.getBtnConfirmar().setEnabled(true);
             }
             else if (e.getSource() == metodoPago.getBtnBuscarCliente()) {
-                
                 metodoPago.getBtnConfirmar().setEnabled(true);
             }
             else if (e.getSource() == metodoPago.getBtnConfirmar()) {

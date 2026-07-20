@@ -13,11 +13,6 @@ import javax.swing.SwingConstants;
 import javax.swing.JTextField;
 
 
-
-/**
- *
- * @author USUARIO
- */
 public class VistaRegistrarSalida extends JPanel {
 
     public JTextField txtCantidadSalida;
@@ -25,6 +20,7 @@ public class VistaRegistrarSalida extends JPanel {
     public JButton btnVolver;
     private JLabel lblTitulo;
     private JLabel lblInstruccion;
+   
 
     public VistaRegistrarSalida() {
         this.setBackground(Color.WHITE);

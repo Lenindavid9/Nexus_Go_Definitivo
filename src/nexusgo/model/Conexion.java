@@ -15,7 +15,7 @@ import javax.swing.JOptionPane;
 public class Conexion {
 
     Connection con;
-    String url = "jdbc:mysql://localhost:3306/nexus_go_db?useSSL=false&serverTimezone=UTC";
+    String url = "jdbc:mysql://localhost:3306/nexus_go_prueba?useSSL=false&serverTimezone=UTC";
     String user = "root";
     String pass = "";
     
@@ -26,7 +26,7 @@ public class Conexion {
 
             
             con = DriverManager.getConnection(url, user, pass);
-            System.out.println("Conexion exitosa con nexusGodb");
+            System.out.println("Conexion exitosa con la base de datos");
 
         } catch (Exception e) {
             // Se ordenaron los parámetros correctamente para evitar errores en Swing
@@ -40,5 +40,4 @@ public class Conexion {
         }
         return con;
     }
-
 }

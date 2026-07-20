@@ -43,7 +43,7 @@ public class VistaCambioRol extends JFrame {
         // Se utilizará BorderLayout para distribuir los paneles
         contenedor.setLayout(new BorderLayout(20, 20));
 
-        this.fondo = new JLabel(new ImageIcon ("C:\\Users\\USUARIO\\Documents\\NetBeansProjects\\nexusGo/fondito.jpg"));
+        this.fondo = new JLabel(new ImageIcon ("src/nexusgo/img/marmol_mejorado.jpg"));
         this.fondo.setLayout(new BorderLayout(20,20));
         this.setContentPane(fondo);
         
@@ -98,10 +98,10 @@ public class VistaCambioRol extends JFrame {
         de filas sea superior al espacio disponible.*/
         miscroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-        // Se crea un nuevo panel utilizando BorderLayout.
-        // Este panel actuará como el contenedor principal donde se
-        // mostrará la información de la ventana,
-        // en este caso la tabla de usuarios.
+        /* Se crea un nuevo panel utilizando BorderLayout.
+        Este panel actuará como el contenedor principal donde se
+        mostrará la información de la ventana,
+        en este caso la tabla de usuarios.*/
         JPanel panelCentro = new JPanel(new BorderLayout());
 
         /* Se agrega un margen interno de 40 píxeles en los cuatro lados
@@ -129,24 +129,5 @@ public class VistaCambioRol extends JFrame {
         
         // Se agrega el panel central a la posición CENTER del BorderLayout.
         fondo.add(panelCentro, BorderLayout.CENTER);
-
-        //=====================================================
-        // FILA DE PRUEBA
-        //=====================================================
-        modelo.addRow(new Object[]{
-            "1002345678",
-            "Mateo",
-            "Restrepo",
-            "Cliente",
-            "mateo@gmail.com"
-        });
-        
-        modelo.addRow(new Object[]{
-            "1222345678",
-            "Matias",
-            "Restregas",
-            "Cliente",
-            "matias@gmail.com"
-        });
     }
 }

@@ -197,6 +197,39 @@ public class ProductoDao implements Crud<Producto> {
         return listaProds;
     }
     
+    public List<Producto> listarPromociones() {
+        List<Producto> listaPromo = new ArrayList<>();
+        
+        // Ajusta la condición WHERE según las columnas de tu base de datos (por ejemplo: es_promocion = 1, descuento > 0, etc.)
+        String sql = "SELECT id_producto, nombre_producto, precio_compra, descripcion, url_imagen, stock_actual, stock_minimo "
+                   + "FROM producto "
+                   + "WHERE es_promocion = 1 OR categoria = 'Promocion'";
+
+        try (Connection con = conexion.getConection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Producto producto = new Producto();
+                
+                producto.setIdProducto(rs.getInt("id_producto"));
+                producto.setNombreProducto(rs.getString("nombre_producto"));
+                producto.setPrecioCompra(rs.getDouble("precio_compra"));
+                producto.setDescripcion(rs.getString("descripcion"));
+                producto.setUrlImagen(rs.getString("url_imagen"));
+                producto.setStockActual(rs.getInt("stock_actual"));
+                producto.setStockMinimo(rs.getInt("stock_minimo"));
+                
+                listaPromo.add(producto);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al listar promociones desde ProductoDao: " + e.getMessage());
+        }
+
+        return listaPromo;
+    }
+    
     
 
   

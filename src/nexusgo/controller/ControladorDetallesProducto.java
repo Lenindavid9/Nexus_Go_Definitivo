@@ -9,21 +9,21 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
 import nexusgo.model.Producto;
-import nexusgo.view.VistaDetallesProducto;
+import nexusgo.view.VistaProductoDetalles;
 /**
  *
  * @author HOME
  */
 public class ControladorDetallesProducto implements ActionListener {
     
-  private final VistaDetallesProducto vista;
+  private final VistaProductoDetalles vista;
     private final Producto producto;
     private final ControladorPrincipalCliente controladorPrincipal;
 
-    /*
+    /**
      * Constructor que enlaza los datos del producto, la vista de detalles y el controlador principal.
      */
-    public ControladorDetallesProducto(VistaDetallesProducto vista, Producto producto, ControladorPrincipalCliente controladorPrincipal) {
+    public ControladorDetallesProducto(VistaProductoDetalles vista, Producto producto, ControladorPrincipalCliente controladorPrincipal) {
         this.vista = vista;
         this.producto = producto;
         this.controladorPrincipal = controladorPrincipal;
@@ -34,33 +34,18 @@ public class ControladorDetallesProducto implements ActionListener {
         mostrarDatosProducto();
     }
 
-    /*
-     * Inyecta la información del producto en los componentes visuales del panel.
+    /**
+     * Envía la información del modelo hacia la vista de forma desacoplada.
      */
     private void mostrarDatosProducto() {
         if (producto != null) {
-            // Corregido con los nombres exactos de los componentes de la vista
-            vista.lblNombreProducto.setText(producto.getNombreProducto().toUpperCase());
-            vista.lblPrecioProducto.setText("$ " + String.format("%,.0f", producto.getPrecioCompra()));
-            
-            if (producto.getDescripcion()!= null && !producto.getDescripcion().isEmpty()) {
-                vista.txtDescripcion.setText(producto.getDescripcion());
-            } else {
-                vista.txtDescripcion.setText("Este producto no cuenta con una descripción detallada registrada.");
-            }
-            
-            // Cargar y escalar la imagen directamente sobre el JLabel de la vista
-            String rutaImagen = producto.getUrlImagen();
-            if (rutaImagen == null || rutaImagen.isEmpty()) {
-                rutaImagen = "src/nexusgo/img/default.jpg";
-            }
-            
-            ImageIcon imgOriginal = new ImageIcon(rutaImagen);
-            if (imgOriginal.getImage() != null) {
-                Image escalada = imgOriginal.getImage().getScaledInstance(340, 260, Image.SCALE_SMOOTH);
-                vista.lblImagenProducto.setText("");
-                vista.lblImagenProducto.setIcon(new ImageIcon(escalada));
-            }
+            // Se delega el formateo y carga de imagen directamente a la Vista (MVC)
+            this.vista.mostrarDetalleProducto(
+                producto.getNombreProducto(),
+                producto.getPrecioCompra(),
+                producto.getDescripcion(),
+                producto.getUrlImagen()
+            );
         }
     }
 
