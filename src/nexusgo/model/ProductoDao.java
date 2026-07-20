@@ -17,9 +17,9 @@ import java.util.List;
  */
 public class ProductoDao implements Crud<Producto> {
     
-    Conexion conexion = new Conexion();
+    private final Conexion conexion = new Conexion();
 
-    // LISTAR PRODUCTOS
+    // R - READ: LISTAR TODOS LOS PRODUCTOS
     @Override
     public List<Producto> listar() {
         List<Producto> lista = new ArrayList<>();
@@ -42,7 +42,7 @@ public class ProductoDao implements Crud<Producto> {
                 lista.add(producto);
             }
         } catch (SQLException e) {
-            System.out.println("Error al listar productos: " + e.getMessage());
+            System.err.println("❌ Error al listar productos: " + e.getMessage());
         }
         return lista;
     }
@@ -69,7 +69,7 @@ public class ProductoDao implements Crud<Producto> {
             return ps.executeUpdate(); 
 
         } catch (SQLException e) {
-            System.out.println("Error al agregar producto: " + e.getMessage());
+            System.err.println("❌ Error al agregar producto: " + e.getMessage());
         }
         return 0;
     }
@@ -97,11 +97,10 @@ public class ProductoDao implements Crud<Producto> {
             return ps.executeUpdate(); 
 
         } catch (SQLException e) {
-            System.out.println("Error al editar producto: " + e.getMessage());
+            System.err.println("❌ Error al editar producto: " + e.getMessage());
         }
         return 0;
     }
-  
 
     // D - DELETE: ELIMINAR PRODUCTO
     @Override
@@ -115,7 +114,7 @@ public class ProductoDao implements Crud<Producto> {
             return ps.executeUpdate(); 
 
         } catch (SQLException e) {
-            System.out.println("Error al eliminar producto: " + e.getMessage());
+            System.err.println("❌ Error al eliminar producto: " + e.getMessage());
         }
         return 0;
     }
@@ -124,7 +123,7 @@ public class ProductoDao implements Crud<Producto> {
     public Producto buscarPorId(int id) {
         Producto producto = null;
         String sql = "SELECT * FROM productos WHERE id_producto = ?";
-        
+
         try (Connection con = conexion.getConection(); 
              PreparedStatement ps = con.prepareStatement(sql)) {
 
@@ -142,14 +141,13 @@ public class ProductoDao implements Crud<Producto> {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error al buscar producto por ID: " + e.getMessage());
+            System.err.println("❌ Error al buscar producto por ID: " + e.getMessage());
         }
         return producto;
     }
 
-    // NUEVO MÉTODO PROPIO: DESCONTAR EL STOCK (REGISTRAR SALIDA EN BASE DE DATOS)
+    // MÉTODO PROPIO: Descontar stock validando disponibilidad suficiente
     public boolean registrarSalidaStock(int idProducto, int cantidad) {
-        // Descuenta si hay stock suficiente en inventario para evitar que caiga a números negativos
         String sql = """
                      UPDATE productos 
                      SET stock_actual = stock_actual - ? 
@@ -161,26 +159,26 @@ public class ProductoDao implements Crud<Producto> {
 
             ps.setInt(1, cantidad);
             ps.setInt(2, idProducto);
-            ps.setInt(3, cantidad); // Condición lógica de resguardo de stock
+            ps.setInt(3, cantidad); // Condición para no permitir stock negativo
 
             int filasAfectadas = ps.executeUpdate();
-            return filasAfectadas > 0; // Retorna verdadero si se pudo actualizar el stock sin inconvenientes
+            return filasAfectadas > 0;
 
         } catch (SQLException e) {
-            System.out.println("Error al registrar salida de stock en DAO: " + e.getMessage());
+            System.err.println("❌ Error al registrar salida de stock en DAO: " + e.getMessage());
             return false;
         }
     }
-    
+
+    // MÉTODO PROPIO: Listar productos vista cliente
     public List<Producto> listarProductosCliente() {
         List<Producto> listaProds = new ArrayList<>();
-        // Consulta exacta basada en tu script SQL
         String sql = "SELECT nombre_producto, precio_compra, stock_actual, stock_minimo, url_imagen FROM productos";
-        
+
         try (Connection con = conexion.getConection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-            
+
             while (rs.next()) {
                 Producto prod = new Producto();
                 prod.setNombreProducto(rs.getString("nombre_producto"));
@@ -188,22 +186,24 @@ public class ProductoDao implements Crud<Producto> {
                 prod.setStockActual(rs.getInt("stock_actual"));
                 prod.setStockMinimo(rs.getInt("stock_minimo"));
                 prod.setUrlImagen(rs.getString("url_imagen"));
-                
+
                 listaProds.add(prod);
             }
         } catch (SQLException e) {
-            System.out.println("❌ Error al listar productos para el cliente: " + e.getMessage());
+            System.err.println("❌ Error al listar productos para el cliente: " + e.getMessage());
         }
         return listaProds;
     }
-    
+
+    // MÉTODO PROPIO: Listar productos en promoción
     public List<Producto> listarPromociones() {
         List<Producto> listaPromo = new ArrayList<>();
-        
-        // Ajusta la condición WHERE según las columnas de tu base de datos (por ejemplo: es_promocion = 1, descuento > 0, etc.)
-        String sql = "SELECT id_producto, nombre_producto, precio_compra, descripcion, url_imagen, stock_actual, stock_minimo "
-                   + "FROM producto "
-                   + "WHERE es_promocion = 1 OR categoria = 'Promocion'";
+        // Ajustado a la tabla "productos" para mantener consistencia sintáctica con los demás métodos
+        String sql = """
+                     SELECT id_producto, nombre_producto, precio_compra, descripcion, url_imagen, stock_actual, stock_minimo 
+                     FROM productos 
+                     WHERE es_promocion = 1 OR categoria = 'Promocion'
+                     """;
 
         try (Connection con = conexion.getConection();
              PreparedStatement ps = con.prepareStatement(sql);
@@ -211,7 +211,6 @@ public class ProductoDao implements Crud<Producto> {
 
             while (rs.next()) {
                 Producto producto = new Producto();
-                
                 producto.setIdProducto(rs.getInt("id_producto"));
                 producto.setNombreProducto(rs.getString("nombre_producto"));
                 producto.setPrecioCompra(rs.getDouble("precio_compra"));
@@ -219,19 +218,15 @@ public class ProductoDao implements Crud<Producto> {
                 producto.setUrlImagen(rs.getString("url_imagen"));
                 producto.setStockActual(rs.getInt("stock_actual"));
                 producto.setStockMinimo(rs.getInt("stock_minimo"));
-                
+
                 listaPromo.add(producto);
             }
 
         } catch (SQLException e) {
-            System.err.println("Error al listar promociones desde ProductoDao: " + e.getMessage());
+            System.err.println("❌ Error al listar promociones desde ProductoDao: " + e.getMessage());
         }
 
         return listaPromo;
     }
-    
-    
-
-  
 
 }

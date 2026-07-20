@@ -7,7 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import nexusgo.view.Factura;
+import nexusgo.view.VistaFactura;
 
 interface EstadoCliente {
     void seleccionarClienteG();
@@ -166,7 +166,7 @@ public class ControladorMdP implements ActionListener {
     }
 
     private void abrirFactura() {
-        Factura factura = new Factura();
+        VistaFactura factura = new VistaFactura();
         factura.crearVistaFactura();
 
         if (vista.getNumId().isEnabled()) {

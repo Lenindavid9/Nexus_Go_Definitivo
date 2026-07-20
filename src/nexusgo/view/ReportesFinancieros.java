@@ -163,4 +163,36 @@ public class ReportesFinancieros extends JPanel {
         boton.setHorizontalAlignment(SwingConstants.LEFT);
         boton.setAlignmentX(LEFT_ALIGNMENT);
     }
+    
+    public JButton getBtnInicio() {
+        return btnInicio;
+    }
+
+    public JButton getBtnCerrar() {
+        return btnCerrar;
+    }
+
+    public JButton getBtnHistorialMH() {
+        return btnHistorialMH;
+    }
+
+    public JButton getBtnProcesar() {
+        return btnProcesar;
+    }
+
+    public JComboBox<String> getComboMes() {
+        return comboMes;
+    }
+
+    public JComboBox<String> getComboAnio() {
+        return comboAnio;
+    }
+
+    public JTable getTablaReporte() {
+        return tablaReporte;
+    }
+
+    public DefaultTableModel getModeloTabla() {
+        return modeloTabla;
+    }
 }

@@ -187,6 +187,14 @@ public void paint(Graphics g) {
     public JButton getBtnCerrar() {
         return btnCerrar;
     }
+    
+    public JPanel getPnlTarjeta() {
+        return pnlTarjeta;
+    }
+
+    public JPanel getPanelTarjeta() {
+        return pnlTarjeta;
+    }
 
     private void configurarBotonLateral(JButton boton) {
         boton.setFont(new Font("SansSerif", Font.BOLD, 16));
