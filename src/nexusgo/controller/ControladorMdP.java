@@ -106,10 +106,10 @@ class EstadoClienteR implements EstadoCliente {
 
     @Override
     public void buscarCliente(String id) {
-        Cliente cliente = controlador.dao.buscarPorIdentificacion(id);
-        if (cliente != null) {
+        Cliente usuarios = controlador.dao.buscarPorIdentificacion(id);
+        if (usuarios != null) {
             JOptionPane.showMessageDialog(controlador.vista,
-                    "Cliente existente: " + cliente.getNombre(),
+                    "Cliente existente: " + usuarios.getNombre(),
                     "Resultado", JOptionPane.INFORMATION_MESSAGE);
             controlador.habilitarMetodosPago(true);
             controlador.vista.getBtnConfirmar().setEnabled(false);

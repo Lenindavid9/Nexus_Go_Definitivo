@@ -8,16 +8,19 @@ import javax.swing.JFrame;
 
 public class ControladorPdV implements ActionListener {
 
-  private final VistaPdV vista;
+    private final VistaPdV vista;
     private MetododePago metodoPago;
     private JFrame framePago;
 
     public ControladorPdV(VistaPdV vista) {
         this.vista = vista;
 
-        // Se enlazan los listeners usando los getters sobre la vista ya renderizada
-        this.vista.getFacturarButton().addActionListener(this);
-        this.vista.getReiniciarButton().addActionListener(this);
+        if (this.vista.getFacturarButton() != null) {
+            this.vista.getFacturarButton().addActionListener(this);
+        }
+        if (this.vista.getReiniciarButton() != null) {
+            this.vista.getReiniciarButton().addActionListener(this);
+        }
     }
     
     private void enlazarEventosPago() {
@@ -34,7 +37,6 @@ public class ControladorPdV implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         
-        // 1. EVENTOS DE LA VISTA DEL PUNTO DE VENTA (PdV)
         if (e.getSource() == vista.getFacturarButton()) {
             metodoPago = new MetododePago();
             metodoPago.setTotal(vista.getTotalVenta());
@@ -44,7 +46,6 @@ public class ControladorPdV implements ActionListener {
             framePago = new JFrame("Método de Pago - Nexus");
             framePago.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             
-            // Usamos el método que construye tu vista del método de pago
             framePago.setContentPane(metodoPago.VistaMdP());
             framePago.pack();
             framePago.setLocationRelativeTo(null); 
@@ -55,7 +56,6 @@ public class ControladorPdV implements ActionListener {
             System.out.println("Contador y total reiniciados desde el Controlador");
         }
 
-        //  EVENTOS DE LA VENTANA FLOTANTE DE MÉTODOS DE PAGO
         if (metodoPago != null) {
             if (e.getSource() == metodoPago.getBtnVolver()) {
                 framePago.dispose(); 

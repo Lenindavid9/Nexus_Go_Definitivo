@@ -11,6 +11,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -36,36 +37,56 @@ public class AperturaCierre extends JPanel {
     public AperturaCierre(JFrame ventanaPrincipal, PanelAdmi panelAdmi) {
         this.ventanaPrincipal = ventanaPrincipal;
         this.panelAdmi = panelAdmi;
-        VistaCaja(); 
+        VistaCaja();
     }
 
+    
     public AperturaCierre() {
         VistaCaja();
     }
 
-    public JPanel VistaCaja() {
-        
-        this.setLayout(new BorderLayout());
-        
-        principal = new JPanel();
-        principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
-        principal.setBackground(Color.WHITE);
-        principal.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
-        
-        pnlbtnVolver = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
-        pnlbtnVolver.setOpaque(false);
-        pnlbtnVolver.setMaximumSize(new Dimension(Short.MAX_VALUE, 35));
+    @Override
+    protected void paintComponent(Graphics g
+    ) {
+        super.paintComponent(g);
+        ImageIcon img = new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg");
+        g.drawImage(img.getImage(), 0, 0, getWidth(), getHeight(), this);
+    }
 
+    public JPanel VistaCaja() {
+
+        this.setLayout(new BorderLayout());
+
+        principal = new JPanel(); 
+        principal.setOpaque(false); 
+        //Este es para organizar todo hacia abajo, no podemos usar flowlayout ya que se pondria todo a un lado
+        principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
+        
+        //espaci de los bordes del panel principal
+        principal.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+
+        
+        //                                       PANEL DEL BOTON VOLVER ;)
+        
+        //Creamos el panel del boton volver para dejarlo en la parte superior derecha usando el flowlayout
+        pnlbtnVolver = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        pnlbtnVolver.setOpaque(false);
+        pnlbtnVolver.setMaximumSize(new Dimension(Short.MAX_VALUE, 40));
+
+        //Aqui es importante usar el setPreferredSise ya que le decimos al layout el tamaño que queremos para el boton volver
         btnVolver = new JButton("< Volver");
-        btnVolver.setPreferredSize(new Dimension(110, 40)); 
+        btnVolver.setPreferredSize(new Dimension(110, 40));
         btnVolver.setFont(new Font("SansSerif", Font.BOLD, 16));
         btnVolver.setBackground(COLOR_DORADO);
         btnVolver.setBorder(null);
-        
+
+        //se añade el JButton al JPanel
         pnlbtnVolver.add(btnVolver);
+        
+        
         apertura = new JPanel();
-        apertura.setBackground(Color.WHITE);
-        apertura.setPreferredSize(new Dimension(900, 200));
+        apertura.setBackground(new Color(255, 255, 255, 150));
+        apertura.setMaximumSize(new Dimension(900, 200));
         apertura.setBorder(null);
         
         imgApertura = new JLabel(new ImageIcon("apertura.png"));
@@ -73,7 +94,7 @@ public class AperturaCierre extends JPanel {
         imgApertura.setMaximumSize(new Dimension(300, 200));
         
         infoApertura = new JPanel();
-        infoApertura.setBackground(Color.WHITE);
+        infoApertura.setOpaque(false);
         infoApertura.setPreferredSize(new Dimension(400, 270));
         infoApertura.setLayout(new BoxLayout(infoApertura, BoxLayout.Y_AXIS));
 
@@ -98,7 +119,7 @@ public class AperturaCierre extends JPanel {
         btnApertura = new JButton("Realizar Apertura");
         btnApertura.setFont(new Font("SansSerif", Font.PLAIN, 16));
         btnApertura.setBackground(COLOR_DORADO); 
-        btnApertura.setForeground(Color.WHITE);
+        btnApertura.setForeground(Color.white);
         btnApertura.setMaximumSize(new Dimension(180, 50));
         btnApertura.setPreferredSize(new Dimension(150, 40)); 
         btnApertura.setBorder(null);
@@ -115,12 +136,12 @@ public class AperturaCierre extends JPanel {
         apertura.add(infoApertura);
         
         cierre = new JPanel();
-        cierre.setBackground(Color.WHITE);
-        cierre.setPreferredSize(new Dimension(900, 200));
+        cierre.setBackground(new Color(255, 255, 255, 150));
+        cierre.setMaximumSize(new Dimension(900, 200));
         cierre.setBorder(null);
         
         infoCierre = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        infoCierre.setBackground(Color.WHITE);
+        infoCierre.setOpaque(false);
         infoCierre.setPreferredSize(new Dimension(400, 270));
         infoCierre.setLayout(new BoxLayout(infoCierre, BoxLayout.Y_AXIS));
         
@@ -167,15 +188,15 @@ public class AperturaCierre extends JPanel {
         cierre.add(imgCierre);
         
         confirmacion = new JPanel();
-        confirmacion.setBackground(Color.WHITE);
-        confirmacion.setPreferredSize(new Dimension(900, 200));
+        confirmacion.setBackground(new Color(255, 255, 255, 150));
+        confirmacion.setMaximumSize(new Dimension(900, 200));
         confirmacion.setBorder(null);
         
         
         infoConfirmacion = new JPanel();
         infoConfirmacion.setLayout(new BoxLayout(infoConfirmacion, BoxLayout.Y_AXIS));
         infoConfirmacion.setAlignmentY(Component.CENTER_ALIGNMENT);
-        infoConfirmacion.setBackground(Color.WHITE);
+        infoConfirmacion.setOpaque(false);
         infoConfirmacion.setPreferredSize(new Dimension(400, 270));
         
         
@@ -189,7 +210,7 @@ public class AperturaCierre extends JPanel {
         
         CalcularC = new JPanel();
         CalcularC.setLayout(new BoxLayout(CalcularC, BoxLayout.Y_AXIS));
-        CalcularC.setBackground(Color.WHITE);
+        CalcularC.setOpaque(false);
         CalcularC.setPreferredSize(new Dimension(400, 270));
         
         lblMontoF = new JLabel("Ingrese el monto físico en caja");
@@ -258,4 +279,5 @@ public class AperturaCierre extends JPanel {
     public JLabel getLbltxtMontoTV() {
         return lbltxtMontoTV;
     }
+    
 }
