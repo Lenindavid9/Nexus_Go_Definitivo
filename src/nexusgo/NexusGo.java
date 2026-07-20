@@ -43,8 +43,8 @@ public class NexusGo {
         // Finalmente, se hace visible la ventana de inicio de sesión.
         login.setVisible(true);
 
-//         PanelAdmi vistaadmi = new PanelAdmi();
-//        vistaadmi.setVisible(true);
+         PanelAdmi vistaadmi = new PanelAdmi();
+         vistaadmi.setVisible(true);
 
     }
 }
