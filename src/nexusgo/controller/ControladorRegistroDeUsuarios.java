@@ -89,10 +89,10 @@ public class ControladorRegistroDeUsuarios implements ActionListener {
         String correo = vistaRegistro.tCorreo.getText().trim();
 
         // Se obtiene la contraseña
-        String contrasena = new String(vistaRegistro.tContrasena.getPassword()).trim();
+        String contrasena = new String(vistaRegistro.tContrasena.getText()).trim();
 
         // Se obtiene la contraseña de confirmación para comprobar que el usuario escribió lo mismo en los dos campos.
-        String confirmarContrasena = new String(vistaRegistro.tConfirmar.getPassword()).trim();
+        String confirmarContrasena = new String(vistaRegistro.tConfirmar.getText()).trim();
 
         // Se verifica que todos los campos obligatorios del formulario contengan información.
         if (nombre.isEmpty() || apellido.isEmpty() || texIdentificacion.isEmpty() || correo.isEmpty() || contrasena.isEmpty()) {
@@ -100,6 +100,26 @@ public class ControladorRegistroDeUsuarios implements ActionListener {
             JOptionPane.showMessageDialog(vistaRegistro,
                     "Por favor, complete todos los campos obligatorios del formulario.",
                     "Campos Incompletos", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        /*Se verifica que el nombre y el apellido solo contenga nada mas que letras y espacios
+        
+        La eprecion regular se LEE asi:
+        ^ = Indica el inicio del texto.
+        [a-z A-Z] = Acepta cualquier letra que esta desde la A hasta la Z tanto en mayuscula
+        como en miniscula y el espacio permite que esos nombre que son como "Maria de los angeles"
+        ingrese con ese espacio del medio.
+        áéíóúÁÉÍÓÚ = Permite el uso de tilde en esas letras.
+        ñÑ = Permite esa letra tanto en minuscula como mayuscula.
+        + = obliga a que debe existir al menos unn caracter valido.
+        $ = Indica que el texto debe terminar aquí.
+        Si el nombre contiene números, símbolos o cualquier otra cosa, la condición no se cumplirá.*/
+        if(!nombre.matches("[a-z A-ZáéíóúÁÉÍÓÚñÑ]+$") || !apellido.matches("[a-z A-ZáéíóúÁÉÍÓÚñÑ]+$")){
+            
+            //se informa que el nombre contiene algo no permitido
+            JOptionPane.showMessageDialog(vistaRegistro,"El nombre y el apeellido solo puede contener letras.",
+                    "Error de ingreso de nombre", JOptionPane.ERROR_MESSAGE);
             return;
         }
 

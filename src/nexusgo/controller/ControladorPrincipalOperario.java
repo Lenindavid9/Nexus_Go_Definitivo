@@ -1,8 +1,6 @@
 package nexusgo.controller;
 
 import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JPanel;
 import nexusgo.model.Usuario;
@@ -57,7 +55,7 @@ public class ControladorPrincipalOperario implements ActionListener {
         else if (e.getSource() == vistaMenu.getsidebar().misCitas) {
             VistaOperarioInventario panelInventario = new VistaOperarioInventario();
             
-            // ¡Aquí está el truco! Le pasamos el "contenedorCentral" al controlador del inventario
+            //Le pasamos el "contenedorCentral" al controlador del inventario
             ControladorInventarioOperario controlador = new ControladorInventarioOperario(panelInventario, usuarioLogueado, contenedorCentral);
             
             cambiarPanel(panelInventario);
@@ -68,6 +66,4 @@ public class ControladorPrincipalOperario implements ActionListener {
 
         }
     }
-
-  
 }
