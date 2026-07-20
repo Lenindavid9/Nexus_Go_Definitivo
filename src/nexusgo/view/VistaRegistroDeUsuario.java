@@ -164,7 +164,7 @@ public class VistaRegistroDeUsuario extends JFrame {// Componente para colocar l
         btnRegistrarse = new JButton("Registrarse");
         btnRegistrarse.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnRegistrarse.setForeground(Color.WHITE); // Letra blanca
-        btnRegistrarse.setBackground(Color.WHITE); // Fondo dorado corporativo
+        btnRegistrarse.setBackground(Color.decode("#EFB810")); // Fondo dorado corporativo
         btnRegistrarse.setBorderPainted(false); // Sin bordes rígidos Windows
         btnRegistrarse.setFocusPainted(false); // Quita el cuadro punteado feo al hacer clic
         btnRegistrarse.setCursor(new Cursor(Cursor.HAND_CURSOR)); // Activa la manito del mouse

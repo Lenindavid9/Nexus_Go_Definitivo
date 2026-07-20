@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import nexusgo.model.Usuario;
 import nexusgo.view.PanelInventarioProductosPeluquero;
 import nexusgo.view.PanelModificarCita;
 import nexusgo.view.VistaPrincipalPeluquero;
@@ -19,9 +20,11 @@ import nexusgo.view.VistaPrincipalPeluquero;
  */
 public class ControladorPrincipalPeluquero implements ActionListener{
  private final VistaPrincipalPeluquero vista;
+ private final Usuario usuarioLogueado;
 
-    public ControladorPrincipalPeluquero(VistaPrincipalPeluquero vista) {
+    public ControladorPrincipalPeluquero(VistaPrincipalPeluquero vista, Usuario usuarioLogueado) {
         this.vista = vista;
+        this.usuarioLogueado = usuarioLogueado;
 
         // Centralizamos los escuchadores asignando esta misma clase como Listener
         this.vista.btnInicio.addActionListener(this);

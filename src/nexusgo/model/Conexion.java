@@ -26,7 +26,7 @@ public class Conexion {
 
             
             con = DriverManager.getConnection(url, user, pass);
-            System.out.println("Conexion exitosa con nexusGodb");
+            System.out.println("Conexion exitosa con la base de datos");
 
         } catch (Exception e) {
             // Se ordenaron los parámetros correctamente para evitar errores en Swing
