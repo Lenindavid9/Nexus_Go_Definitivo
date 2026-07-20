@@ -6,9 +6,6 @@ package nexusgo;
 
 import javax.swing.JFrame;
 import nexusgo.controller.ControladorInicioSesion;
-import nexusgo.controller.ControladorMdP;
-import nexusgo.view.AperturaCierre;
-import nexusgo.view.MetododePago;
 import nexusgo.view.PanelAdmi;
 import nexusgo.view.VistaInicioSesion;
 

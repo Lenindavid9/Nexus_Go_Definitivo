@@ -56,7 +56,7 @@ public class ControladorPrincipalAdminSoftware implements ActionListener {
                 ventanaCambioRol.setVisible(true);
                 
                 // OPCIONAL: Si quieres ocultar la ventana principal mientras está abierto el cambio de rol:
-                // vista.setVisible(false);
+                 vista.setVisible(false);
                 
             } catch (Exception ex) {
                 ex.printStackTrace();
