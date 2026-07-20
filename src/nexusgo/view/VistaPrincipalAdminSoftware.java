@@ -28,14 +28,13 @@ public class VistaPrincipalAdminSoftware extends JFrame{
         // Configuramos la barra lateral para dejar solo los 2 botones que necesitas
         sidebar.bCasa.setText("Inicio");
         sidebar.bInventario.setText("Cambio Rol"); // Redirigido a la clase VistaCambioRol
-        sidebar.misCitas.setVisible(false);       // Ocultamos el tercer botón que no se usará
         
         add(sidebar, BorderLayout.WEST);
 
-        // 2. Inicializar el panel 'contenido' explícitamente con BorderLayout
+        // Inicializar el panel 'contenido' explícitamente con BorderLayout
         contenido = new JPanel(new BorderLayout());
 
-        // 3. Agregar el contenedor general 'contenido' al centro del JFrame
+        // Agregar el contenedor general 'contenido' al centro del JFrame
         // El Controlador se encargará de inyectar los paneles dinámicamente aquí
         add(contenido, BorderLayout.CENTER);
 
