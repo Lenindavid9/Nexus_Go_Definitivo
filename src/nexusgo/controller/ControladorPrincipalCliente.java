@@ -57,7 +57,7 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
             this.listaProductos = productoDAO.listar();
             
             // Enviamos la lista y "this" (este controlador que escucha los clics de raton) a la vista
-            this.vista.cargarProductosEnInterfaz(this.listaProductos);
+            this.vista.cargarProductosEnInterfaz(this.listaProductos,this);
             
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(vista,
