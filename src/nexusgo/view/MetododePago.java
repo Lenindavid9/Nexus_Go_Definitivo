@@ -7,7 +7,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Image;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -20,7 +19,7 @@ import javax.swing.JTextField;
 public class MetododePago extends JPanel {
 
     private JPanel principal, pnlClientes, pnlIngresoId, pnlMdP, pnlResumen, pnlbtnVolver, pnlOpcionesPago;
-    private JLabel lbltxtIngreso, lbltxtMdP, lbltxtIndicacion, lblTotal, lblTituloEfectivo, lblEstadoEfectivo;
+    private JLabel lbltxtIngreso, lbltxtMdP, lbltxtIndicacion, lblTotal, lblTituloEfectivo, lblEstadoEfectivo,fondo;
     private JButton btnClienteR, btnClienteG, btnVolver, btnConfirmar, btnBuscarCliente, btnImgEfectivo, btnImgTarjeta, btnImgTransferencia;
     private JTextField numId;
     private JPanel pnlEfectivo, pnlTransferencia, pnlTarjeta;
@@ -31,22 +30,22 @@ public class MetododePago extends JPanel {
         VistaMdP();
     }
 
+    @Override
+    protected void paintComponent(Graphics g
+    ) {
+        super.paintComponent(g);
+        ImageIcon img = new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg");
+        g.drawImage(img.getImage(), 0, 0, getWidth(), getHeight(), this);
+    }
+
     public JPanel VistaMdP() {
         
         this.setLayout(new BorderLayout());
-           
+
 //                                            PANEL PRINCIPAL ;) (Aqui se va agregar todo)
-
-        principal = new JPanel() {
-            private Image fondo = new ImageIcon("fondo.png").getImage();
-
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                g.drawImage(fondo, 0, 0, getWidth(), getHeight(), this);
-            }
-        };
-
+        
+        principal = new JPanel(); 
+        principal.setOpaque(false); 
         //Este es para organizar todo hacia abajo, no podemos usar flowlayout ya que se pondria todo a un lado
         principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
         
@@ -136,7 +135,6 @@ public class MetododePago extends JPanel {
         //Aqui creamos el panel donde usamos el boxlayout ya que queremos que el subtitulo quede debajo del titulo y no al lado
         pnlMdP = new JPanel();
         pnlMdP.setLayout(new BoxLayout(pnlMdP, BoxLayout.Y_AXIS));
-        pnlMdP.setOpaque(false);
         pnlMdP.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
         
         //Titulo

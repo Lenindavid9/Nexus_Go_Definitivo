@@ -6,7 +6,11 @@ package nexusgo;
 
 import javax.swing.JFrame;
 import nexusgo.controller.ControladorInicioSesion;
+import nexusgo.controller.ControladorMdP;
+import nexusgo.controller.ControladorPdV;
+import nexusgo.view.MetododePago;
 import nexusgo.view.VistaInicioSesion;
+import nexusgo.view.VistaPdV;
 
 /**
  *
@@ -41,5 +45,9 @@ public class NexusGo {
 
         // Finalmente, se hace visible la ventana de inicio de sesión.
         login.setVisible(true);
+
+      
+
+
     }
 }
