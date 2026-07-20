@@ -4,6 +4,8 @@
  */
 package nexusgo.model;
 
+import java.sql.Timestamp;
+
 /**
  *
  * @author USUARIO
@@ -18,6 +20,8 @@ public class Usuario {
     private String rol;
     private String tipoDocumento;
     private int identificacion;
+    private int numeroCompras;          
+    private Timestamp fechaRegistro;  
 
     public String getTipoDocumento() {
         return tipoDocumento;
@@ -81,5 +85,19 @@ public class Usuario {
 
     public void setRol(String rol) {
         this.rol = rol;
+    }
+    
+    public int getNumeroCompras() {
+        return numeroCompras;
+    }
+    public void setNumeroCompras(int numeroCompras) {
+        this.numeroCompras = numeroCompras;
+    }
+
+    public Timestamp getFechaRegistro() {
+        return fechaRegistro;
+    }
+    public void setFechaRegistro(Timestamp fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
     }
 }

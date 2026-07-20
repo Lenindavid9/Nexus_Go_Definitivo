@@ -13,9 +13,12 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import nexusgo.model.Usuario;
 import nexusgo.model.UsuarioDao;
+import nexusgo.view.PanelAdmi;
 import nexusgo.view.VistaInicioSesion;
+import nexusgo.view.VistaPrincipalAdminSoftware;
 import nexusgo.view.VistaPrincipalCliente;
 import nexusgo.view.VistaPrincipalOperario;
+import nexusgo.view.VistaPrincipalPeluquero;
 import nexusgo.view.VistaPrincipalSupervisor;
 import nexusgo.view.VistaValidarIdentificacion;
 import nexusgo.view.VistaRegistroDeUsuario;
@@ -288,38 +291,39 @@ public class ControladorInicioSesion implements ActionListener {
 
                     //Se cierra la ventana de inicio de sesión
                     vistaLogin.dispose();
-
-                    // NO EXISTE EL VISTA  DEL ADM PELUQUERO -----------------
+                    
 //                } else if (rolReal.equalsIgnoreCase("Administrador_de_la_peluqueria")) {
 //                    VistaPrincipalAdministrador vistaAdminPelu = new VistaPrincipalAdministrador();
-//                    PanelAdmi panelAdmi = new PanelAdmi();
+////                    PanelAdmi panelAdmi = new PanelAdmi();
 //
-//                    new ControladorPrincipalAdministrador(vistaAdminPelu, panelAdmi, usuarioLogueado);
+//                    ControladorPrincipalAdministrador controlAdminPelu = new ControladorPrincipalAdministrador(vistaAdminPelu, panelAdmi, usuarioLogueado);
 //
 //                    vistaAdminPelu.setExtendedState(JFrame.MAXIMIZED_BOTH);
 //                    vistaAdminPelu.setVisible(true);
 //                    vistaLogin.dispose();
-// --------------------------------------------------------------------
-//                    NO EXISTE EL CONTROLADOR DE ESTE --------------
-//                } else if (rolReal.equalsIgnoreCase("Administrador_del_software")) {
-//                    VistaPrincipalAdminSoftware vistaAdminSoft = new VistaPrincipalAdminSoftware();
-//                    PanelAdmi panelAdmi = new PanelAdmi();
-//
-//                     ControladorPrincipalAdminSoftware controladorAdmin = new ControladorPrincipalAdminSoftware(vistaAdmin, null, usuarioLogueado);
-//
-//                    vistaAdminSoft.setExtendedState(JFrame.MAXIMIZED_BOTH);
-//                    vistaAdminSoft.setVisible(true);
-//                    vistaLogin.dispose();
-//------------------------------------------------------------------------------------------
-// NO TIENE CONTROLADOR ---------------
-//                } else if (rolReal.equalsIgnoreCase("Peluquero")) {
-//                    VistaPrincipalPeluquero vistaPeluquero = new VistaPrincipalPeluquero();
-//                    ControladorPrincipalPeluquero controladorPeluquero = new ControladorPrincipalPeluquero(vistaPeluquero, usuarioLogueado);
-//
-//                    vistaPeluquero.setExtendedState(JFrame.MAXIMIZED_BOTH);
-//                    vistaPeluquero.setVisible(true);
-//                    vistaLogin.dispose();
-// -----------------------------------------------------------------------------------------
+                  
+                } else if (rolReal.equalsIgnoreCase("Administrador_del_software")) {
+                    VistaPrincipalAdminSoftware vistaAdminSoft = new VistaPrincipalAdminSoftware();
+
+                     ControladorPrincipalAdminSoftware controlAdminSoft = new ControladorPrincipalAdminSoftware(vistaAdminSoft, null, usuarioLogueado);
+
+                    vistaAdminSoft.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                    
+                    vistaAdminSoft.setVisible(true);
+                    
+                    vistaLogin.dispose();
+//                    
+                } else if (rolReal.equalsIgnoreCase("Peluquero")) {
+                    
+                    VistaPrincipalPeluquero vistaPeluquero = new VistaPrincipalPeluquero();
+                    
+                    ControladorPrincipalPeluquero controlPeluquero = new ControladorPrincipalPeluquero(vistaPeluquero, usuarioLogueado);
+
+                    vistaPeluquero.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                    
+                    vistaPeluquero.setVisible(true);
+                    
+                    vistaLogin.dispose();
 
                     /*Si el usuario no es Peluquero, se verifica si pertenece al rol de Cliente.*/
                 } else if (rolReal.equalsIgnoreCase("Cliente")) {
