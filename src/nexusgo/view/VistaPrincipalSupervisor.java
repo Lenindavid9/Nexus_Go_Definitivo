@@ -48,6 +48,7 @@ public class VistaPrincipalSupervisor extends JFrame {
         panelContenedorFlotante = new JPanel(new BorderLayout());
         panelContenedorFlotante.setPreferredSize(new Dimension(1000, 680));
         panelContenedorFlotante.setOpaque(false);
+        panelContenedorFlotante.setBackground(Color.red);
 
         // 3. BARRA LATERAL (Ajustada para Supervisor)
         sidebar = new VistaBarraLateral();
