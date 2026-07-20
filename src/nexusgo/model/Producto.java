@@ -18,6 +18,7 @@ public class Producto {
     private int stockActual;
     private int stockMinimo;
     private double precioCompra;
+    private double precioVenta;
     private String urlImagen;
 
     public Producto() {

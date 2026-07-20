@@ -47,7 +47,7 @@ public class NexusGo {
         login.setVisible(true);
 
          PanelAdmi vistaadmi = new PanelAdmi();
-        vistaadmi.setVisible(true);
+         vistaadmi.setVisible(true);
 
     }
 }
