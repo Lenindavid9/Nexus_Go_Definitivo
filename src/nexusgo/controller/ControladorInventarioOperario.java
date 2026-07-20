@@ -41,7 +41,7 @@ import nexusgo.view.VistaRegistrarSalida;
 public class ControladorInventarioOperario implements ActionListener {
 
    private final VistaOperarioInventario panelInventario;
-    private final JPanel contenedorCentral; // <--- Referencia segura, directa y definitiva
+    private final JPanel contenedorCentral;
     private final Usuario usuarioLogueado;
 
     private VistaAgregarProducto panelFormulario;
@@ -52,28 +52,19 @@ public class ControladorInventarioOperario implements ActionListener {
     private final HerramientaDao herramientaDao = new HerramientaDao();
     private int idSeleccionado = -1;
 
-    /**
-     * CONSTRUCTOR DEFINITIVO: Ahora recibe obligatoriamente el contenedor central de la app
-     * para realizar transiciones de pantalla seguras y limpias sin recurrir a getParent().
-     */
     public ControladorInventarioOperario(VistaOperarioInventario panelInventario, Usuario usuarioLogueado, JPanel contenedorCentral) {
         this.panelInventario = panelInventario;
         this.usuarioLogueado = usuarioLogueado;
-        this.contenedorCentral = contenedorCentral; // Guardamos la referencia segura del contenedor principal
+        this.contenedorCentral = contenedorCentral;
 
         try {
-            // Inicialización de sub-formularios
             this.panelFormulario = new VistaAgregarProducto();
             this.panelFormularioHerramienta = new VistaAgregarHerramienta();
             this.panelSalidaInsumo = new VistaRegistrarSalida();
 
             inicializarListeners();
-
-            // Carga inicial de datos desde MySQL
             listarProductosEnTabla();
             listarHerramientasEnTabla();
-
-            // Configura la visibilidad de botones según rol
             aplicarPermisosPorRol();
 
         } catch (Exception e) {
@@ -84,19 +75,16 @@ public class ControladorInventarioOperario implements ActionListener {
     }
 
     private void aplicarPermisosPorRol() {
-        // Ambos roles tienen acceso total y visibilidad de los botones de creación
         panelInventario.btnAgregarProducto.setVisible(true);
         panelInventario.btnAgregarHerramienta.setVisible(true);
     }
 
     private void inicializarListeners() {
         try {
-            // Quitamos la barra lateral de aquí (ya la maneja el ControladorPrincipal)
             this.panelInventario.btnAgregarProducto.addActionListener(this);
             this.panelInventario.btnAgregarHerramienta.addActionListener(this);
             this.panelInventario.cerrarSesion.addActionListener(this);
 
-            // Clics en la tabla de productos / insumos
             this.panelInventario.tablaProductos.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -107,7 +95,6 @@ public class ControladorInventarioOperario implements ActionListener {
                 }
             });
 
-            // Clics en la tabla de herramientas
             this.panelInventario.tablaHerramientas.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -152,11 +139,16 @@ public class ControladorInventarioOperario implements ActionListener {
         } else if (seleccion == 1) { // Editar
             if (tipo.equals("Producto")) {
                 idSeleccionado = (int) panelInventario.tablaProductos.getValueAt(fila, 0);
-                panelFormulario.txtNombre.setText(panelInventario.tablaProductos.getValueAt(fila, 1).toString());
-                panelFormulario.txtCantidad.setText(panelInventario.tablaProductos.getValueAt(fila, 3).toString());
-                panelFormulario.txtPrecio.setText(panelInventario.tablaProductos.getValueAt(fila, 2).toString());
-                panelFormulario.txtDescripcion.setText("");
-                panelFormulario.txtStockMinimo.setText("");
+                // Obtener objeto completo para llenar el formulario adecuadamente
+                Producto p = productoDao.buscarPorId(idSeleccionado);
+                if (p != null) {
+                    panelFormulario.txtNombre.setText(p.getNombreProducto());
+                    panelFormulario.txtDescripcion.setText(p.getDescripcion() != null ? p.getDescripcion() : "");
+                    panelFormulario.txtCantidad.setText(String.valueOf(p.getStockActual()));
+                    panelFormulario.txtStockMinimo.setText(String.valueOf(p.getStockMinimo()));
+                    panelFormulario.txtPrecio.setText(String.valueOf(p.getPrecioCompra()));
+                    panelFormulario.lblNombreImagen.setText(p.getUrlImagen() != null ? p.getUrlImagen() : "sin_imagen.jpg");
+                }
                 panelFormulario.btnEditar.setText("Editar");
                 cambiarPanelCentral(this.panelFormulario);
             } else {
@@ -274,7 +266,11 @@ public class ControladorInventarioOperario implements ActionListener {
             nuevoProducto.setStockMinimo(panelFormulario.txtStockMinimo.getText().trim().isEmpty() ? 0 : Integer.parseInt(panelFormulario.txtStockMinimo.getText().trim()));
 
             String precioLimpio = panelFormulario.txtPrecio.getText().replace("$", "").replace(".", "").trim();
-            nuevoProducto.setPrecioCompra(Double.parseDouble(precioLimpio));
+            double precioCompra = Double.parseDouble(precioLimpio);
+            nuevoProducto.setPrecioCompra(precioCompra);
+            
+            // ADAPTACIÓN BASE DE DATOS: Asignar precio_venta (si no existe campo de texto, le sumamos p. ej. un margen o repetimos la base)
+            nuevoProducto.setPrecioVenta(precioCompra); 
             nuevoProducto.setUrlImagen(panelFormulario.lblNombreImagen.getText());
 
             if (productoDao.agregar(nuevoProducto) > 0) {
@@ -297,7 +293,9 @@ public class ControladorInventarioOperario implements ActionListener {
             p.setStockMinimo(panelFormulario.txtStockMinimo.getText().trim().isEmpty() ? 0 : Integer.parseInt(panelFormulario.txtStockMinimo.getText().trim()));
 
             String precioLimpio = panelFormulario.txtPrecio.getText().replace("$", "").replace(".", "").trim();
-            p.setPrecioCompra(Double.parseDouble(precioLimpio));
+            double precioCompra = Double.parseDouble(precioLimpio);
+            p.setPrecioCompra(precioCompra);
+            p.setPrecioVenta(precioCompra); // ADAPTACIÓN BASE DE DATOS: Mapeo de precio_venta
             p.setUrlImagen(panelFormulario.lblNombreImagen.getText());
 
             if (productoDao.editar(p) > 0) {
@@ -315,7 +313,9 @@ public class ControladorInventarioOperario implements ActionListener {
             Herramientas nuevaHerramienta = new Herramientas();
             nuevaHerramienta.setIdHerramienta(Integer.parseInt(panelFormularioHerramienta.txtIdHerramienta.getText().trim()));
             nuevaHerramienta.setNombreHerramienta(panelFormularioHerramienta.txtNombre.getText().trim());
-            nuevaHerramienta.setEstadoActual("Excelente");
+            
+            // ADAPTACIÓN BASE DE DATOS: ENUM exacto en MAYÚSCULAS ('EXCELENTE')
+            nuevaHerramienta.setEstadoActual("EXCELENTE");
 
             if (herramientaDao.agregar(nuevaHerramienta) > 0) {
                 JOptionPane.showMessageDialog(panelFormularioHerramienta, "¡Herramienta registrada exitosamente!");
@@ -332,7 +332,9 @@ public class ControladorInventarioOperario implements ActionListener {
             Herramientas h = new Herramientas();
             h.setIdHerramienta(idSeleccionado);
             h.setNombreHerramienta(panelFormularioHerramienta.txtNombre.getText().trim());
-            h.setEstadoActual("Excelente");
+            
+            // ADAPTACIÓN BASE DE DATOS: ENUM exacto en MAYÚSCULAS ('EXCELENTE')
+            h.setEstadoActual("EXCELENTE");
 
             if (herramientaDao.editar(h) > 0) {
                 JOptionPane.showMessageDialog(panelFormularioHerramienta, "¡Herramienta modificada correctamente!");
@@ -395,7 +397,7 @@ public class ControladorInventarioOperario implements ActionListener {
 
     public void listarProductosEnTabla() {
         try {
-            DefaultTableModel modeloBlindado = new DefaultTableModel(new Object[]{"ID", "Nombre", "Precio", "Stock", "Tipo"}, 0) {
+            DefaultTableModel modeloBlindado = new DefaultTableModel(new Object[]{"ID", "Nombre", "Precio Compra", "Stock Actual", "Stock Mínimo"}, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
                     return false;
@@ -405,7 +407,7 @@ public class ControladorInventarioOperario implements ActionListener {
             List<Producto> lista = productoDao.listar();
             if (lista != null) {
                 for (Producto p : lista) {
-                    modeloBlindado.addRow(new Object[]{p.getIdProducto(), p.getNombreProducto(), p.getPrecioCompra(), p.getStockActual(), "Insumo Interno"});
+                    modeloBlindado.addRow(new Object[]{p.getIdProducto(), p.getNombreProducto(), p.getPrecioCompra(), p.getStockActual(), p.getStockMinimo()});
                 }
             }
         } catch (Exception e) {
@@ -425,7 +427,7 @@ public class ControladorInventarioOperario implements ActionListener {
             List<Herramientas> lista = herramientaDao.listar();
             if (lista != null) {
                 for (Herramientas h : lista) {
-                    modeloBlindado.addRow(new Object[]{h.getIdHerramienta(), h.getNombreHerramienta(), h.getEstadoActual(), "Activo"});
+                    modeloBlindado.addRow(new Object[]{h.getIdHerramienta(), h.getNombreHerramienta(), h.getEstadoActual(), "Herramienta"});
                 }
             }
         } catch (Exception e) {
@@ -452,11 +454,9 @@ public class ControladorInventarioOperario implements ActionListener {
     private void ejecutarCerrarSesion() {
         int confirmar = JOptionPane.showConfirmDialog(null, "¿Desea cerrar sesión en NEXUS?", "Cerrar Sesión", JOptionPane.YES_NO_OPTION);
         if (confirmar == JOptionPane.YES_OPTION) {
-            // Guardamos la ventana en un Object genérico (sin imports)
             Object ventana = panelInventario.getTopLevelAncestor();
             if (ventana != null) {
                 try {
-                    // Buscamos y ejecutamos el método 'dispose' en tiempo de ejecución
                     ventana.getClass().getMethod("dispose").invoke(ventana);
                 } catch (Exception ex) {
                     System.err.println("No se pudo cerrar la ventana: " + ex.getMessage());
@@ -470,10 +470,6 @@ public class ControladorInventarioOperario implements ActionListener {
         }
     }
 
-    /**
-     * MÉTODO DE NAVEGACIÓN CORREGIDO:
-     * Utiliza la referencia directa y confiable 'contenedorCentral' recibida del menu principal.
-     */
     private void cambiarPanelCentral(JPanel panelNuevo) {
         try {
             if (contenedorCentral != null) {

@@ -17,10 +17,10 @@ import java.util.List;
  */
 public class UsuarioDao {
 
-    Conexion conexion = new Conexion();
+    private final Conexion conexion = new Conexion();
 
+    // AUTENTICAR USUARIO (LOGIN)
     public Usuario autenticarUsuario(int identificacion, String contrasena) {
-        // Usa 'numero_identificacion' y conecta con la tabla roles
         String sql = """
                      SELECT u.nombre, r.nombre_rol AS rol 
                      FROM usuarios u 
@@ -28,104 +28,99 @@ public class UsuarioDao {
                      WHERE u.numero_identificacion = ? AND u.contrasena = ?
                      """;
 
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-            // Pasamos los parámetros limpios que vienen de la interfaz visual
             ps.setInt(1, identificacion);
             ps.setString(2, contrasena);
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     Usuario user = new Usuario();
-
-                    // Seteamos la identificación que usó para entrar
                     user.setIdentificacion(identificacion);
-
-                    // Extraemos los datos reales devueltos por la base de datos
                     user.setNombre(rs.getString("nombre"));
-
-                    // Capturamos el alias "rol" generado por el INNER JOIN (Ej: 'Operario', 'Supervisor')
                     user.setRol(rs.getString("rol"));
-
-                    return user; // Retorna el usuario completamente armado y autenticado
+                    return user;
                 }
             }
         } catch (SQLException e) {
             System.err.println("Error crítico en la autenticación (UsuarioDao): " + e.getMessage());
         }
-        return null; // Retorna null si no hubo coincidencia de credenciales o hubo un error
+        return null;
     }
 
-    // Este método se encarga de registrar un nuevo usuario en la base de datos.
+    // REGISTRAR NUEVO USUARIO
     public int registrar(Usuario usuario) {
-        //Se define los comandos DML del SQL que ingresa un nuevo registro en la tabla "usuarios".
-        String sql = "INSERT INTO usuarios (nombre, apellido, tipo_documento, numero_identificacion, correo, contrasena, id_rol) VALUES (?, ?, ?, ?, ?, ?,?)";
+        String sql = """
+                     INSERT INTO usuarios 
+                     (nombre, apellido, tipo_documento, numero_identificacion, correo, contrasena, id_rol) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?)
+                     """;
 
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-            // Mapeamos los datos exactamente como están en tu script SQL
             ps.setString(1, usuario.getNombre());
             ps.setString(2, usuario.getApellido());
             ps.setString(3, usuario.getTipoDocumento());
             ps.setInt(4, usuario.getIdentificacion());
             ps.setString(5, usuario.getCorreo());
             ps.setString(6, usuario.getContrasena());
-
-            // Asignamos el ID numérico del rol Cliente (1)
-            // Nota: Cambia este 1 por el id_rol real de 'Cliente' en tu tabla roles
-            ps.setInt(7, 1);
+            ps.setInt(7, 1); // Asigna por defecto el id_rol de 'Cliente'
 
             return ps.executeUpdate();
 
         } catch (SQLException e) {
-            System.out.println("❌ Error crítico en UsuarioDao.registrar: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println(" Error crítico en UsuarioDao.registrar: " + e.getMessage());
             return 0;
         }
     }
 
+    // BUSCAR USUARIO POR NUMERO DE IDENTIFICACION
     public Usuario buscarUsuarioPorIdentificacion(String identificacion) {
-
-        String sql = "SELECT * FROM usuarios WHERE numero_identificacion = ?";
+        String sql = """
+                     SELECT u.*, r.nombre_rol AS rol 
+                     FROM usuarios u 
+                     INNER JOIN roles r ON u.id_rol = r.id_rol 
+                     WHERE u.numero_identificacion = ?
+                     """;
 
         Usuario usuario = null;
 
-        try (Connection con = conexion.getConection(); // Reemplaza por tu método exacto de conexión
-                 PreparedStatement ps = con.prepareStatement(sql)) {
-            // Limpiamos espacios invisibles por seguridad (.trim())
+        try (Connection con = conexion.getConection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setString(1, identificacion.trim());
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     usuario = new Usuario();
-
-                    // Cargamos el ID único (Esencial para futuras consultas del flujo)
                     usuario.setIdUsuario(rs.getInt("id_usuario"));
-
-                    //  Activamos el correo para que se lo puedas pasar al despachador de emails
                     usuario.setIdentificacion(rs.getInt("numero_identificacion"));
                     usuario.setNombre(rs.getString("nombre"));
-                    usuario.setRol(rs.getString("id_rol"));
+                    usuario.setRol(rs.getString("rol"));
                     usuario.setCorreo(rs.getString("correo"));
                 }
             }
         } catch (SQLException e) {
-            System.out.println("❌ Error en DAO al buscar identificación: " + e.getMessage());
+            System.err.println(" Error en UsuarioDao al buscar por identificación: " + e.getMessage());
         }
         return usuario;
     }
 
+    // LISTAR CITAS VIGENTES DE UN CLIENTE
     public List<Object[]> listarCitasPorCliente(int idCliente) {
-        java.util.List<Object[]> listaCitas = new java.util.ArrayList<>();
+        List<Object[]> listaCitas = new ArrayList<>();
+        String sql = """
+                     SELECT s.nombre, c.fecha_hora, s.precio 
+                     FROM citas c 
+                     INNER JOIN servicios s ON c.id_servicio = s.id_servicio 
+                     WHERE c.id_cliente = ? AND c.estado = 'Vigente' 
+                     ORDER BY c.fecha_hora ASC
+                     """;
 
-        // Query que une la cita con el servicio/producto correspondiente
-        String sql = "SELECT s.nombre, c.fecha_hora, s.precio "
-                + "FROM citas c "
-                + "INNER JOIN servicios s ON c.id_servicio = s.id_servicio "
-                + "WHERE c.id_cliente = ? AND c.estado = 'Vigente' "
-                + "ORDER BY c.fecha_hora ASC";                 
-
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idCliente);
 
@@ -140,23 +135,25 @@ public class UsuarioDao {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error en UsuarioDAO.listarCitasPorCliente: " + e.getMessage());
+            System.err.println("❌ Error en UsuarioDao.listarCitasPorCliente: " + e.getMessage());
         }
         return listaCitas;
     }
-    
-    public List<Object[]> obtenerUsuariosParaCambioRol(){
+
+    // LISTAR USUARIOS PARA CAMBIO DE ROL EN INTERFAZ DE ADMINISTRACION
+    public List<Object[]> obtenerUsuariosParaCambioRol() {
         List<Object[]> lista = new ArrayList<>();
         String sql = """
-                    SELECT u.numero_identificacion, u.nombre, u.apellido, r.nombre_rol AS rol, u.correo
-                    FROM usuarios u
-                    INNER JOIN roles r ON u.id_rol = i.id_rol
-                    """;
+                     SELECT u.numero_identificacion, u.nombre, u.apellido, r.nombre_rol AS rol, u.correo
+                     FROM usuarios u
+                     INNER JOIN roles r ON u.id_rol = r.id_rol
+                     """;
 
         try (Connection con = conexion.getConection();
-                PreparedStatement ps = con.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()){
-            while(rs.next()) {
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
                 Object[] fila = new Object[]{
                     rs.getInt("numero_identificacion"),
                     rs.getString("nombre"),
@@ -167,13 +164,13 @@ public class UsuarioDao {
                 lista.add(fila);
             }
         } catch (SQLException e) {
-            System.err.println("Error en UsuarioDao.obtenerUsuariosParaCambioRol: " + e.getMessage());
+            System.err.println(" Error en UsuarioDao.obtenerUsuariosParaCambioRol: " + e.getMessage());
         }
         return lista;
     }
-    
+
+    // ACTUALIZAR ROL DE USUARIO BUSCANDO ID DE ROL POR SU NOMBRE
     public boolean actualizarRolPorNombre(String identificacion, String nombreRol) {
-        
         String queryIdRol = "SELECT id_rol FROM roles WHERE nombre_rol = ?";
         String queryUpdate = "UPDATE usuarios SET id_rol = ? WHERE numero_identificacion = ?";
 
@@ -190,7 +187,7 @@ public class UsuarioDao {
             }
 
             if (idRolFound == -1) {
-                System.err.println("❌ Error: No se encontró un id_rol para el nombre: " + nombreRol);
+                System.err.println(" Error: No se encontró un id_rol para el nombre: " + nombreRol);
                 return false;
             }
 
@@ -202,43 +199,44 @@ public class UsuarioDao {
             }
 
         } catch (SQLException e) {
-            System.err.println("❌ Error en UsuarioDao.actualizarRolPorNombre: " + e.getMessage());
+            System.err.println(" Error en UsuarioDao.actualizarRolPorNombre: " + e.getMessage());
             return false;
         }
     }
+
+    // REGISTRAR CITA NUEVA
     public boolean registrarCita(int idCliente, int idServicio, String fechaHora) {
         String sql = "INSERT INTO citas (id_cliente, id_servicio, fecha_hora, estado) VALUES (?, ?, ?, 'Vigente')";
 
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idCliente);
             ps.setInt(2, idServicio);
             ps.setString(3, fechaHora);
 
-            // executeUpdate devuelve el número de filas afectadas. Si es > 0, guardó correctamente.
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.err.println("Error en UsuarioDAO.registrarCita: " + e.getMessage());
+            System.err.println(" Error en UsuarioDao.registrarCita: " + e.getMessage());
             return false;
         }
-
     }
 
+    // ACTUALIZAR CONTRASEÑA POR CORREO (RECUPERACIÓN/CAMBIO DE CLAVE)
     public boolean actualizarContrasena(String correo, String nuevaContrasena) {
         String sql = "UPDATE usuarios SET contrasena = ? WHERE correo = ?";
 
-        // Usamos Try-with-resources para asegurar el cierre automático de la conexión y el statement
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, nuevaContrasena);
             ps.setString(2, correo);
 
-            int filasAfectadas = ps.executeUpdate();
-            return filasAfectadas > 0; // Si modificó 1 o más filas, devuelve true
+            return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.err.println("Error en UsuarioDao.actualizarContrasena: " + e.getMessage());
+            System.err.println(" Error en UsuarioDao.actualizarContrasena: " + e.getMessage());
             return false;
         }
     }

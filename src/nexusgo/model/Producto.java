@@ -19,6 +19,14 @@ public class Producto {
     private int stockMinimo;
     private double precioCompra;
     private double precioVenta;
+
+    public double getPrecioVenta() {
+        return precioVenta;
+    }
+
+    public void setPrecioVenta(double precioVenta) {
+        this.precioVenta = precioVenta;
+    }
     private String urlImagen;
 
     public Producto() {

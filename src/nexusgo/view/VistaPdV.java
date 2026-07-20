@@ -13,6 +13,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -25,6 +26,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import nexusgo.model.DetalleCarrito;
 
 /**
  *
@@ -32,43 +34,27 @@ import javax.swing.SwingConstants;
  */
 public class VistaPdV extends JPanel {
 
-    private JPanel titulo, principal, panelproductos, panelBusqueda, pnlbtnVolver;
-    private JLabel logoyNombre, TituloPrincipal, estado, seccion;
-    private JButton btnInicioTitulo, btnReportes, btnInicio, btnProductos, btnServicios, facturar, btnReiniciar, btnVolver,btnFacturar;
-    private int contadorProductos = 0;
-    private double totalVenta = 0.0;
-    private final Color COLOR_DORADO = new Color(223, 205, 141);
+   private JPanel principal, panelproductos, panelBusqueda;
+    private JLabel TituloPrincipal, estado, seccion;
+    private JButton facturar, btnReiniciar;
 
-    
-    
-    //          Este es el constructor de la vista
-    
     public VistaPdV() {
         VistaNexus(); 
     }
 
     @Override
-    protected void paintComponent(Graphics g
-    ) {
+    protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         ImageIcon img = new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg");
         g.drawImage(img.getImage(), 0, 0, getWidth(), getHeight(), this);
     }
 
-    
-    
     public JPanel VistaNexus() {
-
         this.setLayout(new BorderLayout());
         principal = new JPanel();
         principal.setOpaque(false);
-        //Este es para organizar todo hacia abajo, no podemos usar flowlayout ya que se pondria todo a un lado
         principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
-
-        //espaci de los bordes del panel principal
         principal.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
-
-        
 
         TituloPrincipal = new JLabel("Punto de Venta");
         TituloPrincipal.setFont(new Font("SansSerif", Font.BOLD, 32));
@@ -107,6 +93,7 @@ public class VistaPdV extends JPanel {
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
+
         principal.add(Box.createVerticalStrut(60));
         principal.add(TituloPrincipal);
         principal.add(Box.createVerticalStrut(5));
@@ -118,19 +105,11 @@ public class VistaPdV extends JPanel {
         principal.add(scroll);
 
         this.add(principal, BorderLayout.CENTER);
-
         return this;
     }
 
-    private void BotonMenu(JButton boton) {
-        boton.setFont(new Font("SansSerif", Font.BOLD, 16));
-        boton.setContentAreaFilled(false);
-        boton.setBorderPainted(false);
-        boton.setHorizontalAlignment(SwingConstants.LEFT);
-        boton.setAlignmentX(LEFT_ALIGNMENT);
-    }
-
-    public void agregarTarjeta(String nombre, String precio, int stockActual, String imagenArchivo) {
+    // Método que crea y devuelve la tarjeta junto con sus componentes accesibles
+    public TarjetaProductoComponentes agregarTarjetaComponentes(String nombre, String precio, int stockActual, String imagenArchivo) {
         JPanel tarjeta = new JPanel();
         tarjeta.setLayout(new BoxLayout(tarjeta, BoxLayout.Y_AXIS));
         tarjeta.setBackground(Color.WHITE);
@@ -155,28 +134,13 @@ public class VistaPdV extends JPanel {
         acciones.setOpaque(false);
         acciones.setAlignmentX(LEFT_ALIGNMENT);
 
-        JSpinner spinnerCantidad = new JSpinner(new SpinnerNumberModel(1, 1, stockActual, 1));
+        JSpinner spinnerCantidad = new JSpinner(new SpinnerNumberModel(1, 1, Math.max(1, stockActual), 1));
         spinnerCantidad.setPreferredSize(new Dimension(50, 25));
 
         JButton btnAgregar = new JButton(new ImageIcon("agg.png"));
         btnAgregar.setPreferredSize(new Dimension(25, 25));
         btnAgregar.setContentAreaFilled(false);
         btnAgregar.setBorderPainted(false);
-
-        btnAgregar.addActionListener(e -> {
-            int cantidad = (int) spinnerCantidad.getValue();
-
-            String precioLimpio = precio.replace("$", "").replace(",", "").trim();
-            double precioUnitario = Double.parseDouble(precioLimpio);
-
-            double subtotal = precioUnitario * cantidad;
-            totalVenta += subtotal;
-
-            contadorProductos += cantidad;
-            facturar.setText("Facturar " + contadorProductos + " Productos/Servicios");
-
-            btnAgregar.setEnabled(false);
-        });
 
         acciones.add(btnAgregar);
         acciones.add(spinnerCantidad);
@@ -189,27 +153,28 @@ public class VistaPdV extends JPanel {
         panelproductos.add(tarjeta);
         panelproductos.revalidate();
         panelproductos.repaint();
+
+        return new TarjetaProductoComponentes(btnAgregar, spinnerCantidad);
     }
 
-    public JButton getFacturarButton() {
-        return facturar;
+    public JButton getFacturarButton() { return facturar; }
+    public JButton getReiniciarButton() { return btnReiniciar; }
+
+    public void actualizarTextoFacturar(int contador) {
+        facturar.setText("Facturar " + contador + " Productos/Servicios");
     }
 
-    public JButton getReiniciarButton() {
-        return btnReiniciar;
-    }
+    // Clase interna auxiliar para retornar referencias de botones y spinners al controlador
+    public static class TarjetaProductoComponentes {
+        private final JButton btnAgregar;
+        private final JSpinner spinner;
 
-    public int getContadorProductos() {
-        return contadorProductos;
-    }
+        public TarjetaProductoComponentes(JButton btnAgregar, JSpinner spinner) {
+            this.btnAgregar = btnAgregar;
+            this.spinner = spinner;
+        }
 
-    public double getTotalVenta() {
-        return totalVenta;
-    }
-
-    public void reiniciarContador() {
-        contadorProductos = 0;
-        totalVenta = 0.0;
-        facturar.setText("Facturar 0 Productos/Servicios");
+        public JButton getBtnAgregar() { return btnAgregar; }
+        public JSpinner getSpinner() { return spinner; }
     }
 }
