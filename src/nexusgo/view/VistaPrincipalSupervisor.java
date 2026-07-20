@@ -17,6 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
 
 /**
@@ -25,42 +26,42 @@ import javax.swing.border.EmptyBorder;
  */
 public class VistaPrincipalSupervisor extends JFrame {
     
-    private JLabel fondo;
-    private JPanel panelContenedorFlotante,contenidoCentralDinamico;
+   private JLabel fondo;
+    private JPanel panelContenedorFlotante, contenidoCentralDinamico;
     private JScrollPane scrollContenido;
-    
+
     // Componentes modulares reutilizados
     public VistaBarraLateral sidebar;
     public PanelBienvenida panelBienvenida;
-    
+
     // Botones específicos del Supervisor
-    public JButton btnCaja,btnCerrarSesion;
-    
+    public JButton btnCaja, btnCerrarSesion;
+
     public VistaPrincipalSupervisor(String nombreUsuario, String rolUsuario) {
         super("Nexus GO - Panel de Supervisor");
+
         
-        // 1. Reutilización del fondo de mármol con centrado GridBagLayout
+        // 1. Reutilización del fondo de mármol
         this.fondo = new JLabel(new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg"));
         this.fondo.setLayout(new GridBagLayout());
         this.setContentPane(fondo);
 
-        // 2. Contenedor flotante tipo "tarjeta"
+        // 2. Contenedor flotante dinámico (Ocupa todo el espacio de la ventana)
         panelContenedorFlotante = new JPanel(new BorderLayout());
-        panelContenedorFlotante.setPreferredSize(new Dimension(1000, 680));
         panelContenedorFlotante.setOpaque(false);
-        panelContenedorFlotante.setBackground(Color.red);
 
-        // 3. BARRA LATERAL (Ajustada para Supervisor)
+        // 3. BARRA LATERAL (Full a la izquierda)
         sidebar = new VistaBarraLateral();
-        sidebar.setPreferredSize(new Dimension(140, 680));
+        sidebar.setPreferredSize(new Dimension(180, Integer.MAX_VALUE));
+        sidebar.setMinimumSize(new Dimension(180, 0));
         sidebar.setOpaque(false);
-        sidebar.setBorder(new EmptyBorder(80, 10, 20, 10));
+        sidebar.setBorder(new EmptyBorder(40, 10, 20, 10));
 
-        // Inyección del nuevo botón solicitado: Caja
+        // Inyección del botón Caja
         btnCaja = new JButton("Caja");
         sidebar.add(btnCaja);
 
-        // Configuración de visibilidad de los botones base según permisos del Supervisor
+        // Configuración de visibilidad según permisos
         sidebar.bCasa.setVisible(true);       // Inicio
         sidebar.bInventario.setVisible(true); // Ventas / Inventario
         sidebar.misCitas.setVisible(true);    // Gestión de Citas
@@ -69,39 +70,43 @@ public class VistaPrincipalSupervisor extends JFrame {
         contenidoCentralDinamico = new JPanel();
         contenidoCentralDinamico.setLayout(new BoxLayout(contenidoCentralDinamico, BoxLayout.Y_AXIS));
         contenidoCentralDinamico.setOpaque(false);
-        contenidoCentralDinamico.setBorder(new EmptyBorder(20, 25, 20, 25));
+        contenidoCentralDinamico.setBorder(new EmptyBorder(30, 40, 30, 40));
 
-        // Inyección modular del panel de bienvenida
+        // Inyección modular del panel de bienvenida (Mayor espacio disponible)
         panelBienvenida = new PanelBienvenida(nombreUsuario, rolUsuario);
-        panelBienvenida.setPreferredSize(new Dimension(650, 150));
-        panelBienvenida.setMaximumSize(new Dimension(650, 150));
+        panelBienvenida.setPreferredSize(new Dimension(900, 180));
+        panelBienvenida.setMaximumSize(new Dimension(Short.MAX_VALUE, 180)); // Permite expandirse horizontalmente
         panelBienvenida.setOpaque(false);
 
         // Botón de cierre de sesión
         btnCerrarSesion = new JButton("Cerrar Sesión");
         btnCerrarSesion.setBackground(Color.decode("#EFB810"));
-        btnCerrarSesion.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnCerrarSesion.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnCerrarSesion.setPreferredSize(new Dimension(160, 40));
+        btnCerrarSesion.setMaximumSize(new Dimension(160, 40));
         btnCerrarSesion.setAlignmentX(CENTER_ALIGNMENT);
 
         // Armamos el estado inicial del panel central
         restaurarVistaInicial();
 
-        // Soporte de scroll para resoluciones bajas o listados extensos
+        // Soporte de Scroll Optimizado (Solo aparece si el contenido supera la pantalla)
         scrollContenido = new JScrollPane(contenidoCentralDinamico);
         scrollContenido.setOpaque(false);
         scrollContenido.getViewport().setOpaque(false);
         scrollContenido.setBorder(null);
+        scrollContenido.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollContenido.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollContenido.getVerticalScrollBar().setUnitIncrement(16); // Scroll suave
 
         // 5. Ensamblaje final
         panelContenedorFlotante.add(sidebar, BorderLayout.WEST);
         panelContenedorFlotante.add(scrollContenido, BorderLayout.CENTER);
 
-        this.add(panelContenedorFlotante);
+        // Añadir contenedor a la ventana completa
+        this.getContentPane().setLayout(new BorderLayout());
+        this.getContentPane().add(panelContenedorFlotante, BorderLayout.CENTER);
 
-        // Ajustes del marco principal
-        setSize(1100, 720);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
     /**
@@ -111,10 +116,16 @@ public class VistaPrincipalSupervisor extends JFrame {
     public void restaurarVistaInicial() {
         contenidoCentralDinamico.removeAll();
         contenidoCentralDinamico.add(panelBienvenida);
-        contenidoCentralDinamico.add(Box.createVerticalStrut(15));
+        contenidoCentralDinamico.add(Box.createVerticalStrut(25));
         contenidoCentralDinamico.add(btnCerrarSesion);
         contenidoCentralDinamico.revalidate();
         contenidoCentralDinamico.repaint();
+        
+        // Configuración básica del Frame para Pantalla Completa
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setExtendedState(JFrame.MAXIMIZED_BOTH); // Maximizado a pantalla completa
+        setMinimumSize(new Dimension(1024, 600));  // Tamaño mínimo seguro para pantallas pequeñas
+
     }
 
     /**
@@ -124,7 +135,8 @@ public class VistaPrincipalSupervisor extends JFrame {
     public JPanel getContenidoCentralDinamico() {
         return contenidoCentralDinamico;
     }
-
+    
+    
     
     
    
