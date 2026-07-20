@@ -4,69 +4,62 @@
  */
 package nexusgo.controller;
 
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.File;
 import java.util.List;
-import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import nexusgo.model.Producto;
-import nexusgo.model.ProductoDao; // Tu manejador de base de datos
-import nexusgo.view.VistaProductoDetalles;
+import nexusgo.model.ProductoDao;
 import nexusgo.view.VistaInicioSesion;
 import nexusgo.view.VistaPrincipalCliente;
+import nexusgo.view.VistaProductoDetalles; // Confirma el nombre de tu clase Vista
 import nexusgo.view.VistaReservarCitas;
 
 /**
  *
  * @author USUARIO
  */
+
+/**
+ * Controlador principal para la interfaz de cliente en Nexus GO.
+ */
 public class ControladorPrincipalCliente implements ActionListener, MouseListener {
-    
-  private final VistaPrincipalCliente vista;
+
+    private final VistaPrincipalCliente vista;
     private final ProductoDao productoDAO;
     private List<Producto> listaProductos;
     private List<Producto> listaPromociones;
-    private int idUsuarioLogueado;
+    private final int idUsuarioLogueado;
 
-    /*
-     * En el constructor recibo la vista principal del cliente y el identificador del usuario
-     * autenticado. Asigno los escuchadores a los botones correspondientes de la barra lateral
-     * (Casa, Historial, Mis Citas) y ejecuto la carga inicial de datos.
-     */
     public ControladorPrincipalCliente(VistaPrincipalCliente vista, int idUsuarioLogueado) {
         this.vista = vista;
         this.idUsuarioLogueado = idUsuarioLogueado;
         this.productoDAO = new ProductoDao();
 
-        // Enlace de eventos de la barra lateral de la vista
-        this.vista.sidebar.bCasa.addActionListener(this);       // 1. Inicio / Catálogo
-        this.vista.btnHistorial.addActionListener(this);  
-        this.vista.sidebar.misCitas.addActionListener(this);    // 3. Mis Citas (vigentes y pasadas)
-        
-        // Enlace de eventos para botones de la cabecera / cuerpo
-        this.vista.btnReservarCita.addActionListener(this);
-        this.vista.btnCerrarSesion.addActionListener(this);
+        // Enlace de eventos del menú lateral (Sidebar)
+        if (this.vista.sidebar != null) {
+            if (this.vista.sidebar.bCasa != null) this.vista.sidebar.bCasa.addActionListener(this);
+            if (this.vista.sidebar.misCitas != null) this.vista.sidebar.misCitas.addActionListener(this);
+        }
 
-        // Cargo el catálogo inicial
+        // Enlace de eventos de botones en la cabecera / vista
+        if (this.vista.btnHistorial != null) this.vista.btnHistorial.addActionListener(this);
+        if (this.vista.btnReservarCita != null) this.vista.btnReservarCita.addActionListener(this);
+        if (this.vista.btnCerrarSesion != null) this.vista.btnCerrarSesion.addActionListener(this);
+
         cargarCatalogo();
     }
 
-    /*
-     * Constructor secundario de respaldo por compatibilidad.
-     */
     public ControladorPrincipalCliente(VistaPrincipalCliente vista) {
         this(vista, 1);
     }
 
-    /*
-     * Consulto los productos al DAO (Modelo) y se los paso a la Vista descomponiéndolos
-     * en tipos primitivos para no romper la separación de capas MVC.
-     */
     public void cargarCatalogo() {
         try {
             this.listaProductos = productoDAO.listar();
@@ -75,26 +68,26 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
             this.vista.limpiarGridProductos();
             this.vista.limpiarGridPromociones();
 
-            // Cargo los productos regulares en la vista
+            // Cargar productos regulares (Usando precio de venta para el cliente)
             if (this.listaProductos != null) {
                 for (Producto p : this.listaProductos) {
                     this.vista.agregarTarjetaProducto(
                         p.getIdProducto(),
                         p.getNombreProducto(),
-                        p.getPrecioCompra(),
+                        p.getPrecioVenta(), // Ajustado a Precio de Venta
                         p.getUrlImagen(),
                         this
                     );
                 }
             }
 
-            // Cargo las promociones en la vista
+            // Cargar promociones
             if (this.listaPromociones != null) {
                 for (Producto promo : this.listaPromociones) {
                     this.vista.agregarTarjetaPromocion(
                         promo.getIdProducto(),
                         promo.getNombreProducto(),
-                        promo.getPrecioCompra(),
+                        promo.getPrecioVenta(), // Ajustado a Precio de Venta
                         promo.getUrlImagen(),
                         this
                     );
@@ -109,39 +102,34 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
         }
     }
 
-    /*
-     * Método auxiliar para obtener el objeto Producto correspondiente a un ID clickeado.
-     */
     private Producto buscarProductoPorId(int id) {
         if (listaProductos != null) {
             for (Producto prod : listaProductos) {
-                if (prod.getIdProducto() == id) {
-                    return prod;
-                }
+                if (prod.getIdProducto() == id) return prod;
             }
         }
         if (listaPromociones != null) {
             for (Producto promo : listaPromociones) {
-                if (promo.getIdProducto() == id) {
-                    return promo;
-                }
+                if (promo.getIdProducto() == id) return promo;
             }
         }
         return null;
     }
 
-    /*
-     * Capturo los clics de las tarjetas para identificar qué producto seleccionó el usuario.
-     */
     @Override
     public void mouseClicked(MouseEvent e) {
         Object origen = e.getSource();
         String idStr = null;
 
-        if (origen instanceof JPanel) {
-            idStr = ((JPanel) origen).getName();
-        } else if (origen instanceof JLabel) {
-            idStr = ((JLabel) origen).getName();
+        // Búsqueda del ID en el componente cliqueado o en su contenedor padre
+        if (origen instanceof JComponent) {
+            JComponent comp = (JComponent) origen;
+            idStr = comp.getName();
+            
+            // Si el clic fue en un JLabel interno sin ID, buscamos en el panel padre
+            if (idStr == null && comp.getParent() != null) {
+                idStr = comp.getParent().getName();
+            }
         }
 
         if (idStr != null) {
@@ -150,11 +138,16 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
                 Producto productoSeleccionado = buscarProductoPorId(idProducto);
 
                 if (productoSeleccionado != null) {
-                    // Queda listo a la espera de la pantalla detallada del producto que me indiques
-                    System.out.println("Producto seleccionado: " + productoSeleccionado.getNombreProducto() + " (ID: " + idProducto + ")");
+                    VistaProductoDetalles panelDetalle = new VistaProductoDetalles();
+                    new ControladorDetallesProducto(panelDetalle, productoSeleccionado, this);
+
+                    vista.getContenidoCentralDinamico().removeAll();
+                    vista.getContenidoCentralDinamico().add(panelDetalle);
+                    vista.getContenidoCentralDinamico().revalidate();
+                    vista.getContenidoCentralDinamico().repaint();
                 }
             } catch (NumberFormatException ex) {
-                // Se ignora si el nombre del componente no es numérico
+                // Ignorar componentes cuyo Name no sea numérico
             }
         }
     }
@@ -164,13 +157,11 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
     @Override public void mouseEntered(MouseEvent e) {}
     @Override public void mouseExited(MouseEvent e) {}
 
-    /*
-     * Gestor de eventos para los botones de navegación y acciones.
-     */
     @Override
     public void actionPerformed(ActionEvent e) {
-        // Botón central "Reservar Cita"
-        if (e.getSource() == vista.btnReservarCita) {
+        Object origen = e.getSource();
+
+        if (origen == vista.btnReservarCita) {
             VistaReservarCitas panelReserva = new VistaReservarCitas();
             new ControladorReservarCita(panelReserva, vista, this.idUsuarioLogueado);
 
@@ -180,31 +171,27 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
             vista.getContenidoCentralDinamico().repaint();
         }
 
-        // Ícono 1: "Casa" (Volver al catálogo principal)
-        if (e.getSource() == vista.sidebar.bCasa) {
+        if (vista.sidebar != null && origen == vista.sidebar.bCasa) {
             restaurarTiendaYCatalogo();
         }
 
-        // Ícono 2: "Historial de Compras"
-        if (e.getSource() == vista.btnHistorial) {
+        if (origen == vista.btnHistorial) {
             JOptionPane.showMessageDialog(vista,
-                    "Cargando el historial de compras del usuario...",
-                    "Historial de Compras",
+                    "Cargando el historial de compras y citas atendidas del usuario...",
+                    "Historial",
                     JOptionPane.INFORMATION_MESSAGE);
         }
 
-        // Ícono 3: "Mis Citas" (Vigentes, pasadas y por haber)
-        if (e.getSource() == vista.sidebar.misCitas) {
+        if (vista.sidebar != null && origen == vista.sidebar.misCitas) {
             JOptionPane.showMessageDialog(vista,
                     "Cargando citas agendadas (vigentes y pasadas)...",
                     "Mis Citas",
                     JOptionPane.INFORMATION_MESSAGE);
         }
 
-        // Botón superior "Cerrar Sesión"
-        if (e.getSource() == vista.btnCerrarSesion) {
+        if (origen == vista.btnCerrarSesion) {
             int respuesta = JOptionPane.showConfirmDialog(vista,
-                    "¿Estás seguro de que deseas cerrar sesión?",
+                    "¿Estás seguro de que deseas cerrar tu sesión en Nexus GO?",
                     "Cerrar Sesión",
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE);
@@ -218,9 +205,6 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
         }
     }
 
-    /*
-     * Restauro la vista central del catálogo y refresco la consulta de productos.
-     */
     public void restaurarTiendaYCatalogo() {
         this.vista.restaurarComponentesTienda();
         cargarCatalogo();

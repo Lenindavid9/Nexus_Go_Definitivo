@@ -11,6 +11,7 @@ import static java.awt.Component.LEFT_ALIGNMENT;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.GridLayout;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -29,72 +30,45 @@ import javax.swing.SwingConstants;
  *
  * @author INGRID
  */
-public class VistaPdV extends JPanel{
+public class VistaPdV extends JPanel {
 
-    private JPanel titulo, menu, principal, panelproductos, panelBusqueda;
+    private JPanel titulo, principal, panelproductos, panelBusqueda, pnlbtnVolver;
     private JLabel logoyNombre, TituloPrincipal, estado, seccion;
-    private JButton btnInicioTitulo, btnReportes, btnInicio, btnProductos, btnServicios, facturar, btnReiniciar;
+    private JButton btnInicioTitulo, btnReportes, btnInicio, btnProductos, btnServicios, facturar, btnReiniciar, btnVolver,btnFacturar;
     private int contadorProductos = 0;
-    private double totalVenta = 0.0; 
-    private final Color COLOR_CAFE_OSCURO = new Color(62, 58, 46);
+    private double totalVenta = 0.0;
     private final Color COLOR_DORADO = new Color(223, 205, 141);
 
+    
+    
+    //          Este es el constructor de la vista
+    
+    public VistaPdV() {
+        VistaNexus(); 
+    }
+
+    @Override
+    protected void paintComponent(Graphics g
+    ) {
+        super.paintComponent(g);
+        ImageIcon img = new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg");
+        g.drawImage(img.getImage(), 0, 0, getWidth(), getHeight(), this);
+    }
+
+    
+    
     public JPanel VistaNexus() {
+
         this.setLayout(new BorderLayout());
-        this.setBackground(Color.white);
-
-        titulo = new JPanel(new BorderLayout());
-        titulo.setBackground(COLOR_CAFE_OSCURO);
-        titulo.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-
-        Icon iconLogo = new ImageIcon("logo.png");
-        logoyNombre = new JLabel("Punto de Venta - N E X U S", iconLogo, SwingConstants.LEFT);
-        logoyNombre.setForeground(Color.WHITE);
-        logoyNombre.setFont(new Font("SansSerif", Font.BOLD, 22));
-        titulo.add(logoyNombre, BorderLayout.WEST);
-
-        JPanel OpcTitulo = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
-        OpcTitulo.setOpaque(false);
-
-        btnInicioTitulo = new JButton("Inicio");
-        btnInicioTitulo.setFont(new Font("SansSerif", Font.BOLD, 15));
-        btnInicioTitulo.setForeground(Color.WHITE);
-        btnInicioTitulo.setContentAreaFilled(false);
-        btnInicioTitulo.setBorderPainted(false);
-
-        btnReportes = new JButton("Reportes");
-        btnReportes.setFont(new Font("SansSerif", Font.BOLD, 15));
-        btnReportes.setForeground(Color.WHITE);
-        btnReportes.setContentAreaFilled(false);
-        btnReportes.setBorderPainted(false);
-
-        OpcTitulo.add(btnInicioTitulo);
-        OpcTitulo.add(btnReportes);
-        titulo.add(OpcTitulo, BorderLayout.EAST);
-// panel del menu izaquierdo (quitar) 
-        menu = new JPanel();
-        menu.setLayout(new BoxLayout(menu, BoxLayout.Y_AXIS));
-        menu.setBackground(COLOR_DORADO);
-        menu.setPreferredSize(new Dimension(200, 0));
-        menu.setBorder(BorderFactory.createEmptyBorder(30, 15, 10, 15));
-
-        btnInicio = new JButton("Inicio");
-        btnProductos = new JButton("Productos");
-        btnServicios = new JButton("Servicios");
-        BotonMenu(btnInicio);
-        BotonMenu(btnProductos);
-        BotonMenu(btnServicios);
-
-        menu.add(btnInicio);
-        menu.add(Box.createVerticalStrut(20));
-        menu.add(btnProductos);
-        menu.add(Box.createVerticalStrut(20));
-        menu.add(btnServicios);
-
         principal = new JPanel();
+        principal.setOpaque(false);
+        //Este es para organizar todo hacia abajo, no podemos usar flowlayout ya que se pondria todo a un lado
         principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
-        principal.setBackground(Color.white);
-        principal.setBorder(BorderFactory.createEmptyBorder(0, 40, 50, 40));
+
+        //espaci de los bordes del panel principal
+        principal.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+
+        
 
         TituloPrincipal = new JLabel("Punto de Venta");
         TituloPrincipal.setFont(new Font("SansSerif", Font.BOLD, 32));
@@ -133,7 +107,6 @@ public class VistaPdV extends JPanel{
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
-
         principal.add(Box.createVerticalStrut(60));
         principal.add(TituloPrincipal);
         principal.add(Box.createVerticalStrut(5));
@@ -144,8 +117,6 @@ public class VistaPdV extends JPanel{
         principal.add(Box.createVerticalStrut(80));
         principal.add(scroll);
 
-        this.add(titulo, BorderLayout.NORTH);
-        this.add(menu, BorderLayout.WEST);
         this.add(principal, BorderLayout.CENTER);
 
         return this;
@@ -192,7 +163,6 @@ public class VistaPdV extends JPanel{
         btnAgregar.setContentAreaFilled(false);
         btnAgregar.setBorderPainted(false);
 
-       
         btnAgregar.addActionListener(e -> {
             int cantidad = (int) spinnerCantidad.getValue();
 
@@ -221,7 +191,6 @@ public class VistaPdV extends JPanel{
         panelproductos.repaint();
     }
 
-
     public JButton getFacturarButton() {
         return facturar;
     }
@@ -234,15 +203,13 @@ public class VistaPdV extends JPanel{
         return contadorProductos;
     }
 
-    public double getTotalVenta() { 
+    public double getTotalVenta() {
         return totalVenta;
     }
 
     public void reiniciarContador() {
         contadorProductos = 0;
-        totalVenta = 0.0; 
+        totalVenta = 0.0;
         facturar.setText("Facturar 0 Productos/Servicios");
     }
 }
-
-

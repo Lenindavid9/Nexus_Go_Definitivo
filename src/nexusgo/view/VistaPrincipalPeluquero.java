@@ -24,6 +24,7 @@ import javax.swing.border.EmptyBorder;
  *
  * @author HOME
  */
+
 public class VistaPrincipalPeluquero extends JFrame {
     // Componentes del Sidebar y barra superior accesibles para el controlador
     public JButton btnInicio = new JButton("Casa");
@@ -35,10 +36,7 @@ public class VistaPrincipalPeluquero extends JFrame {
 
     public VistaPrincipalPeluquero() {
         setTitle("NexusGO - Panel de Peluquero");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 550);
-        setLocationRelativeTo(null);
-        setResizable(false);
+        
 
         // 1. CONSTRUCCIÓN DE LA BARRA LATERAL (SIDEBAR)
         JPanel sidebar = new JPanel();
@@ -111,6 +109,10 @@ public class VistaPrincipalPeluquero extends JFrame {
 
         this.add(sidebar, BorderLayout.WEST);
         this.add(contenidoCentralDinamico, BorderLayout.CENTER);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(800, 550);
+        setLocationRelativeTo(null);
+        setResizable(false);
     }
 
     /**
@@ -118,5 +120,15 @@ public class VistaPrincipalPeluquero extends JFrame {
      */
     public JPanel getContenidoCentralDinamico() {
         return contenidoCentralDinamico;
+        
+        
+        
     }
+    public void restaurarComponentesPrincipales() {
+    // Limpia el panel central dinámico para dejarlo en su estado base
+    this.getContenidoCentralDinamico().removeAll();
+    this.getContenidoCentralDinamico().revalidate();
+    this.getContenidoCentralDinamico().repaint();
+}
+    
 }

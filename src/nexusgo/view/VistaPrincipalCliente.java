@@ -8,13 +8,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.MouseListener;
-import java.util.List;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -38,67 +36,66 @@ public class VistaPrincipalCliente extends JFrame {
     private JPanel panelGridProductos;
     private JPanel panelGridPromociones;
     private JScrollPane scrollContenido;
-    public JButton btnReservarCita,btnCerrarSesion,btnHistorial;
-    public JLabel lblBienvenida,lblPromociones;
-    
-  
-    
+
+    // Componentes interactivos accesibles para el controlador
+    public JButton btnReservarCita;
+    public JButton btnCerrarSesion;
+    public JButton btnHistorial;
+    public JLabel lblBienvenida;
+    public JLabel lblPromociones;
+    public JLabel lblProductosDisponibles;
+
     // Referencia pública a la barra lateral
     public VistaBarraLateral sidebar;
 
-    /*
-     * En el constructor construyo la interfaz gráfica. Vinculo la barra lateral con sus
-     * accesos directos (Inicio, Historial de Compras y Citas Agendadas), configuro la vista
-     * central y la sección inferior de promociones.
+    /**
+     * Construye la interfaz gráfica principal del cliente.
+     * @param nombreUsuario Nombre del cliente logueado.
+     * @param rolUsuario Rol asignado.
      */
     public VistaPrincipalCliente(String nombreUsuario, String rolUsuario) {
         super("Nexus GO - Cliente");
 
-        // Fondo de mármol
+        // 1. Fondo principal de mármol
         this.fondo = new JLabel(new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg"));
         this.fondo.setLayout(new GridBagLayout());
         this.setContentPane(fondo);
 
-        // Panel contenedor transparente
+        // 2. Contenedor flotante centrado
         panelContenedorFlotante = new JPanel(new BorderLayout());
         panelContenedorFlotante.setPreferredSize(new Dimension(980, 680));
         panelContenedorFlotante.setOpaque(false);
 
-        // Instancio la barra lateral
+        // 3. Barra Lateral de Navegación
         sidebar = new VistaBarraLateral();
         sidebar.setPreferredSize(new Dimension(80, 680));
         sidebar.setOpaque(false);
         sidebar.setBorder(new EmptyBorder(100, 10, 20, 10));
-        sidebar.add(btnHistorial);
-        
 
-        // Desactivo componentes administrativos que no aplica mostrar al cliente
+        // Desactivar accesos no autorizados para el cliente
         sidebar.bInventario.setVisible(false);
-
-        // Habilito el tercer botón para la gestión de Citas (vigentes, pasadas y por haber)
         sidebar.misCitas.setVisible(true);
 
-        // Panel dinámico central
+        // 4. Panel Dinámico Central
         contenidoCentralDinamico = new JPanel();
         contenidoCentralDinamico.setLayout(new BoxLayout(contenidoCentralDinamico, BoxLayout.Y_AXIS));
         contenidoCentralDinamico.setOpaque(false);
         contenidoCentralDinamico.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // Saludo y botón cerrar sesión
-        lblBienvenida = new JLabel("Hola, " + nombreUsuario + " Bienvenido a Nexus GO", SwingConstants.CENTER);
+        // Encabezado y Saludo
+        lblBienvenida = new JLabel("Hola, " + nombreUsuario + " | Bienvenido a Nexus GO", SwingConstants.CENTER);
         lblBienvenida.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblBienvenida.setForeground(Color.BLACK);
-        
-        btnHistorial = new JButton("historial");
-       
 
-        btnCerrarSesion = new JButton("cerrar sesion");
+        btnHistorial = new JButton("Historial");
+        
+        btnCerrarSesion = new JButton("Cerrar Sesión");
         btnCerrarSesion.setBackground(new Color(255, 220, 90));
         btnCerrarSesion.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnCerrarSesion.setFocusPainted(false);
         btnCerrarSesion.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Botón central destacado para reservar citas
+        // Botón central destacado para agendar citas
         btnReservarCita = new JButton("Reservar cita");
         btnReservarCita.setBackground(new Color(255, 220, 90));
         btnReservarCita.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -107,26 +104,33 @@ public class VistaPrincipalCliente extends JFrame {
         btnReservarCita.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnReservarCita.setMaximumSize(new Dimension(180, 35));
 
-        // Grids visuales de 3 columnas
-        panelGridProductos = new JPanel(new GridLayout(0, 3, 15, 15));
-        panelGridProductos.setOpaque(false);
+        // Etiquetas de secciones
+        lblProductosDisponibles = new JLabel("PRODUCTOS DISPONIBLES", SwingConstants.CENTER);
+        lblProductosDisponibles.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblProductosDisponibles.setAlignmentX(CENTER_ALIGNMENT);
 
-        lblPromociones = new JLabel("Promociones", SwingConstants.CENTER);
-        lblPromociones.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblPromociones = new JLabel("PROMOCIONES ESPECIALES", SwingConstants.CENTER);
+        lblPromociones.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblPromociones.setForeground(new Color(210, 160, 20));
         lblPromociones.setAlignmentX(CENTER_ALIGNMENT);
+
+        // Grids visuales de 3 columnas para tarjetas
+        panelGridProductos = new JPanel(new GridLayout(0, 3, 15, 15));
+        panelGridProductos.setOpaque(false);
 
         panelGridPromociones = new JPanel(new GridLayout(0, 3, 15, 15));
         panelGridPromociones.setOpaque(false);
 
+        // Organizar vista inicial
         restaurarComponentesTienda();
 
+        // ScrollPane transparente para navegar el catálogo
         scrollContenido = new JScrollPane(contenidoCentralDinamico);
         scrollContenido.setOpaque(false);
         scrollContenido.getViewport().setOpaque(false);
         scrollContenido.setBorder(null);
 
-        // Ubico la barra lateral a la izquierda y el catálogo en el centro
+        // Ensamblaje final de la ventana
         panelContenedorFlotante.add(sidebar, BorderLayout.WEST);
         panelContenedorFlotante.add(scrollContenido, BorderLayout.CENTER);
 
@@ -136,8 +140,8 @@ public class VistaPrincipalCliente extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    /*
-     * En este método reorganizo los elementos en la vista central.
+    /**
+     * Reorganiza y reestablece los componentes base del catálogo central.
      */
     public void restaurarComponentesTienda() {
         contenidoCentralDinamico.removeAll();
@@ -151,18 +155,20 @@ public class VistaPrincipalCliente extends JFrame {
         contenidoCentralDinamico.add(Box.createVerticalStrut(15));
         contenidoCentralDinamico.add(btnReservarCita);
         contenidoCentralDinamico.add(Box.createVerticalStrut(20));
+        contenidoCentralDinamico.add(lblProductosDisponibles);
+        contenidoCentralDinamico.add(Box.createVerticalStrut(10));
         contenidoCentralDinamico.add(panelGridProductos);
         contenidoCentralDinamico.add(Box.createVerticalStrut(25));
         contenidoCentralDinamico.add(lblPromociones);
-        contenidoCentralDinamico.add(Box.createVerticalStrut(15));
+        contenidoCentralDinamico.add(Box.createVerticalStrut(10));
         contenidoCentralDinamico.add(panelGridPromociones);
 
         contenidoCentralDinamico.revalidate();
         contenidoCentralDinamico.repaint();
     }
 
-    /*
-     * Limpio el grid de productos principales.
+    /**
+     * Limpia la cuadrícula de productos regulares.
      */
     public void limpiarGridProductos() {
         panelGridProductos.removeAll();
@@ -170,8 +176,8 @@ public class VistaPrincipalCliente extends JFrame {
         panelGridProductos.repaint();
     }
 
-    /*
-     * Limpio el grid de productos en promoción.
+    /**
+     * Limpia la cuadrícula de productos en promoción.
      */
     public void limpiarGridPromociones() {
         panelGridPromociones.removeAll();
@@ -179,8 +185,8 @@ public class VistaPrincipalCliente extends JFrame {
         panelGridPromociones.repaint();
     }
 
-    /*
-     * Agrego una tarjeta a la cuadrícula general usando solo datos primitivos.
+    /**
+     * Agrega una tarjeta individual al grid de productos regulares.
      */
     public void agregarTarjetaProducto(int id, String nombre, double precio, String rutaImagen, MouseListener listener) {
         JPanel tarjeta = crearTarjetaVisual(String.valueOf(id), nombre, precio, rutaImagen, listener);
@@ -189,8 +195,8 @@ public class VistaPrincipalCliente extends JFrame {
         panelGridProductos.repaint();
     }
 
-    /*
-     * Agrego una tarjeta a la cuadrícula de promociones.
+    /**
+     * Agrega una tarjeta individual al grid de promociones.
      */
     public void agregarTarjetaPromocion(int id, String nombre, double precio, String rutaImagen, MouseListener listener) {
         JPanel tarjeta = crearTarjetaVisual(String.valueOf(id), nombre, precio, rutaImagen, listener);
@@ -199,8 +205,8 @@ public class VistaPrincipalCliente extends JFrame {
         panelGridPromociones.repaint();
     }
 
-    /*
-     * Construyo la maquetación visual de la tarjeta individual.
+    /**
+     * Método fábrica interno para maquetar tarjetas uniformes.
      */
     private JPanel crearTarjetaVisual(String idStr, String nombre, double precio, String rutaImagen, MouseListener listener) {
         JPanel tarjeta = new JPanel();
@@ -216,7 +222,7 @@ public class VistaPrincipalCliente extends JFrame {
         lblImg.setName(idStr);
         lblImg.addMouseListener(listener);
 
-        if (rutaImagen == null || rutaImagen.isEmpty()) {
+        if (rutaImagen == null || rutaImagen.trim().isEmpty()) {
             rutaImagen = "src/nexusgo/img/default.jpg";
         }
 
@@ -248,13 +254,11 @@ public class VistaPrincipalCliente extends JFrame {
         return tarjeta;
     }
 
+    /**
+     * Retorna el panel central dinámico para que los controladores puedan sustituir vistas.
+     */
     public JPanel getContenidoCentralDinamico() {
         return this.contenidoCentralDinamico;
     }
-    
-    
-    
-    
-   
 
 }
