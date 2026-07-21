@@ -39,6 +39,7 @@ public class NexusGo {
         login.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Finalmente, se hace visible la ventana de inicio de sesión.
+        login.setVisible(true);
 }
 
     }
