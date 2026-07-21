@@ -223,5 +223,29 @@ public class UsuarioDao {
             return false;
         }
     }
+    
+    public List<Usuario> listarUsuarios() {
+        List<Usuario> lista = new ArrayList<>();
+        String sql = "SELECT numero_identificacion, nombre, apellido, rol, correo FROM usuarios";
+
+        try (Connection con = conexion.getConection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Usuario u = new Usuario();
+                u.setNumeroIdentificacion(rs.getString("numero_identificacion"));
+                u.setNombre(rs.getString("nombre"));
+                u.setApellido(rs.getString("apellido"));
+                u.setRol(rs.getString("rol"));
+                u.setCorreo(rs.getString("correo"));
+
+                lista.add(u);
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Error al listar usuarios: " + e.getMessage());
+        }
+        return lista;
+    }
 
 }
