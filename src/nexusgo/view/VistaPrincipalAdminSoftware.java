@@ -5,6 +5,7 @@
 package nexusgo.view;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -37,6 +38,7 @@ public class VistaPrincipalAdminSoftware extends JFrame {
 
         // Inicializar el panel 'contenido' explícitamente con BorderLayout
         contenido = new JPanel(new BorderLayout());
+        contenido.setBackground(Color.red);
 
         // Agregar el contenedor general 'contenido' al centro del JFrame
         // El Controlador se encargará de inyectar los paneles dinámicamente aquí
