@@ -19,8 +19,8 @@ import nexusgo.view.VistaPrincipalPeluquero;
  * @author HOME
  */
 public class ControladorPrincipalPeluquero implements ActionListener{
- private final VistaPrincipalPeluquero vista;
- private final Usuario usuarioLogueado;
+private final VistaPrincipalPeluquero vista;
+private final Usuario usuarioLogueado;
 
     public ControladorPrincipalPeluquero(VistaPrincipalPeluquero vista, Usuario usuarioLogueado) {
         this.vista = vista;
