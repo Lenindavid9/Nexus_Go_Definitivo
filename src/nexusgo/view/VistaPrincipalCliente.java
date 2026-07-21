@@ -66,9 +66,8 @@ public class VistaPrincipalCliente extends JFrame {
 
         // 3. Barra Lateral (Sidebar)
         sidebar = new VistaBarraLateral();
-//<<<<<<< HEAD
         sidebar.setPreferredSize(new Dimension(70, 650));
-        sidebar.setOpaque(false);
+        sidebar.setBackground(Color.WHITE);
         if (sidebar.bInventario != null) sidebar.bInventario.setVisible(false);
         if (sidebar.misCitas != null) sidebar.misCitas.setVisible(true);
 
