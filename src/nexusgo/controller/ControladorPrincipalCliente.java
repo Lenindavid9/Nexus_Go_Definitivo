@@ -14,6 +14,8 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import nexusgo.model.Producto;
 import nexusgo.model.ProductoDao;
 import nexusgo.view.VistaInicioSesion;
@@ -42,10 +44,20 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
         this.idUsuarioLogueado = idUsuarioLogueado;
         this.productoDAO = new ProductoDao();
 
-        // Enlace de eventos de los botones superiores
+        // Enlace de eventos de botones superiores
         if (this.vista.btnHistorial != null) this.vista.btnHistorial.addActionListener(this);
         if (this.vista.btnReservarCita != null) this.vista.btnReservarCita.addActionListener(this);
         if (this.vista.btnCerrarSesion != null) this.vista.btnCerrarSesion.addActionListener(this);
+
+        // Enlace de evento "Regresar a Casa / Inicio" desde la Barra Lateral (Sidebar)
+        if (this.vista.sidebar != null) {
+            if (this.vista.sidebar.bCasa != null) {
+                this.vista.sidebar.bCasa.addActionListener(e -> restaurarTiendaYCatalogo());
+            }
+            if (this.vista.sidebar.misCitas != null) {
+                this.vista.sidebar.misCitas.addActionListener(e -> abrirVistaReservarCitas());
+            }
+        }
 
         cargarCatalogo();
     }
@@ -57,7 +69,14 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
     public void cargarCatalogo() {
         try {
             this.listaProductos = productoDAO.listar();
-            this.listaPromociones = productoDAO.listarPromociones();
+
+            // Intenta listar promociones de forma segura
+            try {
+                this.listaPromociones = productoDAO.listarPromociones();
+            } catch (Exception exPromo) {
+                System.err.println("Aviso: No se pudieron listar promociones (Falta columna 'es_promocion' en BD): " + exPromo.getMessage());
+                this.listaPromociones = null;
+            }
 
             this.vista.limpiarGridProductos();
             this.vista.limpiarGridPromociones();
@@ -128,17 +147,20 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
                 Producto productoSeleccionado = buscarProductoPorId(idProducto);
 
                 if (productoSeleccionado != null) {
+                    // Carga la sub-vista JPanel de detalles
                     VistaProductoDetalles panelDetalle = new VistaProductoDetalles();
                     new ControladorDetallesProducto(panelDetalle, productoSeleccionado, this);
 
-                    vista.getContenidoCentralDinamico().removeAll();
-                    vista.getContenidoCentralDinamico().add(panelDetalle);
-                    vista.getContenidoCentralDinamico().revalidate();
-                    vista.getContenidoCentralDinamico().repaint();
+                    JPanel contenedor = vista.getContenidoCentralDinamico();
+                    if (contenedor != null) {
+                        contenedor.removeAll();
+                        contenedor.add(panelDetalle);
+                        contenedor.revalidate();
+                        contenedor.repaint();
+                        hacerScrollArriba(contenedor);
+                    }
                 }
-            } catch (NumberFormatException ex) {
-                // Ignorar elementos no numéricos
-            }
+            } catch (NumberFormatException ignored) {}
         }
     }
 
@@ -152,13 +174,7 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
         Object origen = e.getSource();
 
         if (origen == vista.btnReservarCita) {
-            VistaReservarCitas panelReserva = new VistaReservarCitas();
-            new ControladorReservarCita(panelReserva, vista, this.idUsuarioLogueado);
-
-            vista.getContenidoCentralDinamico().removeAll();
-            vista.getContenidoCentralDinamico().add(panelReserva);
-            vista.getContenidoCentralDinamico().revalidate();
-            vista.getContenidoCentralDinamico().repaint();
+            abrirVistaReservarCitas();
         }
 
         if (origen == vista.btnHistorial) {
@@ -184,10 +200,41 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
         }
     }
 
+    /**
+     * Carga el módulo de reserva de citas en el panel dinámico.
+     */
+    private void abrirVistaReservarCitas() {
+        VistaReservarCitas panelReserva = new VistaReservarCitas();
+        new ControladorReservarCita(panelReserva, vista, this.idUsuarioLogueado);
+
+        JPanel contenedor = vista.getContenidoCentralDinamico();
+        if (contenedor != null) {
+            contenedor.removeAll();
+            contenedor.add(panelReserva);
+            contenedor.revalidate();
+            contenedor.repaint();
+            hacerScrollArriba(contenedor);
+        }
+    }
+
+    /**
+     * Regresa a la vista principal / catálogo (Función de Casa / Home).
+     */
     public void restaurarTiendaYCatalogo() {
         this.vista.restaurarComponentesTienda();
         cargarCatalogo();
     }
-    
+
+    /**
+     * Reinicia el scroll vertical hasta arriba al cambiar de panel.
+     */
+    private void hacerScrollArriba(JComponent componente) {
+        SwingUtilities.invokeLater(() -> {
+            JScrollPane scrollPane = (JScrollPane) SwingUtilities.getAncestorOfClass(JScrollPane.class, componente);
+            if (scrollPane != null) {
+                scrollPane.getVerticalScrollBar().setValue(0);
+            }
+        });
+    }
 }
 

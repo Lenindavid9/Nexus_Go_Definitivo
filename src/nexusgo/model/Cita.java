@@ -11,43 +11,72 @@ import javax.swing.JFrame;
  * @author HOME
  */
 public class Cita extends JFrame {
+
     private int idCita;
-    private String cliente;
-    private String servicio;
-    private double precio;
-    private String diaSemana;
-    private String horaInicio;
+    private int idCliente;
+    private int idProfesional;
+    private int idServicio;
+    private String fechaHoraProgramada; // Formato "yyyy-MM-dd HH:mm:ss"
+    private String estado;
 
-    // Constructor vacío por si necesito instanciar una cita sin datos iniciales
     public Cita() {
+        this.estado = "PENDIENTE";
     }
 
-    // Constructor lleno para cuando recupero los datos completos desde la base de datos
-    public Cita(int idCita, String cliente, String servicio, double precio, String diaSemana, String horaInicio) {
+    public Cita(int idCliente, int idProfesional, int idServicio, String fechaHoraProgramada) {
+        this.idCliente = idCliente;
+        this.idProfesional = idProfesional;
+        this.idServicio = idServicio;
+        this.fechaHoraProgramada = fechaHoraProgramada;
+        this.estado = "PENDIENTE";
+    }
+
+    // Getters y Setters
+    public int getIdCita() {
+        return idCita;
+    }
+
+    public void setIdCita(int idCita) {
         this.idCita = idCita;
-        this.cliente = cliente;
-        this.servicio = servicio;
-        this.precio = precio;
-        this.diaSemana = diaSemana;
-        this.horaInicio = horaInicio;
     }
 
-    // --- Mis métodos Getter y Setter para acceder de forma segura a las variables ---
-    public int getIdCita() { return idCita; }
-    public void setIdCita(int idCita) { this.idCita = idCita; }
+    public int getIdCliente() {
+        return idCliente;
+    }
 
-    public String getCliente() { return cliente; }
-    public void setCliente(String cliente) { this.cliente = cliente; }
+    public void setIdCliente(int idCliente) {
+        this.idCliente = idCliente;
+    }
 
-    public String getServicio() { return servicio; }
-    public void setServicio(String servicio) { this.servicio = servicio; }
+    public int getIdProfesional() {
+        return idProfesional;
+    }
 
-    public double getPrecio() { return precio; }
-    public void setPrecio(double precio) { this.precio = precio; }
+    public void setIdProfesional(int idProfesional) {
+        this.idProfesional = idProfesional;
+    }
 
-    public String getDiaSemana() { return diaSemana; }
-    public void setDiaSemana(String diaSemana) { this.diaSemana = diaSemana; }
+    public int getIdServicio() {
+        return idServicio;
+    }
 
-    public String getHoraInicio() { return horaInicio; }
-    public void setHoraInicio(String horaInicio) { this.horaInicio = horaInicio; }
+    public void setIdServicio(int idServicio) {
+        this.idServicio = idServicio;
+    }
+
+    public String getFechaHoraProgramada() {
+        return fechaHoraProgramada;
+    }
+
+    public void setFechaHoraProgramada(String fechaHoraProgramada) {
+        this.fechaHoraProgramada = fechaHoraProgramada;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
 }
