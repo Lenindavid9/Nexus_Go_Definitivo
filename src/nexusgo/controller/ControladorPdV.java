@@ -20,14 +20,15 @@ public class ControladorPdV implements ActionListener {
     private final VistaPdV vista;
     private final FacturaDao facturaDao;
     private final ProductoDao productoDao;
-    private final JPanel contenedorCentral;
+    private JPanel contenedorCentral;
 
-    // TODO EL MODELO VIVE AQUÍ
+    // Estado del Carrito y Vista
     private final List<DetalleCarrito> carrito = new ArrayList<>();
     private final List<VistaPdV.TarjetaProductoComponentes> componentesTarjetas = new ArrayList<>();
     private double totalVenta = 0.0;
     private int contadorProductos = 0;
 
+    // Constructor Principal (recibe el contenedor explícito)
     public ControladorPdV(VistaPdV vista, JPanel contenedorCentral) {
         this.vista = vista;
         this.contenedorCentral = contenedorCentral;
@@ -42,6 +43,11 @@ public class ControladorPdV implements ActionListener {
         cargarProductos();
     }
 
+    // Constructor Sobrecargado (Compatibilidad cuando no se pasa el contenedor)
+    public ControladorPdV(VistaPdV vista) {
+        this(vista, null);
+    }
+
     private void cargarProductos() {
         List<Producto> productos = productoDao.listar();
 
@@ -52,7 +58,7 @@ public class ControladorPdV implements ActionListener {
                                 ? p.getUrlImagen() 
                                 : "tratamiento.png";
 
-                // Crear la tarjeta en la vista y recibir sus componentes interativos
+                // Crear la tarjeta en la vista y recibir sus componentes interactivos
                 VistaPdV.TarjetaProductoComponentes componentes = vista.agregarTarjetaComponentes(
                         p.getNombreProducto(), 
                         precioFormateado, 
@@ -62,23 +68,43 @@ public class ControladorPdV implements ActionListener {
 
                 componentesTarjetas.add(componentes);
 
-                // Configurar el listener del botón Agregar directamente desde el controlador
+                // Configurar el listener del botón Agregar (+) para acumular dinámicamente
                 componentes.getBtnAgregar().addActionListener(e -> {
-                    int cantidad = (int) componentes.getSpinner().getValue();
+                    int cantidadIngresada = (int) componentes.getSpinner().getValue();
                     double precioUnitario = p.getPrecioCompra();
 
-                    // Registrar en la lista carrito
-                    carrito.add(new DetalleCarrito(p.getIdProducto(), p.getNombreProducto(), precioUnitario, cantidad));
+                    // Sumar o actualizar en la lista del carrito
+                    agregarOActualizarItem(p, cantidadIngresada, precioUnitario);
 
-                    // Actualizar contadores del controlador
-                    totalVenta += (precioUnitario * cantidad);
-                    contadorProductos += cantidad;
+                    // Actualizar contadores globales del punto de venta
+                    totalVenta += (precioUnitario * cantidadIngresada);
+                    contadorProductos += cantidadIngresada;
 
-                    // Actualizar estado visual
+                    // Actualizar el estado del botón Facturar en la vista
                     vista.actualizarTextoFacturar(contadorProductos);
-                    componentes.getBtnAgregar().setEnabled(false);
                 });
             }
+        }
+    }
+
+    /**
+     * Acumula la cantidad seleccionada en el producto existente dentro del carrito,
+     * o agrega una nueva línea si no había sido seleccionado antes.
+     */
+    private void agregarOActualizarItem(Producto p, int cantidad, double precioUnitario) {
+        boolean productoExiste = false;
+
+        for (DetalleCarrito item : carrito) {
+            if (item.getIdProducto() == p.getIdProducto()) {
+                // CORRECCIÓN AQUÍ: Usar el setter correspondiente
+                item.setCantidad(item.getCantidad() + cantidad);
+                productoExiste = true;
+                break;
+            }
+        }
+
+        if (!productoExiste) {
+            carrito.add(new DetalleCarrito(p.getIdProducto(), p.getNombreProducto(), precioUnitario, cantidad));
         }
     }
 
@@ -87,7 +113,7 @@ public class ControladorPdV implements ActionListener {
         if (e.getSource() == vista.getFacturarButton()) {
             
             if (carrito.isEmpty()) {
-                JOptionPane.showMessageDialog(vista, "El carrito está vacío. Agrega productos primero.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(vista, "El carrito está vacío. Agrega productos presionando el botón (+).", "Advertencia", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
@@ -95,32 +121,32 @@ public class ControladorPdV implements ActionListener {
             double descuento = 0.0;
             double total = subtotal - descuento;
 
-            // Datos base del sistema
+            // Datos base para el registro de venta
             int idVenta = 1; 
             int idCliente = 1; 
             int idCaja = 1; 
 
-            // Crear modelo de Factura con todos los datos procesados
+            // Crear modelo de Factura
             Factura factura = new Factura(0, idVenta, idCliente, idCaja, subtotal, descuento, total, new Date());
 
-            // Guardar factura en BD vía DAO
+            // Guardar factura en la base de datos a través del DAO
             boolean exito = facturaDao.guardarFactura(factura);
 
             if (exito) {
-                JOptionPane.showMessageDialog(vista, "Factura N° " + factura.getIdFactura() + " guardada exitosamente.");
+                JOptionPane.showMessageDialog(vista, "Factura N° " + factura.getIdFactura() + " guardada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 
-                // Redirigir a la vista de Factura pasando la factura y la lista con el detalle del carrito
+                // Transición a la vista de Factura detallada
                 VistaFactura vistaFactura = new VistaFactura(factura, carrito);
                 cambiarPanel(vistaFactura);
 
                 reiniciarCarrito();
             } else {
-                JOptionPane.showMessageDialog(vista, "Error al procesar la factura.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(vista, "Error al procesar la factura en la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         } 
         else if (e.getSource() == vista.getReiniciarButton()) {
             reiniciarCarrito();
-            JOptionPane.showMessageDialog(vista, "El carrito se ha reiniciado correctamente.");
+            JOptionPane.showMessageDialog(vista, "El carrito se ha reiniciado correctamente.", "Carrito Vaciado", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -130,7 +156,7 @@ public class ControladorPdV implements ActionListener {
         contadorProductos = 0;
         vista.actualizarTextoFacturar(0);
 
-        // Volver a habilitar todos los botones de las tarjetas
+        // Restablecer spinners de las tarjetas de productos
         for (VistaPdV.TarjetaProductoComponentes comp : componentesTarjetas) {
             comp.getBtnAgregar().setEnabled(true);
             comp.getSpinner().setValue(1);
@@ -138,14 +164,18 @@ public class ControladorPdV implements ActionListener {
     }
 
     private void cambiarPanel(JPanel nuevoPanel) {
-        if (contenedorCentral != null) {
-            contenedorCentral.removeAll();
-            contenedorCentral.setLayout(new BorderLayout());
-            contenedorCentral.add(nuevoPanel, BorderLayout.CENTER);
-            contenedorCentral.revalidate();
-            contenedorCentral.repaint();
+        JPanel objetivo = contenedorCentral;
+        if (objetivo == null && vista.getParent() instanceof JPanel) {
+            objetivo = (JPanel) vista.getParent();
+        }
+
+        if (objetivo != null) {
+            objetivo.removeAll();
+            objetivo.setLayout(new BorderLayout());
+            objetivo.add(nuevoPanel, BorderLayout.CENTER);
+            objetivo.revalidate();
+            objetivo.repaint();
         }
     }
-
   
 }

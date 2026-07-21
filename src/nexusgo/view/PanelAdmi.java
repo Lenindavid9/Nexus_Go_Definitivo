@@ -29,31 +29,26 @@ import javax.swing.SwingConstants;
  */
 public class PanelAdmi extends JFrame { 
 
-    private JPanel titulo, principal;
+    private JPanel principal;
     private JButton btnCerrar;
-    private JLabel logoyNombre, TituloPrincipal, imagen,lblEstado, texto1, texto2, imgJornada, imgVentas,tituloJ, estadoJ, detalleJ, tituloVentas,actividadV, detalleVentas;
-    private JPanel OpcTitulo, pnlTarjeta, pnlEstado, Jornada, textoJornada, Ventas, textoVentas;
+    private JLabel TituloPrincipal, imagen, lblEstado, texto1, texto2, imgJornada, imgVentas, tituloJ, estadoJ, detalleJ, tituloVentas, actividadV, detalleVentas;
+    private JPanel pnlTarjeta, pnlEstado, Jornada, textoJornada, Ventas, textoVentas;
 
     // Tu clase VistaBarraLateral integrada
     private VistaBarraLateral menuLateral;
+    public JButton btnReporte;
 
-    private final Color COLOR_CAFE_OSCURO = new Color(62, 58, 46);
     private final Color COLOR_DORADO = new Color(223, 205, 141);
-
-    
-  @Override
-public void paint(Graphics g) {
-    super.paint(g);
-    ImageIcon img = new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg");
-    g.drawImage(img.getImage(), 0, 0, getWidth(), getHeight(), this);
-}
 
     // CONSTRUCTOR
     public PanelAdmi() {
         // Configuración del JFrame principal
         super("Panel de Administración - N E X U S GO");
-        this.setLayout(new BorderLayout());
-        this.getContentPane().setBackground(Color.white);
+        
+        // Configuración del fondo como contenedor principal (En lugar de paint())
+        JLabel fondoConImagen = new JLabel(new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg"));
+        fondoConImagen.setLayout(new BorderLayout());
+        this.setContentPane(fondoConImagen);
 
 
         // --- TU COMPLEMENTO: VistaBarraLateral ---
@@ -61,12 +56,14 @@ public void paint(Graphics g) {
         menuLateral.setBackground(COLOR_DORADO);
         menuLateral.setPreferredSize(new Dimension(250, 0));
         menuLateral.setBorder(BorderFactory.createEmptyBorder(30, 15, 10, 15));
+        btnReporte = new JButton("reporte");
+        menuLateral.add(btnReporte);
 
 
         // --- PANEL PRINCIPAL (CONTENIDO CENTRAL) ---
         principal = new JPanel();
         principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
-        principal.setBackground(Color.white);
+        principal.setBackground(Color.WHITE);
         principal.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
         TituloPrincipal = new JLabel("Hola, Administrador de Peluqueria Bienvenid@ a N E X U S GO");
@@ -171,8 +168,8 @@ public void paint(Graphics g) {
         principal.add(Box.createVerticalStrut(20));
         principal.add(pnlEstado);
 
-        this.add(menuLateral, BorderLayout.WEST);
-        this.add(principal, BorderLayout.CENTER);
+        this.getContentPane().add(menuLateral, BorderLayout.WEST);
+        this.getContentPane().add(principal, BorderLayout.CENTER);
 
         // Ajustes de la ventana autónoma
         this.setSize(1250, 780);
@@ -195,6 +192,10 @@ public void paint(Graphics g) {
     public JPanel getPanelTarjeta() {
         return pnlTarjeta;
     }
+    
+    public JButton getBtnReporte() {
+        return btnReporte;
+    }
 
     private void configurarBotonLateral(JButton boton) {
         boton.setFont(new Font("SansSerif", Font.BOLD, 16));
@@ -203,5 +204,4 @@ public void paint(Graphics g) {
         boton.setHorizontalAlignment(SwingConstants.LEFT);
         boton.setAlignmentX(Component.LEFT_ALIGNMENT);
     }
-
 }

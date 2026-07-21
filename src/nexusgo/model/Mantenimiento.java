@@ -34,45 +34,51 @@ public class Mantenimiento {
     }
 
     // 3. Métodos Getters y Setters normales para leer y escribir las propiedades
-    public int getIdMantenimiento() { 
-        return idMantenimiento; 
-    }
-    public void setIdMantenimiento(int idMantenimiento) { 
-        this.idMantenimiento = idMantenimiento; 
+    public int getIdMantenimiento() {
+        return idMantenimiento;
     }
 
-    public int getIdHerramienta() { 
-        return idHerramienta; 
-    }
-    public void setIdHerramienta(int idHerramienta) { 
-        this.idHerramienta = idHerramienta; 
+    public void setIdMantenimiento(int idMantenimiento) {
+        this.idMantenimiento = idMantenimiento;
     }
 
-    public String getTipoMantenimiento() { 
-        return tipoMantenimiento; 
-    }
-    public void setTipoMantenimiento(String tipoMantenimiento) { 
-        this.tipoMantenimiento = tipoMantenimiento; 
+    public int getIdHerramienta() {
+        return idHerramienta;
     }
 
-    public Date getFechaProgramada() { 
-        return fechaProgramada; 
-    }
-    public void setFechaProgramada(Date fechaProgramada) { 
-        this.fechaProgramada = fechaProgramada; 
+    public void setIdHerramienta(int idHerramienta) {
+        this.idHerramienta = idHerramienta;
     }
 
-    public String getEvidenciaNotas() { 
-        return evidenciaNotas; 
-    }
-    public void setEvidenciaNotas(String evidenciaNotas) { 
-        this.evidenciaNotas = evidenciaNotas; 
+    public String getTipoMantenimiento() {
+        return tipoMantenimiento;
     }
 
-    public int getIdTecnicoResponsable() { 
-        return idTecnicoResponsable; 
+    public void setTipoMantenimiento(String tipoMantenimiento) {
+        this.tipoMantenimiento = tipoMantenimiento;
     }
-    public void setIdTecnicoResponsable(int idTecnicoResponsable) { 
-        this.idTecnicoResponsable = idTecnicoResponsable; 
+
+    public Date getFechaProgramada() {
+        return fechaProgramada;
+    }
+
+    public void setFechaProgramada(Date fechaProgramada) {
+        this.fechaProgramada = fechaProgramada;
+    }
+
+    public String getEvidenciaNotas() {
+        return evidenciaNotas;
+    }
+
+    public void setEvidenciaNotas(String evidenciaNotas) {
+        this.evidenciaNotas = evidenciaNotas;
+    }
+
+    public int getIdTecnicoResponsable() {
+        return idTecnicoResponsable;
+    }
+
+    public void setIdTecnicoResponsable(int idTecnicoResponsable) {
+        this.idTecnicoResponsable = idTecnicoResponsable;
     }
 }

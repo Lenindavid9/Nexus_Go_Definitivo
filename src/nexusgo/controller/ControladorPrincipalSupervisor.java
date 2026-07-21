@@ -81,7 +81,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
     private void inicializarListeners() {
         try {
-            //  Escuchar la barra lateral y botones principales
+            // Escuchar la barra lateral y botones principales
             this.vistaPrincipal.sidebar.bCasa.addActionListener(this);
             this.vistaPrincipal.sidebar.bInventario.addActionListener(this);
             this.vistaPrincipal.sidebar.misCitas.addActionListener(this);
@@ -91,15 +91,15 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 this.vistaPrincipal.btnCaja.addActionListener(this);
             }
 
-            //  Escuchar botones del panel AperturaCierre (Caja)
+            // Escuchar botones del panel AperturaCierre (Caja)
             this.panelAperturaCierre.getBtnApertura().addActionListener(this);
             this.panelAperturaCierre.getBtnCalcular().addActionListener(this);
 
-            //  Escuchar botones de programación de mantenimiento
+            // Escuchar botones de programación de mantenimiento
             this.panelProgramarMantenimiento.btnGuardarMantenimiento.addActionListener(this);
             this.panelProgramarMantenimiento.btnVolver.addActionListener(this);
 
-            //  Tablas (MouseListeners)
+            // Tablas (MouseListeners)
             this.panelInventario.tablaProductos.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -160,29 +160,26 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 vistaPrincipal.restaurarVistaInicial();
             }
 
-            // --- ABRIR LA VISTA DEL PUNTO DE VENTA (PdV) 
+            // --- ABRIR LA VISTA DEL PUNTO DE VENTA (PdV) ---
             if (e.getSource() == vistaPrincipal.sidebar.bInventario) {
                 // 1. Instanciar la vista de Punto de Venta
                 VistaPdV vistaPdV = new VistaPdV();
                 JPanel panelPdV = vistaPdV.VistaNexus();
 
-                //  Enlazar su controlador de eventos (para pagos, facturar y reiniciar)
+                // 2. Enlazar su controlador de eventos (para pagos, facturar y reiniciar)
                 ControladorPdV controladorPdV = new ControladorPdV(vistaPdV);
 
-                //  Obtener los productos reales registrados en la BD nexus_go_db
+                // 3. Obtener los productos reales registrados en la BD
                 List<Producto> listaProductos = productoDao.listar();
 
                 if (listaProductos != null && !listaProductos.isEmpty()) {
                     for (Producto p : listaProductos) {
-                        // Formatear precio
                         String precioFormateado = String.format("$%.0f", p.getPrecioCompra());
                         
-                        // Validar imagen
                         String imagen = (p.getUrlImagen() != null && !p.getUrlImagen().isEmpty()) 
                                         ? p.getUrlImagen() 
                                         : "tratamiento.png";
 
-                        // Agregar tarjeta dynamicamente
                         vistaPdV.agregarTarjeta(
                             p.getNombreProducto(), 
                             precioFormateado, 

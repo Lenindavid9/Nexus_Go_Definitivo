@@ -42,13 +42,7 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
         this.idUsuarioLogueado = idUsuarioLogueado;
         this.productoDAO = new ProductoDao();
 
-        // Enlace de eventos del menú lateral (Sidebar)
-        if (this.vista.sidebar != null) {
-            if (this.vista.sidebar.bCasa != null) this.vista.sidebar.bCasa.addActionListener(this);
-            if (this.vista.sidebar.misCitas != null) this.vista.sidebar.misCitas.addActionListener(this);
-        }
-
-        // Enlace de eventos de botones en la cabecera / vista
+        // Enlace de eventos de los botones superiores
         if (this.vista.btnHistorial != null) this.vista.btnHistorial.addActionListener(this);
         if (this.vista.btnReservarCita != null) this.vista.btnReservarCita.addActionListener(this);
         if (this.vista.btnCerrarSesion != null) this.vista.btnCerrarSesion.addActionListener(this);
@@ -68,26 +62,24 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
             this.vista.limpiarGridProductos();
             this.vista.limpiarGridPromociones();
 
-            // Cargar productos regulares (Usando precio de venta para el cliente)
             if (this.listaProductos != null) {
                 for (Producto p : this.listaProductos) {
                     this.vista.agregarTarjetaProducto(
                         p.getIdProducto(),
                         p.getNombreProducto(),
-                        p.getPrecioVenta(), // Ajustado a Precio de Venta
+                        p.getPrecioVenta(),
                         p.getUrlImagen(),
                         this
                     );
                 }
             }
 
-            // Cargar promociones
             if (this.listaPromociones != null) {
                 for (Producto promo : this.listaPromociones) {
                     this.vista.agregarTarjetaPromocion(
                         promo.getIdProducto(),
                         promo.getNombreProducto(),
-                        promo.getPrecioVenta(), // Ajustado a Precio de Venta
+                        promo.getPrecioVenta(),
                         promo.getUrlImagen(),
                         this
                     );
@@ -121,12 +113,10 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
         Object origen = e.getSource();
         String idStr = null;
 
-        // Búsqueda del ID en el componente cliqueado o en su contenedor padre
         if (origen instanceof JComponent) {
             JComponent comp = (JComponent) origen;
             idStr = comp.getName();
             
-            // Si el clic fue en un JLabel interno sin ID, buscamos en el panel padre
             if (idStr == null && comp.getParent() != null) {
                 idStr = comp.getParent().getName();
             }
@@ -147,7 +137,7 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
                     vista.getContenidoCentralDinamico().repaint();
                 }
             } catch (NumberFormatException ex) {
-                // Ignorar componentes cuyo Name no sea numérico
+                // Ignorar elementos no numéricos
             }
         }
     }
@@ -171,21 +161,10 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
             vista.getContenidoCentralDinamico().repaint();
         }
 
-        if (vista.sidebar != null && origen == vista.sidebar.bCasa) {
-            restaurarTiendaYCatalogo();
-        }
-
         if (origen == vista.btnHistorial) {
             JOptionPane.showMessageDialog(vista,
-                    "Cargando el historial de compras y citas atendidas del usuario...",
-                    "Historial",
-                    JOptionPane.INFORMATION_MESSAGE);
-        }
-
-        if (vista.sidebar != null && origen == vista.sidebar.misCitas) {
-            JOptionPane.showMessageDialog(vista,
-                    "Cargando citas agendadas (vigentes y pasadas)...",
-                    "Mis Citas",
+                    "Cargando el historial de compras y citas del usuario...",
+                    "Historial de Usuario",
                     JOptionPane.INFORMATION_MESSAGE);
         }
 
