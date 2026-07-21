@@ -55,7 +55,7 @@ public class VistaPrincipalCliente extends JFrame {
         // 1. Fondo de Mármol
         this.fondoMarmol = new JLabel(new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg"));
         this.fondoMarmol.setLayout(new GridBagLayout()); // Centra el contenedor interno
-        this.fondoMarmol = new JLabel(new ImageIcon("src/nexusgo/img/fondocliente.jpg"));
+        this.fondoMarmol = new JLabel(new ImageIcon("src/nexusgo/img/fondoprincipal.jpg"));
         this.fondoMarmol.setLayout(new BorderLayout()); // Centra el contenedor interno
         this.setContentPane(fondoMarmol);
 

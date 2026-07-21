@@ -62,6 +62,11 @@ public class VistaInventarioSupervisor extends JPanel {
         };
         tablaProductos = new JTable(modeloProductos);
         tablaProductos.setRowHeight(30);
+        tablaProductos.setOpaque(false);
+        JScrollPane scrollProductos = new JScrollPane(tablaProductos);
+        scrollProductos.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollProductos.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        tablaProductos.getTableHeader().setReorderingAllowed(false);
         panelProductos.add(new JScrollPane(tablaProductos), BorderLayout.CENTER);
 
         // --- SECCIÓN: HERRAMIENTAS (Sin botón agregar) ---
@@ -74,6 +79,11 @@ public class VistaInventarioSupervisor extends JPanel {
         };
         tablaHerramientas = new JTable(modeloHerramientas);
         tablaHerramientas.setRowHeight(30);
+        tablaHerramientas.setOpaque(false);
+        JScrollPane scrollHerramientas = new JScrollPane(tablaHerramientas);
+        scrollHerramientas.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollHerramientas.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        tablaHerramientas.getTableHeader().setReorderingAllowed(false);
         panelHerramientas.add(new JScrollPane(tablaHerramientas), BorderLayout.CENTER);
     }
 }

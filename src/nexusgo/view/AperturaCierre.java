@@ -43,16 +43,10 @@ public class AperturaCierre extends JPanel {
     
     public AperturaCierre() {
         VistaCaja();
+        setOpaque(false);
     }
 
-    @Override
-    protected void paintComponent(Graphics g
-    ) {
-        super.paintComponent(g);
-        ImageIcon img = new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg");
-        g.drawImage(img.getImage(), 0, 0, getWidth(), getHeight(), this);
-    }
-
+    
     public JPanel VistaCaja() {
 
         this.setLayout(new BorderLayout());
@@ -68,20 +62,7 @@ public class AperturaCierre extends JPanel {
         
         //                                       PANEL DEL BOTON VOLVER ;)
         
-        //Creamos el panel del boton volver para dejarlo en la parte superior derecha usando el flowlayout
-        pnlbtnVolver = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        pnlbtnVolver.setOpaque(false);
-        pnlbtnVolver.setMaximumSize(new Dimension(Short.MAX_VALUE, 40));
-
-        //Aqui es importante usar el setPreferredSise ya que le decimos al layout el tamaño que queremos para el boton volver
-        btnVolver = new JButton("< Volver");
-        btnVolver.setPreferredSize(new Dimension(110, 40));
-        btnVolver.setFont(new Font("SansSerif", Font.BOLD, 16));
-        btnVolver.setBackground(COLOR_DORADO);
-        btnVolver.setBorder(null);
-
-        //se añade el JButton al JPanel
-        pnlbtnVolver.add(btnVolver);
+        
         
         
         apertura = new JPanel();
@@ -250,7 +231,6 @@ public class AperturaCierre extends JPanel {
         confirmacion.add(CalcularC);
         CalcularC.add(Box.createVerticalGlue()); 
         
-        principal.add(pnlbtnVolver);
         principal.add(apertura);
         principal.add(cierre);
         principal.add(confirmacion);
