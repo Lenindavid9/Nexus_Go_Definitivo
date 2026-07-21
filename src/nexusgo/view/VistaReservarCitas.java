@@ -44,7 +44,7 @@ public class VistaReservarCitas extends JPanel {
     public JButton btnAgendar; // Botón "Reservar cita"
     public JButton btnVolver;  // Botón auxiliar para el controlador
 
-    // Compatibilidad con el controlador existente
+    // Compatibilidad con el controlador
     public JTextField txtFechaHora; 
 
     private final Color COLOR_DORADO_BOTON = new Color(250, 218, 94);
@@ -76,7 +76,7 @@ public class VistaReservarCitas extends JPanel {
         gbc.gridx = 0;
         gbc.weightx = 1.0;
 
-        // --- TITULO Y SUBTITULO ---
+        // --- TÍTULO Y SUBTÍTULO ---
         JLabel lblTitulo = new JLabel("Reservar cita");
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblTitulo.setForeground(COLOR_TEXTO_TITULO);
@@ -89,7 +89,7 @@ public class VistaReservarCitas extends JPanel {
         gbc.gridy = 1;
         tarjetaBlanca.add(lblSubtitulo, gbc);
 
-        // --- SELECCION DE SERVICIO ---
+        // --- SELECCIÓN DE SERVICIO ---
         JLabel lblServicio = new JLabel("Seleccione el tipo de servicio");
         lblServicio.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblServicio.setForeground(Color.DARK_GRAY);
@@ -109,7 +109,7 @@ public class VistaReservarCitas extends JPanel {
         JPanel panelFechaHora = new JPanel(new BorderLayout(10, 0));
         panelFechaHora.setOpaque(false);
 
-        // JDateChooser de JCalendar inicializado con fecha de hoy
+        // JDateChooser
         dateChooserFecha = new JDateChooser(new Date());
         dateChooserFecha.setDateFormatString("yyyy-MM-dd");
         dateChooserFecha.setFont(new Font("Segoe UI", Font.PLAIN, 13));
@@ -155,7 +155,7 @@ public class VistaReservarCitas extends JPanel {
         gbc.gridy = 5;
         tarjetaBlanca.add(scrollObs, gbc);
 
-        // --- BOTON AGENDAR ---
+        // --- BOTÓN AGENDAR ---
         btnAgendar = new JButton("Reservar cita") {
             @Override
             protected void paintComponent(Graphics g) {

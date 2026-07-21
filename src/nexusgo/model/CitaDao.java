@@ -101,4 +101,23 @@ public class CitaDao{
         }
         return 5; // Respaldo
     }
+    
+    public List<String> obtenerListaServicios() {
+    List<String> listaServicios = new ArrayList<>();
+    String sql = "SELECT nombre_servicio FROM servicios";
+
+    try (Connection con = conexion.getConection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        while (rs.next()) {
+            listaServicios.add(rs.getString("nombre_servicio"));
+        }
+
+    } catch (SQLException e) {
+        System.err.println("Error al obtener lista de servicios: " + e.getMessage());
+    }
+
+    return listaServicios;
+}
 }
