@@ -7,6 +7,7 @@ package nexusgo;
 import javax.swing.JFrame;
 import nexusgo.controller.ControladorInicioSesion;
 import nexusgo.view.VistaInicioSesion;
+import nexusgo.view.VistaPrincipalCliente;
 
 /**
  *
@@ -40,6 +41,21 @@ public class NexusGo {
 
         // Finalmente, se hace visible la ventana de inicio de sesión.
         login.setVisible(true);
+        
+        javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                // Instanciar únicamente la vista de cliente
+                VistaPrincipalCliente vista = new VistaPrincipalCliente("Lenin", "Cliente");
+                
+                // Cargar un par de productos ficticios de prueba (sin base de datos)
+                vista.agregarTarjetaProducto(1, "SHAMPOO HIDRATANTE 1L", 45000, null, null);
+                vista.agregarTarjetaProducto(2, "ACONDICIONADOR ARGAN 500ML", 38000, null, null);
+                
+                // Hacer visible la ventana
+                vista.setVisible(true);
+            }
+        });
 
 }
 

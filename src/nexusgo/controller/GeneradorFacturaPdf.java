@@ -23,8 +23,10 @@ import nexusgo.model.DetalleCarrito;
 public class GeneradorFacturaPdf {
     
    public static String generarPdf(Factura factura) {
-        String rutaArchivo = System.getProperty("user.home") + File.separator + "Desktop" + File.separator + "Factura_" + System.currentTimeMillis() + ".pdf";
-        
+        String rutaArchivo = System.getProperty("user.home") 
+                + File.separator + "Desktop" 
+                + File.separator + "Factura_" + System.currentTimeMillis() + ".pdf";
+
         Document documento = new Document();
         try {
             PdfWriter.getInstance(documento, new FileOutputStream(rutaArchivo));
@@ -35,12 +37,12 @@ public class GeneradorFacturaPdf {
             documento.add(new Paragraph("Fecha: " + factura.getFechaVenta()));
             documento.add(new Paragraph("--------------------------------------------------------------------------------"));
 
-            // Listar los productos del carrito/detalles
+            // Listar los productos del carrito / detalles
             if (factura.getDetalles() != null) {
                 for (DetalleCarrito detalle : factura.getDetalles()) {
-                    documento.add(new Paragraph("Producto: " + detalle.getNombreProducto() + 
-                                              " | Cant: " + detalle.getCantidad() + 
-                                              " | Subtotal: $" + detalle.getSubtotal()));
+                    documento.add(new Paragraph("Producto: " + detalle.getNombreProducto()
+                            + " | Cant: " + detalle.getCantidad()
+                            + " | Subtotal: $" + detalle.getSubtotal()));
                 }
             }
 
@@ -51,14 +53,20 @@ public class GeneradorFacturaPdf {
             return rutaArchivo;
 
         } catch (Exception e) {
+            System.err.println("Error al generar el PDF de la factura: " + e.getMessage());
             e.printStackTrace();
             return null;
         }
     }
 
-    // Método para enviar el correo con el PDF adjunto usando tu configuración SMTP validada
+    /**
+     * Envía un correo electrónico al cliente adjuntando la factura en formato PDF.
+     * 
+     * @param destinatarioF Dirección de correo de destino.
+     * @param rutaPdf Ruta en disco del archivo PDF a adjuntar.
+     * @return true si el correo se envió con éxito; false en caso contrario.
+     */
     public static boolean enviarCorreo(String destinatarioF, String rutaPdf) {
-        // Mismas credenciales y configuración que ya usas en el sistema
         final String miCorreoRemitente = "liliannysbaptistap@gmail.com";
         final String miClaveDeCorreo = "rksu umvz hnom irzf";
 
@@ -89,7 +97,7 @@ public class GeneradorFacturaPdf {
             MimeBodyPart attachmentPart = new MimeBodyPart();
             attachmentPart.attachFile(new File(rutaPdf));
 
-            // Unir texto y adjunto en un contenedDor Multipart
+            // Unir texto y adjunto en un contenedor Multipart
             Multipart multipart = new MimeMultipart();
             multipart.addBodyPart(mensajeBodyPart);
             multipart.addBodyPart(attachmentPart);
@@ -101,7 +109,7 @@ public class GeneradorFacturaPdf {
             return true;
 
         } catch (Exception e) {
-            System.out.println("Error de red SMTP al enviar factura: " + e.getMessage());
+            System.err.println("Error de red SMTP al enviar factura: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
