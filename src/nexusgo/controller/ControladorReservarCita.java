@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Date;
+import java.util.List;
 import javax.swing.JOptionPane;
 import nexusgo.model.Cita;
 import nexusgo.model.CitaDao;
@@ -25,6 +26,7 @@ public class ControladorReservarCita implements ActionListener {
     private final int idUsuarioLogueado;
     private final CitaDao citaDao;
 
+    // Constructor con los 3 parámetros para integrarse con VistaPrincipalCliente
     public ControladorReservarCita(VistaReservarCitas panelReserva, VistaPrincipalCliente vistaPrincipal, int idUsuarioLogueado) {
         this.panelReserva = panelReserva;
         this.vistaPrincipal = vistaPrincipal;
@@ -40,27 +42,19 @@ public class ControladorReservarCita implements ActionListener {
         this.panelReserva.btnVolver.addActionListener(this);
     }
 
-    private void cargarServicios() {
-        panelReserva.comboServicios.removeAllItems();
-        panelReserva.comboServicios.addItem("-- Seleccione un servicio --");
-        panelReserva.comboServicios.addItem("Consulta General");
-        panelReserva.comboServicios.addItem("Asesoría Especializada");
-        panelReserva.comboServicios.addItem("Soporte Técnico");
-        panelReserva.comboServicios.addItem("Mantenimiento Preventivo");
-    }
-
+   
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == panelReserva.btnAgendar) {
             procesarReserva();
         } else if (e.getSource() == panelReserva.btnVolver) {
-            System.out.println("Regresando al menú principal...");
-            // Aquí puedes llamar un método de vistaPrincipal para cambiar de vista si deseas
+            System.out.println("Regresando desde la vista de reservas...");
+            // Lógica adicional para el botón volver si la necesitas
         }
     }
 
     private void procesarReserva() {
-        // 1. Validar que se seleccione un servicio
+        // 1. Validar Selección de Servicio
         if (panelReserva.comboServicios.getSelectedIndex() <= 0) {
             JOptionPane.showMessageDialog(panelReserva, 
                     "Por favor, seleccione un tipo de servicio.", 
@@ -79,11 +73,11 @@ public class ControladorReservarCita implements ActionListener {
             return;
         }
 
-        // 3. Validar disponibilidad de horario en la BD
+        // 3. Verificar disponibilidad en la base de datos
         if (citaDao.existeCitaEnHorario(fechaHora)) {
             JOptionPane.showMessageDialog(panelReserva, 
                     "El horario seleccionado (" + fechaHora + ") ya se encuentra ocupado.\n" +
-                    "Por favor, elige otra fecha u hora.", 
+                    "Por favor, elige otra hora.", 
                     "Horario No Disponible", 
                     JOptionPane.ERROR_MESSAGE);
             return;
@@ -92,15 +86,19 @@ public class ControladorReservarCita implements ActionListener {
         // 4. Mapear datos necesarios
         String servicioNombre = (String) panelReserva.comboServicios.getSelectedItem();
         int idServicio = citaDao.obtenerIdServicioPorNombre(servicioNombre);
+        if (idServicio == -1) {
+            idServicio = 1; // Respaldo
+        }
+
         int idProfesional = citaDao.obtenerIdProfesionalPorDefecto(); 
 
-        // 5. Instanciar Cita utilizando la ID del usuario en sesión
+        // 5. Instanciar objeto Cita asociando el 'idUsuarioLogueado' directo
         Cita nuevaCita = new Cita(this.idUsuarioLogueado, idProfesional, idServicio, fechaHora);
 
-        // 6. Guardar cita en la BD
+        // 6. Guardar en la base de datos
         if (citaDao.agendarCita(nuevaCita)) {
             JOptionPane.showMessageDialog(panelReserva, 
-                    "¡Cita agendada con éxito en NexusGO!\n\n" +
+                    "¡Cita agendada con éxito!\n\n" +
                     "Servicio: " + servicioNombre + "\n" +
                     "Fecha y Hora: " + fechaHora, 
                     "Reserva Exitosa", 
@@ -109,7 +107,7 @@ public class ControladorReservarCita implements ActionListener {
             limpiarFormulario();
         } else {
             JOptionPane.showMessageDialog(panelReserva, 
-                    "Ocurrió un error al intentar registrar la cita en la base de datos.", 
+                    "Ocurrió un error al guardar la cita en la base de datos.", 
                     "Error de Registro", 
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -120,4 +118,17 @@ public class ControladorReservarCita implements ActionListener {
         panelReserva.txtObservaciones.setText("");
         panelReserva.dateChooserFecha.setDate(new Date());
     }
+    
+    private void cargarServicios() {
+    panelReserva.comboServicios.removeAllItems();
+    panelReserva.comboServicios.addItem("-- Seleccione un servicio --");
+
+    // Consulta la BD a través del DAO
+    List<String> servicios = citaDao.obtenerListaServicios();
+
+    // Llena el ComboBox con los datos reales
+    for (String servicio : servicios) {
+        panelReserva.comboServicios.addItem(servicio);
+    }
+}
 }
