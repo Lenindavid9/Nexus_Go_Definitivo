@@ -19,30 +19,24 @@ public class Producto {
     private int stockMinimo;
     private double precioCompra;
     private double precioVenta;
-
-    public double getPrecioVenta() {
-        return precioVenta;
-    }
-
-    public void setPrecioVenta(double precioVenta) {
-        this.precioVenta = precioVenta;
-    }
     private String urlImagen;
 
     public Producto() {
     }
 
-    public Producto(int idProducto, String nombreProducto,String descripcion, int stockActual,int stockMinimo, double precioCompra,String urlImagen) {
-
+    public Producto(int idProducto, String nombreProducto, String descripcion, int stockActual, 
+                    int stockMinimo, double precioCompra, double precioVenta, String urlImagen) {
         this.idProducto = idProducto;
         this.nombreProducto = nombreProducto;
         this.descripcion = descripcion;
         this.stockActual = stockActual;
         this.stockMinimo = stockMinimo;
         this.precioCompra = precioCompra;
+        this.precioVenta = precioVenta;
         this.urlImagen = urlImagen;
     }
 
+    // Getters y Setters
     public int getIdProducto() {
         return idProducto;
     }
@@ -91,6 +85,14 @@ public class Producto {
         this.precioCompra = precioCompra;
     }
 
+    public double getPrecioVenta() {
+        return precioVenta;
+    }
+
+    public void setPrecioVenta(double precioVenta) {
+        this.precioVenta = precioVenta;
+    }
+
     public String getUrlImagen() {
         return urlImagen;
     }
@@ -98,9 +100,6 @@ public class Producto {
     public void setUrlImagen(String urlImagen) {
         this.urlImagen = urlImagen;
     }
-    
-    
-    
     
 }
 
