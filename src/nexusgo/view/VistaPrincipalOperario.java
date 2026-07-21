@@ -7,7 +7,11 @@ package nexusgo.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -21,48 +25,66 @@ import nexusgo.model.Usuario;
 public class VistaPrincipalOperario extends JFrame {
 
     public VistaBarraLateral sidebar;
-    public FlowLayout miflow;
-    public JLabel titulo, mensaje;
-    public JButton breporte, barranque;
-    public PanelBienvenida bienvenida;
+    public JPanel contenido, panelSuperiorDerecho, panelDerechoCompleto;
+    public JButton btnCerrarSesion;
 
-    // Este panel será el contenedor dinámico donde se meterán los módulos
-    private JPanel contenido;
+    private final Color COLOR_DORADO = new Color(184, 134, 11);
 
     public VistaPrincipalOperario() {
         super("Sistema NexusGO - Panel de Gestión");
-        setLayout(new BorderLayout());
 
-        // 1. Inicializar y posicionar la barra lateral a la izquierda (WEST)
+        // 1. Fondo con imagen
+        JLabel fondo = new JLabel(new ImageIcon("src/nexusgo/img/fondoprincipal.jpg"));
+        fondo.setLayout(new BorderLayout());
+        setContentPane(fondo);
+
+        // 2. Contenedor principal
+        JPanel panelContenedor = new JPanel(new BorderLayout());
+        panelContenedor.setOpaque(false);
+
+        // 3. Sidebar a la izquierda (ocupa toda la altura)
         sidebar = new VistaBarraLateral();
-        add(sidebar, BorderLayout.WEST);
+        sidebar.setPreferredSize(new Dimension(200, Integer.MAX_VALUE));
+        sidebar.setBackground(Color.WHITE);
+        panelContenedor.add(sidebar, BorderLayout.WEST);
+
+        // 4. Panel derecho completo
+        panelDerechoCompleto = new JPanel(new BorderLayout());
+        panelDerechoCompleto.setOpaque(false);
+
+        // Barra superior derecha con botón
+        panelSuperiorDerecho = new JPanel(new FlowLayout(FlowLayout.RIGHT, 30, 20));
+        panelSuperiorDerecho.setOpaque(false);
+
+        btnCerrarSesion = new JButton("Cerrar Sesión");
+        btnCerrarSesion.setBackground(Color.white);
+        btnCerrarSesion.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        btnCerrarSesion.setForeground(COLOR_DORADO);
+        btnCerrarSesion.setPreferredSize(new Dimension(190, 50));
         
 
-        // 2. Inicializar el panel 'contenido' explícitamente con BorderLayout.
+        panelSuperiorDerecho.add(btnCerrarSesion);
+        panelDerechoCompleto.add(panelSuperiorDerecho, BorderLayout.NORTH);
+
+        // Panel central dinámico
         contenido = new JPanel(new BorderLayout());
+        contenido.setOpaque(false);
+        panelDerechoCompleto.add(contenido, BorderLayout.CENTER);
 
-        // 3. Agregar el contenedor general 'contenido' al centro del JFrame
-        // NOTA: Ya no metemos aquí la bienvenida de forma estática ni vacía.
-        // El ControladorInventarioOperario se encargará de inyectar el panel con los datos de la BD.
-        add(contenido, BorderLayout.CENTER);
+        // Ensamblaje final
+        panelContenedor.add(panelDerechoCompleto, BorderLayout.CENTER);
+        fondo.add(panelContenedor, BorderLayout.CENTER);
 
-        // Dimensiones de la ventana optimizadas para que quepan bien las tablas de inventario
+        // Configuración de la ventana
         setSize(1100, 680);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    /**
-     * Getter público para que el controlador pueda escuchar los botones del
-     * menú lateral.
-     */
     public VistaBarraLateral getsidebar() {
         return sidebar;
     }
 
-    /**
-     * Getter público para el panel de contenido central dinámico.
-     */
     public JPanel getContenido() {
         return contenido;
     }
@@ -70,5 +92,7 @@ public class VistaPrincipalOperario extends JFrame {
     public JPanel getContenedorCentral() {
         return this.contenido;
     }
-
+   public JButton getBtnCerrarSesion() {
+        return btnCerrarSesion;
+    }
 }

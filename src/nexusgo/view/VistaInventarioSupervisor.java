@@ -24,7 +24,7 @@ public class VistaInventarioSupervisor extends JPanel {
     public JTable tablaHerramientas;
     public JTabbedPane tabs;
 
-    private JPanel panelSuperior, panelProductos, panelHerramientas;
+    private JPanel  panelProductos, panelHerramientas;
     public DefaultTableModel modeloProductos;
     public DefaultTableModel modeloHerramientas;
 
@@ -34,11 +34,7 @@ public class VistaInventarioSupervisor extends JPanel {
         setOpaque(false);
 
         // --- PANEL SUPERIOR (Buscador alineado a la derecha como en tu prototipo) ---
-        panelSuperior = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        panelSuperior.setOpaque(false);
-        buscador = new JTextField(25);
-        panelSuperior.add(buscador);
-        add(panelSuperior, BorderLayout.NORTH);
+        
 
         // --- PESTAÑAS (TABS) ---
         tabs = new JTabbedPane();
@@ -86,4 +82,6 @@ public class VistaInventarioSupervisor extends JPanel {
         tablaHerramientas.getTableHeader().setReorderingAllowed(false);
         panelHerramientas.add(new JScrollPane(tablaHerramientas), BorderLayout.CENTER);
     }
+    
+    
 }

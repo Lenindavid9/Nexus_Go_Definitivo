@@ -57,7 +57,7 @@ public class VistaPrincipalSupervisor extends JFrame {
         sidebar = new VistaBarraLateral();
         sidebar.setPreferredSize(new Dimension(180, Integer.MAX_VALUE));
         sidebar.setMinimumSize(new Dimension(180, 0));
-        sidebar.setBackground(Color.white);
+        sidebar.setBackground(Color.WHITE);
         sidebar.setBorder(new EmptyBorder(20, 10, 20, 10));
 
         btnCaja = new JButton(new ImageIcon("src/nexusgo/img/caja.png"));
@@ -154,5 +154,6 @@ public class VistaPrincipalSupervisor extends JFrame {
     public JPanel getContenidoCentralDinamico() {
         return contenidoCentralDinamico;
     }
+    public JButton getBtnCerrarSesion() { return btnCerrarSesion; }
 
 }
