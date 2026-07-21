@@ -45,7 +45,7 @@ public class VistaProductoDetalles extends JFrame {
         // Instanciamos la barra lateral para la vista de detalle
         sidebar = new VistaBarraLateral();
         sidebar.setPreferredSize(new Dimension(80, 680));
-        sidebar.setOpaque(false);
+        sidebar.setOpaque(true);
         sidebar.setBorder(new EmptyBorder(100, 10, 20, 10));
         sidebar.bInventario.setVisible(false);
 
@@ -61,7 +61,7 @@ public class VistaProductoDetalles extends JFrame {
         // 1. Panel de la imagen destacada (Lado Izquierdo)
         JPanel panelImagenContenedor = new JPanel(new GridBagLayout());
         panelImagenContenedor.setPreferredSize(new Dimension(420, 480));
-        panelImagenContenedor.setBackground(new Color(205, 180, 225)); // Tono morado similar al diseño
+        panelImagenContenedor.setOpaque(false); // Tono morado similar al diseño
 
         lblImagenGrande = new JLabel();
         panelImagenContenedor.add(lblImagenGrande);
@@ -69,7 +69,7 @@ public class VistaProductoDetalles extends JFrame {
         // 2. Tarjeta blanca flotante de información (Lado Derecho)
         JPanel tarjetaInfo = new JPanel();
         tarjetaInfo.setLayout(new BoxLayout(tarjetaInfo, BoxLayout.Y_AXIS));
-        tarjetaInfo.setBackground(Color.WHITE);
+        tarjetaInfo.setOpaque(false);
         tarjetaInfo.setPreferredSize(new Dimension(360, 480));
         tarjetaInfo.setBorder(new EmptyBorder(20, 25, 25, 25));
 
@@ -136,7 +136,7 @@ public class VistaProductoDetalles extends JFrame {
         txtDescripcion.setText(descripcion != null && !descripcion.isEmpty() ? descripcion : "Sin descripción disponible.");
 
         if (rutaImagen == null || rutaImagen.isEmpty()) {
-            rutaImagen = "src/nexusgo/img/default.jpg";
+            rutaImagen = "src/nexusgo/img/producto1.jpg";
         }
 
         ImageIcon icon = new ImageIcon(rutaImagen);

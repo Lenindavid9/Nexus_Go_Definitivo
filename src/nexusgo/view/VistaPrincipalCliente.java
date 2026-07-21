@@ -73,7 +73,7 @@ public class VistaPrincipalCliente extends JFrame {
 
         // 4. Tarjeta Blanca Central Flotante (Como en Figma)
         panelFlotanteBlanco = new JPanel(new BorderLayout());
-        panelFlotanteBlanco.setBackground(Color.WHITE);
+        panelFlotanteBlanco.setBackground(Color.red);
         
         sidebar.setBackground(Color.WHITE);
         sidebar.setPreferredSize(new Dimension(80,0));
