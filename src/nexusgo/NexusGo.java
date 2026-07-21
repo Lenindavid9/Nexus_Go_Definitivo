@@ -19,7 +19,6 @@ public class NexusGo {
      */
     public static void main(String[] args) {
 
-        // Se crea una instancia de la ventana de inicio de sesión.
         VistaInicioSesion login = new VistaInicioSesion();
 
         /*Se crea el controlador encargado de administrar el funcionamiento
