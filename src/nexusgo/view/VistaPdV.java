@@ -191,7 +191,6 @@ public class VistaPdV extends JPanel {
         public JButton getBtnAgregar() {
             return btnAgregar;
         }
-
         public JSpinner getSpinner() {
             return spinner;
         }

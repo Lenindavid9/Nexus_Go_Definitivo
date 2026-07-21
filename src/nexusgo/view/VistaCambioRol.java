@@ -1,87 +1,63 @@
 package nexusgo.view;
 
-import java.awt.Container;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.GridLayout;
+import java.awt.Graphics;
+import java.awt.Image;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
-public class VistaCambioRol extends JFrame {
+public class VistaCambioRol extends JPanel {
 
-    private Container contenedor;
     public DefaultTableModel modelo;
-    private TitledBorder titulo;
     private JPanel datos;
     private JScrollPane miscroll;
     public JTable tabla;
-    private GridLayout grid;
     public JButton btnCerrarSesion;
-    public JComboBox unTipoRol;
-    private JLabel fondo;
-    public VistaBarraLateral miBarra;
+    public JComboBox<String> unTipoRol;
+    private Image imagenFondo;
 
     // Lista de roles
-    private String tipoRol[] = {"Cliente", "Peluquero", "Admin. Sotfware", "Admin. Peluqueria", "Supervisor", "Operario",};
+    private String tipoRol[] = {"Cliente", "Peluquero", "Admin. Software", "Admin. Peluqueria", "Supervisor", "Operario"};
 
     public VistaCambioRol() {
+        // Cargar imagen de fondo
+        ImageIcon icon = new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg");
+        this.imagenFondo = icon.getImage();
 
-        super("Administración de Usuarios");
-        contenedor = getContentPane();
+        // Configuración del layout del JPanel principal
+        this.setLayout(new BorderLayout(20, 20));
 
-        // Se utilizará BorderLayout para distribuir los paneles
-        contenedor.setLayout(new BorderLayout(20, 20));
-
-        this.fondo = new JLabel(new ImageIcon ("src/nexusgo/img/marmol_mejorado.jpg"));
-        this.fondo.setLayout(new BorderLayout(20,20));
-        this.setContentPane(fondo);
-        
         datos = new JPanel();
         datos.setBackground(Color.WHITE);
         datos.setLayout(new BorderLayout(10, 10));
 
-        /*Se crea el modelo que almacenará toda la información de la tabla.
-        El DefaultTableModel es el encargado de guardar los datos,
-        mientras que el JTable solamente se encarga de mostrarlos.*/
+        // Modelo de la tabla
         modelo = new DefaultTableModel();
-        
-        //se agg las columnas
         modelo.addColumn("NUMERO DE IDENTIDAD");
         modelo.addColumn("NOMBRE");
         modelo.addColumn("APELLIDO");
         modelo.addColumn("ROL");
         modelo.addColumn("CORREO ELECTRONICO");
 
-        /*La tabla será la encargada de mostrar la información 
-        contenida dentro del DefaultTableModel.*/
+        // Tabla
         tabla = new JTable(modelo);
 
         // ComboBox que permitirá cambiar el rol
         JComboBox<String> comboRol = new JComboBox<>(tipoRol);
 
-        // Se agrega el ComboBox únicamente a la columna "ROL"
+        // Asignar ComboBox a la columna "ROL" (Índice 3)
         tabla.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(comboRol));
 
-        // Define la altura inicial de cada fila de la tabla en 45 píxeles.
         tabla.setRowHeight(45);
-
-        /*Hace que la tabla ocupe toda la altura disponible dentro del
-        JScrollPane, incluso cuando existan pocas filas registradas.
-        Esto evita que quede un espacio vacío debajo de la información.*/
-        //tabla.setFillsViewportHeight(true);
-
-        //Color de cuando tocas un usuario
         tabla.setSelectionBackground(Color.decode("#EFB810"));
 
         // Personalización del encabezado
@@ -89,49 +65,26 @@ public class VistaCambioRol extends JFrame {
         tabla.getTableHeader().setForeground(Color.BLACK);
         tabla.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 16));
 
-        /* Esto añade barras de desplazamiento cuando
-        los datos supera el espacio dee la ventana*/
+        // ScrollPane
         miscroll = new JScrollPane(tabla);
-        
-        /*barra de desplazamiento vertical,
-        esto permite recorrer todos los registros cuando la cantidad 
-        de filas sea superior al espacio disponible.*/
         miscroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-        /* Se crea un nuevo panel utilizando BorderLayout.
-        Este panel actuará como el contenedor principal donde se
-        mostrará la información de la ventana,
-        en este caso la tabla de usuarios.*/
+        // Panel Central para la tabla
         JPanel panelCentro = new JPanel(new BorderLayout());
+        panelCentro.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        panelCentro.setOpaque(false); // Transparente para ver el fondo de mármol
+        panelCentro.add(miscroll, BorderLayout.CENTER);
 
-        /* Se agrega un margen interno de 40 píxeles en los cuatro lados
-        del panel. Esto evita que la tabla quede pegada a los bordes
-        de la ventana*/
-        panelCentro.setBorder(
-                BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        // Agregar los componentes al JPanel actual
+        this.add(panelCentro, BorderLayout.CENTER);
+    }
 
-        //conste que lo puse negro pa diferenciar cual es el fondo, luego se acomoda
-        panelCentro.setBackground(Color.BLACK);
-
-        /*Se agrega el JScrollPane al panel central.
-        Como el JScrollPane contiene la tabla, al agregar este
-        también se estará mostrando la tabla junto con
-        sus barras de desplazamiento*/
-        panelCentro.add(miscroll);
-
-        // Se agrega el panel central a la posición CENTER del BorderLayout.
-        fondo.add(panelCentro, BorderLayout.CENTER);
-        
-        miBarra = new VistaBarraLateral();
-        // Se agrega la barra lateral en la posicion OESTE del BorderLayout.
-        fondo.add(miBarra,BorderLayout.WEST);
-        
-         miBarra.bCasa.setVisible(true);       // Inicio
-        miBarra.bInventario.setVisible(true); // Ventas / Inventario
-        miBarra.misCitas.setVisible(false);    // Gestión de Citas
-
-        
-        // Se agrega el panel central a la posición CENTER del BorderLayout.
-        fondo.add(panelCentro, BorderLayout.CENTER);
+    // Dibuja la imagen de fondo abarcando todo el panel
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (imagenFondo != null) {
+            g.drawImage(imagenFondo, 0, 0, getWidth(), getHeight(), this);
+        }
     }
 }
