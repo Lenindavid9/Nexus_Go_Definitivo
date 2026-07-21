@@ -36,14 +36,6 @@ public class VistaMetododePago extends JPanel {
         VistaMdP();
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        ImageIcon img = new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg");
-        if (img.getImage() != null) {
-            g.drawImage(img.getImage(), 0, 0, getWidth(), getHeight(), this);
-        }
-    }
 
     public JPanel VistaMdP() {
         this.setLayout(new BorderLayout());
