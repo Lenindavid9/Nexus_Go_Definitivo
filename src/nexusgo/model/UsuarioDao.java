@@ -142,33 +142,33 @@ public class UsuarioDao {
 
     // LISTAR USUARIOS COMPLETO PARA JTABLE
     public List<Usuario> listarUsuarios() {
-        List<Usuario> lista = new ArrayList<>();
-        String sql = """
-                     SELECT u.numero_identificacion, u.nombre, u.apellido, r.nombre_rol AS rol, u.correo
-                     FROM usuarios u
-                     INNER JOIN roles r ON u.id_rol = r.id_rol
-                     """;
+    List<Usuario> lista = new ArrayList<>();
+    String sql = """
+                 SELECT u.numero_identificacion, u.nombre, u.apellido, r.nombre_rol AS rol, u.correo
+                 FROM usuarios u
+                 INNER JOIN roles r ON u.id_rol = r.id_rol
+                 """;
 
-        try (Connection con = conexion.getConection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+    try (Connection con = conexion.getConection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
-                Usuario u = new Usuario();
-                u.setIdentificacion(rs.getInt("numero_identificacion"));
-                u.setNombre(rs.getString("nombre"));
-                u.setApellido(rs.getString("apellido"));
-                u.setRol(rs.getString("rol"));
-                u.setCorreo(rs.getString("correo"));
+        while (rs.next()) {
+            Usuario u = new Usuario();
+            u.setIdentificacion(rs.getInt("numero_identificacion"));
+            u.setNombre(rs.getString("nombre"));
+            u.setApellido(rs.getString("apellido"));
+            u.setRol(rs.getString("rol"));
+            u.setCorreo(rs.getString("correo"));
 
-                lista.add(u);
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al listar usuarios: " + e.getMessage());
+            lista.add(u);
         }
-        return lista;
+    } catch (SQLException e) {
+        System.err.println(" ERROR SQL AL LISTAR USUARIOS:");
+        e.printStackTrace(); // <--- ESTO MOSTRARÁ LA CAUSA EXACTA EN CONSOLA
     }
-
+    return lista;
+}
     // ACTUALIZAR ROL DEL USUARIO (Subconsulta para obtener id_rol desde el nombre_rol)
     public boolean actualizarRol(String numeroIdentificacion, String nuevoRol) {
         String sql = """
@@ -229,4 +229,24 @@ public class UsuarioDao {
         }
     }
     
+    public List<Producto> listarPromociones() {
+    List<Producto> lista = new ArrayList<>();
+    String sql = """
+                 SELECT p.* 
+                 FROM productos p
+                 INNER JOIN promociones pr ON p.id_producto = pr.id_producto
+                 WHERE pr.estado = 'ACTIVA'
+                 """;
+    try (Connection con = conexion.getConection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+        
+        while (rs.next()) {
+            // Mapear campos de Producto...
+        }
+    } catch (SQLException e) {
+        System.err.println("❌ Error al listar promociones desde ProductoDao: " + e.getMessage());
+    }
+    return lista;
+}
 }

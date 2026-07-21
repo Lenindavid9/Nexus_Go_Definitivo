@@ -44,9 +44,10 @@ public class ControladorInventarioOperario implements ActionListener {
     private final JPanel contenedorCentral;
     private final Usuario usuarioLogueado;
 
-    private VistaAgregarProducto panelFormulario;
-    private VistaAgregarHerramienta panelFormularioHerramienta;
-    private VistaRegistrarSalida panelSalidaInsumo;
+    // Paneles de formulario manejados centralmente
+    private final VistaAgregarProducto panelFormulario;
+    private final VistaAgregarHerramienta panelFormularioHerramienta;
+    private final VistaRegistrarSalida panelSalidaInsumo;
 
     private final ProductoDao productoDao = new ProductoDao();
     private final HerramientaDao herramientaDao = new HerramientaDao();
@@ -57,68 +58,63 @@ public class ControladorInventarioOperario implements ActionListener {
         this.usuarioLogueado = usuarioLogueado;
         this.contenedorCentral = contenedorCentral;
 
-        try {
-            this.panelFormulario = new VistaAgregarProducto();
-            this.panelFormularioHerramienta = new VistaAgregarHerramienta();
-            this.panelSalidaInsumo = new VistaRegistrarSalida();
+        // 1. Instanciación centralizada de sub-vistas
+        this.panelFormulario = new VistaAgregarProducto();
+        this.panelFormularioHerramienta = new VistaAgregarHerramienta();
+        this.panelSalidaInsumo = new VistaRegistrarSalida();
 
-            inicializarListeners();
-            listarProductosEnTabla();
-            listarHerramientasEnTabla();
-            aplicarPermisosPorRol();
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null,
-                    "Error crítico al inicializar los módulos de inventario: " + e.getMessage(),
-                    "Error de Arranque", JOptionPane.ERROR_MESSAGE);
-        }
+        // 2. Vinculación de eventos y carga inicial
+        inicializarListeners();
+        listarProductosEnTabla();
+        listarHerramientasEnTabla();
+        aplicarPermisosPorRol();
     }
 
     private void aplicarPermisosPorRol() {
-        panelInventario.btnAgregarProducto.setVisible(true);
-        panelInventario.btnAgregarHerramienta.setVisible(true);
+        if (panelInventario.btnAgregarProducto != null) panelInventario.btnAgregarProducto.setVisible(true);
+        if (panelInventario.btnAgregarHerramienta != null) panelInventario.btnAgregarHerramienta.setVisible(true);
     }
 
     private void inicializarListeners() {
-        try {
-            this.panelInventario.btnAgregarProducto.addActionListener(this);
-            this.panelInventario.btnAgregarHerramienta.addActionListener(this);
-            this.panelInventario.cerrarSesion.addActionListener(this);
+        // Listeners del panel principal de inventario
+        if (panelInventario.btnAgregarProducto != null) panelInventario.btnAgregarProducto.addActionListener(this);
+        if (panelInventario.btnAgregarHerramienta != null) panelInventario.btnAgregarHerramienta.addActionListener(this);
+        if (panelInventario.cerrarSesion != null) panelInventario.cerrarSesion.addActionListener(this);
 
-            this.panelInventario.tablaProductos.addMouseListener(new MouseAdapter() {
+        // Listeners de tablas
+        if (panelInventario.tablaProductos != null) {
+            panelInventario.tablaProductos.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     int fila = panelInventario.tablaProductos.getSelectedRow();
-                    if (fila >= 0) {
-                        lanzarMenuDecision("Producto", fila);
-                    }
+                    if (fila >= 0) lanzarMenuDecision("Producto", fila);
                 }
             });
+        }
 
-            this.panelInventario.tablaHerramientas.addMouseListener(new MouseAdapter() {
+        if (panelInventario.tablaHerramientas != null) {
+            panelInventario.tablaHerramientas.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     int fila = panelInventario.tablaHerramientas.getSelectedRow();
-                    if (fila >= 0) {
-                        lanzarMenuDecision("Herramienta", fila);
-                    }
+                    if (fila >= 0) lanzarMenuDecision("Herramienta", fila);
                 }
             });
-
-            this.panelFormulario.btnVolver.addActionListener(this);
-            this.panelFormulario.btnEditar.addActionListener(this);
-            this.panelFormulario.btnImagen.addActionListener(this);
-
-            this.panelFormularioHerramienta.btnVolver.addActionListener(this);
-            this.panelFormularioHerramienta.btnEditar.addActionListener(this);
-            this.panelFormularioHerramienta.btnImagen.addActionListener(this);
-
-            this.panelSalidaInsumo.btnRegistrarSalida.addActionListener(this);
-            this.panelSalidaInsumo.btnVolver.addActionListener(this);
-
-        } catch (NullPointerException npe) {
-            System.err.println("Error al enlazar los listeners del controlador: " + npe.getMessage());
         }
+
+        // Listeners del formulario de productos
+        if (panelFormulario.btnVolver != null) panelFormulario.btnVolver.addActionListener(this);
+        if (panelFormulario.btnEditar != null) panelFormulario.btnEditar.addActionListener(this);
+        if (panelFormulario.btnImagen != null) panelFormulario.btnImagen.addActionListener(this);
+
+        // Listeners del formulario de herramientas
+        if (panelFormularioHerramienta.btnVolver != null) panelFormularioHerramienta.btnVolver.addActionListener(this);
+        if (panelFormularioHerramienta.btnEditar != null) panelFormularioHerramienta.btnEditar.addActionListener(this);
+        if (panelFormularioHerramienta.btnImagen != null) panelFormularioHerramienta.btnImagen.addActionListener(this);
+
+        // Listeners del formulario de salida
+        if (panelSalidaInsumo.btnRegistrarSalida != null) panelSalidaInsumo.btnRegistrarSalida.addActionListener(this);
+        if (panelSalidaInsumo.btnVolver != null) panelSalidaInsumo.btnVolver.addActionListener(this);
     }
 
     private void lanzarMenuDecision(String tipo, int fila) {
@@ -134,7 +130,7 @@ public class ControladorInventarioOperario implements ActionListener {
                 panelSalidaInsumo.txtCantidadSalida.setText("");
                 cambiarPanelCentral(this.panelSalidaInsumo);
             } else {
-                JOptionPane.showMessageDialog(panelInventario, "Las herramientas cambian por estado físico, no numérico.");
+                JOptionPane.showMessageDialog(panelInventario, "Las herramientas cambian por estado físico, no numérico.", "Aviso", JOptionPane.INFORMATION_MESSAGE);
             }
         } else if (seleccion == 1) { // Editar
             if (tipo.equals("Producto")) {
@@ -173,71 +169,61 @@ public class ControladorInventarioOperario implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        try {
-            if (e.getSource() == panelInventario.cerrarSesion) {
-                ejecutarCerrarSesion();
-            }
+        Object src = e.getSource();
 
-            if (e.getSource() == panelInventario.btnAgregarProducto) {
-                limpiarCamposFormularioProducto();
-                panelFormulario.btnEditar.setText("Guardar");
-                cambiarPanelCentral(this.panelFormulario);
+        if (src == panelInventario.cerrarSesion) {
+            ejecutarCerrarSesion();
+        } else if (src == panelInventario.btnAgregarProducto) {
+            limpiarCamposFormularioProducto();
+            panelFormulario.btnEditar.setText("Guardar");
+            cambiarPanelCentral(this.panelFormulario);
+        } else if (src == panelFormulario.btnImagen) {
+            buscarYCopiarImagen("producto");
+        } else if (src == panelFormulario.btnEditar) {
+            if ("Guardar".equals(panelFormulario.btnEditar.getText())) {
+                registrarNuevoProducto();
+            } else {
+                actualizarProducto();
             }
-
-            if (e.getSource() == panelFormulario.btnImagen) {
-                buscarYCopiarImagen("producto");
+        } else if (src == panelFormulario.btnVolver) {
+            cambiarPanelCentral(this.panelInventario);
+            listarProductosEnTabla();
+        } else if (src == panelInventario.btnAgregarHerramienta) {
+            limpiarCamposFormularioHerramienta();
+            panelFormularioHerramienta.btnEditar.setText("Guardar");
+            cambiarPanelCentral(this.panelFormularioHerramienta);
+        } else if (src == panelFormularioHerramienta.btnImagen) {
+            buscarYCopiarImagen("herramienta");
+        } else if (src == panelFormularioHerramienta.btnEditar) {
+            if ("Guardar".equals(panelFormularioHerramienta.btnEditar.getText())) {
+                registrarNuevaHerramienta();
+            } else {
+                actualizarHerramienta();
             }
-
-            if (e.getSource() == panelFormulario.btnEditar) {
-                if (panelFormulario.btnEditar.getText().equals("Guardar")) {
-                    registrarNuevoProducto();
-                } else {
-                    actualizarProducto();
-                }
-            }
-
-            if (e.getSource() == panelFormulario.btnVolver) {
-                cambiarPanelCentral(this.panelInventario);
-                listarProductosEnTabla();
-            }
-
-            if (e.getSource() == panelInventario.btnAgregarHerramienta) {
-                limpiarCamposFormularioHerramienta();
-                panelFormularioHerramienta.btnEditar.setText("Guardar");
-                cambiarPanelCentral(this.panelFormularioHerramienta);
-            }
-
-            if (e.getSource() == panelFormularioHerramienta.btnImagen) {
-                buscarYCopiarImagen("herramienta");
-            }
-
-            if (e.getSource() == panelFormularioHerramienta.btnEditar) {
-                if (panelFormularioHerramienta.btnEditar.getText().equals("Guardar")) {
-                    registrarNuevaHerramienta();
-                } else {
-                    actualizarHerramienta();
-                }
-            }
-
-            if (e.getSource() == panelFormularioHerramienta.btnVolver) {
-                cambiarPanelCentral(this.panelInventario);
-                listarHerramientasEnTabla();
-            }
-
-            if (e.getSource() == panelSalidaInsumo.btnRegistrarSalida) {
-                ejecutarRestaDeStock();
-            }
-
-            if (e.getSource() == panelSalidaInsumo.btnVolver) {
-                cambiarPanelCentral(this.panelInventario);
-                listarProductosEnTabla();
-            }
-
-        } catch (Exception ex) {
-            System.err.println("Error de control en eventos: " + ex.getMessage());
+        } else if (src == panelFormularioHerramienta.btnVolver) {
+            cambiarPanelCentral(this.panelInventario);
+            listarHerramientasEnTabla();
+        } else if (src == panelSalidaInsumo.btnRegistrarSalida) {
+            ejecutarRestaDeStock();
+        } else if (src == panelSalidaInsumo.btnVolver) {
+            cambiarPanelCentral(this.panelInventario);
+            listarProductosEnTabla();
         }
     }
 
+    private void cambiarPanelCentral(JPanel panelNuevo) {
+        if (contenedorCentral != null) {
+            contenedorCentral.removeAll();
+            contenedorCentral.setLayout(new BorderLayout());
+            contenedorCentral.add(panelNuevo, BorderLayout.CENTER);
+            contenedorCentral.revalidate();
+            contenedorCentral.repaint();
+        } else {
+            System.err.println("Error: 'contenedorCentral' es nulo en el controlador.");
+        }
+    }
+
+    // Métodos auxiliares CRUD (sin cambios estructurales necesarios)
     private void ejecutarRestaDeStock() {
         try {
             int cantidadARestar = Integer.parseInt(panelSalidaInsumo.txtCantidadSalida.getText().trim());
@@ -384,8 +370,13 @@ public class ControladorInventarioOperario implements ActionListener {
                 String prefijo = tipoModulo.equals("producto") ? "prod_" : "herr_";
                 String nombreLimpio = System.currentTimeMillis() + "_" + prefijo + nombreOriginal.replaceAll("\\s+", "_");
 
-                Path destino = Paths.get("src/nexusgo/img/" + nombreLimpio);
-                Files.createDirectories(destino.getParent());
+                // Crear carpeta externa si no existe para asegurar persistencia fuera del archivo JAR
+                Path directorioDestino = Paths.get("img");
+                if (!Files.exists(directorioDestino)) {
+                    Files.createDirectories(directorioDestino);
+                }
+
+                Path destino = directorioDestino.resolve(nombreLimpio);
                 Files.copy(archivoSeleccionado.toPath(), destino, StandardCopyOption.REPLACE_EXISTING);
 
                 if (tipoModulo.equals("producto")) {
@@ -474,22 +465,6 @@ public class ControladorInventarioOperario implements ActionListener {
             new ControladorInicioSesion(loginVista);
             loginVista.setLocationRelativeTo(null);
             loginVista.setVisible(true);
-        }
-    }
-
-    private void cambiarPanelCentral(JPanel panelNuevo) {
-        try {
-            if (contenedorCentral != null) {
-                contenedorCentral.removeAll();
-                contenedorCentral.setLayout(new BorderLayout());
-                contenedorCentral.add(panelNuevo, BorderLayout.CENTER);
-                contenedorCentral.revalidate();
-                contenedorCentral.repaint();
-            } else {
-                System.err.println("Error: No se puede cambiar de sub-vista debido a que 'contenedorCentral' es nulo.");
-            }
-        } catch (Exception e) {
-            System.err.println("Error en enrutador de vistas: " + e.getMessage());
         }
     }
 }

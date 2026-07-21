@@ -25,9 +25,9 @@ import javax.swing.border.EmptyBorder;
  *
  * @author HOME
  */
-public class VistaProductoDetalles extends JFrame {
+public class VistaProductoDetalles extends JPanel {
 
-    public VistaBarraLateral sidebar;
+    
     public JButton btnVolver;
     private JLabel lblImagenGrande;
     private JLabel lblNombreProducto;
@@ -42,12 +42,7 @@ public class VistaProductoDetalles extends JFrame {
     public VistaProductoDetalles() {
         this.setLayout(new BorderLayout());
 
-        // Instanciamos la barra lateral para la vista de detalle
-        sidebar = new VistaBarraLateral();
-        sidebar.setPreferredSize(new Dimension(80, 680));
-        sidebar.setOpaque(true);
-        sidebar.setBorder(new EmptyBorder(100, 10, 20, 10));
-        sidebar.bInventario.setVisible(false);
+     
 
         // Panel contenedor central
         JPanel panelContenedorCentral = new JPanel(new GridBagLayout());
@@ -122,7 +117,6 @@ public class VistaProductoDetalles extends JFrame {
 
         panelContenedorCentral.add(panelDetalleLayout);
 
-        this.add(sidebar, BorderLayout.WEST);
         this.add(panelContenedorCentral, BorderLayout.CENTER);
     }
 

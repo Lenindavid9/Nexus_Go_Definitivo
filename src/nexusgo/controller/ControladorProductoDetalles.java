@@ -35,9 +35,7 @@ public class ControladorProductoDetalles implements ActionListener {
 
         // Asignación de eventos a los botones de volver y a la barra lateral
         this.vistaDetalles.btnVolver.addActionListener(this);
-        this.vistaDetalles.sidebar.bCasa.addActionListener(this);
-        //this.vistaDetalles.sidebar.btnHistorial.addActionListener(this);
-        this.vistaDetalles.sidebar.misCitas.addActionListener(this);
+        
 
         // Carga de la información del producto
         cargarInformacionProducto();
@@ -78,11 +76,7 @@ public class ControladorProductoDetalles implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         // Volver al catálogo principal
-        if (e.getSource() == vistaDetalles.btnVolver || e.getSource() == vistaDetalles.sidebar.bCasa) {
-            this.vistaPadre.restaurarComponentesTienda();
-            new ControladorPrincipalCliente(this.vistaPadre);
-        }
-
+       
         // Ir al historial de compras
 //        if (e.getSource() == vistaDetalles.sidebar.btnHistorial) {
 //            JOptionPane.showMessageDialog(vistaPadre, 
@@ -92,11 +86,6 @@ public class ControladorProductoDetalles implements ActionListener {
 //        }
 
         // Ir a la sección de mis citas
-        if (e.getSource() == vistaDetalles.sidebar.misCitas) {
-            JOptionPane.showMessageDialog(vistaPadre, 
-                    "Cargando citas agendadas...", 
-                    "Mis Citas", 
-                    JOptionPane.INFORMATION_MESSAGE);
-        }
+        
     }
 }

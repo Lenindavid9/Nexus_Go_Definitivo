@@ -17,27 +17,28 @@ import nexusgo.view.VistaCambioRol;
  * @author USUARIO
  */
 public class ControladorCambioRol {
+    
     private final VistaCambioRol vista;
     private final UsuarioDao usuarioDAO;
-    private boolean cargando = false; // Bandera para evitar bucles de eventos al repoblar la tabla
+    private boolean cargando = false; // Bandera para omitir eventos cuando la tabla se está poblando
 
     public ControladorCambioRol(VistaCambioRol vista) {
         this.vista = vista;
         this.usuarioDAO = new UsuarioDao();
 
-        // 1. Cargar los usuarios desde la BD a la JTable
+        // 1. Cargar usuarios al inicializar el controlador
         cargarUsuarios();
 
-        // 2. Escuchar la edición directa en la celda del ROL
+        // 2. Escuchar la edición directa en la celda de la columna ROL (Índice 3)
         this.vista.getModelo().addTableModelListener(new TableModelListener() {
             @Override
             public void tableChanged(TableModelEvent e) {
-                // Si la tabla se está poblando o no es un evento de actualización, ignorar
+                // Ignorar si la tabla apenas se está llenando o si no es un evento de actualización
                 if (cargando || e.getType() != TableModelEvent.UPDATE) {
                     return;
                 }
 
-                // La columna 3 corresponde al ROL en la JTable
+                // Columna 3 = ROL
                 if (e.getColumn() == 3) {
                     int fila = e.getFirstRow();
 
@@ -55,21 +56,20 @@ public class ControladorCambioRol {
                     );
 
                     if (opcion == JOptionPane.YES_OPTION) {
-                        // Llama al DAO con la subconsulta de la base de datos
                         boolean ok = usuarioDAO.actualizarRol(numIdentificacion, nuevoRol);
 
                         if (ok) {
                             JOptionPane.showMessageDialog(vista, 
-                                    "Rol actualizado con éxito en la base de datos.", 
+                                    "Rol actualizado con éxito.", 
                                     "Éxito", JOptionPane.INFORMATION_MESSAGE);
                         } else {
                             JOptionPane.showMessageDialog(vista, 
                                     "No se pudo actualizar el rol en la base de datos.", 
                                     "Error BD", JOptionPane.ERROR_MESSAGE);
-                            cargarUsuarios(); // Revertir a los valores originales de la BD
+                            cargarUsuarios(); // Restaurar valor previo
                         }
                     } else {
-                        cargarUsuarios(); // Cancelado por el usuario, reestablece el valor previo
+                        cargarUsuarios(); // Restaurar valor previo en caso de cancelación
                     }
                 }
             }
@@ -77,16 +77,21 @@ public class ControladorCambioRol {
     }
 
     /**
-     * Consulta los usuarios en la base de datos a través de UsuarioDao
-     * y llena la JTable en la vista.
+     * Consulta los usuarios a través de UsuarioDao y actualiza el DefaultTableModel de la vista.
      */
     public final void cargarUsuarios() {
-        cargando = true; // Activa la bandera para silenciar el listener temporalmente
-        vista.getModelo().setRowCount(0); // Limpia la tabla
+        cargando = true; // Desactiva temporalmente el listener
+        vista.getModelo().setRowCount(0); // Limpia filas viejas
 
         List<Usuario> lista = usuarioDAO.listarUsuarios();
 
-        if (lista != null && !lista.isEmpty()) {
+        // Mensaje de depuración en consola para verificar qué retorna el DAO
+        if (lista == null) {
+            System.err.println("⚠️ [ControladorCambioRol]: La consulta retornó NULL. Revisa la conexión o la sintaxis SQL.");
+        } else if (lista.isEmpty()) {
+            System.out.println("ℹ️ [ControladorCambioRol]: La base de datos no devolvió registros.");
+        } else {
+            System.out.println("✅ [ControladorCambioRol]: Cargados " + lista.size() + " usuarios correctamente.");
             for (Usuario u : lista) {
                 Object[] fila = new Object[]{
                     u.getIdentificacion(),
@@ -98,6 +103,8 @@ public class ControladorCambioRol {
                 vista.getModelo().addRow(fila);
             }
         }
-        cargando = false; // Desactiva la bandera para reanudar la escucha de eventos
+        
+        cargando = false; // Reactiva la escucha de eventos
     }
+    
 }
