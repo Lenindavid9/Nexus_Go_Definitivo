@@ -23,6 +23,7 @@ import nexusgo.model.ProductoDao;
 import nexusgo.model.Usuario;
 import nexusgo.view.AperturaCierre;
 import nexusgo.view.PanelBienvenida;
+import nexusgo.view.VistaInicioSesion;
 import nexusgo.view.VistaInventarioSupervisor;
 import nexusgo.view.VistaPdV;
 import nexusgo.view.VistaPrincipalSupervisor;
@@ -37,7 +38,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
    private final VistaPrincipalSupervisor vistaPrincipal;
     private VistaInventarioSupervisor panelInventario;
     private VistaProgramarMantenimiento panelProgramarMantenimiento;
-    
+
     // --- Instancia del panel AperturaCierre ---
     private AperturaCierre panelAperturaCierre;
 
@@ -57,7 +58,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             // Inicialización de las vistas del módulo
             this.panelInventario = new VistaInventarioSupervisor();
             this.panelProgramarMantenimiento = new VistaProgramarMantenimiento();
-            
+
             // Inicializar Vista de Caja
             this.panelAperturaCierre = new AperturaCierre();
 
@@ -71,7 +72,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             vistaPrincipal.setTitle("Sistema NexusGO - Panel de Supervisión: " + usuarioLogueado.getNombre());
 
             // Panel de inicio por defecto
-            cambiarPanelCentral(new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol()));
+            mostrarInicio();
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null,
@@ -87,7 +88,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             this.vistaPrincipal.sidebar.bInventario.addActionListener(this);
             this.vistaPrincipal.sidebar.misCitas.addActionListener(this);
             this.vistaPrincipal.btnCerrarSesion.addActionListener(this);
-            
+
             // Registrar el botón Caja
             if (this.vistaPrincipal.btnCaja != null) {
                 this.vistaPrincipal.btnCaja.addActionListener(this);
@@ -154,12 +155,25 @@ public class ControladorPrincipalSupervisor implements ActionListener {
         }
     }
 
+    /**
+     * Muestra la pantalla inicial (Panel de Bienvenida) garantizando 
+     * un repintado correcto dentro del contenedor dinámico.
+     */
+    private void mostrarInicio() {
+        PanelBienvenida bienvenida = new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol());
+        cambiarPanelCentral(bienvenida);
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
             // --- EVENTOS DE NAVEGACIÓN ---
             if (e.getSource() == vistaPrincipal.sidebar.bCasa) {
-                vistaPrincipal.restaurarVistaInicial();
+                mostrarInicio();
+            }
+            
+            if (e.getSource() == vistaPrincipal.btnCerrarSesion) {
+                ejecutarCerrarSesion();
             }
 
             // --- ABRIR LA VISTA DEL PUNTO DE VENTA (PdV) ---
@@ -177,16 +191,16 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 if (listaProductos != null && !listaProductos.isEmpty()) {
                     for (Producto p : listaProductos) {
                         String precioFormateado = String.format("$%.0f", p.getPrecioCompra());
-                        
-                        String imagen = (p.getUrlImagen() != null && !p.getUrlImagen().isEmpty()) 
-                                        ? p.getUrlImagen() 
-                                        : "tratamiento.png";
+
+                        String imagen = (p.getUrlImagen() != null && !p.getUrlImagen().isEmpty())
+                                ? p.getUrlImagen()
+                                : "tratamiento.png";
 
                         vistaPdV.agregarTarjeta(
-                            p.getNombreProducto(), 
-                            precioFormateado, 
-                            p.getStockActual(), 
-                            imagen
+                                p.getNombreProducto(),
+                                precioFormateado,
+                                p.getStockActual(),
+                                imagen
                         );
                     }
                 }
@@ -328,19 +342,29 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             System.err.println("Error al listar herramientas: " + e.getMessage());
         }
     }
-    
+
     private void cambiarPanelCentral(JPanel panelNuevo) {
+        JPanel contenedor = vistaPrincipal.getContenidoCentralDinamico();
 
-    JPanel contenedor = vistaPrincipal.getContenidoCentralDinamico();
+        if (contenedor != null) {
+            contenedor.removeAll();
+            contenedor.setLayout(new BorderLayout());
+            contenedor.add(panelNuevo, BorderLayout.CENTER);
+            contenedor.revalidate();
+            contenedor.repaint();
+        }
+    }
+    
+    private void ejecutarCerrarSesion() {
+        int confirmar = JOptionPane.showConfirmDialog(null, "¿Desea cerrar sesión en NEXUS GO?", "Cerrar Sesión", JOptionPane.YES_NO_OPTION);
+        if (confirmar == JOptionPane.YES_OPTION) {
+            vistaPrincipal.dispose();
 
-    contenedor.removeAll();
-    contenedor.setLayout(new BorderLayout());
+            VistaInicioSesion loginVista = new VistaInicioSesion();
+            new ControladorInicioSesion(loginVista);
+            loginVista.setLocationRelativeTo(null);
+            loginVista.setVisible(true);
+        }
+    }
 
-    contenedor.add(panelNuevo, BorderLayout.CENTER);
-
-    contenedor.revalidate();
-    contenedor.repaint();
-}
-
-   
 }

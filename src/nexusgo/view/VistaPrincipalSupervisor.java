@@ -44,7 +44,7 @@ public class VistaPrincipalSupervisor extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setMinimumSize(new Dimension(1024, 600));
 
-        // 1. Fondo de mármol
+        // 1. Fondo principal
         this.fondo = new JLabel(new ImageIcon("src/nexusgo/img/fondoprincipal.jpg"));
         this.fondo.setLayout(new GridBagLayout());
         this.setContentPane(fondo);
@@ -53,7 +53,7 @@ public class VistaPrincipalSupervisor extends JFrame {
         panelContenedorFlotante = new JPanel(new BorderLayout());
         panelContenedorFlotante.setOpaque(false);
 
-        // 3. BARRA LATERAL (Va directamente a la WEST para ocupar el 100% de la altura)
+        // 3. BARRA LATERAL (West)
         sidebar = new VistaBarraLateral();
         sidebar.setPreferredSize(new Dimension(180, Integer.MAX_VALUE));
         sidebar.setMinimumSize(new Dimension(180, 0));
@@ -61,21 +61,22 @@ public class VistaPrincipalSupervisor extends JFrame {
         sidebar.setBorder(new EmptyBorder(20, 10, 20, 10));
 
         btnCaja = new JButton(new ImageIcon("src/nexusgo/img/caja.png"));
-        btnCaja.setBorderPainted(false);   // Quita el borde
-        btnCaja.setContentAreaFilled(false); // Quita el fondo
-        btnCaja.setFocusPainted(false);    // Quita el resaltado al hacer clic
+        btnCaja.setBorderPainted(false);
+        btnCaja.setContentAreaFilled(false);
+        btnCaja.setFocusPainted(false);
         btnCaja.setOpaque(false);
         sidebar.add(btnCaja);
 
-        sidebar.bCasa.setVisible(true);       // Inicio
-        sidebar.bInventario.setVisible(true); // Ventas / Inventario
-        sidebar.misCitas.setVisible(true);    // Gestión de Citas
+        // Visibilidad de opciones del menú
+        sidebar.bCasa.setVisible(true);        // Inicio
+        sidebar.bInventario.setVisible(false); // Oculto para supervisor
+        sidebar.misCitas.setVisible(true);     // Gestión de Citas
 
-        // 4. PANEL DERECHO COMPLETO (Contendrá la barra superior con el botón + el contenido central)
+        // 4. PANEL DERECHO COMPLETO
         panelDerechoCompleto = new JPanel(new BorderLayout());
         panelDerechoCompleto.setOpaque(false);
 
-        // Header solo para el lado derecho (Botón en la esquina superior derecha)
+        // Header (Cerrar Sesión arriba a la derecha)
         panelSuperiorDerecho = new JPanel(new FlowLayout(FlowLayout.RIGHT, 30, 20));
         panelSuperiorDerecho.setOpaque(false);
 
@@ -91,15 +92,16 @@ public class VistaPrincipalSupervisor extends JFrame {
         contenidoCentralDinamico = new JPanel(new BorderLayout());
         contenidoCentralDinamico.setOpaque(false);
         contenidoCentralDinamico.setBorder(new EmptyBorder(10, 40, 30, 40));
-        contenidoCentralDinamico.setOpaque(false);
-        contenidoCentralDinamico.setBorder(new EmptyBorder(10, 40, 30, 40));
 
+        // Instanciación del Panel de Bienvenida con los datos del usuario
         panelBienvenida = new PanelBienvenida(nombreUsuario, rolUsuario);
         panelBienvenida.setMaximumSize(new Dimension(Short.MAX_VALUE, 400));
         panelBienvenida.setOpaque(false);
 
+        // AHORA SÍ: Llamamos a restaurar la vista inicial con todos los componentes listos
         restaurarVistaInicial();
 
+        // Scroll central
         scrollContenido = new JScrollPane(contenidoCentralDinamico);
         scrollContenido.setOpaque(false);
         scrollContenido.getViewport().setOpaque(false);
@@ -113,39 +115,35 @@ public class VistaPrincipalSupervisor extends JFrame {
         panelDerechoCompleto.add(scrollContenido, BorderLayout.CENTER);
 
         // 7. ENSAMBLAJE FINAL DE LA VENTANA
-        panelContenedorFlotante.add(sidebar, BorderLayout.WEST);              // Sidebar abarca arriba-abajo en la izquierda
-        panelContenedorFlotante.add(panelDerechoCompleto, BorderLayout.CENTER); // Resto del contenido a la derecha
+        panelContenedorFlotante.add(sidebar, BorderLayout.WEST);
+        panelContenedorFlotante.add(panelDerechoCompleto, BorderLayout.CENTER);
 
         this.getContentPane().setLayout(new BorderLayout());
         this.getContentPane().add(panelContenedorFlotante, BorderLayout.CENTER);
 
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
-        setMinimumSize(new Dimension(1024, 600));
-        setLocationRelativeTo(null);
     }
 
     /**
-     * Limpia el contenedor central dinámico y reestablece el estado inicial del
-     * Supervisor (Bienvenida y cierre de sesión).
+     * Limpia el contenedor central dinámico y reestablece la vista principal de Inicio.
      */
     public void restaurarVistaInicial() {
-
         contenidoCentralDinamico.removeAll();
 
         JPanel panelInicio = new JPanel();
         panelInicio.setOpaque(false);
         panelInicio.setLayout(new BoxLayout(panelInicio, BoxLayout.Y_AXIS));
 
-        panelBienvenida.setAlignmentX(CENTER_ALIGNMENT);
-        btnCerrarSesion.setAlignmentX(CENTER_ALIGNMENT);
-
-        panelInicio.add(panelBienvenida);
-        panelInicio.add(Box.createVerticalStrut(25));
+        if (panelBienvenida != null) {
+            panelBienvenida.setAlignmentX(CENTER_ALIGNMENT);
+            panelInicio.add(panelBienvenida);
+        }
         
+        panelInicio.add(Box.createVerticalStrut(25));
 
-        contenidoCentralDinamico.add(panelInicio, BorderLayout.CENTER);
+        // Usamos BorderLayout.NORTH para evitar que BoxLayout se colapse verticalmente
+        contenidoCentralDinamico.setLayout(new BorderLayout());
+        contenidoCentralDinamico.add(panelInicio, BorderLayout.NORTH);
 
         contenidoCentralDinamico.revalidate();
         contenidoCentralDinamico.repaint();
@@ -154,5 +152,6 @@ public class VistaPrincipalSupervisor extends JFrame {
     public JPanel getContenidoCentralDinamico() {
         return contenidoCentralDinamico;
     }
+    
 
 }
