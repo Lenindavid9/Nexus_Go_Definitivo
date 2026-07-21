@@ -23,11 +23,29 @@ public class VistaBarraLateral extends JPanel {
     public JButton bCasa, bInventario, misCitas;
 
     public VistaBarraLateral() {
-        setLayout(new GridLayout(7, 1, 10, 10));
+        setLayout(new GridLayout(4, 1, 10, 10));
 
-        bCasa = new JButton("Inicio");
-        bInventario = new JButton("Ventas");
-        misCitas = new JButton("Inventario");
+        bCasa = new JButton(new ImageIcon("src/nexusgo/img/inicio.png"));
+        bCasa.setBorderPainted(false);   // Quita el borde
+        bCasa.setContentAreaFilled(false); // Quita el fondo
+        bCasa.setFocusPainted(false);    // Quita el resaltado al hacer clic
+        bCasa.setOpaque(false);          // Transparente
+        
+        misCitas = new JButton(new ImageIcon("src/nexusgo/img/inventario.png"));
+        misCitas.setBorderPainted(false);
+        misCitas.setContentAreaFilled(false);
+        misCitas.setFocusPainted(false);
+        misCitas.setOpaque(false);
+
+        bInventario = new JButton(new ImageIcon("src/nexusgo/img/.png"));
+        bInventario.setBorderPainted(false);
+        bInventario.setContentAreaFilled(false);
+        bInventario.setFocusPainted(false);
+        bInventario.setOpaque(false);
+        bInventario.setVisible(false);
+
+        
+
 
         add(bCasa);
         add(bInventario);
