@@ -118,16 +118,45 @@ public class VistaPrincipalSupervisor extends JFrame {
         this.getContentPane().add(panelContenedorFlotante, BorderLayout.CENTER);
 
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setMinimumSize(new Dimension(1024, 600));
+        setLocationRelativeTo(null);
     }
 
+    /**
+     * Limpia el contenedor central dinámico y reestablece el estado inicial del
+     * Supervisor (Bienvenida y cierre de sesión).
+     */
     public void restaurarVistaInicial() {
+
         contenidoCentralDinamico.removeAll();
-        contenidoCentralDinamico.add(panelBienvenida);
+
+        JPanel panelInicio = new JPanel();
+        panelInicio.setOpaque(false);
+        panelInicio.setLayout(new BoxLayout(panelInicio, BoxLayout.Y_AXIS));
+
+        panelBienvenida.setAlignmentX(CENTER_ALIGNMENT);
+        btnCerrarSesion.setAlignmentX(CENTER_ALIGNMENT);
+
+        panelInicio.add(panelBienvenida);
+        panelInicio.add(Box.createVerticalStrut(25));
+        panelInicio.add(btnCerrarSesion);
+
+        contenidoCentralDinamico.add(panelInicio, BorderLayout.CENTER);
+
         contenidoCentralDinamico.revalidate();
         contenidoCentralDinamico.repaint();
     }
+    
+    
+    
 
     public JPanel getContenidoCentralDinamico() {
         return contenidoCentralDinamico;
     }
+    
+    
+    
+
 }

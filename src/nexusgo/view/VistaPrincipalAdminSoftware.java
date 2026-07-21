@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package nexusgo.view;
+
 import java.awt.BorderLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -11,10 +12,10 @@ import javax.swing.JPanel;
  *
  * @author USUARIO
  */
-public class VistaPrincipalAdminSoftware extends JFrame{
-    
+public class VistaPrincipalAdminSoftware extends JFrame {
+
     public VistaBarraLateral sidebar;
-    
+
     // Este panel será el contenedor dinámico donde se meterán los módulos
     private JPanel contenido;
 
@@ -24,11 +25,14 @@ public class VistaPrincipalAdminSoftware extends JFrame{
 
         // 1. Inicializar y posicionar la barra lateral a la izquierda (WEST)
         sidebar = new VistaBarraLateral();
-        
+
         // Configuramos la barra lateral para dejar solo los 2 botones que necesitas
         sidebar.bCasa.setText("Inicio");
         sidebar.bInventario.setText("Cambio Rol"); // Redirigido a la clase VistaCambioRol
-        
+        sidebar.bCasa.setVisible(true);       // Inicio
+        sidebar.bInventario.setVisible(true); // Ventas / Inventario
+        sidebar.misCitas.setVisible(false);    // Gestión de Citas
+
         add(sidebar, BorderLayout.WEST);
 
         // Inicializar el panel 'contenido' explícitamente con BorderLayout
@@ -62,5 +66,5 @@ public class VistaPrincipalAdminSoftware extends JFrame{
     public JPanel getContenedorCentral() {
         return this.contenido;
     }
-    
+
 }

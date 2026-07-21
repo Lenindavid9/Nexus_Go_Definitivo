@@ -307,4 +307,24 @@ public class VistaFactura extends JPanel {
             lblEstado.setText("Cliente General");
         }
     }
+    
+    public JButton getBtnImprimir() {
+        return btnImprimir;
+    }
+
+    public JButton getBtnEnviar() {
+        return btnEnviar;
+    }
+
+    public JButton getBtnAnular() {
+        return btnAnular;
+    }
+
+    public JButton getBtnGuardarN() {
+        return btnGuardarN;
+    }
+
+    public JTextArea getTxtNota() {
+        return txtNota;
+    }
 }

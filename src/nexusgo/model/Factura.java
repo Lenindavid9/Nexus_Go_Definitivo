@@ -3,14 +3,16 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package nexusgo.model;
+
 import java.util.Date;
+import java.util.List;
 
 /**
  *
  * @author INGRID
  */
 public class Factura {
-    
+
     private int idFactura;
     private int idVenta;
     private int idCliente;
@@ -19,9 +21,9 @@ public class Factura {
     private double descuentoAplicado;
     private double total;
     private Date fechaEmision;
+    private List<DetalleCarrito> detalles;
 
-    // Constructor completo
-    public Factura(int idFactura, int idVenta, int idCliente, int idCaja, double subtotal, double descuentoAplicado, double total, Date fechaEmision) {
+    public Factura(int idFactura, int idVenta, int idCliente, int idCaja, double subtotal, double descuentoAplicado, double total, Date fechaEmision, List<DetalleCarrito> detalles) {
         this.idFactura = idFactura;
         this.idVenta = idVenta;
         this.idCliente = idCliente;
@@ -30,13 +32,11 @@ public class Factura {
         this.descuentoAplicado = descuentoAplicado;
         this.total = total;
         this.fechaEmision = fechaEmision;
+        this.detalles = detalles;
     }
 
-    // Constructor vacío (Esencial para DAOs/Mapeos de base de datos)
     public Factura() {
     }
-
-    // --- GETTERS Y SETTERS ---
 
     public int getIdFactura() {
         return idFactura;
@@ -102,22 +102,36 @@ public class Factura {
         this.fechaEmision = fechaEmision;
     }
 
-    // Alias para compatibilidad directa con la VistaFactura
+    // Alias para compatibilidad
     public Date getFechaVenta() {
         return fechaEmision;
     }
 
+    // Alias para compatibilidad
+    public void setFechaVenta(Date fechaVenta) {
+        this.fechaEmision = fechaVenta;
+    }
+
+    public List<DetalleCarrito> getDetalles() {
+        return detalles;
+    }
+
+    public void setDetalles(List<DetalleCarrito> detalles) {
+        this.detalles = detalles;
+    }
+
     @Override
     public String toString() {
-        return "Factura{" +
-                "idFactura=" + idFactura +
-                ", idVenta=" + idVenta +
-                ", idCliente=" + idCliente +
-                ", idCaja=" + idCaja +
-                ", subtotal=" + subtotal +
-                ", descuentoAplicado=" + descuentoAplicado +
-                ", total=" + total +
-                ", fechaEmision=" + fechaEmision +
-                '}';
+        return "Factura{"
+                + "idFactura=" + idFactura
+                + ", idVenta=" + idVenta
+                + ", idCliente=" + idCliente
+                + ", idCaja=" + idCaja
+                + ", subtotal=" + subtotal
+                + ", descuentoAplicado=" + descuentoAplicado
+                + ", total=" + total
+                + ", fechaEmision=" + fechaEmision
+                + ", detalles=" + detalles
+                + '}';
     }
 }
