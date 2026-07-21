@@ -3,19 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaCambioRol.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaPrincipalSupervisor.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorRegistroDeUsuarios.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/NexusGo.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/model/Producto.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaPrincipalCliente.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorPrincipalCliente.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaHistorialCita.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/model/ProductoDao.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorDetallesProducto.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorValidarIdentificacion.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/model/Conexion.java</file>
-            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/PanelAdmi.java</file>
+            <file>file:/C:/Users/INGRID/OneDrive%20-%20Universidad%20Autonoma%20de%20Occidente/Documentos/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/HistorialPagos.java</file>
+            <file>file:/C:/Users/INGRID/OneDrive%20-%20Universidad%20Autonoma%20de%20Occidente/Documentos/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/NexusGo.java</file>
+            <file>file:/C:/Users/INGRID/OneDrive%20-%20Universidad%20Autonoma%20de%20Occidente/Documentos/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaFactura.java</file>
+            <file>file:/C:/Users/INGRID/OneDrive%20-%20Universidad%20Autonoma%20de%20Occidente/Documentos/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaPrincipalCliente.java</file>
         </group>
     </open-files>
 </project-private>

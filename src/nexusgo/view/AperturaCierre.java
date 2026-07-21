@@ -217,11 +217,13 @@ public class AperturaCierre extends JPanel {
         lblMontoF.setFont(new Font("SansSerif", Font.PLAIN, 17));
         lblMontoF.setAlignmentX(Component.LEFT_ALIGNMENT);
         
+        
         txtMontoF = new JTextField("$");
         txtMontoF.setFont(new Font("SansSerif", Font.PLAIN, 15));
         txtMontoF.setPreferredSize(new Dimension(320, 40));   
         txtMontoF.setMaximumSize(new Dimension(320, 40));     
         txtMontoF.setAlignmentX(Component.LEFT_ALIGNMENT); 
+        
         
         btnCalcular = new JButton("Calcular Cierre");
         btnCalcular.setFont(new Font("SansSerif", Font.PLAIN, 16));
@@ -231,13 +233,14 @@ public class AperturaCierre extends JPanel {
         btnCalcular.setPreferredSize(new Dimension(150, 40)); 
         btnCalcular.setBorder(null);
         
+        
         infoConfirmacion.add(Box.createVerticalGlue());
         infoConfirmacion.add(tituloConf);
         infoConfirmacion.add(lblsubConf);
         infoConfirmacion.add(Box.createVerticalGlue());
         
-        confirmacion.add(infoConfirmacion);
         
+        confirmacion.add(infoConfirmacion);
         CalcularC.add(Box.createVerticalGlue());  
         CalcularC.add(lblMontoF);
         CalcularC.add(Box.createVerticalStrut(10));

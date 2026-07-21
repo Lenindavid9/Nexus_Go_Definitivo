@@ -43,7 +43,7 @@ public class VistaPrincipalCliente extends JFrame {
     public JButton btnCerrarSesion;
     public JButton btnHistorial;
     public JLabel lblBienvenida;
-    public VistaBarraLateral sidebar;
+//    public VistaBarraLateral sidebar;
 
     public VistaPrincipalCliente() {
         this("Cliente", "Cliente");
@@ -55,6 +55,8 @@ public class VistaPrincipalCliente extends JFrame {
         // 1. Fondo de Mármol
         this.fondoMarmol = new JLabel(new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg"));
         this.fondoMarmol.setLayout(new GridBagLayout()); // Centra el contenedor interno
+        this.fondoMarmol = new JLabel(new ImageIcon("src/nexusgo/img/fondocliente.jpg"));
+        this.fondoMarmol.setLayout(new BorderLayout()); // Centra el contenedor interno
         this.setContentPane(fondoMarmol);
 
         // 2. Contenedor Principal (Marco transparente que une Sidebar + Tarjeta Blanca)
@@ -63,26 +65,39 @@ public class VistaPrincipalCliente extends JFrame {
         contenedorEstructural.setOpaque(false);
 
         // 3. Barra Lateral (Sidebar)
-        sidebar = new VistaBarraLateral();
-        sidebar.setPreferredSize(new Dimension(70, 650));
-        sidebar.setOpaque(false);
-        if (sidebar.bInventario != null) sidebar.bInventario.setVisible(false);
-        if (sidebar.misCitas != null) sidebar.misCitas.setVisible(true);
+//        sidebar = new VistaBarraLateral();
+//<<<<<<< HEAD
+//        sidebar.setPreferredSize(new Dimension(70, 650));
+//        sidebar.setOpaque(false);
+//        if (sidebar.bInventario != null) sidebar.bInventario.setVisible(false);
+//        if (sidebar.misCitas != null) sidebar.misCitas.setVisible(true);
 
         // 4. Tarjeta Blanca Central Flotante (Como en Figma)
         panelFlotanteBlanco = new JPanel(new BorderLayout());
         panelFlotanteBlanco.setBackground(Color.WHITE);
+//        
+//        sidebar.setBackground(Color.WHITE);
+//        sidebar.setPreferredSize(new Dimension(80,0));
+//        if (sidebar.bInventario != null) sidebar.bInventario.setVisible(false);
+//        if (sidebar.misCitas != null) sidebar.misCitas.setVisible(true);
+        
+
+        // 4. Tarjeta Blanca Central Flotante (Como en Figma)
+        panelFlotanteBlanco = new JPanel(new BorderLayout());
+        panelFlotanteBlanco.setOpaque(false);
         panelFlotanteBlanco.setBorder(new EmptyBorder(15, 20, 15, 20));
 
         // 5. Panel Interno Dinámico (Donde va el catálogo y otras vistas)
         contenidoCentralDinamico = new JPanel();
         contenidoCentralDinamico.setLayout(new BoxLayout(contenidoCentralDinamico, BoxLayout.Y_AXIS));
         contenidoCentralDinamico.setBackground(Color.WHITE);
+        contenidoCentralDinamico.setOpaque(false);
 
         // --- Botones y Encabezados ---
         lblBienvenida = new JLabel("Hola, " + nombreUsuario + " | Bienvenido a Nexus GO", SwingConstants.CENTER);
         lblBienvenida.setFont(new Font("Segoe UI", Font.BOLD, 17));
         lblBienvenida.setForeground(Color.BLACK);
+        lblBienvenida.setForeground(Color.WHITE);
 
         btnCerrarSesion = new JButton("cerrar sesión");
         btnCerrarSesion.setBackground(new Color(255, 220, 90));
@@ -122,7 +137,7 @@ public class VistaPrincipalCliente extends JFrame {
         panelFlotanteBlanco.add(scrollContenido, BorderLayout.CENTER);
 
         // Ensamblar
-        contenedorEstructural.add(sidebar, BorderLayout.WEST);
+//        contenedorEstructural.add(sidebar, BorderLayout.WEST);
         contenedorEstructural.add(panelFlotanteBlanco, BorderLayout.CENTER);
 
         this.add(contenedorEstructural);
@@ -145,12 +160,14 @@ public class VistaPrincipalCliente extends JFrame {
         // Subpanel para que el botón "cerrar sesión" no se extienda a lo alto
         JPanel panelBotonDerecha = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         panelBotonDerecha.setBackground(Color.WHITE);
+        panelBotonDerecha.setOpaque(false);
         panelBotonDerecha.add(btnCerrarSesion);
         panelHeader.add(panelBotonDerecha, BorderLayout.EAST);
 
         // Banner/Pestaña amarilla de Promociones (Figma)
         JPanel panelEtiquetaPromo = new JPanel(new FlowLayout(FlowLayout.CENTER));
         panelEtiquetaPromo.setBackground(Color.WHITE);
+        panelEtiquetaPromo.setOpaque(false);
         
         JLabel lblPromociones = new JLabel("Promociones", SwingConstants.CENTER);
         lblPromociones.setOpaque(true);
