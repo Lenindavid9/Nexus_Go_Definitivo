@@ -4,190 +4,202 @@
  */
 package nexusgo.controller;
 
-import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.KeyEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-import nexusgo.view.PanelInventarioProductosPeluquero;
-import nexusgo.view.VistaRegistrarSalida;
-import nexusgo.view.VistaPrincipalPeluquero;
+import javax.swing.table.DefaultTableModel;
+import nexusgo.model.HerramientaDao;
+import nexusgo.model.Herramientas;
 import nexusgo.model.Producto;
 import nexusgo.model.ProductoDao;
+import nexusgo.view.PanelInventarioProductosPeluquero;
+import nexusgo.view.VistaInicioSesion;
+import nexusgo.view.VistaPrincipalPeluquero;
+
+import nexusgo.view.VistaRegistrarSalida;
+
 
 /**
  *
  * @author HOME
  */
-public class ControladorInventarioPeluquero  {
-   // Defino las referencias de las vistas y el acceso a datos
-    private PanelInventarioProductosPeluquero vista;
-    private VistaPrincipalPeluquero vistaPrincipal;
-    private ProductoDao productoDao;
+public class ControladorInventarioPeluquero implements ActionListener {
+   private final PanelInventarioProductosPeluquero panelInventario;
+    private final VistaPrincipalPeluquero vistaPrincipal;
 
-    // Constructor donde configuro la carga y los listeners del panel de inventario
-    public ControladorInventarioPeluquero(PanelInventarioProductosPeluquero vista, VistaPrincipalPeluquero vistaPrincipal) {
-        // Enlazo la vista del inventario y la ventana principal para poder intercambiar pantallas
-        this.vista = vista;
+    private VistaRegistrarSalida panelSalidaInsumo;
+    private final ProductoDao productoDao = new ProductoDao();
+    private int idSeleccionado = -1;
+
+    public ControladorInventarioPeluquero(PanelInventarioProductosPeluquero panelInventario, VistaPrincipalPeluquero vistaPrincipal) {
+        this.panelInventario = panelInventario;
         this.vistaPrincipal = vistaPrincipal;
-        
-        // Inicializo mi clase de acceso a datos de productos
-        this.productoDao = new ProductoDao();
-        
-        // Cargo por primera vez el inventario completo desde la base de datos MySQL al abrir el panel
-        cargarTablaProductos("");
-
-        // Configuro el buscador dinámico para filtrar productos mientras el peluquero escribe
-        this.vista.getTxtBuscar().addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                // No se requiere para capturar el texto final
-            }
-            @Override
-            public void keyPressed(KeyEvent e) {
-                // No se requiere antes de soltar la tecla
-            }
-            @Override
-            public void keyReleased(KeyEvent e) {
-                // Al levantar la tecla, capturo el texto y realizo la búsqueda dinámica en base de datos
-                String textoBusqueda = vista.getTxtBuscar().getText().trim();
-                
-                if (textoBusqueda.equals("Q Search") || textoBusqueda.equals("")) {
-                    cargarTablaProductos("");
-                } else {
-                    cargarTablaProductos(textoBusqueda);
-                }
-            }
-        });
-
-        // Configuro el evento de clic sobre las filas de la JTable
-        this.vista.getTablaInventario().addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                // Obtengo la fila seleccionada por el peluquero
-                int filaSeleccionada = vista.getTablaInventario().getSelectedRow();
-                
-                // Si efectivamente seleccionó una fila válida
-                if (filaSeleccionada != -1) {
-                    // Obtengo el ID del producto guardado en la columna 0 de la tabla
-                    String idString = vista.getTablaInventario().getValueAt(filaSeleccionada, 0).toString();
-                    
-                    try {
-                        // Convertimos el ID de la tabla a entero para buscarlo
-                        int idProducto = Integer.parseInt(idString);
-                        
-                        // Busco el producto correspondiente mediante el DAO
-                        Producto productoSeleccionado = buscarProductoPorId(idProducto);
-                        
-                        // Si el producto existe, hago la redirección inmediata a la pantalla de registrar salida
-                        if (productoSeleccionado != null) {
-                            // Instancio la vista de salida de insumos
-                            VistaRegistrarSalida vistaSalida = new VistaRegistrarSalida();
-                             
-                            // Reemplazo el panel actual por la vista de registro de salida
-                            cambiarPanel(vistaSalida);
-                        }
-                    } catch (Exception ex) {
-                        // Imprimo el error en consola en caso de fallo de conexión o consulta
-                        ex.printStackTrace();
-                        JOptionPane.showMessageDialog(vista, "Error al seleccionar el producto: " + ex.getMessage(), 
-                                                      "Error del Sistema", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            }
-        });
-
-        // Configuro el botón de cerrar sesión
-        this.vista.getBtnCerrarSesion().addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(vista, "Cerrando sesión del Peluquero en NexusGO...");
-            }
-        });
-    }
-
-    /**
-     * Consulta la base de datos y mapea las columnas exactas solicitadas en el diseño usando tus getters reales.
-     */
-    private void cargarTablaProductos(String filtro) {
-        String[] columnas = {"ID Producto", "Nombre", "Cantidad (Stock)", "Descripción"};
-        
-        DefaultTableModel modelo = new DefaultTableModel(null, columnas) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
 
         try {
-            // Evaluamos la búsqueda según lo que ofrece tu ProductoDao real
-            if (filtro.isEmpty()) {
-                // Si no hay filtro, listamos todo de forma normal
-                List<Producto> listaProductos = productoDao.listar(); 
-                if (listaProductos != null) {
-                    for (Producto prod : listaProductos) {
-                        modelo.addRow(new Object[]{
-                            prod.getIdProducto(),
-                            prod.getNombreProducto(),
-                            prod.getStockActual(),
-                            prod.getDescripcion()
-                        });
+            this.panelSalidaInsumo = new VistaRegistrarSalida();
+
+            inicializarListeners();
+            cargarTablaInventario();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,
+                    "Error al inicializar el módulo de inventario: " + e.getMessage(),
+                    "Error de Arranque", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void inicializarListeners() {
+        try {
+            // 1. Escuchar clics en la única tabla del panel mediante el getter getTablaInventario()
+            if (this.panelInventario.getTablaInventario() != null) {
+                this.panelInventario.getTablaInventario().addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        int fila = panelInventario.getTablaInventario().getSelectedRow();
+                        if (fila >= 0) {
+                            lanzarMenuSalidaInsumo(fila);
+                        }
                     }
+                });
+            }
+
+            // 2. Listener para los botones de la vista de Registrar Salida
+            if (this.panelSalidaInsumo != null) {
+                if (this.panelSalidaInsumo.btnRegistrarSalida != null) {
+                    this.panelSalidaInsumo.btnRegistrarSalida.addActionListener(this);
                 }
-            } else {
-                try {
-                    // Si el usuario escribe algo, lo convertimos a ID numérico
-                    int idFiltro = Integer.parseInt(filtro);
-                    
-                    // Tu DAO devuelve un Producto directo, no una lista. ¡Lo guardamos de forma precisa!
-                    Producto prod = productoDao.buscarPorId(idFiltro);
-                    
-                    if (prod != null) {
-                        modelo.addRow(new Object[]{
-                            prod.getIdProducto(),
-                            prod.getNombreProducto(),
-                            prod.getStockActual(),
-                            prod.getDescripcion()
-                        });
-                    }
-                } catch (NumberFormatException e) {
-                    // Si escribe letras en el buscador, no se agregará ninguna fila (queda limpia la tabla)
+                if (this.panelSalidaInsumo.btnVolver != null) {
+                    this.panelSalidaInsumo.btnVolver.addActionListener(this);
                 }
             }
 
-            // Enviamos el modelo procesado con los datos de MySQL a la JTable
-            vista.setDatosInventario(modelo);
+            // 3. Listener para el botón volver de la vista principal del inventario
+            if (this.panelInventario.getBtnVolver() != null) {
+                this.panelInventario.getBtnVolver().addActionListener(this);
+            }
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(vista, "Error al conectar con la base de datos: " + ex.getMessage(), 
-                                          "Error de Conexión", JOptionPane.ERROR_MESSAGE);
+        } catch (NullPointerException npe) {
+            System.err.println("Error al enlazar listeners en ControladorInventarioPeluquero: " + npe.getMessage());
         }
     }
-    
-    /**
-     * Busca un producto por su ID apoyándose directamente en la función buscarPorId de tu DAO.
-     */
-    private Producto buscarProductoPorId(int idProducto) throws Exception {
-        return productoDao.buscarPorId(idProducto);
+
+    private void lanzarMenuSalidaInsumo(int fila) {
+        String[] opciones = {"Registrar Salida", "Cancelar"};
+        int seleccion = JOptionPane.showOptionDialog(
+                panelInventario,
+                "¿Desea registrar la salida de este insumo?",
+                "NEXUS - Insumos Peluquería",
+                JOptionPane.DEFAULT_OPTION, 
+                JOptionPane.QUESTION_MESSAGE, 
+                null, 
+                opciones, 
+                opciones[0]
+        );
+
+        if (seleccion == 0) { // Registrar Salida
+            idSeleccionado = (int) panelInventario.getTablaInventario().getValueAt(fila, 0);
+            panelSalidaInsumo.txtCantidadSalida.setText("");
+            cambiarPanelCentral(this.panelSalidaInsumo);
+        }
     }
 
-    /**
-     * Intercambia el contenedor del Frame principal para desplegar la nueva pantalla.
-     */
-    private void cambiarPanel(JPanel nuevoPanel) {
-        // Remuevo todas las pantallas activas del frame principal
-        vistaPrincipal.getContentPane().removeAll();
-        // Agrego la nueva vista de salida de productos
-        vistaPrincipal.getContentPane().add(nuevoPanel);
-        // Fuerza el redibujado de la interfaz gráfica de inmediato
-        vistaPrincipal.revalidate();
-        vistaPrincipal.repaint();
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        try {
+            // Confirmar salida de insumo
+            if (panelSalidaInsumo != null && e.getSource() == panelSalidaInsumo.btnRegistrarSalida) {
+                ejecutarRestaDeStock();
+            }
+
+            // Volver de la subvista de registro de salida al inventario principal
+            if (panelSalidaInsumo != null && e.getSource() == panelSalidaInsumo.btnVolver) {
+                cambiarPanelCentral(this.panelInventario);
+                cargarTablaInventario();
+            }
+
+            // Botón volver del panel de inventario
+            if (e.getSource() == panelInventario.getBtnVolver()) {
+                if (vistaPrincipal != null) {
+                    vistaPrincipal.restaurarComponentesPrincipales();
+                }
+            }
+
+        } catch (Exception ex) {
+            System.err.println("Error en evento de inventario peluquero: " + ex.getMessage());
+        }
+    }
+
+    private void ejecutarRestaDeStock() {
+        try {
+            String textoCantidad = panelSalidaInsumo.txtCantidadSalida.getText().trim();
+
+            if (textoCantidad.isEmpty()) {
+                JOptionPane.showMessageDialog(panelSalidaInsumo, "Por favor ingrese la cantidad a retirar.", "Aviso", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            int cantidadARestar = Integer.parseInt(textoCantidad);
+
+            if (cantidadARestar <= 0) {
+                JOptionPane.showMessageDialog(panelSalidaInsumo, "La cantidad debe ser mayor a cero.", "Aviso", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            if (productoDao.registrarSalidaStock(idSeleccionado, cantidadARestar)) {
+                JOptionPane.showMessageDialog(panelSalidaInsumo, "¡Salida de insumo registrada con éxito!");
+                cambiarPanelCentral(this.panelInventario);
+                cargarTablaInventario();
+            } else {
+                JOptionPane.showMessageDialog(panelSalidaInsumo, "Error: Stock insuficiente en el inventario.", "Aviso", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(panelSalidaInsumo, "Ingrese un número entero válido.", "Formato Inválido", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public void cargarTablaInventario() {
+        try {
+            DefaultTableModel modelo = new DefaultTableModel(new Object[]{"ID", "Nombre Producto", "Stock Actual"}, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+
+            List<Producto> lista = productoDao.listar();
+            if (lista != null) {
+                for (Producto p : lista) {
+                    modelo.addRow(new Object[]{p.getIdProducto(), p.getNombreProducto(), p.getStockActual()});
+                }
+            }
+
+            // Inyectamos el modelo utilizando el método personalizado setDatosInventario(...) de tu vista
+            panelInventario.setDatosInventario(modelo);
+
+        } catch (Exception e) {
+            System.err.println("Error al cargar la tabla de inventario para peluquería: " + e.getMessage());
+        }
+    }
+
+    private void cambiarPanelCentral(JPanel nuevoPanel) {
+        try {
+            if (vistaPrincipal != null) {
+                JPanel contenedorDinamico = vistaPrincipal.getContenidoCentralDinamico();
+                if (contenedorDinamico != null) {
+                    contenedorDinamico.removeAll();
+                    contenedorDinamico.setLayout(new BorderLayout());
+                    contenedorDinamico.add(nuevoPanel, BorderLayout.CENTER);
+                    contenedorDinamico.revalidate();
+                    contenedorDinamico.repaint();
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error al alternar paneles en VistaPrincipalPeluquero: " + e.getMessage());
+        }
     }
 }
