@@ -170,40 +170,23 @@ public class UsuarioDao {
     }
 
     // ACTUALIZAR ROL DE USUARIO BUSCANDO ID DE ROL POR SU NOMBRE
-    public boolean actualizarRolPorNombre(String identificacion, String nombreRol) {
-        String queryIdRol = "SELECT id_rol FROM roles WHERE nombre_rol = ?";
-        String queryUpdate = "UPDATE usuarios SET id_rol = ? WHERE numero_identificacion = ?";
+    public boolean actualizarRol(String numeroIdentificacion, String nuevoRol) {
+        String sql = "UPDATE usuarios SET rol = ? WHERE numero_identificacion = ?";
 
-        try (Connection con = conexion.getConection()) {
-            int idRolFound = -1;
+        try (Connection con = conexion.getConection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-            try (PreparedStatement psId = con.prepareStatement(queryIdRol)) {
-                psId.setString(1, nombreRol);
-                try (ResultSet rs = psId.executeQuery()) {
-                    if (rs.next()) {
-                        idRolFound = rs.getInt("id_rol");
-                    }
-                }
-            }
+            ps.setString(1, nuevoRol);
+            ps.setString(2, numeroIdentificacion);
 
-            if (idRolFound == -1) {
-                System.err.println(" Error: No se encontró un id_rol para el nombre: " + nombreRol);
-                return false;
-            }
-
-            try (PreparedStatement psUpdate = con.prepareStatement(queryUpdate)) {
-                psUpdate.setInt(1, idRolFound);
-                psUpdate.setString(2, identificacion);
-
-                return psUpdate.executeUpdate() > 0;
-            }
+            int filasAfectadas = ps.executeUpdate();
+            return filasAfectadas > 0;
 
         } catch (SQLException e) {
-            System.err.println(" Error en UsuarioDao.actualizarRolPorNombre: " + e.getMessage());
+            System.err.println("❌ Error al actualizar el rol del usuario: " + e.getMessage());
             return false;
         }
     }
-
     // REGISTRAR CITA NUEVA
     public boolean registrarCita(int idCliente, int idServicio, String fechaHora) {
         String sql = "INSERT INTO citas (id_cliente, id_servicio, fecha_hora, estado) VALUES (?, ?, ?, 'Vigente')";
@@ -239,6 +222,30 @@ public class UsuarioDao {
             System.err.println(" Error en UsuarioDao.actualizarContrasena: " + e.getMessage());
             return false;
         }
+    }
+    
+    public List<Usuario> listarUsuarios() {
+        List<Usuario> lista = new ArrayList<>();
+        String sql = "SELECT numero_identificacion, nombre, apellido, rol, correo FROM usuarios";
+
+        try (Connection con = conexion.getConection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Usuario u = new Usuario();
+                u.setIdentificacion(rs.getInt("numero_identificacion"));
+                u.setNombre(rs.getString("nombre"));
+                u.setApellido(rs.getString("apellido"));
+                u.setRol(rs.getString("rol"));
+                u.setCorreo(rs.getString("correo"));
+
+                lista.add(u);
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Error al listar usuarios: " + e.getMessage());
+        }
+        return lista;
     }
 
 }
