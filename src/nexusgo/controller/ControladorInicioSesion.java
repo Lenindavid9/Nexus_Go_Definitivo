@@ -188,25 +188,25 @@ public class ControladorInicioSesion implements ActionListener {
                         JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            
-            try{
-            
-            /*Se obtiene el texto del campo de identificación,
+
+            try {
+
+                /*Se obtiene el texto del campo de identificación,
             si tiene, se eliminan los espacios en blanco al inicio y al final
             que por error pudo el usuario haber ingresado y se verificar qque el valor sea un número entero.*/
-            Integer.parseInt(vistaLogin.tNroIdentidad.getText().trim());
-        }catch (NumberFormatException e){
-            
-            /*Si falla, significa que el usuario ingresó un valor que no es 
-            un número(puede ser un . o una , o cualquier otra cosa)*/
-            JOptionPane.showMessageDialog(vistaLogin,"Recuerda que debes ingresar el numero de identificacion y eso solo puede contener datos numericos (Sin puntos).",
-                    "Error de formato", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+                Integer.parseInt(vistaLogin.tNroIdentidad.getText().trim());
+            } catch (NumberFormatException e) {
 
-        /*Después de comprobar que es válido, se convierte definitivamente el String 
+                /*Si falla, significa que el usuario ingresó un valor que no es 
+            un número(puede ser un . o una , o cualquier otra cosa)*/
+                JOptionPane.showMessageDialog(vistaLogin, "Recuerda que debes ingresar el numero de identificacion y eso solo puede contener datos numericos (Sin puntos).",
+                        "Error de formato", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            /*Después de comprobar que es válido, se convierte definitivamente el String 
         y se almacena en una variable int para utilizarla mas a delant edonde obliga el formato int*/
-        int identificacion = Integer.parseInt(texIdentificacion);
+            int identificacion = Integer.parseInt(texIdentificacion);
 
             /*Se declara una variable de tipo Usuario y se inicializa con el valor null.
             Esto se hace porque al inicio, todavía no se sabe si las credenciales
@@ -272,8 +272,8 @@ public class ControladorInicioSesion implements ActionListener {
 
                     //Se cierra la ventana de inicio de sesión
                     vistaLogin.dispose();
-                    
-                    /*Si el usuario no es Supervisor, se verifica si pertenece al rol de Operario.*/
+
+                    //Si el usuario no es Supervisor, se verifica si pertenece al rol de Operario.
                 } else if (rolReal.equalsIgnoreCase("Operario")) {
 
                     // Se llama la ventana principal correspondiente al Operario.
@@ -281,7 +281,7 @@ public class ControladorInicioSesion implements ActionListener {
 
                     /*Se llama el controlador encargado de gestionar las acciones
                     que realizará el Operario en el sistema*/
-                    ControladorPrincipalOperario controladorOperario = new ControladorPrincipalOperario(vistaMenu,usuarioLogueado);
+                    ControladorPrincipalOperario controladorOperario = new ControladorPrincipalOperario(vistaMenu, usuarioLogueado);
 
                     // La ventana se abre por completo en toda la pantalla
                     vistaMenu.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -291,38 +291,62 @@ public class ControladorInicioSesion implements ActionListener {
 
                     //Se cierra la ventana de inicio de sesión
                     vistaLogin.dispose();
-                    
-                } else if (rolReal.equalsIgnoreCase("Administrador_de_la_peluqueria")) {
-                    PanelAdmi panelAdmiPelu = new PanelAdmi();
-                    
 
-//                    ControladorAdmiPeluqueria controlAdminPelu = new ControladorAdmiPeluqueria(vistaAdminPelu, panelAdmi, usuarioLogueado);
-//
+                    //Si el usuario no es Operario, se verifica si pertenece al rol de Admin de la peluqueria.
+                } else if (rolReal.equalsIgnoreCase("Administrador_de_la_peluqueria")) {
+                    
+                    // Se llama la ventana principal correspondiente al Admin de la peluqueria.
+                    PanelAdmi panelAdmiPelu = new PanelAdmi();
+
+                    /*Se llama el controlador encargado de gestionar las acciones
+                    que realizará el Admin en el sistema*/
+                    ControladorAdmiPeluqueria controlAdminPelu = new ControladorAdmiPeluqueria(panelAdmiPelu, usuarioLogueado);
+
+                    // La ventana se abre por completo en toda la pantalla
                     panelAdmiPelu.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+                    // Se muestra la ventana principal del Admin de la peluqueria.
                     panelAdmiPelu.setVisible(true);
+
+                    //Se cierra la ventana de inicio de sesión
                     vistaLogin.dispose();
-                  
+
+                    //Si el usuario no es Admin de la peluqueria, se verifica si pertenece al rol de Admin de software.
                 } else if (rolReal.equalsIgnoreCase("Administrador_del_software")) {
+                    
+                    // Se llama la ventana principal correspondiente al Admin del software.
                     VistaPrincipalAdminSoftware vistaAdminSoft = new VistaPrincipalAdminSoftware();
 
-                     ControladorPrincipalAdminSoftware controlAdminSoft = new ControladorPrincipalAdminSoftware(vistaAdminSoft, null, usuarioLogueado);
+                    /*Se llama el controlador encargado de gestionar las acciones
+                    que realizará el Admin en el sistema*/
+                    ControladorPrincipalAdminSoftware controlAdminSoft = new ControladorPrincipalAdminSoftware(vistaAdminSoft, null, usuarioLogueado);
 
+                    // La ventana se abre por completo en toda la pantalla
                     vistaAdminSoft.setExtendedState(JFrame.MAXIMIZED_BOTH);
-                    
+
+                    // Se muestra la ventana principal del Admin del software.
                     vistaAdminSoft.setVisible(true);
-                    
+
+                    //Se cierra la ventana de inicio de sesión
                     vistaLogin.dispose();
-//                    
+
+                    //Si el usuario no es Admin del software, se verifica si pertenece al rol de Peluquero.
                 } else if (rolReal.equalsIgnoreCase("Peluquero")) {
-                    
+
+                    // Se llama la ventana principal correspondiente al Peluquero.
                     VistaPrincipalPeluquero vistaPeluquero = new VistaPrincipalPeluquero();
-                    
+
+                    /*Se llama el controlador encargado de gestionar las acciones
+                    que realizará el Peluquero en el sistema*/
                     ControladorPrincipalPeluquero controlPeluquero = new ControladorPrincipalPeluquero(vistaPeluquero, usuarioLogueado);
 
+                    // La ventana se abre por completo en toda la pantalla
                     vistaPeluquero.setExtendedState(JFrame.MAXIMIZED_BOTH);
-                    
+
+                    // Se muestra la ventana principal del Peluquero.
                     vistaPeluquero.setVisible(true);
-                    
+
+                    //Se cierra la ventana de inicio de sesión
                     vistaLogin.dispose();
 
                     /*Si el usuario no es Peluquero, se verifica si pertenece al rol de Cliente.*/
@@ -339,6 +363,7 @@ public class ControladorInicioSesion implements ActionListener {
 
                     //Se cierra la ventana de inicio de sesión
                     vistaLogin.dispose();
+
                 } else {
                     /*Si el rol obtenido desde la base de datos no coincide
                     con ninguno de los roles que este controlador reconoce,
