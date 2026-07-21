@@ -8,6 +8,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import static java.awt.Component.CENTER_ALIGNMENT;
 import static java.awt.Component.LEFT_ALIGNMENT;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -34,12 +35,12 @@ import nexusgo.model.DetalleCarrito;
  */
 public class VistaPdV extends JPanel {
 
-   private JPanel principal, panelproductos, panelBusqueda;
+    private JPanel principal, panelproductos, panelBusqueda;
     private JLabel TituloPrincipal, estado, seccion;
     private JButton facturar, btnReiniciar;
 
     public VistaPdV() {
-        VistaNexus(); 
+        VistaNexus();
     }
 
     @Override
@@ -75,12 +76,14 @@ public class VistaPdV extends JPanel {
         facturar.setFont(new Font("SansSerif", Font.BOLD, 15));
         facturar.setBackground(new Color(245, 238, 213));
         facturar.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-        facturar.setPreferredSize(new Dimension(250, 40));
+        facturar.setPreferredSize(new Dimension(280, 40));
+        facturar.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         btnReiniciar = new JButton(new ImageIcon("eliminar.png"));
         btnReiniciar.setPreferredSize(new Dimension(40, 40));
         btnReiniciar.setContentAreaFilled(false);
         btnReiniciar.setBorderPainted(false);
+        btnReiniciar.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         panelBusqueda.add(facturar);
         panelBusqueda.add(btnReiniciar);
@@ -130,20 +133,28 @@ public class VistaPdV extends JPanel {
         lblPrecio.setBorder(BorderFactory.createEmptyBorder(0, 8, 8, 8));
         lblPrecio.setAlignmentX(LEFT_ALIGNMENT);
 
-        JPanel acciones = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        // Panel de acciones (Spinner + Botón Suma)
+        JPanel acciones = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 5));
         acciones.setOpaque(false);
         acciones.setAlignmentX(LEFT_ALIGNMENT);
 
         JSpinner spinnerCantidad = new JSpinner(new SpinnerNumberModel(1, 1, Math.max(1, stockActual), 1));
-        spinnerCantidad.setPreferredSize(new Dimension(50, 25));
+        spinnerCantidad.setPreferredSize(new Dimension(50, 30));
 
-        JButton btnAgregar = new JButton(new ImageIcon("agg.png"));
-        btnAgregar.setPreferredSize(new Dimension(25, 25));
-        btnAgregar.setContentAreaFilled(false);
-        btnAgregar.setBorderPainted(false);
+        // Botón con el símbolo '+' para agregar al carrito
+        JButton btnAgregar = new JButton("+");
+        btnAgregar.setPreferredSize(new Dimension(40, 30));
+        btnAgregar.setFont(new Font("SansSerif", Font.BOLD, 18));
+        btnAgregar.setBackground(new Color(245, 238, 213)); // Mismo estilo cálido del sistema
+        btnAgregar.setForeground(Color.DARK_GRAY);
+        btnAgregar.setFocusPainted(false);
+        btnAgregar.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        btnAgregar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnAgregar.setToolTipText("Agregar al carrito");
 
-        acciones.add(btnAgregar);
+        // Primero va el Spinner y luego el botón de suma (+)
         acciones.add(spinnerCantidad);
+        acciones.add(btnAgregar);
 
         tarjeta.add(lblImagen);
         tarjeta.add(lblTitulo);
@@ -157,8 +168,13 @@ public class VistaPdV extends JPanel {
         return new TarjetaProductoComponentes(btnAgregar, spinnerCantidad);
     }
 
-    public JButton getFacturarButton() { return facturar; }
-    public JButton getReiniciarButton() { return btnReiniciar; }
+    public JButton getFacturarButton() {
+        return facturar;
+    }
+
+    public JButton getReiniciarButton() {
+        return btnReiniciar;
+    }
 
     public void actualizarTextoFacturar(int contador) {
         facturar.setText("Facturar " + contador + " Productos/Servicios");
@@ -166,6 +182,7 @@ public class VistaPdV extends JPanel {
 
     // Clase interna auxiliar para retornar referencias de botones y spinners al controlador
     public static class TarjetaProductoComponentes {
+
         private final JButton btnAgregar;
         private final JSpinner spinner;
 
@@ -174,7 +191,16 @@ public class VistaPdV extends JPanel {
             this.spinner = spinner;
         }
 
-        public JButton getBtnAgregar() { return btnAgregar; }
-        public JSpinner getSpinner() { return spinner; }
+        public JButton getBtnAgregar() {
+            return btnAgregar;
+        }
+
+        public JSpinner getSpinner() {
+            return spinner;
+        }
+    }
+
+    public void agregarTarjeta(String nombre, String precio, int stockActual, String imagenArchivo) {
+        agregarTarjetaComponentes(nombre, precio, stockActual, imagenArchivo);
     }
 }

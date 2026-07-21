@@ -7,6 +7,7 @@ package nexusgo.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -21,27 +22,43 @@ import javax.swing.JTextField;
  */
 public class DineroEfectivo extends JPanel {
 
-    private JPanel principal, pnlRecibido, pnlTotal, txtRecibido, Ingreso, pnlCambio;
-    private JLabel lbltxtTotal, lblMonto, lbltxtRecibido, lbltxt2Recibido, lblCambio
-            , lblCambioMonto;
+    private JPanel principal, pnlRecibido, pnlTotal, txtRecibido, Ingreso, pnlCambio, pnlbtnVolver;
+    private JLabel lbltxtTotal, lblMonto, lbltxtRecibido, lbltxt2Recibido, lblCambio, lblCambioMonto;
     private JTextField monto;
-    private JButton btnCalcularP, btnConfirmarPago;
+    private JButton btnCalcularP, btnConfirmarPago, btnVolver;
 
     private final Color COLOR_VERDE_OSCURO = new Color(0, 128, 0);
+    private final Color COLOR_DORADO = new Color(223, 205, 141);
+
+    public DineroEfectivo() {
+        VistaEfectivo();
+    }
 
     public JPanel VistaEfectivo() {
         this.setLayout(new BorderLayout());
-        this.setBackground(Color.white);
+        this.setBackground(Color.WHITE);
 
-
-        //Panel principal
+        // --- PANEL PRINCIPAL ---
         principal = new JPanel();
         principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
-        principal.setBackground(Color.white);
-        principal.setBorder(BorderFactory.createEmptyBorder(50, 250, 50, 250));
+        principal.setBackground(Color.WHITE);
+        principal.setBorder(BorderFactory.createEmptyBorder(20, 150, 40, 150));
 
-        //Panel arriba
-        
+        // --- BOTÓN VOLVER ---
+        pnlbtnVolver = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        pnlbtnVolver.setOpaque(false);
+        pnlbtnVolver.setMaximumSize(new Dimension(Short.MAX_VALUE, 40));
+
+        btnVolver = new JButton("< Volver");
+        btnVolver.setPreferredSize(new Dimension(110, 35));
+        btnVolver.setFont(new Font("SansSerif", Font.BOLD, 14));
+        btnVolver.setBackground(COLOR_DORADO);
+        btnVolver.setFocusPainted(false);
+        btnVolver.setBorder(null);
+
+        pnlbtnVolver.add(btnVolver);
+
+        // --- PANEL TOTAL ---
         pnlTotal = new JPanel();
         pnlTotal.setLayout(new BoxLayout(pnlTotal, BoxLayout.Y_AXIS));
         pnlTotal.setOpaque(false);
@@ -50,7 +67,7 @@ public class DineroEfectivo extends JPanel {
         lbltxtTotal.setFont(new Font("SansSerif", Font.BOLD, 36));
         lbltxtTotal.setAlignmentX(CENTER_ALIGNMENT);
 
-        lblMonto = new JLabel("$108.000");
+        lblMonto = new JLabel("$0.00");
         lblMonto.setFont(new Font("SansSerif", Font.BOLD, 26));
         lblMonto.setAlignmentX(CENTER_ALIGNMENT);
 
@@ -58,13 +75,11 @@ public class DineroEfectivo extends JPanel {
         pnlTotal.add(Box.createVerticalStrut(10));
         pnlTotal.add(lblMonto);
 
-        // Panel mitad
-        
+        // --- PANEL RECIBIDO ---
         pnlRecibido = new JPanel();
         pnlRecibido.setLayout(new BoxLayout(pnlRecibido, BoxLayout.X_AXIS));
         pnlRecibido.setOpaque(false);
         pnlRecibido.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, Color.GRAY));
-        
 
         txtRecibido = new JPanel();
         txtRecibido.setLayout(new BoxLayout(txtRecibido, BoxLayout.Y_AXIS));
@@ -85,7 +100,8 @@ public class DineroEfectivo extends JPanel {
         Ingreso = new JPanel();
         Ingreso.setLayout(new BoxLayout(Ingreso, BoxLayout.Y_AXIS));
         Ingreso.setOpaque(false);
-        monto = new JTextField("$110.000");
+
+        monto = new JTextField();
         monto.setFont(new Font("SansSerif", Font.PLAIN, 14));
         monto.setMaximumSize(new Dimension(350, 35));
         monto.setAlignmentX(LEFT_ALIGNMENT);
@@ -96,6 +112,7 @@ public class DineroEfectivo extends JPanel {
         btnCalcularP.setFont(new Font("SansSerif", Font.BOLD, 13));
         btnCalcularP.setMaximumSize(new Dimension(200, 40));
         btnCalcularP.setBorderPainted(false);
+        btnCalcularP.setFocusPainted(false);
         btnCalcularP.setAlignmentX(LEFT_ALIGNMENT);
 
         Ingreso.add(monto);
@@ -103,9 +120,10 @@ public class DineroEfectivo extends JPanel {
         Ingreso.add(btnCalcularP);
 
         pnlRecibido.add(txtRecibido);
-        pnlRecibido.add(Box.createHorizontalStrut(0));
+        pnlRecibido.add(Box.createHorizontalStrut(20));
         pnlRecibido.add(Ingreso);
 
+        // --- PANEL CAMBIO ---
         pnlCambio = new JPanel();
         pnlCambio.setLayout(new BoxLayout(pnlCambio, BoxLayout.Y_AXIS));
         pnlCambio.setOpaque(false);
@@ -115,7 +133,7 @@ public class DineroEfectivo extends JPanel {
         lblCambio.setForeground(COLOR_VERDE_OSCURO);
         lblCambio.setAlignmentX(CENTER_ALIGNMENT);
 
-        lblCambioMonto = new JLabel("$ 2.000");
+        lblCambioMonto = new JLabel("$0.00");
         lblCambioMonto.setFont(new Font("SansSerif", Font.BOLD, 36));
         lblCambioMonto.setForeground(COLOR_VERDE_OSCURO);
         lblCambioMonto.setAlignmentX(CENTER_ALIGNMENT);
@@ -126,6 +144,7 @@ public class DineroEfectivo extends JPanel {
         btnConfirmarPago.setFont(new Font("SansSerif", Font.BOLD, 13));
         btnConfirmarPago.setMaximumSize(new Dimension(200, 40));
         btnConfirmarPago.setBorderPainted(false);
+        btnConfirmarPago.setFocusPainted(false);
         btnConfirmarPago.setAlignmentX(CENTER_ALIGNMENT);
 
         pnlCambio.add(lblCambio);
@@ -134,14 +153,45 @@ public class DineroEfectivo extends JPanel {
         pnlCambio.add(Box.createVerticalStrut(10));
         pnlCambio.add(btnConfirmarPago);
 
+        // --- ENSAMBLE FINAL ---
+        principal.add(pnlbtnVolver);
+        principal.add(Box.createVerticalStrut(10));
         principal.add(pnlTotal);
-        principal.add(Box.createVerticalStrut(70));
+        principal.add(Box.createVerticalStrut(40));
         principal.add(pnlRecibido);
-        principal.add(Box.createVerticalStrut(70));
+        principal.add(Box.createVerticalStrut(40));
         principal.add(pnlCambio);
 
         this.add(principal, BorderLayout.CENTER);
-
         return this;
+    }
+
+    // MÉTODOS MUTADORES Y GETTERS PARA EL CONTROLADOR
+    public void setMontoTotal(double total) {
+        lblMonto.setText("$" + String.format("%,.2f", total));
+    }
+
+    public void setCambioMonto(double cambio) {
+        lblCambioMonto.setText("$" + String.format("%,.2f", cambio));
+    }
+
+    public String getMontoIngresado() {
+        return monto.getText().trim();
+    }
+
+    public JTextField getTxtMonto() {
+        return monto;
+    }
+
+    public JButton getBtnCalcularP() {
+        return btnCalcularP;
+    }
+
+    public JButton getBtnConfirmarPago() {
+        return btnConfirmarPago;
+    }
+
+    public JButton getBtnVolver() {
+        return btnVolver;
     }
 }

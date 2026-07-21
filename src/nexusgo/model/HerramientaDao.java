@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author USUARIO
  */
-    public class HerramientaDao {
+public class HerramientaDao {
 
     private final Conexion conexion = new Conexion();
     private Connection con;
@@ -94,23 +94,22 @@ import java.util.List;
         }
         return lista;
     }
-    
+
     // D - DELETE: ELIMINAR HERRAMIENTA
     public int eliminar(int id) {
         String sql = "DELETE FROM herramientas WHERE id_herramienta = ?";
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
-            return ps.executeUpdate(); 
+            return ps.executeUpdate();
 
         } catch (SQLException e) {
             System.out.println("Error al eliminar herramienta en DAO: " + e.getMessage());
         }
         return 0;
     }
- 
+
     public int editar(Herramientas herramienta) {
         String sql = """
                      UPDATE herramientas 
@@ -118,23 +117,18 @@ import java.util.List;
                      WHERE id_herramienta = ?
                      """;
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, herramienta.getNombreHerramienta());
             ps.setString(2, herramienta.getEstadoActual());
             ps.setInt(3, herramienta.getIdHerramienta());
 
-            return ps.executeUpdate(); 
+            return ps.executeUpdate();
 
         } catch (SQLException e) {
             System.out.println("Error al editar herramienta en DAO: " + e.getMessage());
         }
         return 0;
     }
-  
-    
 
 }
-
-

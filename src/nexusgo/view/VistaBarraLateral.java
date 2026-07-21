@@ -4,8 +4,6 @@
  */
 package nexusgo.view;
 
-
-
 import java.awt.Container;
 import java.awt.GridLayout;
 import javax.swing.ImageIcon;
@@ -21,26 +19,32 @@ import javax.swing.JPanel;
 public class VistaBarraLateral extends JPanel {
 
     public Container contenedor;
-    public JPanel barraLateral,barraSuperior;
-    public JButton bCasa,bInventario,misCitas;
-    
+    public JPanel barraLateral, barraSuperior;
+    public JButton bCasa, bInventario, misCitas;
+
     public VistaBarraLateral() {
-        
         setLayout(new GridLayout(7, 1, 10, 10));
 
         bCasa = new JButton("Inicio");
         bInventario = new JButton("Ventas");
         misCitas = new JButton("Inventario");
-        
 
         add(bCasa);
         add(bInventario);
         add(misCitas);
+    }
 
-             
-}
-    
-    
-    
-    
+    // --- GETTERS PARA CONECTAR CON EL CONTROLADOR ---
+    public JButton getBtnInicio() {
+        return bCasa;
+    }
+
+    public JButton getBtnVentas() {
+        return bInventario;
+    }
+
+    public JButton getBtnInventario() {
+        return misCitas;
+    }
+
 }

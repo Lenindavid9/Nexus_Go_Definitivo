@@ -4,6 +4,7 @@
  */
 package nexusgo.controller;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -26,10 +27,10 @@ import nexusgo.view.ReportesFinancieros;
  */
 public class ControladorAdmiPeluqueria implements ActionListener {
     
-    private final PanelAdmi vistaAdmin;
+   private final PanelAdmi vistaAdmin;
     private ReportesFinancieros panelReportes;
 
-    // Instancias de DAOs existentes para consultas
+    // Instancias de DAOs existentes para consultas reales a la BD
     private final ProductoDao productoDao = new ProductoDao();
     private final HerramientaDao herramientaDao = new HerramientaDao();
 
@@ -40,12 +41,10 @@ public class ControladorAdmiPeluqueria implements ActionListener {
         this.usuarioLogueado = usuarioLogueado;
 
         try {
-            // Inicialización de la vista secundaria del módulo
             this.panelReportes = new ReportesFinancieros();
 
             inicializarListeners();
 
-            // Cargar por defecto el panel de bienvenida al iniciar
             cambiarPanelCentral(new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol()));
 
         } catch (Exception e) {
@@ -57,53 +56,82 @@ public class ControladorAdmiPeluqueria implements ActionListener {
 
     private void inicializarListeners() {
         try {
-            // Clic en la tarjeta central "Gestión de Reportes Financieros" (Acceso Rápido)
-            this.vistaAdmin.getPnlTarjeta().addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    cambiarPanelCentral(panelReportes);
+            // Clic en la tarjeta central "Gestión de Reportes Financieros"
+            if (this.vistaAdmin.getPnlTarjeta() != null) {
+                this.vistaAdmin.getPnlTarjeta().addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        cambiarPanelCentral(panelReportes);
+                    }
+                });
+            }
+
+            // LISTENERS DIRECTOS A LOS BOTONES DE TU VISTABARRALATERAL
+            if (this.vistaAdmin.getMenuLateral() != null) {
+                if (this.vistaAdmin.getMenuLateral().bCasa != null) {
+                    this.vistaAdmin.getMenuLateral().bCasa.addActionListener(this);
                 }
-            });
+                if (this.vistaAdmin.getMenuLateral().bInventario != null) {
+                    this.vistaAdmin.getMenuLateral().bInventario.addActionListener(this);
+                }
+                if (this.vistaAdmin.getMenuLateral().misCitas != null) {
+                    this.vistaAdmin.getMenuLateral().misCitas.addActionListener(this);
+                }
+            }
+
+            // LISTENER PARA EL BOTÓN REPORTE DE PANELADMI
+            if (this.vistaAdmin.getBtnReporte() != null) {
+                this.vistaAdmin.getBtnReporte().addActionListener(this);
+            }
 
             // Listeners para los botones de la vista ReportesFinancieros
-            this.panelReportes.getBtnInicio().addActionListener(this);
-            this.panelReportes.getBtnProcesar().addActionListener(this);
-            this.panelReportes.getBtnCerrar().addActionListener(this);
-            this.panelReportes.getBtnHistorialMH().addActionListener(this);
+            if (this.panelReportes != null) {
+                this.panelReportes.getBtnInicio().addActionListener(this);
+                this.panelReportes.getBtnProcesar().addActionListener(this);
+                this.panelReportes.getBtnCerrar().addActionListener(this);
+                this.panelReportes.getBtnHistorialMH().addActionListener(this);
+            }
 
-            // Listener de cerrar sesión en la ventana principal si está presente
             if (this.vistaAdmin.getBtnCerrar() != null) {
                 this.vistaAdmin.getBtnCerrar().addActionListener(this);
             }
 
-        } catch (NullPointerException npe) {
-            System.err.println("Error al enlazar los listeners del Administrador: " + npe.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error al enlazar los listeners del Administrador: " + e.getMessage());
         }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            // --- NAVEGACIÓN ---
-            
-            // Botón Inicio -> Regresar a la pantalla de bienvenida
+            // --- NAVEGACIÓN BARRA LATERAL ---
+            if (this.vistaAdmin.getMenuLateral() != null) {
+                // Botón bCasa -> Inicio
+                if (e.getSource() == vistaAdmin.getMenuLateral().bCasa) {
+                    cambiarPanelCentral(new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol()));
+                    return;
+                }
+            }
+
+            // Botón btnReporte -> Abre el panel de Reportes Financieros
+            if (e.getSource() == vistaAdmin.getBtnReporte()) {
+                cambiarPanelCentral(panelReportes);
+                return;
+            }
+
+            // --- NAVEGACIÓN Y ACCIONES DESDE REPORTES ---
             if (e.getSource() == panelReportes.getBtnInicio()) {
                 cambiarPanelCentral(new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol()));
             }
 
-            // Botón Historial Mantenimiento Herramientas
             if (e.getSource() == panelReportes.getBtnHistorialMH()) {
                 mostrarHistorialMantenimiento();
             }
 
-            // --- ACCIONES PRINCIPALES ---
-
-            // Botón Procesar Reporte
             if (e.getSource() == panelReportes.getBtnProcesar()) {
                 ejecutarProcesamientoReporte();
             }
 
-            // Cerrar Sesión
             if (e.getSource() == panelReportes.getBtnCerrar() || e.getSource() == vistaAdmin.getBtnCerrar()) {
                 ejecutarCierreSesion();
             }
@@ -113,30 +141,39 @@ public class ControladorAdmiPeluqueria implements ActionListener {
         }
     }
 
+    // Consulta de datos reales usando la base de datos
     private void ejecutarProcesamientoReporte() {
         try {
             String mesSeleccionado = panelReportes.getComboMes().getSelectedItem().toString();
             String anioSeleccionado = panelReportes.getComboAnio().getSelectedItem().toString();
 
             DefaultTableModel modelo = panelReportes.getModeloTabla();
-            modelo.setRowCount(0); // Limpia datos previos
+            modelo.setRowCount(0);
 
-            // Llenado de fila consolidada (simulando totales provenientes de la lógica de negocio/DAOs)
-            modelo.addRow(new Object[]{
-                "$ 365,000",        // Suma Servicios / Productos
-                "$ 12,000",         // Suma Promociones / Descuentos
-                "$ 353,000",        // Resta Descuentos al Total (Neto)
-                "Balayage (3)"      // Servicio más solicitado del mes
-            });
+            List<Herramientas> listaHerramientas = herramientaDao.listar();
 
-            JOptionPane.showMessageDialog(panelReportes,
-                    "Reporte Mensual Generado Correctamente para " + mesSeleccionado + " " + anioSeleccionado + ".",
-                    "NEXUS GO - Reporte Financiero", JOptionPane.INFORMATION_MESSAGE);
+            if (listaHerramientas != null && !listaHerramientas.isEmpty()) {
+                for (Herramientas h : listaHerramientas) {
+                    modelo.addRow(new Object[]{
+                        h.getIdHerramienta(),
+                        h.getNombreHerramienta(),
+                        h.getEstadoActual(),
+                        "Registro BD"
+                    });
+                }
+                JOptionPane.showMessageDialog(panelReportes,
+                        "Reporte procesado con datos de la BD para " + mesSeleccionado + " " + anioSeleccionado + ".",
+                        "NEXUS GO - Reporte Financiero", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(panelReportes,
+                        "No se encontraron registros en la base de datos para el período seleccionado.",
+                        "Sin Datos", JOptionPane.WARNING_MESSAGE);
+            }
 
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(panelReportes,
-                    "Error al procesar el reporte: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+                    "Error al consultar la base de datos: " + ex.getMessage(),
+                    "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -145,7 +182,7 @@ public class ControladorAdmiPeluqueria implements ActionListener {
             List<Herramientas> lista = herramientaDao.listar();
             if (lista != null && !lista.isEmpty()) {
                 JOptionPane.showMessageDialog(panelReportes,
-                        "Cargando historial de " + lista.size() + " herramientas registradas.",
+                        "Se encontraron " + lista.size() + " herramientas registradas en la base de datos.",
                         "Historial Mantenimiento", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(panelReportes,
@@ -153,7 +190,9 @@ public class ControladorAdmiPeluqueria implements ActionListener {
                         "Información", JOptionPane.INFORMATION_MESSAGE);
             }
         } catch (Exception e) {
-            System.err.println("Error al consultar herramientas: " + e.getMessage());
+            JOptionPane.showMessageDialog(panelReportes,
+                    "Error al consultar la BD: " + e.getMessage(),
+                    "Error de Conexión", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -168,14 +207,16 @@ public class ControladorAdmiPeluqueria implements ActionListener {
 
         if (confirmacion == JOptionPane.YES_OPTION) {
             vistaAdmin.dispose();
-            // Aquí se redirige al Login según el flujo del proyecto
         }
     }
 
     private void cambiarPanelCentral(JPanel panelNuevo) {
         try {
-            // Reemplaza el panel central del JFrame principal
-            vistaAdmin.setContentPane(panelNuevo);
+            BorderLayout layout = (BorderLayout) vistaAdmin.getContentPane().getLayout();
+            if (layout.getLayoutComponent(BorderLayout.CENTER) != null) {
+                vistaAdmin.getContentPane().remove(layout.getLayoutComponent(BorderLayout.CENTER));
+            }
+            vistaAdmin.getContentPane().add(panelNuevo, BorderLayout.CENTER);
             vistaAdmin.revalidate();
             vistaAdmin.repaint();
         } catch (Exception e) {
@@ -183,6 +224,5 @@ public class ControladorAdmiPeluqueria implements ActionListener {
         }
     }
 
-
-
+    
 }

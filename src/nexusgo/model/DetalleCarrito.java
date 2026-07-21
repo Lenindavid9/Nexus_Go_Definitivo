@@ -11,14 +11,24 @@ package nexusgo.model;
 public class DetalleCarrito {
 
     private int idProducto;
-    private String nombre;
     private String nombreProducto;
-    
-      public DetalleCarrito(int idProducto, String nombre, double precioUnitario, int cantidad) {
+    private double precioUnitario;
+    private int cantidad;
+
+    public DetalleCarrito(int idProducto, String nombreProducto, double precioUnitario, int cantidad) {
         this.idProducto = idProducto;
-        this.nombre = nombre;
+        this.nombreProducto = nombreProducto;
         this.precioUnitario = precioUnitario;
         this.cantidad = cantidad;
+    }
+
+    // Getters y Setters
+    public int getIdProducto() {
+        return idProducto;
+    }
+
+    public void setIdProducto(int idProducto) {
+        this.idProducto = idProducto;
     }
 
     public String getNombreProducto() {
@@ -28,29 +38,25 @@ public class DetalleCarrito {
     public void setNombreProducto(String nombreProducto) {
         this.nombreProducto = nombreProducto;
     }
-    private double precioUnitario;
-    private int cantidad;
-
-  
-
-    public int getIdProducto() {
-        return idProducto;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
 
     public double getPrecioUnitario() {
         return precioUnitario;
+    }
+
+    public void setPrecioUnitario(double precioUnitario) {
+        this.precioUnitario = precioUnitario;
     }
 
     public int getCantidad() {
         return cantidad;
     }
 
+    public void setCantidad(int cantidad) {
+        this.cantidad = cantidad;
+    }
+
+    // Método de conveniencia para calcular el subtotal de este producto
     public double getSubtotal() {
         return precioUnitario * cantidad;
     }
-
 }

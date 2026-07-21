@@ -10,6 +10,10 @@ package nexusgo.model;
  */
 public class Herramientas {
 
+    private int idHerramienta;
+    private String nombreHerramienta;
+    private String estadoActual;
+
     public int getIdHerramienta() {
         return idHerramienta;
     }
@@ -33,9 +37,5 @@ public class Herramientas {
     public void setEstadoActual(String estadoActual) {
         this.estadoActual = estadoActual;
     }
-    
-    private int idHerramienta;
-    private String nombreHerramienta;
-    private String estadoActual;
-    
+
 }

@@ -296,8 +296,7 @@ public class ControladorInicioSesion implements ActionListener {
                     PanelAdmi panelAdmiPelu = new PanelAdmi();
                     
 
-//                    ControladorAdmiPeluqueria controlAdminPelu = new ControladorAdmiPeluqueria(vistaAdminPelu, panelAdmi, usuarioLogueado);
-//
+       ControladorAdmiPeluqueria controlAdminPelu = new ControladorAdmiPeluqueria(panelAdmiPelu, usuarioLogueado);
                     panelAdmiPelu.setExtendedState(JFrame.MAXIMIZED_BOTH);
                     panelAdmiPelu.setVisible(true);
                     vistaLogin.dispose();
