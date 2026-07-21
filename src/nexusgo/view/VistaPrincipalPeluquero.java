@@ -10,10 +10,13 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -26,19 +29,30 @@ import javax.swing.border.EmptyBorder;
  */
 
 public class VistaPrincipalPeluquero extends JFrame {
-    // Componentes del Sidebar y barra superior accesibles para el controlador
     public JButton btnInicio = new JButton("Casa");
     public JButton btnInventario = new JButton("Inventario");
     public JButton btnCitas = new JButton("Citas");
-    public JButton btnCerrarSesion = new JButton("cerrar sesion");
-    
-    private JPanel contenidoCentralDinamico = new JPanel(new BorderLayout());
+    public JButton btnCerrarSesion = new JButton("Cerrar Sesión");
+
+    private JPanel contenidoCentralDinamico;
 
     public VistaPrincipalPeluquero() {
-        setTitle("NexusGO - Panel de Peluquero");
-        
+        super("NexusGO - Panel de Peluquero");
 
-        // 1. CONSTRUCCIÓN DE LA BARRA LATERAL (SIDEBAR)
+        // 1. Panel de fondo con imagen
+        JPanel fondo = new JPanel() {
+            private Image imagen = new ImageIcon("src/nexusgo/img/fondoprincipal.jpg").getImage();
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(imagen, 0, 0, getWidth(), getHeight(), this);
+            }
+        };
+        fondo.setLayout(new BorderLayout());
+        setContentPane(fondo);
+
+        // 2. Sidebar lateral
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
         sidebar.setBackground(Color.WHITE);
@@ -52,7 +66,6 @@ public class VistaPrincipalPeluquero extends JFrame {
         lblLogo.setBorder(new EmptyBorder(20, 0, 40, 0));
         sidebar.add(lblLogo);
 
-        // Configuración rápida de los botones del menú lateral
         JButton[] botones = {btnInicio, btnInventario, btnCitas};
         for (JButton btn : botones) {
             btn.setContentAreaFilled(false);
@@ -64,7 +77,7 @@ public class VistaPrincipalPeluquero extends JFrame {
             sidebar.add(Box.createVerticalStrut(15));
         }
 
-        // 2. BARRA SUPERIOR (CERRAR SESIÓN)
+        // 3. Panel superior con botón cerrar sesión
         JPanel panelTop = new JPanel(new FlowLayout(FlowLayout.RIGHT, 30, 15));
         panelTop.setOpaque(false);
         btnCerrarSesion.setFont(new Font("Segoe UI", Font.BOLD, 12));
@@ -75,60 +88,55 @@ public class VistaPrincipalPeluquero extends JFrame {
         btnCerrarSesion.setBorder(new EmptyBorder(5, 15, 5, 15));
         panelTop.add(btnCerrarSesion);
 
-        // 3. TARJETA GRIS DE BIENVENIDA CENTRAL
+        // 4. Panel central dinámico transparente
+        contenidoCentralDinamico = new JPanel(new BorderLayout());
+        contenidoCentralDinamico.setOpaque(false);
+
+        // Tarjeta de bienvenida
         JPanel tarjetaBienvenida = new JPanel();
         tarjetaBienvenida.setLayout(new BoxLayout(tarjetaBienvenida, BoxLayout.Y_AXIS));
-        tarjetaBienvenida.setBackground(new Color(245, 245, 245));
+        tarjetaBienvenida.setOpaque(false);
         tarjetaBienvenida.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
 
         JLabel lblSaludo = new JLabel("Hola, Peluquer@ Bienvenido a Nexus GO");
-        lblSaludo.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblSaludo.setFont(new Font("Segoe UI", Font.BOLD, 30));
         lblSaludo.setAlignmentX(CENTER_ALIGNMENT);
-        
+        lblSaludo.setForeground(Color.WHITE);
+
         JLabel lblTexto1 = new JLabel("Espero que te encuentres super bien,");
-        lblTexto1.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        lblTexto1.setFont(new Font("Segoe UI", Font.PLAIN, 20));
         lblTexto1.setAlignmentX(CENTER_ALIGNMENT);
-        
-        JLabel lblTexto2 = new JLabel("mira tus citas para estar al tanto de las cosas");
-        lblTexto2.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        lblTexto2.setAlignmentX(CENTER_ALIGNMENT);
+        lblTexto1.setForeground(Color.WHITE);
 
         tarjetaBienvenida.add(lblSaludo);
         tarjetaBienvenida.add(Box.createVerticalStrut(25));
         tarjetaBienvenida.add(lblTexto1);
-        tarjetaBienvenida.add(lblTexto2);
 
-        // Centramos la tarjeta usando GridBagLayout en un contenedor intermedio
         JPanel panelContenedorTarjeta = new JPanel(new GridBagLayout());
         panelContenedorTarjeta.setOpaque(false);
         panelContenedorTarjeta.add(tarjetaBienvenida);
 
-        // 4. ENSAMBLAR TODO EN EL MARCO PRINCIPAL
         contenidoCentralDinamico.add(panelTop, BorderLayout.NORTH);
         contenidoCentralDinamico.add(panelContenedorTarjeta, BorderLayout.CENTER);
 
-        this.add(sidebar, BorderLayout.WEST);
-        this.add(contenidoCentralDinamico, BorderLayout.CENTER);
+        // Ensamblaje final
+        fondo.add(sidebar, BorderLayout.WEST);
+        fondo.add(contenidoCentralDinamico, BorderLayout.CENTER);
+
+        // Configuración de la ventana
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 550);
         setLocationRelativeTo(null);
         setResizable(false);
     }
 
-    /**
-     * Getter para que el controlador limpie e intercambie las subvistas en el centro.
-     */
     public JPanel getContenidoCentralDinamico() {
         return contenidoCentralDinamico;
-        
-        
-        
     }
+
     public void restaurarComponentesPrincipales() {
-    // Limpia el panel central dinámico para dejarlo en su estado base
-    this.getContenidoCentralDinamico().removeAll();
-    this.getContenidoCentralDinamico().revalidate();
-    this.getContenidoCentralDinamico().repaint();
-}
-    
+        contenidoCentralDinamico.removeAll();
+        contenidoCentralDinamico.revalidate();
+        contenidoCentralDinamico.repaint();
+    }
 }
