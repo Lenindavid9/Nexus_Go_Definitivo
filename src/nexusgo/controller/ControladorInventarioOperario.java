@@ -139,7 +139,6 @@ public class ControladorInventarioOperario implements ActionListener {
         } else if (seleccion == 1) { // Editar
             if (tipo.equals("Producto")) {
                 idSeleccionado = (int) panelInventario.tablaProductos.getValueAt(fila, 0);
-                // Obtener objeto completo para llenar el formulario adecuadamente
                 Producto p = productoDao.buscarPorId(idSeleccionado);
                 if (p != null) {
                     panelFormulario.txtNombre.setText(p.getNombreProducto());
@@ -147,6 +146,8 @@ public class ControladorInventarioOperario implements ActionListener {
                     panelFormulario.txtCantidad.setText(String.valueOf(p.getStockActual()));
                     panelFormulario.txtStockMinimo.setText(String.valueOf(p.getStockMinimo()));
                     panelFormulario.txtPrecio.setText(String.valueOf(p.getPrecioCompra()));
+                    panelFormulario.txtPrecioVenta.setText(String.valueOf(p.getPrecioVenta()));
+                    panelFormulario.txtProveedor.setText(p.getProveedor() != null ? p.getProveedor() : "");
                     panelFormulario.lblNombreImagen.setText(p.getUrlImagen() != null ? p.getUrlImagen() : "sin_imagen.jpg");
                 }
                 panelFormulario.btnEditar.setText("Editar");
@@ -268,9 +269,12 @@ public class ControladorInventarioOperario implements ActionListener {
             String precioLimpio = panelFormulario.txtPrecio.getText().replace("$", "").replace(".", "").trim();
             double precioCompra = Double.parseDouble(precioLimpio);
             nuevoProducto.setPrecioCompra(precioCompra);
-            
-            // ADAPTACIÓN BASE DE DATOS: Asignar precio_venta (si no existe campo de texto, le sumamos p. ej. un margen o repetimos la base)
-            nuevoProducto.setPrecioVenta(precioCompra); 
+
+            String precioVentaLimpio = panelFormulario.txtPrecioVenta.getText().replace("$", "").replace(".", "").trim();
+            double precioVenta = precioVentaLimpio.isEmpty() ? precioCompra : Double.parseDouble(precioVentaLimpio);
+            nuevoProducto.setPrecioVenta(precioVenta);
+
+            nuevoProducto.setProveedor(panelFormulario.txtProveedor.getText().trim());
             nuevoProducto.setUrlImagen(panelFormulario.lblNombreImagen.getText());
 
             if (productoDao.agregar(nuevoProducto) > 0) {
@@ -295,7 +299,12 @@ public class ControladorInventarioOperario implements ActionListener {
             String precioLimpio = panelFormulario.txtPrecio.getText().replace("$", "").replace(".", "").trim();
             double precioCompra = Double.parseDouble(precioLimpio);
             p.setPrecioCompra(precioCompra);
-            p.setPrecioVenta(precioCompra); // ADAPTACIÓN BASE DE DATOS: Mapeo de precio_venta
+
+            String precioVentaLimpio = panelFormulario.txtPrecioVenta.getText().replace("$", "").replace(".", "").trim();
+            double precioVenta = precioVentaLimpio.isEmpty() ? precioCompra : Double.parseDouble(precioVentaLimpio);
+            p.setPrecioVenta(precioVenta);
+
+            p.setProveedor(panelFormulario.txtProveedor.getText().trim());
             p.setUrlImagen(panelFormulario.lblNombreImagen.getText());
 
             if (productoDao.editar(p) > 0) {
@@ -313,8 +322,6 @@ public class ControladorInventarioOperario implements ActionListener {
             Herramientas nuevaHerramienta = new Herramientas();
             nuevaHerramienta.setIdHerramienta(Integer.parseInt(panelFormularioHerramienta.txtIdHerramienta.getText().trim()));
             nuevaHerramienta.setNombreHerramienta(panelFormularioHerramienta.txtNombre.getText().trim());
-            
-            // ADAPTACIÓN BASE DE DATOS: ENUM exacto en MAYÚSCULAS ('EXCELENTE')
             nuevaHerramienta.setEstadoActual("EXCELENTE");
 
             if (herramientaDao.agregar(nuevaHerramienta) > 0) {
@@ -332,8 +339,6 @@ public class ControladorInventarioOperario implements ActionListener {
             Herramientas h = new Herramientas();
             h.setIdHerramienta(idSeleccionado);
             h.setNombreHerramienta(panelFormularioHerramienta.txtNombre.getText().trim());
-            
-            // ADAPTACIÓN BASE DE DATOS: ENUM exacto en MAYÚSCULAS ('EXCELENTE')
             h.setEstadoActual("EXCELENTE");
 
             if (herramientaDao.editar(h) > 0) {
@@ -440,6 +445,8 @@ public class ControladorInventarioOperario implements ActionListener {
         panelFormulario.txtDescripcion.setText("");
         panelFormulario.txtCantidad.setText("");
         panelFormulario.txtPrecio.setText("");
+        panelFormulario.txtPrecioVenta.setText("");
+        panelFormulario.txtProveedor.setText("");
         panelFormulario.txtStockMinimo.setText("");
         panelFormulario.lblNombreImagen.setText("ningún archivo seleccionado");
     }
@@ -474,7 +481,7 @@ public class ControladorInventarioOperario implements ActionListener {
         try {
             if (contenedorCentral != null) {
                 contenedorCentral.removeAll();
-                contenedorCentral.setLayout(new java.awt.BorderLayout());
+                contenedorCentral.setLayout(new BorderLayout());
                 contenedorCentral.add(panelNuevo, BorderLayout.CENTER);
                 contenedorCentral.revalidate();
                 contenedorCentral.repaint();

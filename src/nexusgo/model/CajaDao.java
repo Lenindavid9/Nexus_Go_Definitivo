@@ -11,6 +11,18 @@ import java.sql.SQLException;
 public class CajaDao {
     Conexion cn = new Conexion();
     Connection con;
+    
+    public int obtenerIdUltimaCaja() {
+    con = cn.getConection();
+    try {
+        PreparedStatement ps = con.prepareStatement("SELECT id FROM caja ORDER BY id DESC LIMIT 1");
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) return rs.getInt(1);
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return 0;
+}
 
     public boolean guardarApertura(double monto) {
         con = cn.getConection();

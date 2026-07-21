@@ -46,17 +46,17 @@ public class ControladorPrincipalAdminSoftware implements ActionListener {
         // Clic en CAMBIO ROL (Abrimos la ventana JFrame independiente)
         else if (e.getSource() == vista.getsidebar().bInventario) {
             try {
-                // Instanciamos el JFrame
+                // Instanciamos el Jpanel
                 VistaCambioRol ventanaCambioRol = new VistaCambioRol();
                 
                 // Centramos la ventana en la pantalla
-                ventanaCambioRol.setLocationRelativeTo(null);
+                ventanaCambioRol.setLocation(null);
                 
                 // La hacemos visible
                 ventanaCambioRol.setVisible(true);
                 
-                // OPCIONAL: Si quieres ocultar la ventana principal mientras está abierto el cambio de rol:
-                 vista.setVisible(false);
+                // Si quieres ocultar la ventana principal mientras está abierto el cambio de rol:
+                // vista.setVisible(false);
                 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -79,5 +79,4 @@ public class ControladorPrincipalAdminSoftware implements ActionListener {
         contenedorCentral.revalidate();
         contenedorCentral.repaint();
     }
-
 }

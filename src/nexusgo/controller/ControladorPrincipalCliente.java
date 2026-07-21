@@ -188,5 +188,6 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
         this.vista.restaurarComponentesTienda();
         cargarCatalogo();
     }
+    
 }
 

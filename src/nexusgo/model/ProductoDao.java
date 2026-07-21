@@ -52,11 +52,11 @@ public class ProductoDao implements Crud<Producto> {
     public int agregar(Producto producto) {
         String sql = """
                      INSERT INTO productos 
-                     (nombre_producto, descripcion, stock_actual, stock_minimo, precio_compra, url_imagen) 
-                     VALUES (?, ?, ?, ?, ?, ?)
+                     (nombre_producto, descripcion, stock_actual, stock_minimo, precio_compra, precio_venta, url_imagen, proveedor) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                      """;
 
-        try (Connection con = conexion.getConection(); 
+        try (Connection con = conexion.getConection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, producto.getNombreProducto());
@@ -64,16 +64,17 @@ public class ProductoDao implements Crud<Producto> {
             ps.setInt(3, producto.getStockActual());
             ps.setInt(4, producto.getStockMinimo());
             ps.setDouble(5, producto.getPrecioCompra());
-            ps.setString(6, producto.getUrlImagen());
+            ps.setDouble(6, producto.getPrecioVenta());
+            ps.setString(7, producto.getUrlImagen());
+            ps.setString(8, producto.getProveedor());
 
-            return ps.executeUpdate(); 
+            return ps.executeUpdate();
 
         } catch (SQLException e) {
             System.err.println("❌ Error al agregar producto: " + e.getMessage());
         }
         return 0;
     }
-
     // U - UPDATE: EDITAR PRODUCTO
     @Override
     public int editar(Producto producto) {

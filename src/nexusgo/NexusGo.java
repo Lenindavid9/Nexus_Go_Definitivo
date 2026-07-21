@@ -7,6 +7,7 @@ package nexusgo;
 import javax.swing.JFrame;
 import nexusgo.controller.ControladorInicioSesion;
 import nexusgo.view.VistaInicioSesion;
+import nexusgo.view.VistaPrincipalCliente;
 
 /**
  *
@@ -18,7 +19,7 @@ public class NexusGo {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        
+
         VistaInicioSesion login = new VistaInicioSesion();
 
         /*Se crea el controlador encargado de administrar el funcionamiento
@@ -41,6 +42,6 @@ public class NexusGo {
         // Finalmente, se hace visible la ventana de inicio de sesión.
         login.setVisible(true);
 
-}
-
     }
+
+}
