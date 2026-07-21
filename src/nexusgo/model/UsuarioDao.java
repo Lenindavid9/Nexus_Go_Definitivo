@@ -234,7 +234,7 @@ public class UsuarioDao {
 
             while (rs.next()) {
                 Usuario u = new Usuario();
-                u.setNumeroIdentificacion(rs.getString("numero_identificacion"));
+                u.setIdentificacion(rs.getInt("numero_identificacion"));
                 u.setNombre(rs.getString("nombre"));
                 u.setApellido(rs.getString("apellido"));
                 u.setRol(rs.getString("rol"));

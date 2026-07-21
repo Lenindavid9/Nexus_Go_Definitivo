@@ -75,7 +75,7 @@ public class ControladorCambioRol {
         cargando = true;
         vista.modelo.setRowCount(0); // Limpiar la JTable
 
-        List<Usuario> lista = usuarioDAO.listar();
+        List<Usuario> lista = usuarioDAO.listarUsuarios();
 
         if (lista != null) {
             for (Usuario u : lista) {
