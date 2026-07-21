@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagLayout;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -21,7 +22,7 @@ import javax.swing.border.EmptyBorder;
  * @author USUARIO
  */
 public class VistaPrincipalSupervisor extends JFrame {
-    
+
     private JLabel fondo;
     private JPanel panelContenedorFlotante, contenidoCentralDinamico, panelSuperiorDerecho, panelDerechoCompleto;
     private JScrollPane scrollContenido;
@@ -32,7 +33,7 @@ public class VistaPrincipalSupervisor extends JFrame {
 
     // Botones específicos del Supervisor
     public JButton btnCaja, btnCerrarSesion;
-    
+
     private final Color COLOR_DORADO = new Color(184, 134, 11);
 
     public VistaPrincipalSupervisor(String nombreUsuario, String rolUsuario) {
@@ -87,8 +88,9 @@ public class VistaPrincipalSupervisor extends JFrame {
         panelSuperiorDerecho.add(btnCerrarSesion);
 
         // 5. PANEL CENTRAL DINÁMICO
-        contenidoCentralDinamico = new JPanel();
-        contenidoCentralDinamico.setLayout(new BoxLayout(contenidoCentralDinamico, BoxLayout.Y_AXIS));
+        contenidoCentralDinamico = new JPanel(new BorderLayout());
+        contenidoCentralDinamico.setOpaque(false);
+        contenidoCentralDinamico.setBorder(new EmptyBorder(10, 40, 30, 40));
         contenidoCentralDinamico.setOpaque(false);
         contenidoCentralDinamico.setBorder(new EmptyBorder(10, 40, 30, 40));
 
@@ -141,22 +143,16 @@ public class VistaPrincipalSupervisor extends JFrame {
 
         panelInicio.add(panelBienvenida);
         panelInicio.add(Box.createVerticalStrut(25));
-        panelInicio.add(btnCerrarSesion);
+        
 
         contenidoCentralDinamico.add(panelInicio, BorderLayout.CENTER);
 
         contenidoCentralDinamico.revalidate();
         contenidoCentralDinamico.repaint();
     }
-    
-    
-    
 
     public JPanel getContenidoCentralDinamico() {
         return contenidoCentralDinamico;
     }
-    
-    
-    
 
 }
