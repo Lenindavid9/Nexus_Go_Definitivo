@@ -188,15 +188,15 @@ public class UsuarioDao {
         }
     }
     // REGISTRAR CITA NUEVA
-    public boolean registrarCita(int idCliente, int idServicio, String fechaHora) {
-        String sql = "INSERT INTO citas (id_cliente, id_servicio, fecha_hora, estado) VALUES (?, ?, ?, 'Vigente')";
+    public boolean registrarCita(int idCliente, int idServicio, String fechahora) {
+        String sql = "INSERT INTO citas (id_cliente, id_servicio, fecha_hora_programada, estado) VALUES (?, ?, ?, 'Vigente')";
 
         try (Connection con = conexion.getConection(); 
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idCliente);
             ps.setInt(2, idServicio);
-            ps.setString(3, fechaHora);
+            ps.setString(3, fechahora);
 
             return ps.executeUpdate() > 0;
 
