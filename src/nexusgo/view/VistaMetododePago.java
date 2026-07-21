@@ -19,7 +19,7 @@ import javax.swing.border.Border;
 
 public class VistaMetododePago extends JPanel {
 
-    private JPanel principal, pnlClientes, pnlIngresoId, pnlMdP, pnlResumen, pnlbtnVolver, pnlOpcionesPago;
+    private JPanel principal, pnlClientes, pnlIngresoId, pnlMdP, pnlResumen, pnlOpcionesPago;
     private JLabel lbltxtIngreso, lbltxtMdP, lbltxtIndicacion, lblTotal;
     private JButton btnClienteR, btnClienteG, btnVolver, btnConfirmar, btnBuscarCliente;
     private JTextField numId;
@@ -33,6 +33,7 @@ public class VistaMetododePago extends JPanel {
     private String metodoSeleccionado = "Efectivo";
 
     public VistaMetododePago() {
+        setOpaque(false);
         VistaMdP();
     }
 
@@ -47,18 +48,7 @@ public class VistaMetododePago extends JPanel {
         principal.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
         // Botón volver
-        pnlbtnVolver = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        pnlbtnVolver.setOpaque(false);
-        pnlbtnVolver.setMaximumSize(new Dimension(Short.MAX_VALUE, 40));
-
-        btnVolver = new JButton("< Volver");
-        btnVolver.setPreferredSize(new Dimension(110, 35));
-        btnVolver.setFont(new Font("SansSerif", Font.BOLD, 14));
-        btnVolver.setBackground(COLOR_DORADO);
-        btnVolver.setFocusPainted(false);
-        btnVolver.setBorder(null);
-
-        pnlbtnVolver.add(btnVolver);
+        
 
         // Selección tipo cliente
         pnlClientes = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
@@ -177,7 +167,6 @@ public class VistaMetododePago extends JPanel {
         pnlResumen.add(btnConfirmar);
 
         // Ensamble
-        principal.add(pnlbtnVolver);
         principal.add(pnlClientes);
         principal.add(pnlIngresoId);
         principal.add(pnlMdP);

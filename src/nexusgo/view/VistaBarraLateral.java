@@ -26,10 +26,10 @@ public class VistaBarraLateral extends JPanel {
         setLayout(new GridLayout(4, 1, 10, 10));
 
         bCasa = new JButton(new ImageIcon("src/nexusgo/img/inicio.png"));
-        bCasa.setBorderPainted(false);   // Quita el borde
-        bCasa.setContentAreaFilled(false); // Quita el fondo
-        bCasa.setFocusPainted(false);    // Quita el resaltado al hacer clic
-        bCasa.setOpaque(false);          // Transparente
+        bCasa.setBorderPainted(false);   
+        bCasa.setContentAreaFilled(false);
+        bCasa.setFocusPainted(false);    
+        bCasa.setOpaque(false);         
         
         misCitas = new JButton(new ImageIcon("src/nexusgo/img/inventario.png"));
         misCitas.setBorderPainted(false);
