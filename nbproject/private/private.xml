@@ -3,7 +3,30 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/INGRID/OneDrive%20-%20Universidad%20Autonoma%20de%20Occidente/Documentos/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/NexusGo.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorMetododePago.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorMdP.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/NexusGo.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorAdmiPeluqueria.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorPrincipalAdminSoftware.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaPdV.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorPdV.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/model/DetalleCarrito.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaMetododePago.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/DineroEfectivo.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorEfectivo.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaFactura.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/model/Factura.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaAgregarHerramienta.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/GeneradorFacturaPdf.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorValidarIdentificacion.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorCaja.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/model/FacturaDao.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaPrincipalSupervisor.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaCambioRol.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaPrincipalAdminSoftware.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorPrincipalSupervisor.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/controller/ControladorInventarioSupervisor.java</file>
+            <file>file:/C:/Users/USUARIO/Documents/NetBeansProjects/Nexus_Go_Definitivo/src/nexusgo/view/VistaInventarioSupervisor.java</file>
         </group>
     </open-files>
 </project-private>

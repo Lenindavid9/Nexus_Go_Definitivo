@@ -1,4 +1,5 @@
 package nexusgo.controller;
+
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,11 +14,12 @@ import nexusgo.model.FacturaDao;
 import nexusgo.model.Producto;
 import nexusgo.view.VistaFactura;
 import nexusgo.model.ProductoDao;
+import nexusgo.view.VistaMetododePago;
 import nexusgo.view.VistaPdV;
 
 public class ControladorPdV implements ActionListener {
-    
-    private final VistaPdV vista;
+
+   private final VistaPdV vista;
     private final FacturaDao facturaDao;
     private final ProductoDao productoDao;
     private JPanel contenedorCentral;
@@ -39,7 +41,7 @@ public class ControladorPdV implements ActionListener {
         this.vista.getFacturarButton().addActionListener(this);
         this.vista.getReiniciarButton().addActionListener(this);
 
-        // Cargar los productos dinámicamente
+        // Cargar los productos dinámicamente desde el DAO
         cargarProductos();
     }
 
@@ -96,7 +98,6 @@ public class ControladorPdV implements ActionListener {
 
         for (DetalleCarrito item : carrito) {
             if (item.getIdProducto() == p.getIdProducto()) {
-                // CORRECCIÓN AQUÍ: Usar el setter correspondiente
                 item.setCantidad(item.getCantidad() + cantidad);
                 productoExiste = true;
                 break;
@@ -110,47 +111,46 @@ public class ControladorPdV implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        // Evento Botón Facturar -> Transición hacia Método de Pago
         if (e.getSource() == vista.getFacturarButton()) {
             
             if (carrito.isEmpty()) {
-                JOptionPane.showMessageDialog(vista, "El carrito está vacío. Agrega productos presionando el botón (+).", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(
+                        vista, 
+                        "El carrito está vacío. Agrega productos presionando el botón (+).", 
+                        "Advertencia", 
+                        JOptionPane.WARNING_MESSAGE
+                );
                 return;
             }
 
-            double subtotal = totalVenta;
-            double descuento = 0.0;
-            double total = subtotal - descuento;
+            // 1. Instanciar la vista del Método de Pago
+            VistaMetododePago vistaPago = new VistaMetododePago();
 
-            // Datos base para el registro de venta
-            int idVenta = 1; 
-            int idCliente = 1; 
-            int idCaja = 1; 
+            // 2. Instanciar su controlador pasándole la vista, los datos de la venta y el contenedor
+            ControladorMetododePago controladorPago = new ControladorMetododePago(
+                    vistaPago, 
+                    carrito, 
+                    totalVenta, 
+                    obtenerContenedorObjetivo()
+            );
 
-            // Crear modelo de Factura
-            Factura factura = new Factura(0, idVenta, idCliente, idCaja, subtotal, descuento, total, new Date());
-
-            // Guardar factura en la base de datos a través del DAO
-            boolean exito = facturaDao.guardarFactura(factura);
-
-            if (exito) {
-                JOptionPane.showMessageDialog(vista, "Factura N° " + factura.getIdFactura() + " guardada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                
-                // Transición a la vista de Factura detallada
-                VistaFactura vistaFactura = new VistaFactura(factura, carrito);
-                cambiarPanel(vistaFactura);
-
-                reiniciarCarrito();
-            } else {
-                JOptionPane.showMessageDialog(vista, "Error al procesar la factura en la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
+            // 3. Redireccionar a la pantalla de selección de Método de Pago
+            cambiarPanel(vistaPago);
         } 
+        // Evento Botón Reiniciar / Limpiar Carrito
         else if (e.getSource() == vista.getReiniciarButton()) {
             reiniciarCarrito();
-            JOptionPane.showMessageDialog(vista, "El carrito se ha reiniciado correctamente.", "Carrito Vaciado", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    vista, 
+                    "El carrito se ha reiniciado correctamente.", 
+                    "Carrito Vaciado", 
+                    JOptionPane.INFORMATION_MESSAGE
+            );
         }
     }
 
-    private void reiniciarCarrito() {
+    public void reiniciarCarrito() {
         carrito.clear();
         totalVenta = 0.0;
         contadorProductos = 0;
@@ -163,11 +163,18 @@ public class ControladorPdV implements ActionListener {
         }
     }
 
-    private void cambiarPanel(JPanel nuevoPanel) {
-        JPanel objetivo = contenedorCentral;
-        if (objetivo == null && vista.getParent() instanceof JPanel) {
-            objetivo = (JPanel) vista.getParent();
+    private JPanel obtenerContenedorObjetivo() {
+        if (contenedorCentral != null) {
+            return contenedorCentral;
         }
+        if (vista.getParent() instanceof JPanel) {
+            return (JPanel) vista.getParent();
+        }
+        return null;
+    }
+
+    private void cambiarPanel(JPanel nuevoPanel) {
+        JPanel objetivo = obtenerContenedorObjetivo();
 
         if (objetivo != null) {
             objetivo.removeAll();
@@ -177,5 +184,4 @@ public class ControladorPdV implements ActionListener {
             objetivo.repaint();
         }
     }
-  
 }

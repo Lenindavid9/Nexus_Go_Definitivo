@@ -25,8 +25,8 @@ import javax.swing.border.EmptyBorder;
  * @author USUARIO
  */
 public class VistaPrincipalSupervisor extends JFrame {
-    
-   private JLabel fondo;
+
+    private JLabel fondo;
     private JPanel panelContenedorFlotante, contenidoCentralDinamico;
     private JScrollPane scrollContenido;
 
@@ -40,7 +40,6 @@ public class VistaPrincipalSupervisor extends JFrame {
     public VistaPrincipalSupervisor(String nombreUsuario, String rolUsuario) {
         super("Nexus GO - Panel de Supervisor");
 
-        
         // 1. Reutilización del fondo de mármol
         this.fondo = new JLabel(new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg"));
         this.fondo.setLayout(new GridBagLayout());
@@ -67,8 +66,7 @@ public class VistaPrincipalSupervisor extends JFrame {
         sidebar.misCitas.setVisible(true);    // Gestión de Citas
 
         // 4. PANEL CENTRAL DINÁMICO
-        contenidoCentralDinamico = new JPanel();
-        contenidoCentralDinamico.setLayout(new BoxLayout(contenidoCentralDinamico, BoxLayout.Y_AXIS));
+        contenidoCentralDinamico = new JPanel(new BorderLayout());
         contenidoCentralDinamico.setOpaque(false);
         contenidoCentralDinamico.setBorder(new EmptyBorder(30, 40, 30, 40));
 
@@ -107,26 +105,39 @@ public class VistaPrincipalSupervisor extends JFrame {
         this.getContentPane().add(panelContenedorFlotante, BorderLayout.CENTER);
 
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setMinimumSize(new Dimension(1024, 600));
+        setLocationRelativeTo(null);
     }
 
     /**
-     * Limpia el contenedor central dinámico y reestablece el estado inicial
-     * del Supervisor (Bienvenida y cierre de sesión).
+     * Limpia el contenedor central dinámico y reestablece el estado inicial del
+     * Supervisor (Bienvenida y cierre de sesión).
      */
     public void restaurarVistaInicial() {
+
         contenidoCentralDinamico.removeAll();
-        contenidoCentralDinamico.add(panelBienvenida);
-        contenidoCentralDinamico.add(Box.createVerticalStrut(25));
-        contenidoCentralDinamico.add(btnCerrarSesion);
+
+        JPanel panelInicio = new JPanel();
+        panelInicio.setOpaque(false);
+        panelInicio.setLayout(new BoxLayout(panelInicio, BoxLayout.Y_AXIS));
+
+        panelBienvenida.setAlignmentX(CENTER_ALIGNMENT);
+        btnCerrarSesion.setAlignmentX(CENTER_ALIGNMENT);
+
+        panelInicio.add(panelBienvenida);
+        panelInicio.add(Box.createVerticalStrut(25));
+        panelInicio.add(btnCerrarSesion);
+
+        contenidoCentralDinamico.add(panelInicio, BorderLayout.CENTER);
+
         contenidoCentralDinamico.revalidate();
         contenidoCentralDinamico.repaint();
-        
-        // Configuración básica del Frame para Pantalla Completa
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setExtendedState(JFrame.MAXIMIZED_BOTH); // Maximizado a pantalla completa
-        setMinimumSize(new Dimension(1024, 600));  // Tamaño mínimo seguro para pantallas pequeñas
-
     }
+    
+    
+    
 
     /**
      * Getter para que los controladores inyecten vistas (Tablas, Formularios)
@@ -138,6 +149,5 @@ public class VistaPrincipalSupervisor extends JFrame {
     
     
     
-    
-   
+
 }

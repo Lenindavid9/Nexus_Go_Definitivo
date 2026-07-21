@@ -4,6 +4,7 @@
  */
 package nexusgo.controller;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -85,6 +86,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             this.vistaPrincipal.sidebar.bCasa.addActionListener(this);
             this.vistaPrincipal.sidebar.bInventario.addActionListener(this);
             this.vistaPrincipal.sidebar.misCitas.addActionListener(this);
+            this.vistaPrincipal.btnCerrarSesion.addActionListener(this);
             
             // Registrar el botón Caja
             if (this.vistaPrincipal.btnCaja != null) {
@@ -326,15 +328,19 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             System.err.println("Error al listar herramientas: " + e.getMessage());
         }
     }
-
+    
     private void cambiarPanelCentral(JPanel panelNuevo) {
-        try {
-            vistaPrincipal.getContenidoCentralDinamico().removeAll();
-            vistaPrincipal.getContenidoCentralDinamico().add(panelNuevo, java.awt.BorderLayout.CENTER);
-            vistaPrincipal.getContenidoCentralDinamico().revalidate();
-            vistaPrincipal.getContenidoCentralDinamico().repaint();
-        } catch (Exception e) {
-            System.err.println("Error en enrutador de vistas: " + e.getMessage());
-        }
-    }
+
+    JPanel contenedor = vistaPrincipal.getContenidoCentralDinamico();
+
+    contenedor.removeAll();
+    contenedor.setLayout(new BorderLayout());
+
+    contenedor.add(panelNuevo, BorderLayout.CENTER);
+
+    contenedor.revalidate();
+    contenedor.repaint();
+}
+
+   
 }

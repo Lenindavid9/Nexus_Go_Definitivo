@@ -125,7 +125,11 @@ public class VistaCambioRol extends JFrame {
         miBarra = new VistaBarraLateral();
         // Se agrega la barra lateral en la posicion OESTE del BorderLayout.
         fondo.add(miBarra,BorderLayout.WEST);
-        miBarra.add(new JButton("Reportes"));
+        
+         miBarra.bCasa.setVisible(true);       // Inicio
+        miBarra.bInventario.setVisible(true); // Ventas / Inventario
+        miBarra.misCitas.setVisible(false);    // Gestión de Citas
+
         
         // Se agrega el panel central a la posición CENTER del BorderLayout.
         fondo.add(panelCentro, BorderLayout.CENTER);
