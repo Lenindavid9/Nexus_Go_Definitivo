@@ -12,7 +12,7 @@ import javax.swing.JButton;
  */
 public class Producto {
 
-  private int idProducto;
+    private int idProducto;
     private String nombreProducto;
     private String descripcion;
     private int stockActual;
@@ -20,12 +20,21 @@ public class Producto {
     private double precioCompra;
     private double precioVenta;
     private String urlImagen;
+    private String proveedor;
+
+    public String getProveedor() {
+        return proveedor;
+    }
+
+    public void setProveedor(String proveedor) {
+        this.proveedor = proveedor;
+    }
 
     public Producto() {
     }
 
-    public Producto(int idProducto, String nombreProducto, String descripcion, int stockActual, 
-                    int stockMinimo, double precioCompra, double precioVenta, String urlImagen) {
+    public Producto(int idProducto, String nombreProducto, String descripcion, int stockActual,
+            int stockMinimo, double precioCompra, double precioVenta, String urlImagen, String proveedor) {
         this.idProducto = idProducto;
         this.nombreProducto = nombreProducto;
         this.descripcion = descripcion;
@@ -34,6 +43,8 @@ public class Producto {
         this.precioCompra = precioCompra;
         this.precioVenta = precioVenta;
         this.urlImagen = urlImagen;
+        this.proveedor = proveedor;
+
     }
 
     // Getters y Setters
@@ -100,7 +111,5 @@ public class Producto {
     public void setUrlImagen(String urlImagen) {
         this.urlImagen = urlImagen;
     }
-    
+
 }
-
-

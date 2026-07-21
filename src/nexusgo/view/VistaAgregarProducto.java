@@ -25,12 +25,13 @@ import javax.swing.border.EmptyBorder;
  *
  * @author USUARIO
  */
-public class VistaAgregarProducto extends JPanel{
+public class VistaAgregarProducto extends JPanel {
 
-    public JTextField txtNombre, txtCantidad, txtPrecio, txtProveedor, txtStockMinimo;
+    public JTextField txtNombre, txtCantidad, txtPrecio, txtPrecioVenta, txtProveedor, txtStockMinimo;
     public JTextArea txtDescripcion;
     public JButton btnEditar, btnImagen, btnVolver;
     public JLabel lblNombreImagen;
+    public JLabel lblTitulo; // ahora es campo de la clase, accesible desde el controlador
 
     public VistaAgregarProducto() {
         setLayout(new BorderLayout());
@@ -41,7 +42,7 @@ public class VistaAgregarProducto extends JPanel{
         JPanel panelHeader = new JPanel(new BorderLayout());
         panelHeader.setBackground(Color.WHITE);
 
-        JLabel lblTitulo = new JLabel("Editar producto");
+        lblTitulo = new JLabel("Agregar producto"); // valor inicial por defecto
         lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 26));
         lblTitulo.setForeground(new Color(30, 30, 30));
 
@@ -74,8 +75,8 @@ public class VistaAgregarProducto extends JPanel{
         // Descripción
         panelCampos.add(crearLabel("Descripcion del producto", fuenteLabels, colorTextoLabels));
         txtDescripcion = new JTextArea(3, 20);
-        txtDescripcion.setLineWrap(true);//texto se ajustará a la siguiente línea si es demasiado largo para el ancho del área.
-        txtDescripcion.setWrapStyleWord(true);//Configura el ajuste para que ocurra en los límites de palabras, es decir, no cortará palabras a la mitad.
+        txtDescripcion.setLineWrap(true);
+        txtDescripcion.setWrapStyleWord(true);
         txtDescripcion.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(180, 180, 180), 1, true),
                 BorderFactory.createEmptyBorder(8, 10, 8, 10)
@@ -93,6 +94,11 @@ public class VistaAgregarProducto extends JPanel{
         panelCampos.add(crearLabel("Precio", fuenteLabels, colorTextoLabels));
         txtPrecio = crearTextField();
         panelCampos.add(txtPrecio);
+        panelCampos.add(Box.createVerticalStrut(12));
+
+        panelCampos.add(crearLabel("Precio de venta", fuenteLabels, colorTextoLabels));
+        txtPrecioVenta = crearTextField();
+        panelCampos.add(txtPrecioVenta);
         panelCampos.add(Box.createVerticalStrut(12));
 
         // Proveedor
@@ -120,7 +126,7 @@ public class VistaAgregarProducto extends JPanel{
         btnImagen.setPreferredSize(new Dimension(160, 32));
         btnImagen.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        lblNombreImagen = new JLabel("tratamiento.png");
+        lblNombreImagen = new JLabel("Ningún archivo seleccionado"); // antes: "tratamiento.png"
         lblNombreImagen.setForeground(new Color(120, 120, 120));
         lblNombreImagen.setFont(new Font("SansSerif", Font.PLAIN, 13));
 
@@ -140,12 +146,9 @@ public class VistaAgregarProducto extends JPanel{
         btnEditar.setForeground(Color.WHITE);
         btnEditar.setFont(new Font("SansSerif", Font.BOLD, 18));
         btnEditar.setFocusPainted(false);
-        btnEditar.setBorder(BorderFactory.createEmptyBorder());
         btnEditar.setPreferredSize(new Dimension(180, 40));
         btnEditar.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        // Efecto redondeado visual para el botón
-        btnEditar.setBorder(BorderFactory.createLineBorder(new Color(254, 222, 79), 1, true));
+        btnEditar.setBorder(BorderFactory.createLineBorder(new Color(254, 222, 79), 1, true)); // única línea de borde (se quitó la duplicada)
 
         panelBotonAbajo.add(btnEditar);
         add(panelBotonAbajo, BorderLayout.SOUTH);
@@ -170,5 +173,3 @@ public class VistaAgregarProducto extends JPanel{
         return tf;
     }
 }
-
-
