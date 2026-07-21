@@ -21,6 +21,23 @@ public class PanelBienvenida extends JPanel {
         // Usamos null layout para posicionar los elementos exactamente donde queramos
         setLayout(null);
         setOpaque(false);
+        
+//        class FondoPanel extends JPanel {
+//    private Image imagen;
+//
+//    public FondoPanel(String rutaImagen) {
+//        this.imagen = new ImageIcon(rutaImagen).getImage();
+//    }
+//
+//    @Override
+//    protected void paintComponent(Graphics g) {
+//        super.paintComponent(g);
+//        g.drawImage(imagen, 0, 0, getWidth(), getHeight(), this);
+//    }
+//}
+//
+//        
+//        private fondo 
          // Un gris muy claro de fondo limpio
 
         // Configuración del Título

@@ -30,7 +30,6 @@ public class PanelModificarCita extends JPanel{
     private JComboBox<String> comboServicios;
     private JTable tablaHorarios;
     private JButton btnCerrarSesion;
-    private JButton btnVolver;
     private JButton btnGuardar;
     private JButton btnImagen;
     private JLabel lblNombreImagen;
@@ -87,16 +86,7 @@ public class PanelModificarCita extends JPanel{
         lblTitulo.setBounds(40, 25, 250, 30);
         tarjetaBlanca.add(lblTitulo);
 
-        // Configuro mi botón/enlace de "Volver al inicio" con texto plano y un gris discreto
-        btnVolver = new JButton("< Volver al inicio");
-        btnVolver.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        btnVolver.setForeground(new Color(100, 100, 100));
-        btnVolver.setContentAreaFilled(false);
-        btnVolver.setBorderPainted(false);
-        btnVolver.setFocusPainted(false);
-        btnVolver.setBounds(630, 28, 130, 25);
-        tarjetaBlanca.add(btnVolver);
-
+       
         // Creo la etiqueta indicadora para el selector de servicios
         JLabel lblServicio = new JLabel("Servicio a seleccionar para cambiar");
         lblServicio.setFont(new Font("SansSerif", Font.PLAIN, 12));
@@ -256,7 +246,6 @@ public class PanelModificarCita extends JPanel{
     public JComboBox<String> getComboServicios() { return comboServicios; }
     public JTable getTablaHorarios() { return tablaHorarios; }
     public JButton getBtnCerrarSesion() { return btnCerrarSesion; }
-    public JButton getBtnVolver() { return btnVolver; }
     public JButton getBtnGuardar() { return btnGuardar; }
     public JButton getBtnImagen() { return btnImagen; }
     public JLabel getLblNombreImagen() { return lblNombreImagen; }
