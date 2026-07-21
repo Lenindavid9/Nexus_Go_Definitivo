@@ -43,7 +43,7 @@ public class VistaPrincipalCliente extends JFrame {
     public JButton btnCerrarSesion;
     public JButton btnHistorial;
     public JLabel lblBienvenida;
-//    public VistaBarraLateral sidebar;
+    public VistaBarraLateral sidebar;
 
     public VistaPrincipalCliente() {
         this("Cliente", "Cliente");
@@ -65,22 +65,22 @@ public class VistaPrincipalCliente extends JFrame {
         contenedorEstructural.setOpaque(false);
 
         // 3. Barra Lateral (Sidebar)
-//        sidebar = new VistaBarraLateral();
-//<<<<<<< HEAD
-//        sidebar.setPreferredSize(new Dimension(70, 650));
-//        sidebar.setOpaque(false);
-//        if (sidebar.bInventario != null) sidebar.bInventario.setVisible(false);
-//        if (sidebar.misCitas != null) sidebar.misCitas.setVisible(true);
+        sidebar = new VistaBarraLateral();
+        sidebar.setPreferredSize(new Dimension(70, 650));
+        sidebar.setBackground(Color.WHITE);
+        if (sidebar.bInventario != null) sidebar.bInventario.setVisible(false);
+        if (sidebar.misCitas != null) sidebar.misCitas.setVisible(true);
 
         // 4. Tarjeta Blanca Central Flotante (Como en Figma)
         panelFlotanteBlanco = new JPanel(new BorderLayout());
         panelFlotanteBlanco.setBackground(Color.WHITE);
-//        
-//        sidebar.setBackground(Color.WHITE);
-//        sidebar.setPreferredSize(new Dimension(80,0));
-//        if (sidebar.bInventario != null) sidebar.bInventario.setVisible(false);
-//        if (sidebar.misCitas != null) sidebar.misCitas.setVisible(true);
         
+        sidebar.setBackground(Color.WHITE);
+        sidebar.setPreferredSize(new Dimension(80,0));
+        if (sidebar.bInventario != null) sidebar.bInventario.setVisible(false);
+        if (sidebar.misCitas != null) sidebar.misCitas.setVisible(true);
+        
+
 
         // 4. Tarjeta Blanca Central Flotante (Como en Figma)
         panelFlotanteBlanco = new JPanel(new BorderLayout());
@@ -137,7 +137,7 @@ public class VistaPrincipalCliente extends JFrame {
         panelFlotanteBlanco.add(scrollContenido, BorderLayout.CENTER);
 
         // Ensamblar
-//        contenedorEstructural.add(sidebar, BorderLayout.WEST);
+        contenedorEstructural.add(sidebar, BorderLayout.WEST);
         contenedorEstructural.add(panelFlotanteBlanco, BorderLayout.CENTER);
 
         this.add(contenedorEstructural);

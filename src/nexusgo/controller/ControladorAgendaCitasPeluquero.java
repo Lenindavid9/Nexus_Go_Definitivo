@@ -62,7 +62,6 @@ public class ControladorAgendaCitasPeluquero implements ActionListener{
      */
     private void guardarModificaciones() {
         String servicioSeleccionado = (String) panel.getComboServicios().getSelectedItem();
-        String precioTexto = panel.getTxtPrecio().getText().trim();
         int filaSeleccionada = panel.getTablaHorarios().getSelectedRow();
         int columnaSeleccionada = panel.getTablaHorarios().getSelectedColumn();
 
@@ -74,11 +73,7 @@ public class ControladorAgendaCitasPeluquero implements ActionListener{
         }
 
         // Validar precio vacío o con el placeholder por defecto
-        if (precioTexto.isEmpty() || precioTexto.equals("Ingrese el precio en pesos colombianos")) {
-            JOptionPane.showMessageDialog(panel, "Por favor, ingrese el precio del servicio.", 
-                                          "Validación", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+        
 
         // Validar selección de un bloque horario en la cuadrícula de la tabla
         if (filaSeleccionada == -1 || columnaSeleccionada <= 0) {
@@ -88,7 +83,7 @@ public class ControladorAgendaCitasPeluquero implements ActionListener{
         }
 
         try {
-            double precio = Double.parseDouble(precioTexto);
+            
             String hora = panel.getTablaHorarios().getValueAt(filaSeleccionada, 0).toString();
             String dia = panel.getTablaHorarios().getColumnName(columnaSeleccionada);
 
@@ -97,7 +92,7 @@ public class ControladorAgendaCitasPeluquero implements ActionListener{
 
             JOptionPane.showMessageDialog(panel, "Cita modificada exitosamente:\n"
                                           + "- Servicio: " + servicioSeleccionado + "\n"
-                                          + "- Precio: $" + String.format("%,.0f", precio) + "\n"
+                                        
                                           + "- Espacio: " + dia + " a las " + hora, 
                                           "Éxito", JOptionPane.INFORMATION_MESSAGE);
 

@@ -28,7 +28,6 @@ import javax.swing.table.DefaultTableModel;
 public class PanelModificarCita extends JPanel{
     // Declaro todos mis componentes a nivel de clase para que puedas acceder a ellos desde el controlador
     private JComboBox<String> comboServicios;
-    private JTextField txtPrecio;
     private JTable tablaHorarios;
     private JButton btnCerrarSesion;
     private JButton btnVolver;
@@ -83,7 +82,7 @@ public class PanelModificarCita extends JPanel{
         add(tarjetaBlanca);
 
         // Agrego el título "Modificar citas" en la parte superior izquierda de la tarjeta
-        JLabel lblTitulo = new JLabel("Modificar citas");
+        JLabel lblTitulo = new JLabel("Modificar varias citas");
         lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 22));
         lblTitulo.setBounds(40, 25, 250, 30);
         tarjetaBlanca.add(lblTitulo);
@@ -111,18 +110,7 @@ public class PanelModificarCita extends JPanel{
         tarjetaBlanca.add(comboServicios);
 
         // Creo la etiqueta para el bloque de espacio/precio
-        JLabel lblEspacio = new JLabel("Seleccionar el bloque de espacio");
-        lblEspacio.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        lblEspacio.setBounds(40, 135, 300, 15);
-        tarjetaBlanca.add(lblEspacio);
-
-        // Diseño el campo de texto del precio con una tipografía cursiva y color gris claro simulando un placeholder
-        txtPrecio = new JTextField();
-        txtPrecio.setText("Ingrese el precio en pesos colombianos");
-        txtPrecio.setFont(new Font("SansSerif", Font.ITALIC, 11));
-        txtPrecio.setForeground(Color.LIGHT_GRAY);
-        txtPrecio.setBounds(40, 155, 410, 32);
-        tarjetaBlanca.add(txtPrecio);
+        
 
         // Configuro la cabecera de las columnas para mi cuadrícula semanal de horarios
         String[] columnas = {"Hora", "Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"};
@@ -266,7 +254,6 @@ public class PanelModificarCita extends JPanel{
 
     // --- Mis métodos getters para que manipules la información desde el Controlador ---
     public JComboBox<String> getComboServicios() { return comboServicios; }
-    public JTextField getTxtPrecio() { return txtPrecio; }
     public JTable getTablaHorarios() { return tablaHorarios; }
     public JButton getBtnCerrarSesion() { return btnCerrarSesion; }
     public JButton getBtnVolver() { return btnVolver; }
