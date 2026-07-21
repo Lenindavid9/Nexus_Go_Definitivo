@@ -34,31 +34,25 @@ public class PanelAdmi extends JFrame {
     private JLabel TituloPrincipal, imagen, lblEstado, texto1, texto2, imgJornada, imgVentas, tituloJ, estadoJ, detalleJ, tituloVentas, actividadV, detalleVentas;
     private JPanel pnlTarjeta, pnlEstado, Jornada, textoJornada, Ventas, textoVentas;
 
-    // Tu clase VistaBarraLateral integrada
+    // Componente Barra Lateral
     private VistaBarraLateral menuLateral;
     public JButton btnReporte;
 
     private final Color COLOR_DORADO = new Color(223, 205, 141);
 
-    // CONSTRUCTOR
     public PanelAdmi() {
-        // Configuración del JFrame principal
         super("Panel de Administración - N E X U S GO");
         
-        // Configuración del fondo como contenedor principal (En lugar de paint())
+        // Imagen de fondo con contenedor principal
         JLabel fondoConImagen = new JLabel(new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg"));
         fondoConImagen.setLayout(new BorderLayout());
         this.setContentPane(fondoConImagen);
 
-
-        // --- TU COMPLEMENTO: VistaBarraLateral ---
+        // --- BARRA LATERAL ---
         menuLateral = new VistaBarraLateral();
         menuLateral.setBackground(COLOR_DORADO);
         menuLateral.setPreferredSize(new Dimension(250, 0));
         menuLateral.setBorder(BorderFactory.createEmptyBorder(30, 15, 10, 15));
-        btnReporte = new JButton("reporte");
-        menuLateral.add(btnReporte);
-
 
         // --- PANEL PRINCIPAL (CONTENIDO CENTRAL) ---
         principal = new JPanel();
@@ -171,12 +165,13 @@ public class PanelAdmi extends JFrame {
         this.getContentPane().add(menuLateral, BorderLayout.WEST);
         this.getContentPane().add(principal, BorderLayout.CENTER);
 
-        // Ajustes de la ventana autónoma
+        // Ajustes finales del marco
         this.setSize(1250, 780);
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
+    // --- GETTERS DE CONTROL ---
     public VistaBarraLateral getMenuLateral() {
         return menuLateral;
     }
@@ -197,11 +192,7 @@ public class PanelAdmi extends JFrame {
         return btnReporte;
     }
 
-    private void configurarBotonLateral(JButton boton) {
-        boton.setFont(new Font("SansSerif", Font.BOLD, 16));
-        boton.setContentAreaFilled(false);
-        boton.setBorderPainted(false);
-        boton.setHorizontalAlignment(SwingConstants.LEFT);
-        boton.setAlignmentX(Component.LEFT_ALIGNMENT);
+    public JPanel getContenidoCentral() {
+        return principal;
     }
 }

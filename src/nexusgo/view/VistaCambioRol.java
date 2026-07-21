@@ -25,7 +25,7 @@ public class VistaCambioRol extends JPanel {
     public JComboBox<String> unTipoRol;
     private Image imagenFondo;
 
-    // Lista de roles
+    // Lista de roles disponibles
     private String tipoRol[] = {"Cliente", "Peluquero", "Admin. Software", "Admin. Peluqueria", "Supervisor", "Operario"};
 
     public VistaCambioRol() {
@@ -41,7 +41,13 @@ public class VistaCambioRol extends JPanel {
         datos.setLayout(new BorderLayout(10, 10));
 
         // Modelo de la tabla
-        modelo = new DefaultTableModel();
+        modelo = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                // Solo la columna ROL (índice 3) es editable
+                return column == 3;
+            }
+        };
         modelo.addColumn("NUMERO DE IDENTIDAD");
         modelo.addColumn("NOMBRE");
         modelo.addColumn("APELLIDO");
@@ -51,10 +57,8 @@ public class VistaCambioRol extends JPanel {
         // Tabla
         tabla = new JTable(modelo);
 
-        // ComboBox que permitirá cambiar el rol
+        // ComboBox para cambiar el rol en la columna 3
         JComboBox<String> comboRol = new JComboBox<>(tipoRol);
-
-        // Asignar ComboBox a la columna "ROL" (Índice 3)
         tabla.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(comboRol));
 
         tabla.setRowHeight(45);
@@ -69,22 +73,28 @@ public class VistaCambioRol extends JPanel {
         miscroll = new JScrollPane(tabla);
         miscroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-        // Panel Central para la tabla
+        // Panel Central transparente para ver el fondo
         JPanel panelCentro = new JPanel(new BorderLayout());
         panelCentro.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        panelCentro.setOpaque(false); // Transparente para ver el fondo de mármol
+        panelCentro.setOpaque(false);
         panelCentro.add(miscroll, BorderLayout.CENTER);
 
-        // Agregar los componentes al JPanel actual
         this.add(panelCentro, BorderLayout.CENTER);
     }
 
-    // Dibuja la imagen de fondo abarcando todo el panel
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (imagenFondo != null) {
             g.drawImage(imagenFondo, 0, 0, getWidth(), getHeight(), this);
         }
+    }
+
+    public DefaultTableModel getModelo() {
+        return modelo;
+    }
+
+    public JTable getTabla() {
+        return tabla;
     }
 }
