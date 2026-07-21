@@ -40,14 +40,9 @@ public class VistaPdV extends JPanel {
     private JButton facturar, btnReiniciar;
 
     public VistaPdV() {
+        setLayout(new BorderLayout());
+        setOpaque(false);
         VistaNexus();
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        ImageIcon img = new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg");
-        g.drawImage(img.getImage(), 0, 0, getWidth(), getHeight(), this);
     }
 
     public JPanel VistaNexus() {
@@ -58,10 +53,12 @@ public class VistaPdV extends JPanel {
         principal.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
         TituloPrincipal = new JLabel("Punto de Venta");
-        TituloPrincipal.setFont(new Font("SansSerif", Font.BOLD, 32));
+        TituloPrincipal.setForeground(Color.WHITE);
+        TituloPrincipal.setFont(new Font("SansSerif", Font.BOLD, 35));
         TituloPrincipal.setAlignmentX(CENTER_ALIGNMENT);
 
         estado = new JLabel("Estado: Ventas Habilitadas");
+        estado.setForeground(Color.WHITE);
         estado.setFont(new Font("SansSerif", Font.PLAIN, 14));
         estado.setAlignmentX(CENTER_ALIGNMENT);
 
