@@ -292,15 +292,15 @@ public class ControladorInicioSesion implements ActionListener {
                     //Se cierra la ventana de inicio de sesión
                     vistaLogin.dispose();
                     
-//                } else if (rolReal.equalsIgnoreCase("Administrador_de_la_peluqueria")) {
-//                    VistaPrincipalAdministrador vistaAdminPelu = new VistaPrincipalAdministrador();
-////                    PanelAdmi panelAdmi = new PanelAdmi();
+                } else if (rolReal.equalsIgnoreCase("Administrador_de_la_peluqueria")) {
+                    PanelAdmi panelAdmiPelu = new PanelAdmi();
+                    
+
+//                    ControladorAdmiPeluqueria controlAdminPelu = new ControladorAdmiPeluqueria(vistaAdminPelu, panelAdmi, usuarioLogueado);
 //
-//                    ControladorPrincipalAdministrador controlAdminPelu = new ControladorPrincipalAdministrador(vistaAdminPelu, panelAdmi, usuarioLogueado);
-//
-//                    vistaAdminPelu.setExtendedState(JFrame.MAXIMIZED_BOTH);
-//                    vistaAdminPelu.setVisible(true);
-//                    vistaLogin.dispose();
+                    panelAdmiPelu.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                    panelAdmiPelu.setVisible(true);
+                    vistaLogin.dispose();
                   
                 } else if (rolReal.equalsIgnoreCase("Administrador_del_software")) {
                     VistaPrincipalAdminSoftware vistaAdminSoft = new VistaPrincipalAdminSoftware();

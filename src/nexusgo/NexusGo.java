@@ -6,7 +6,6 @@ package nexusgo;
 
 import javax.swing.JFrame;
 import nexusgo.controller.ControladorInicioSesion;
-import nexusgo.view.PanelAdmi;
 import nexusgo.view.VistaInicioSesion;
 
 /**
