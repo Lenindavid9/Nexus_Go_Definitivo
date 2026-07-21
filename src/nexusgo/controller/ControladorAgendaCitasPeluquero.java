@@ -24,7 +24,6 @@ public class ControladorAgendaCitasPeluquero implements ActionListener{
 
         // Enlazamos los escuchadores utilizando los getters del panel
         this.panel.getBtnGuardar().addActionListener(this);
-        this.panel.getBtnVolver().addActionListener(this);
         this.panel.getBtnImagen().addActionListener(this);
         this.panel.getBtnCerrarSesion().addActionListener(this);
     }
@@ -38,10 +37,6 @@ public class ControladorAgendaCitasPeluquero implements ActionListener{
             guardarModificaciones();
 
         // 2. ACCIÓN BOTÓN VOLVER AL INICIO
-        } else if (origen == panel.getBtnVolver()) {
-            vistaPrincipal.restaurarComponentesPrincipales();
-
-        // 3. ACCIÓN SELECCIONAR IMAGEN
         } else if (origen == panel.getBtnImagen()) {
             // Aquí puedes implementar un JFileChooser en el futuro si deseas cargar archivos reales
             JOptionPane.showMessageDialog(panel, "Función para examinar archivos de imagen en desarrollo.", 
