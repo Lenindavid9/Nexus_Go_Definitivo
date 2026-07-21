@@ -67,8 +67,9 @@ public class AperturaCierre extends JPanel {
         
         apertura = new JPanel();
         apertura.setBackground(new Color(255, 255, 255, 150));
-        apertura.setMaximumSize(new Dimension(900, 200));
+        apertura.setMaximumSize(null);
         apertura.setBorder(null);
+        
         
         imgApertura = new JLabel(new ImageIcon("apertura.png"));
         imgApertura.setPreferredSize(new Dimension(400, 250));
@@ -91,7 +92,7 @@ public class AperturaCierre extends JPanel {
         lblMontoInicial.setFont(new Font("SansSerif", Font.PLAIN, 17));
         lblMontoInicial.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        txtMontoInicial = new JTextField("$0");
+        txtMontoInicial = new JTextField("");
         txtMontoInicial.setFont(new Font("SansSerif", Font.PLAIN, 15));
         txtMontoInicial.setPreferredSize(new Dimension(320, 40));   
         txtMontoInicial.setMaximumSize(new Dimension(320, 40));     
@@ -118,7 +119,7 @@ public class AperturaCierre extends JPanel {
         
         cierre = new JPanel();
         cierre.setBackground(new Color(255, 255, 255, 150));
-        cierre.setMaximumSize(new Dimension(900, 200));
+        cierre.setMaximumSize(null);
         cierre.setBorder(null);
         
         infoCierre = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
@@ -138,7 +139,7 @@ public class AperturaCierre extends JPanel {
         lblMontoA.setFont(new Font("SansSerif", Font.BOLD, 16));
         lblMontoA.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        lbltxtMontoA = new JLabel("$0");
+        lbltxtMontoA = new JLabel("");
         lbltxtMontoA.setFont(new Font("SansSerif", Font.PLAIN, 14));
         lbltxtMontoA.setAlignmentX(Component.LEFT_ALIGNMENT);
         
@@ -146,7 +147,7 @@ public class AperturaCierre extends JPanel {
         lblMontoVT.setFont(new Font("SansSerif", Font.BOLD, 16));
         lblMontoVT.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        lbltxtMontoTV = new JLabel("$0");
+        lbltxtMontoTV = new JLabel("");
         lbltxtMontoTV.setFont(new Font("SansSerif", Font.PLAIN, 14));
         lbltxtMontoTV.setAlignmentX(Component.LEFT_ALIGNMENT);
         
@@ -170,7 +171,7 @@ public class AperturaCierre extends JPanel {
         
         confirmacion = new JPanel();
         confirmacion.setBackground(new Color(255, 255, 255, 150));
-        confirmacion.setMaximumSize(new Dimension(900, 200));
+        confirmacion.setMaximumSize(null);
         confirmacion.setBorder(null);
         
         

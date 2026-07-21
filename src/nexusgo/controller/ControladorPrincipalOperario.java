@@ -3,11 +3,13 @@ package nexusgo.controller;
 import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import java.util.List;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import nexusgo.model.Producto;
 import nexusgo.model.ProductoDao;
 import nexusgo.model.Usuario;
 import nexusgo.view.PanelBienvenida;
+import nexusgo.view.VistaInicioSesion;
 import nexusgo.view.VistaOperarioInventario;
 import nexusgo.view.VistaPdV;
 import nexusgo.view.VistaPrincipalOperario;
@@ -31,7 +33,8 @@ public class ControladorPrincipalOperario implements ActionListener {
         // Inicializamos la barra lateral
         this.vistaMenu.getsidebar().bCasa.addActionListener(this);       
         this.vistaMenu.getsidebar().bInventario.addActionListener(this); 
-        this.vistaMenu.getsidebar().misCitas.addActionListener(this);    
+        this.vistaMenu.getsidebar().misCitas.addActionListener(this);  
+        this.vistaMenu.getBtnCerrarSesion().addActionListener(this);  
 
         // Cargamos la pantalla de bienvenida por defecto
         cambiarPanel(new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol()));
@@ -90,6 +93,21 @@ public class ControladorPrincipalOperario implements ActionListener {
             ControladorInventarioOperario controlador = new ControladorInventarioOperario(panelInventario, usuarioLogueado, contenedorCentral);
             
             cambiarPanel(panelInventario);
+        }
+        
+        if (e.getSource() == vistaMenu.btnCerrarSesion) {
+                ejecutarCerrarSesion();
+            }
+    }
+    private void ejecutarCerrarSesion() {
+        int confirmar = JOptionPane.showConfirmDialog(null, "¿Desea cerrar sesión en NEXUS GO?", "Cerrar Sesión", JOptionPane.YES_NO_OPTION);
+        if (confirmar == JOptionPane.YES_OPTION) {
+            vistaMenu.dispose();
+
+            VistaInicioSesion loginVista = new VistaInicioSesion();
+            new ControladorInicioSesion(loginVista);
+            loginVista.setLocationRelativeTo(null);
+            loginVista.setVisible(true);
         }
     }
 }

@@ -78,7 +78,7 @@ public class GeneradorFacturaPdf {
         try {
             Message mensaje = new MimeMessage(sesionMail);
             mensaje.setFrom(new InternetAddress(miCorreoRemitente));
-            mensaje.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatario));
+            mensaje.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatarioF));
             mensaje.setSubject("NexusGO - Su Comprobante de Compra");
 
             // Cuerpo del mensaje

@@ -37,12 +37,11 @@ public class VistaBarraLateral extends JPanel {
         misCitas.setFocusPainted(false);
         misCitas.setOpaque(false);
 
-        bInventario = new JButton(new ImageIcon("src/nexusgo/img/.png"));
+        bInventario = new JButton(new ImageIcon("src/nexusgo/img/ventas.png"));
         bInventario.setBorderPainted(false);
         bInventario.setContentAreaFilled(false);
         bInventario.setFocusPainted(false);
         bInventario.setOpaque(false);
-        bInventario.setVisible(false);
 
         
 
