@@ -39,7 +39,20 @@ public class VistaBarraLateral extends JPanel {
 
         // 2. Inicializar Botones
         bCasa = new JButton(new ImageIcon("src/nexusgo/img/inicio.png"));
+
+        bCasa.setBorderPainted(false);   
+        bCasa.setContentAreaFilled(false);
+        bCasa.setFocusPainted(false);    
+        bCasa.setOpaque(false);         
+        
+        misCitas = new JButton(new ImageIcon("src/nexusgo/img/inventario.png"));
+        misCitas.setBorderPainted(false);
+        misCitas.setContentAreaFilled(false);
+        misCitas.setFocusPainted(false);
+        misCitas.setOpaque(false);
+
         estilizarBoton(bCasa, "Inicio");
+
 
         bInventario = new JButton(new ImageIcon("src/nexusgo/img/ventas.png"));
         estilizarBoton(bInventario, "Inventario / Ventas");

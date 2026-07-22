@@ -27,42 +27,24 @@ public class ControladorPrincipalAdminSoftware implements ActionListener {
         this.vista = vista;
         this.usuarioLogueado = usuarioLogueado;
 
-        // 1. Escuchamos los clics de los dos botones de tu sidebar
+        // Listeners para la barra lateral
         this.vista.getsidebar().bCasa.addActionListener(this);
         this.vista.getsidebar().bInventario.addActionListener(this);
 
-        // 2. Cargamos el panel de bienvenida por defecto al centro de la ventana principal
         cargarInicioPorDefecto();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // Clic en INICIO (Cargamos tu PanelBienvenida que es un JPanel en el centro)
+        // Clic en INICIO
         if (e.getSource() == vista.getsidebar().bCasa) {
             PanelBienvenida bienvenida = new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol());
             cambiarPanel(bienvenida);
         } 
-        
-        // Clic en CAMBIO ROL (Abrimos la ventana JFrame independiente)
+        // Clic en CAMBIO DE ROL (Inyecta el JPanel en el centro)
         else if (e.getSource() == vista.getsidebar().bInventario) {
-            try {
-                // Instanciamos el Jpanel
-                VistaCambioRol ventanaCambioRol = new VistaCambioRol();
-                
-                // Centramos la ventana en la pantalla
-                ventanaCambioRol.setLocation(null);
-                
-                // La hacemos visible
-                ventanaCambioRol.setVisible(true);
-                
-                // Si quieres ocultar la ventana principal mientras está abierto el cambio de rol:
-                // vista.setVisible(false);
-                
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(vista, "Error al abrir la ventana de cambio de rol: " + ex.getMessage(), 
-                                              "Error", JOptionPane.ERROR_MESSAGE);
-            }
+            VistaCambioRol panelCambioRol = new VistaCambioRol();
+            cambiarPanel(panelCambioRol); // ✅ Enrutamiento correcto para JPanel
         }
     }
 

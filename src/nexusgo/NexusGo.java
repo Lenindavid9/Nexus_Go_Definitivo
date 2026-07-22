@@ -7,9 +7,8 @@ package nexusgo;
 import javax.swing.JFrame;
 import nexusgo.controller.ControladorInicioSesion;
 import nexusgo.view.VistaInicioSesion;
-import nexusgo.view.VistaPrincipalCliente;
 
-/**
+    /**
  *
  * @author USUARIO
  */
@@ -43,5 +42,4 @@ public class NexusGo {
         login.setVisible(true);
 
     }
-
 }

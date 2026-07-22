@@ -50,7 +50,7 @@ public class VistaPrincipalOperario extends JFrame {
 
         // 4. Panel derecho completo
         panelDerechoCompleto = new JPanel(new BorderLayout());
-        panelDerechoCompleto.setOpaque(false);
+           panelDerechoCompleto.setOpaque(false);
 
         // Barra superior derecha con botón
         panelSuperiorDerecho = new JPanel(new FlowLayout(FlowLayout.RIGHT, 30, 20));

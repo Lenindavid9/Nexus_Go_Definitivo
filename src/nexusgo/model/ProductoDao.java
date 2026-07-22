@@ -37,6 +37,7 @@ public class ProductoDao implements Crud<Producto> {
                 producto.setStockActual(rs.getInt("stock_actual"));
                 producto.setStockMinimo(rs.getInt("stock_minimo"));
                 producto.setPrecioCompra(rs.getDouble("precio_compra"));
+                producto.setPrecioVenta(rs.getDouble("precio_venta"));
                 producto.setUrlImagen(rs.getString("url_imagen"));
 
                 lista.add(producto);
@@ -75,12 +76,13 @@ public class ProductoDao implements Crud<Producto> {
         }
         return 0;
     }
+
     // U - UPDATE: EDITAR PRODUCTO
     @Override
     public int editar(Producto producto) {
         String sql = """
                      UPDATE productos 
-                     SET nombre_producto = ?, descripcion = ?, stock_actual = ?, stock_minimo = ?, precio_compra = ?, url_imagen = ? 
+                     SET nombre_producto = ?, descripcion = ?, stock_actual = ?, stock_minimo = ?, precio_compra = ?, precio_venta = ?, url_imagen = ? 
                      WHERE id_producto = ?
                      """;
 
@@ -92,8 +94,9 @@ public class ProductoDao implements Crud<Producto> {
             ps.setInt(3, producto.getStockActual());
             ps.setInt(4, producto.getStockMinimo());
             ps.setDouble(5, producto.getPrecioCompra());
-            ps.setString(6, producto.getUrlImagen());
-            ps.setInt(7, producto.getIdProducto());
+            ps.setDouble(6, producto.getPrecioVenta());
+            ps.setString(7, producto.getUrlImagen());
+            ps.setInt(8, producto.getIdProducto());
 
             return ps.executeUpdate(); 
 
@@ -138,6 +141,7 @@ public class ProductoDao implements Crud<Producto> {
                     producto.setStockActual(rs.getInt("stock_actual"));
                     producto.setStockMinimo(rs.getInt("stock_minimo"));
                     producto.setPrecioCompra(rs.getDouble("precio_compra"));
+                    producto.setPrecioVenta(rs.getDouble("precio_venta"));
                     producto.setUrlImagen(rs.getString("url_imagen"));
                 }
             }
@@ -174,7 +178,7 @@ public class ProductoDao implements Crud<Producto> {
     // MÉTODO PROPIO: Listar productos vista cliente
     public List<Producto> listarProductosCliente() {
         List<Producto> listaProds = new ArrayList<>();
-        String sql = "SELECT nombre_producto, precio_compra, stock_actual, stock_minimo, url_imagen FROM productos";
+        String sql = "SELECT id_producto, nombre_producto, precio_compra, precio_venta, stock_actual, stock_minimo, url_imagen FROM productos";
 
         try (Connection con = conexion.getConection();
              PreparedStatement ps = con.prepareStatement(sql);
@@ -182,8 +186,10 @@ public class ProductoDao implements Crud<Producto> {
 
             while (rs.next()) {
                 Producto prod = new Producto();
+                prod.setIdProducto(rs.getInt("id_producto"));
                 prod.setNombreProducto(rs.getString("nombre_producto"));
                 prod.setPrecioCompra(rs.getDouble("precio_compra"));
+                prod.setPrecioVenta(rs.getDouble("precio_venta"));
                 prod.setStockActual(rs.getInt("stock_actual"));
                 prod.setStockMinimo(rs.getInt("stock_minimo"));
                 prod.setUrlImagen(rs.getString("url_imagen"));
@@ -199,11 +205,11 @@ public class ProductoDao implements Crud<Producto> {
     // MÉTODO PROPIO: Listar productos en promoción
     public List<Producto> listarPromociones() {
         List<Producto> listaPromo = new ArrayList<>();
-        // Ajustado a la tabla "productos" para mantener consistencia sintáctica con los demás métodos
+        
+        // Consulta limpia utilizando únicamente columnas existentes en la tabla "productos"
         String sql = """
-                     SELECT id_producto, nombre_producto, precio_compra, descripcion, url_imagen, stock_actual, stock_minimo 
-                     FROM productos 
-                     WHERE es_promocion = 1 OR categoria = 'Promocion'
+                     SELECT id_producto, nombre_producto, precio_compra, precio_venta, descripcion, url_imagen, stock_actual, stock_minimo 
+                     FROM productos
                      """;
 
         try (Connection con = conexion.getConection();
@@ -215,6 +221,7 @@ public class ProductoDao implements Crud<Producto> {
                 producto.setIdProducto(rs.getInt("id_producto"));
                 producto.setNombreProducto(rs.getString("nombre_producto"));
                 producto.setPrecioCompra(rs.getDouble("precio_compra"));
+                producto.setPrecioVenta(rs.getDouble("precio_venta"));
                 producto.setDescripcion(rs.getString("descripcion"));
                 producto.setUrlImagen(rs.getString("url_imagen"));
                 producto.setStockActual(rs.getInt("stock_actual"));

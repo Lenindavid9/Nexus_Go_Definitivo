@@ -5,98 +5,130 @@
 package nexusgo.controller;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-
+import java.awt.event.ActionListener;
+import java.util.Date;
+import java.util.List;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import nexusgo.model.UsuarioDao;
-import nexusgo.view.VistaPrincipalCliente;
+import nexusgo.model.Cita;
+import nexusgo.model.CitaDao;
 import nexusgo.view.VistaReservarCitas;
-
+import nexusgo.view.VistaPrincipalCliente; 
 /**
  *
  * @author HOME
  */
 public class ControladorReservarCita implements ActionListener {
 
-    private VistaReservarCitas vistaReserva;
-    private VistaPrincipalCliente vistaPrincipal;
-    private UsuarioDao usuarioDao;
-    private int idClienteLogueado;
+    private final VistaReservarCitas panelReserva;
+    private final VistaPrincipalCliente vistaPrincipal;
+    private final int idUsuarioLogueado;
+    private final CitaDao citaDao;
 
-    public ControladorReservarCita(VistaReservarCitas vistaReserva, VistaPrincipalCliente vistaPrincipal, int idClienteLogueado) {
-
-        this.vistaReserva = vistaReserva;
+    // Constructor con los 3 parámetros para integrarse con VistaPrincipalCliente
+    public ControladorReservarCita(VistaReservarCitas panelReserva, VistaPrincipalCliente vistaPrincipal, int idUsuarioLogueado) {
+        this.panelReserva = panelReserva;
         this.vistaPrincipal = vistaPrincipal;
-        this.idClienteLogueado = idClienteLogueado;
-        this.usuarioDao = new UsuarioDao();
+        this.idUsuarioLogueado = idUsuarioLogueado;
+        this.citaDao = new CitaDao();
 
-        // Escuchamos las acciones de los botones en la vista
-        this.vistaReserva.btnAgendar.addActionListener(this);
-        this.vistaReserva.btnVolver.addActionListener(this);
-
-        // Llenamos el selector de servicios al iniciar
+        inicializarEventos();
         cargarServicios();
     }
 
-    /**
-     * Llena el JComboBox con los servicios disponibles
-     */
-    private void cargarServicios() {
-        vistaReserva.comboServicios.removeAllItems();
-        vistaReserva.comboServicios.addItem("--- Seleccione un servicio ---");
-        vistaReserva.comboServicios.addItem("1. Shampoo de Cebolla Anyeluz");
-        vistaReserva.comboServicios.addItem("2. Corte de Cabello Premium");
-        vistaReserva.comboServicios.addItem("3. Manicure + Pedicure");
+    private void inicializarEventos() {
+        this.panelReserva.btnAgendar.addActionListener(this);
+        this.panelReserva.btnVolver.addActionListener(this);
     }
 
+   
     @Override
     public void actionPerformed(ActionEvent e) {
-        // --- EVENTO: CONFIRMAR RESERVA ---
-        if (e.getSource() == vistaReserva.btnAgendar) {
-            int seleccionIdx = vistaReserva.comboServicios.getSelectedIndex();
-            String fechaHora = vistaReserva.txtFechaHora.getText().trim();
-
-            // Validaciones básicas de campos vacíos
-            if (seleccionIdx == 0) {
-                JOptionPane.showMessageDialog(vistaReserva, "Por favor, seleccione un servicio válido.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-            if (fechaHora.isEmpty()) {
-                JOptionPane.showMessageDialog(vistaReserva, "Por favor, ingrese la fecha y hora para la cita.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            // Usamos el índice seleccionado como el ID del servicio (1, 2, 3...)
-            int idServicio = seleccionIdx;
-
-            // Registramos en la base de datos usando el UsuarioDAO
-            boolean guardadoExitoso = usuarioDao.registrarCita(idClienteLogueado, idServicio, fechaHora);
-
-            if (guardadoExitoso) {
-                JOptionPane.showMessageDialog(vistaReserva, "¡Cita reservada con éxito!");
-                regresarAlMenu();
-            } else {
-                JOptionPane.showMessageDialog(vistaReserva, "No se pudo registrar la cita. Verifique la conexión.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        }
-
-        // --- EVENTO: BOTÓN VOLVER ---
-        if (e.getSource() == vistaReserva.btnVolver) {
-            regresarAlMenu();
+        if (e.getSource() == panelReserva.btnAgendar) {
+            procesarReserva();
+        } else if (e.getSource() == panelReserva.btnVolver) {
+            System.out.println("Regresando desde la vista de reservas...");
+            // Lógica adicional para el botón volver si la necesitas
         }
     }
 
-    /**
-     * Limpia la pantalla central para regresar al catálogo principal
-     */
-    private void regresarAlMenu() {
-        JPanel contenedorCentral = vistaPrincipal.getContenidoCentralDinamico();
-        contenedorCentral.removeAll();
-        contenedorCentral.revalidate();
-        contenedorCentral.repaint();
+    private void procesarReserva() {
+        // 1. Validar Selección de Servicio
+        if (panelReserva.comboServicios.getSelectedIndex() <= 0) {
+            JOptionPane.showMessageDialog(panelReserva, 
+                    "Por favor, seleccione un tipo de servicio.", 
+                    "Campo Requerido", 
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // 2. Validar Fecha y Hora
+        String fechaHora = panelReserva.getFechaHoraFormateada();
+        if (fechaHora.isEmpty()) {
+            JOptionPane.showMessageDialog(panelReserva, 
+                    "Por favor, seleccione una fecha y hora válidas.", 
+                    "Fecha Requerida", 
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // 3. Verificar disponibilidad en la base de datos
+        if (citaDao.existeCitaEnHorario(fechaHora)) {
+            JOptionPane.showMessageDialog(panelReserva, 
+                    "El horario seleccionado (" + fechaHora + ") ya se encuentra ocupado.\n" +
+                    "Por favor, elige otra hora.", 
+                    "Horario No Disponible", 
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // 4. Mapear datos necesarios
+        String servicioNombre = (String) panelReserva.comboServicios.getSelectedItem();
+        int idServicio = citaDao.obtenerIdServicioPorNombre(servicioNombre);
+        if (idServicio == -1) {
+            idServicio = 1; // Respaldo
+        }
+
+        int idProfesional = citaDao.obtenerIdProfesionalPorDefecto(); 
+
+        // 5. Instanciar objeto Cita asociando el 'idUsuarioLogueado' directo
+        Cita nuevaCita = new Cita(this.idUsuarioLogueado, idProfesional, idServicio, fechaHora);
+
+        // 6. Guardar en la base de datos
+        if (citaDao.agendarCita(nuevaCita)) {
+            JOptionPane.showMessageDialog(panelReserva, 
+                    "¡Cita agendada con éxito!\n\n" +
+                    "Servicio: " + servicioNombre + "\n" +
+                    "Fecha y Hora: " + fechaHora, 
+                    "Reserva Exitosa", 
+                    JOptionPane.INFORMATION_MESSAGE);
+            
+            limpiarFormulario();
+        } else {
+            JOptionPane.showMessageDialog(panelReserva, 
+                    "Ocurrió un error al guardar la cita en la base de datos.", 
+                    "Error de Registro", 
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
+
+    private void limpiarFormulario() {
+        panelReserva.comboServicios.setSelectedIndex(0);
+        panelReserva.txtObservaciones.setText("");
+        panelReserva.dateChooserFecha.setDate(new Date());
+    }
+    
+    private void cargarServicios() {
+    panelReserva.comboServicios.removeAllItems();
+    panelReserva.comboServicios.addItem("-- Seleccione un servicio --");
+
+    // Consulta la BD a través del DAO
+    List<String> servicios = citaDao.obtenerListaServicios();
+
+    // Llena el ComboBox con los datos reales
+    for (String servicio : servicios) {
+        panelReserva.comboServicios.addItem(servicio);
+    }
+}
 }

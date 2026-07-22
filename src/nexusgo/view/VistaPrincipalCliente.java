@@ -43,7 +43,7 @@ public class VistaPrincipalCliente extends JFrame {
     public JButton btnCerrarSesion;
     public JButton btnHistorial;
     public JLabel lblBienvenida;
-//    public VistaBarraLateral sidebar;
+    public VistaBarraLateral sidebar;
 
     public VistaPrincipalCliente() {
         this("Cliente", "Cliente");
@@ -65,22 +65,22 @@ public class VistaPrincipalCliente extends JFrame {
         contenedorEstructural.setOpaque(false);
 
         // 3. Barra Lateral (Sidebar)
-//        sidebar = new VistaBarraLateral();
-//<<<<<<< HEAD
-//        sidebar.setPreferredSize(new Dimension(70, 650));
-//        sidebar.setOpaque(false);
-//        if (sidebar.bInventario != null) sidebar.bInventario.setVisible(false);
-//        if (sidebar.misCitas != null) sidebar.misCitas.setVisible(true);
+        sidebar = new VistaBarraLateral();
+        sidebar.setPreferredSize(new Dimension(70, 650));
+        sidebar.setBackground(Color.WHITE);
+        if (sidebar.bInventario != null) sidebar.bInventario.setVisible(true);
+        if (sidebar.misCitas != null) sidebar.misCitas.setVisible(true);
 
         // 4. Tarjeta Blanca Central Flotante (Como en Figma)
         panelFlotanteBlanco = new JPanel(new BorderLayout());
-        panelFlotanteBlanco.setBackground(Color.WHITE);
-//        
-//        sidebar.setBackground(Color.WHITE);
-//        sidebar.setPreferredSize(new Dimension(80,0));
-//        if (sidebar.bInventario != null) sidebar.bInventario.setVisible(false);
-//        if (sidebar.misCitas != null) sidebar.misCitas.setVisible(true);
+        panelFlotanteBlanco.setBackground(Color.red);
         
+        sidebar.setBackground(Color.WHITE);
+        sidebar.setPreferredSize(new Dimension(80,0));
+        if (sidebar.bInventario != null) sidebar.bInventario.setVisible(false);
+        if (sidebar.misCitas != null) sidebar.misCitas.setVisible(true);
+        
+
 
         // 4. Tarjeta Blanca Central Flotante (Como en Figma)
         panelFlotanteBlanco = new JPanel(new BorderLayout());
@@ -137,7 +137,7 @@ public class VistaPrincipalCliente extends JFrame {
         panelFlotanteBlanco.add(scrollContenido, BorderLayout.CENTER);
 
         // Ensamblar
-//        contenedorEstructural.add(sidebar, BorderLayout.WEST);
+        contenedorEstructural.add(sidebar, BorderLayout.WEST);
         contenedorEstructural.add(panelFlotanteBlanco, BorderLayout.CENTER);
 
         this.add(contenedorEstructural);
@@ -223,7 +223,7 @@ public class VistaPrincipalCliente extends JFrame {
     private JPanel crearTarjetaVisual(String idStr, String nombre, double precio, String rutaImagen, MouseListener listener) {
         JPanel tarjeta = new JPanel();
         tarjeta.setLayout(new BoxLayout(tarjeta, BoxLayout.Y_AXIS));
-        tarjeta.setBackground(new Color(248, 248, 248)); // Fondo suave para destacar del panel blanco
+        tarjeta.setBackground(new Color(248, 248, 248));
         tarjeta.setBorder(new EmptyBorder(10, 10, 10, 10));
         tarjeta.setName(idStr);
         tarjeta.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -234,14 +234,48 @@ public class VistaPrincipalCliente extends JFrame {
         lblImg.setName(idStr);
         lblImg.addMouseListener(listener);
 
+        // 1. Normalización de la ruta proveniente de la Base de Datos
         if (rutaImagen == null || rutaImagen.trim().isEmpty()) {
-            rutaImagen = "src/nexusgo/img/default.jpg";
+            rutaImagen = "/nexusgo/img/default.jpg";
+        } else {
+            rutaImagen = rutaImagen.trim();
+            
+            // Si la BD solo trae el nombre del archivo (ej. "champu.jpg")
+            if (!rutaImagen.contains("/")) {
+                rutaImagen = "/nexusgo/img/" + rutaImagen;
+            } else {
+                // Si la BD trae "src/nexusgo/img/champu.jpg", le remueve "src"
+                if (rutaImagen.startsWith("src/")) {
+                    rutaImagen = rutaImagen.substring(3);
+                }
+                // Asegurar que comience con '/' para el Classpath
+                if (!rutaImagen.startsWith("/")) {
+                    rutaImagen = "/" + rutaImagen;
+                }
+            }
         }
 
-        ImageIcon iconoOriginal = new ImageIcon(rutaImagen);
-        if (iconoOriginal.getImage() != null) {
+        // 2. Intentar cargar desde el Classpath
+        ImageIcon iconoOriginal = null;
+        try {
+            java.net.URL imgURL = getClass().getResource(rutaImagen);
+            if (imgURL != null) {
+                iconoOriginal = new ImageIcon(imgURL);
+            } else {
+                // Intento secundario si la ruta es absoluta fuera del proyecto
+                iconoOriginal = new ImageIcon(rutaImagen);
+            }
+        } catch (Exception ex) {
+            System.err.println("Error al cargar la imagen: " + rutaImagen);
+        }
+
+        // 3. Renderizar imagen si existe y no está vacía
+        if (iconoOriginal != null && iconoOriginal.getImage() != null && iconoOriginal.getIconWidth() > 0) {
             Image imgEscalada = iconoOriginal.getImage().getScaledInstance(150, 105, Image.SCALE_SMOOTH);
             lblImg.setIcon(new ImageIcon(imgEscalada));
+        } else {
+            lblImg.setText("Sin Imagen");
+            lblImg.setFont(new Font("Segoe UI", Font.ITALIC, 10));
         }
 
         JLabel lblNombre = new JLabel("<html><center>" + nombre.toUpperCase() + "</center></html>");
@@ -265,7 +299,7 @@ public class VistaPrincipalCliente extends JFrame {
 
         return tarjeta;
     }
-
+    
     public JPanel getContenidoCentralDinamico() {
         return this.contenidoCentralDinamico;
     }

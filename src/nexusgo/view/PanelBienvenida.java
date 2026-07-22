@@ -21,7 +21,6 @@ public class PanelBienvenida extends JPanel {
         // Usamos null layout para posicionar los elementos exactamente donde queramos
         setLayout(null);
         setOpaque(false);
-         // Un gris muy claro de fondo limpio
 
         // Configuración del Título
         titulo = new JLabel("Hola " + nombre + " (" + rol + ") a Nexus GO");

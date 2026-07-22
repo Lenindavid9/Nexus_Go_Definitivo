@@ -14,12 +14,19 @@ public class DetalleCarrito {
     private String nombreProducto;
     private double precioUnitario;
     private int cantidad;
+    private double subtotal; // Atributo opcional para asignación directa
 
+    // Constructor completo
     public DetalleCarrito(int idProducto, String nombreProducto, double precioUnitario, int cantidad) {
         this.idProducto = idProducto;
         this.nombreProducto = nombreProducto;
         this.precioUnitario = precioUnitario;
         this.cantidad = cantidad;
+        this.subtotal = precioUnitario * cantidad;
+    }
+
+    // Constructor vacío (necesario para instanciación mediante getters/setters)
+    public DetalleCarrito() {
     }
 
     // Getters y Setters
@@ -55,8 +62,28 @@ public class DetalleCarrito {
         this.cantidad = cantidad;
     }
 
-    // Método de conveniencia para calcular el subtotal de este producto
+    /**
+     * Devuelve el subtotal calculado o asignado explícitamente.
+     */
     public double getSubtotal() {
+        if (subtotal > 0) {
+            return subtotal;
+        }
         return precioUnitario * cantidad;
+    }
+
+    public void setSubtotal(double subtotal) {
+        this.subtotal = subtotal;
+    }
+
+    @Override
+    public String toString() {
+        return "DetalleCarrito{" +
+                "idProducto=" + idProducto +
+                ", nombreProducto='" + nombreProducto + '\'' +
+                ", precioUnitario=" + precioUnitario +
+                ", cantidad=" + cantidad +
+                ", subtotal=" + getSubtotal() +
+                '}';
     }
 }

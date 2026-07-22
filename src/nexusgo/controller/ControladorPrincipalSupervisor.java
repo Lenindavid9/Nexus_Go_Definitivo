@@ -16,6 +16,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
+import nexusgo.model.CajaDao;
 import nexusgo.model.Herramientas;
 import nexusgo.model.HerramientaDao;
 import nexusgo.model.Producto;
@@ -35,7 +36,7 @@ import nexusgo.view.VistaProgramarMantenimiento;
  */
 public class ControladorPrincipalSupervisor implements ActionListener {
 
-   private final VistaPrincipalSupervisor vistaPrincipal;
+    private final VistaPrincipalSupervisor vistaPrincipal;
     private VistaInventarioSupervisor panelInventario;
     private VistaProgramarMantenimiento panelProgramarMantenimiento;
 
@@ -45,8 +46,11 @@ public class ControladorPrincipalSupervisor implements ActionListener {
     // Componentes de datos y sesión
     private final ProductoDao productoDao = new ProductoDao();
     private final HerramientaDao herramientaDao = new HerramientaDao();
+    private final CajaDao cajaDao = new CajaDao();
     private final Usuario usuarioLogueado;
 
+    // ID de la caja actualmente abierta (0 = no hay caja abierta)
+    private int idCajaActual = 0;
     private int idHerramientaSeleccionada = -1;
     private String nombreHerramientaSeleccionada = "";
 
@@ -61,6 +65,9 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
             // Inicializar Vista de Caja
             this.panelAperturaCierre = new AperturaCierre();
+
+            // Verificar si ya existe una caja abierta (de una sesión anterior)
+            this.idCajaActual = cajaDao.obtenerCajaAbierta();
 
             inicializarListeners();
 
@@ -156,8 +163,8 @@ public class ControladorPrincipalSupervisor implements ActionListener {
     }
 
     /**
-     * Muestra la pantalla inicial (Panel de Bienvenida) garantizando 
-     * un repintado correcto dentro del contenedor dinámico.
+     * Muestra la pantalla inicial (Panel de Bienvenida) garantizando un
+     * repintado correcto dentro del contenedor dinámico.
      */
     private void mostrarInicio() {
         PanelBienvenida bienvenida = new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol());
@@ -171,7 +178,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             if (e.getSource() == vistaPrincipal.sidebar.bCasa) {
                 mostrarInicio();
             }
-            
+
             if (e.getSource() == vistaPrincipal.btnCerrarSesion) {
                 ejecutarCerrarSesion();
             }
@@ -183,7 +190,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 JPanel panelPdV = vistaPdV.VistaNexus();
 
                 // 2. Enlazar su controlador de eventos (para pagos, facturar y reiniciar)
-                ControladorPdV controladorPdV = new ControladorPdV(vistaPdV);
+                ControladorPdV controladorPdV = new ControladorPdV(vistaPdV, panelPdV, idCajaActual);
 
                 // 3. Obtener los productos reales registrados en la BD
                 List<Producto> listaProductos = productoDao.listar();
@@ -222,16 +229,48 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
             // --- LÓGICA DE APERTURA / CIERRE DE CAJA ---
             if (e.getSource() == panelAperturaCierre.getBtnApertura()) {
-                String montoStr = panelAperturaCierre.getTxtMontoInicial().getText().replace("$", "").trim();
-                if (!montoStr.isEmpty()) {
-                    panelAperturaCierre.getLbltxtMontoA().setText("$" + montoStr);
-                    JOptionPane.showMessageDialog(vistaPrincipal, "Apertura de caja realizada con: $" + montoStr, "Caja Registrada", JOptionPane.INFORMATION_MESSAGE);
+                String montoStr = panelAperturaCierre.getTxtMontoInicial().getText();
+                if (!montoStr.trim().isEmpty()) {
+                    double monto;
+                    try {
+                        monto = parsearMonto(montoStr);
+                    } catch (NumberFormatException nfe) {
+                        JOptionPane.showMessageDialog(vistaPrincipal, "El monto ingresado no es un número válido.", 
+                                "Formato inválido", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+
+                    if (monto <= 0 || monto > 99999999.99) {
+                        JOptionPane.showMessageDialog(vistaPrincipal, "El monto debe ser mayor a 0 y no superar $99.999.999,99.", 
+                                "Monto fuera de rango", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+
+                    idCajaActual = cajaDao.guardarApertura(monto, usuarioLogueado.getIdUsuario());
+
+                    if (idCajaActual > 0) {
+                        panelAperturaCierre.getLbltxtMontoA().setText(String.format("$%,.2f", monto));
+                        JOptionPane.showMessageDialog(vistaPrincipal, "Apertura de caja realizada con: $" + String.format("%,.2f", monto), 
+                                "Caja Registrada", JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(vistaPrincipal, "No se pudo registrar la apertura de caja en la base de datos.", 
+                                "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
 
             if (e.getSource() == panelAperturaCierre.getBtnCalcular()) {
                 String montoFisico = panelAperturaCierre.getTxtMontoF().getText().replace("$", "").trim();
-                JOptionPane.showMessageDialog(vistaPrincipal, "Cierre procesado con monto físico en caja: $" + montoFisico, "Cierre de Caja", JOptionPane.INFORMATION_MESSAGE);
+                if (!montoFisico.isEmpty() && idCajaActual > 0) {
+                    double monto = Double.parseDouble(montoFisico);
+                    cajaDao.guardarCierre(idCajaActual, monto, monto);
+                    JOptionPane.showMessageDialog(vistaPrincipal, "Cierre procesado con monto físico en caja: $" + montoFisico,
+                            "Cierre de Caja", JOptionPane.INFORMATION_MESSAGE);
+                    idCajaActual = 0;
+                } else if (idCajaActual <= 0) {
+                    JOptionPane.showMessageDialog(vistaPrincipal, "No hay ninguna caja abierta para cerrar.",
+                            "Atención", JOptionPane.WARNING_MESSAGE);
+                }
             }
 
             // --- EVENTOS PANEL PROGRAMACIÓN ---
@@ -247,6 +286,17 @@ public class ControladorPrincipalSupervisor implements ActionListener {
         } catch (Exception ex) {
             System.err.println("Error en eventos del Supervisor: " + ex.getMessage());
         }
+    }
+    
+    /**
+     * Convierte texto de monto en formato colombiano ($1.000.000,50 o 1000000) a double.
+     * El punto se interpreta como separador de miles y la coma como separador decimal.
+     */
+    private double parsearMonto(String texto) {
+        String limpio = texto.replace("$", "").trim();
+        limpio = limpio.replace(".", "");       // quita separadores de miles
+        limpio = limpio.replace(",", ".");      // convierte la coma decimal en punto
+        return Double.parseDouble(limpio);
     }
 
     private void ejecutarGuardadoProgramacion() {
@@ -354,7 +404,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             contenedor.repaint();
         }
     }
-    
+
     private void ejecutarCerrarSesion() {
         int confirmar = JOptionPane.showConfirmDialog(null, "¿Desea cerrar sesión en NEXUS GO?", "Cerrar Sesión", JOptionPane.YES_NO_OPTION);
         if (confirmar == JOptionPane.YES_OPTION) {

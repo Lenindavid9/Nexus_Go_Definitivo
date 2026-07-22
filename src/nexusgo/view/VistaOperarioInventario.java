@@ -48,31 +48,43 @@ public class VistaOperarioInventario extends JPanel {
         add(tabs, BorderLayout.CENTER);
 
         // --- SECCIÓN: PRODUCTOS ---
-        btnAgregarProducto = new JButton("+ Agregar Producto");
-        
-        // Estructura de columnas igual a tu diseño
-        String columnasProductos[] = {"Numero de referencia", "Nombre", "Precio", "Cantidad", "Proveedor"};
-        DefaultTableModel modeloProductos = new DefaultTableModel(columnasProductos, 0);
-        tablaProductos = new JTable(modeloProductos);
-        JScrollPane scrollProductos = new JScrollPane(tablaProductos);
-        scrollProductos.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollProductos.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        // --- SECCIÓN: PRODUCTOS ---
+btnAgregarProducto = new JButton("+ Agregar Producto");
 
-        panelProductos.add(btnAgregarProducto, BorderLayout.NORTH);
-        panelProductos.add(new JScrollPane(tablaProductos), BorderLayout.CENTER);
+String columnasProductos[] = {"Numero de referencia", "Nombre", "Precio", "Cantidad", "Proveedor"};
+DefaultTableModel modeloProductos = new DefaultTableModel(columnasProductos, 0);
+tablaProductos = new JTable(modeloProductos);
+tablaProductos.setRowHeight(30);
+
+// Scroll con encabezado fijo
+JScrollPane scrollProductos = new JScrollPane(tablaProductos);
+scrollProductos.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+scrollProductos.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+// 🔑 fijar el header
+scrollProductos.setColumnHeaderView(tablaProductos.getTableHeader());
+
+panelProductos.add(scrollProductos, BorderLayout.CENTER);
+
 
         // --- SECCIÓN: HERRAMIENTAS ---
-        btnAgregarHerramienta = new JButton("+ Agregar Herramienta");
-        
-        String columnasHerramientas[] = {"Código", "Nombre", "Estado", "Cantidad"};
-        DefaultTableModel modeloHerramientas = new DefaultTableModel(columnasHerramientas, 0);
-        tablaHerramientas = new JTable(modeloHerramientas);
-        JScrollPane scrollHerramientas = new JScrollPane(tablaHerramientas);
-        scrollHerramientas.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollHerramientas.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        // --- SECCIÓN: HERRAMIENTAS ---
+btnAgregarHerramienta = new JButton("+ Agregar Herramienta");
 
-        panelHerramientas.add(btnAgregarHerramienta, BorderLayout.NORTH);
-        panelHerramientas.add(new JScrollPane(tablaHerramientas), BorderLayout.CENTER);
+String columnasHerramientas[] = {"Código", "Nombre", "Estado", "Cantidad"};
+DefaultTableModel modeloHerramientas = new DefaultTableModel(columnasHerramientas, 0);
+tablaHerramientas = new JTable(modeloHerramientas);
+tablaHerramientas.setRowHeight(30);
+
+JScrollPane scrollHerramientas = new JScrollPane(tablaHerramientas);
+scrollHerramientas.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+scrollHerramientas.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+// 🔑 fijar el header
+scrollHerramientas.setColumnHeaderView(tablaHerramientas.getTableHeader());
+
+panelHerramientas.add(scrollHerramientas, BorderLayout.CENTER);
+
     }
     
 }
