@@ -142,7 +142,7 @@ public class ControladorPdV implements ActionListener {
             VistaMetododePago vistaPago = new VistaMetododePago();
 
             // 2. Instanciar su controlador pasándole la vista, los datos de la venta y el contenedor
-            ControladorMetododePago controladorPago = new ControladorMetododePago(vistaPago, carrito, totalVenta, obtenerContenedorObjetivo());
+            ControladorMetododePago controladorPago = new ControladorMetododePago(vistaPago, carrito, totalVenta, obtenerContenedorObjetivo(), idCajaActual);
 
             // 3. Redireccionar a la pantalla de selección de Método de Pago
             cambiarPanel(vistaPago);
