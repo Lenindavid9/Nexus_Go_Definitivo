@@ -4,14 +4,12 @@
  */
 package nexusgo.view;
 
-import nexusgo.view.PanelAdmi;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Graphics;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -24,8 +22,8 @@ import javax.swing.JTextField;
 
 public class AperturaCierre extends JPanel {
     private JPanel principal, pnlbtnVolver, apertura, cierre, confirmacion, infoCierre, infoApertura,infoConfirmacion, CalcularC;
-    private JLabel imgApertura, tituloA, imgCierre, tituloC, lblsubC, lblMontoA, lbltxtMontoA,lblMontoVT, lbltxtMontoTV
-            , tituloConf, lblsubConf, lblMontoF, lblsubA, lblMontoInicial;
+    private JLabel imgApertura, tituloA, imgCierre, tituloC, lblsubC, lblMontoA, lbltxtMontoA,lblMontoVT, lbltxtMontoTV,
+            tituloConf, lblsubConf, lblMontoF, lblsubA, lblMontoInicial;
     private JButton btnVolver, btnApertura, btnCalcular;
     private JTextField txtMontoInicial,txtMontoF;
     
