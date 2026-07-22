@@ -1,4 +1,4 @@
- /*
+/*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class UsuarioDao {
 
- private final Conexion conexion = new Conexion();
+    private final Conexion conexion = new Conexion();
 
     // AUTENTICAR USUARIO (LOGIN)
     public Usuario autenticarUsuario(int identificacion, String contrasena) {
@@ -28,8 +28,7 @@ public class UsuarioDao {
                      WHERE u.numero_identificacion = ? AND u.contrasena = ?
                      """;
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, identificacion);
             ps.setString(2, contrasena);
@@ -58,8 +57,7 @@ public class UsuarioDao {
                      VALUES (?, ?, ?, ?, ?, ?, ?)
                      """;
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, usuario.getNombre());
             ps.setString(2, usuario.getApellido());
@@ -88,8 +86,7 @@ public class UsuarioDao {
 
         Usuario usuario = null;
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, identificacion.trim());
 
@@ -110,66 +107,34 @@ public class UsuarioDao {
     }
 
     // LISTAR CITAS VIGENTES DE UN CLIENTE
-    public List<Object[]> listarCitasPorCliente(int idCliente) {
-        List<Object[]> listaCitas = new ArrayList<>();
-        String sql = """
-                     SELECT s.nombre, c.fecha_hora, s.precio 
-                     FROM citas c 
-                     INNER JOIN servicios s ON c.id_servicio = s.id_servicio 
-                     WHERE c.id_cliente = ? AND c.estado = 'Vigente' 
-                     ORDER BY c.fecha_hora ASC
-                     """;
-
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setInt(1, idCliente);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Object[] fila = new Object[]{
-                        rs.getString("nombre"),
-                        rs.getString("fecha_hora"),
-                        rs.getDouble("precio")
-                    };
-                    listaCitas.add(fila);
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Error en UsuarioDao.listarCitasPorCliente: " + e.getMessage());
-        }
-        return listaCitas;
-    }
-
     // LISTAR USUARIOS COMPLETO PARA JTABLE
     public List<Usuario> listarUsuarios() {
-    List<Usuario> lista = new ArrayList<>();
-    String sql = """
+        List<Usuario> lista = new ArrayList<>();
+        String sql = """
                  SELECT u.numero_identificacion, u.nombre, u.apellido, r.nombre_rol AS rol, u.correo
                  FROM usuarios u
                  INNER JOIN roles r ON u.id_rol = r.id_rol
                  """;
 
-    try (Connection con = conexion.getConection();
-         PreparedStatement ps = con.prepareStatement(sql);
-         ResultSet rs = ps.executeQuery()) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
-        while (rs.next()) {
-            Usuario u = new Usuario();
-            u.setIdentificacion(rs.getInt("numero_identificacion"));
-            u.setNombre(rs.getString("nombre"));
-            u.setApellido(rs.getString("apellido"));
-            u.setRol(rs.getString("rol"));
-            u.setCorreo(rs.getString("correo"));
+            while (rs.next()) {
+                Usuario u = new Usuario();
+                u.setIdentificacion(rs.getInt("numero_identificacion"));
+                u.setNombre(rs.getString("nombre"));
+                u.setApellido(rs.getString("apellido"));
+                u.setRol(rs.getString("rol"));
+                u.setCorreo(rs.getString("correo"));
 
-            lista.add(u);
+                lista.add(u);
+            }
+        } catch (SQLException e) {
+            System.err.println(" ERROR SQL AL LISTAR USUARIOS:");
+            e.printStackTrace(); // <--- ESTO MOSTRARÁ LA CAUSA EXACTA EN CONSOLA
         }
-    } catch (SQLException e) {
-        System.err.println(" ERROR SQL AL LISTAR USUARIOS:");
-        e.printStackTrace(); // <--- ESTO MOSTRARÁ LA CAUSA EXACTA EN CONSOLA
+        return lista;
     }
-    return lista;
-}
+
     // ACTUALIZAR ROL DEL USUARIO (Subconsulta para obtener id_rol desde el nombre_rol)
     public boolean actualizarRol(String numeroIdentificacion, String nuevoRol) {
         String sql = """
@@ -178,8 +143,7 @@ public class UsuarioDao {
                      WHERE numero_identificacion = ?
                      """;
 
-        try (Connection con = conexion.getConection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, nuevoRol);
             ps.setString(2, numeroIdentificacion);
@@ -197,8 +161,7 @@ public class UsuarioDao {
     public boolean registrarCita(int idCliente, int idServicio, String fechahora) {
         String sql = "INSERT INTO citas (id_cliente, id_servicio, fecha_hora_programada, estado) VALUES (?, ?, ?, 'Vigente')";
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idCliente);
             ps.setInt(2, idServicio);
@@ -216,8 +179,7 @@ public class UsuarioDao {
     public boolean actualizarContrasena(String correo, String nuevaContrasena) {
         String sql = "UPDATE usuarios SET contrasena = ? WHERE correo = ?";
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, nuevaContrasena);
             ps.setString(2, correo);
@@ -229,28 +191,26 @@ public class UsuarioDao {
             return false;
         }
     }
-    
+
     public List<Producto> listarPromociones() {
-    List<Producto> lista = new ArrayList<>();
-    String sql = """
+        List<Producto> lista = new ArrayList<>();
+        String sql = """
                  SELECT p.* 
                  FROM productos p
                  INNER JOIN promociones pr ON p.id_producto = pr.id_producto
                  WHERE pr.estado = 'ACTIVA'
                  """;
-    try (Connection con = conexion.getConection();
-         PreparedStatement ps = con.prepareStatement(sql);
-         ResultSet rs = ps.executeQuery()) {
-        
-        while (rs.next()) {
-            // Mapear campos de Producto...
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                // Mapear campos de Producto...
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Error al listar promociones desde ProductoDao: " + e.getMessage());
         }
-    } catch (SQLException e) {
-        System.err.println("❌ Error al listar promociones desde ProductoDao: " + e.getMessage());
+        return lista;
     }
-    return lista;
-}
-    
+
     public Usuario obtenerPorId(int idUsuario) {
         String sql = """
                      SELECT u.*, r.nombre_rol AS rol 
@@ -261,8 +221,7 @@ public class UsuarioDao {
 
         Usuario usuario = null;
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idUsuario);
 
@@ -282,5 +241,33 @@ public class UsuarioDao {
             System.err.println("Error en UsuarioDao.obtenerPorId: " + e.getMessage());
         }
         return usuario;
+    }
+
+    public List<Object[]> listarCitasPorCliente(int idCliente) {
+        List<Object[]> lista = new ArrayList<>();
+
+        // Ajusta los nombres de tablas/columnas según tu DB de Nexus GO
+        String sql = "SELECT s.nombre_servicio, c.fecha_hora_programada, s.precio "
+                + "FROM citas c "
+                + "JOIN servicios s ON c.id_servicio = s.id_servicio "
+                + "WHERE c.id_cliente = ?";
+
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idCliente);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Object[] fila = new Object[]{
+                        rs.getString("nombre_servicio"),
+                        rs.getString("fecha_hora_programada"),
+                        "$ " + String.format("%.2f", rs.getDouble("precio"))
+                    };
+                    lista.add(fila);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error SQL al listar citas: " + e.getMessage());
+        }
+        return lista;
     }
 }

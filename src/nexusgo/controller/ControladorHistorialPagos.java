@@ -27,7 +27,6 @@ public class ControladorHistorialPagos {
     private final Usuario usuarioLogueado;
     private List<Factura> listaFacturas;
 
-    // Constructor corregido con el nombre de clase VistaHstorialPagos
     public ControladorHistorialPagos(VistaHstorialPagos vista, Usuario usuarioLogueado) {
         this.vista = vista;
         this.usuarioLogueado = usuarioLogueado;
@@ -42,47 +41,45 @@ public class ControladorHistorialPagos {
      * Carga las facturas registradas en la BD para el cliente en la JTable.
      */
     public void cargarHistorialPagos() {
-        // Obtener el modelo directamente de la tabla en la vista
         DefaultTableModel modelo = (DefaultTableModel) vista.tablaPagos.getModel();
         modelo.setRowCount(0); // Limpiar filas previas
 
-        // Consultar facturas del cliente
         listaFacturas = facturaDao.obtenerFacturasPorCliente(usuarioLogueado.getIdUsuario());
 
-        if (listaFacturas != null) {
+        if (listaFacturas != null && !listaFacturas.isEmpty()) {
             for (Factura f : listaFacturas) {
-
-                // Construir concepto dinámico (Servicio o lista de productos)
                 String concepto = resolverConceptoFactura(f);
 
-                // Agregar fila al modelo de la tabla
                 modelo.addRow(new Object[]{
                     f.getFechaVenta(),
                     concepto,
                     "$ " + String.format("%.2f", f.getTotal()),
-                    "Descargar PDF" // Etiqueta o botón de acción
+                    "Descargar PDF"
                 });
             }
+        } else {
+            System.out.println("No se encontraron facturas para el usuario ID: " + usuarioLogueado.getIdUsuario());
         }
+
+        // Refrescar el componente visual
+        vista.tablaPagos.revalidate();
+        vista.tablaPagos.repaint();
     }
 
     /**
      * Determina si la factura corresponde a un servicio de cita o a productos comprados.
      */
     private String resolverConceptoFactura(Factura f) {
-        // Si proviene de una cita con servicio
         if (f.getNombreServicio() != null && !f.getNombreServicio().isEmpty()) {
             return "Servicio: " + f.getNombreServicio();
         }
 
-        // Si tiene productos en el detalle
         List<DetalleCarrito> detalles = f.getDetalles();
         if (detalles != null && !detalles.isEmpty()) {
             StringBuilder sb = new StringBuilder();
             for (DetalleCarrito item : detalles) {
                 sb.append(item.getNombreProducto()).append(", ");
             }
-            // Eliminar la última coma
             String productos = sb.toString();
             return productos.endsWith(", ") 
                 ? productos.substring(0, productos.length() - 2) 
@@ -99,19 +96,17 @@ public class ControladorHistorialPagos {
         vista.tablaPagos.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int filaSeleccionada = vista.tablaPagos.getSelectedRow();
+                int filaVista = vista.tablaPagos.getSelectedRow();
                 int columnaSeleccionada = vista.tablaPagos.getSelectedColumn();
 
-                // Columna 3 corresponde a la columna de 'Acción' (Descargar PDF)
-                if (filaSeleccionada != -1 && columnaSeleccionada == 3) {
+                if (filaVista != -1 && columnaSeleccionada == 3) {
+                    // Convertir índice visual al del modelo por si la tabla fue ordenada
+                    int filaModelo = vista.tablaPagos.convertRowIndexToModel(filaVista);
+                    Factura facturaSeleccionada = listaFacturas.get(filaModelo);
 
-                    Factura facturaSeleccionada = listaFacturas.get(filaSeleccionada);
-
-                    // 1. Generar el documento PDF
                     String rutaPdf = GeneradorFacturaPdf.generarPdf(facturaSeleccionada);
 
-                    if (rutaPdf != null) {
-                        // 2. Enviar comprobante por correo al email del usuario logueado
+                    if (rutaPdf != null && !rutaPdf.trim().isEmpty()) {
                         String correoDestino = usuarioLogueado.getCorreo();
                         boolean enviado = GeneradorFacturaPdf.enviarCorreo(correoDestino, rutaPdf);
 
