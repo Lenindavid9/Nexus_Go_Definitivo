@@ -42,22 +42,12 @@ public class HerramientaDao {
             System.err.println("Error SQL al intentar registrar la herramienta: " + e.getMessage());
             return 0;
         } finally {
-            try {
-                if (ps != null) {
-                    ps.close();
-                }
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                System.err.println("Error al cerrar conexiones: " + e.getMessage());
-            }
+            cerrarRecursos();
         }
     }
 
     /**
-     * Obtiene todos los registros para pintarlos en el JTable del panel de
-     * inventario.
+     * Obtiene todos los registros para pintarlos en el JTable del panel de inventario.
      */
     public List<Herramientas> listar() {
         List<Herramientas> lista = new ArrayList<>();
@@ -78,19 +68,7 @@ public class HerramientaDao {
         } catch (SQLException e) {
             System.err.println("Error al listar herramientas: " + e.getMessage());
         } finally {
-            try {
-                if (rs != null) {
-                    rs.close();
-                }
-                if (ps != null) {
-                    ps.close();
-                }
-                if (con != null) {
-                    con.close();
-                }
-            } catch (SQLException e) {
-                System.err.println("Error al cerrar flujos: " + e.getMessage());
-            }
+            cerrarRecursos();
         }
         return lista;
     }
@@ -100,16 +78,15 @@ public class HerramientaDao {
         String sql = "DELETE FROM herramientas WHERE id_herramienta = ?";
 
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setInt(1, id);
             return ps.executeUpdate();
-
         } catch (SQLException e) {
             System.out.println("Error al eliminar herramienta en DAO: " + e.getMessage());
         }
         return 0;
     }
 
+    // U - UPDATE: EDITAR HERRAMIENTA
     public int editar(Herramientas herramienta) {
         String sql = """
                      UPDATE herramientas 
@@ -118,7 +95,6 @@ public class HerramientaDao {
                      """;
 
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setString(1, herramienta.getNombreHerramienta());
             ps.setString(2, herramienta.getEstadoActual());
             ps.setInt(3, herramienta.getIdHerramienta());
@@ -129,6 +105,49 @@ public class HerramientaDao {
             System.out.println("Error al editar herramienta en DAO: " + e.getMessage());
         }
         return 0;
+    }
+
+    /**
+     * Obtiene el historial de mantenimientos cruzado con la tabla herramientas.
+     */
+    public List<Mantenimiento> listarMantenimientosRealizados() {
+        List<Mantenimiento> lista = new ArrayList<>();
+        
+        // Corregido: Usamos 'nombre_herramienta' que es la columna real de tu tabla herramientas
+        String sql = """
+                     SELECT m.id_mantenimiento, h.id_herramienta, h.nombre_herramienta, m.fecha_mantenimiento 
+                     FROM mantenimiento_herramientas m 
+                     INNER JOIN herramientas h ON m.id_herramienta = h.id_herramienta 
+                     ORDER BY m.fecha_mantenimiento DESC
+                     """;
+
+        try (Connection con = conexion.getConection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Mantenimiento m = new Mantenimiento();
+                m.setIdMantenimiento(rs.getInt("id_mantenimiento"));
+                m.setIdHerramienta(rs.getInt("id_herramienta"));
+                m.setNombreHerramienta(rs.getString("nombre_herramienta"));
+                m.setMarca("Original"); // Como tu tabla 'herramientas' no tiene columna 'marca', asignamos un valor por defecto legible
+                m.setFechaHora(rs.getString("fecha_mantenimiento"));
+                lista.add(m);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al listar mantenimientos: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    private void cerrarRecursos() {
+        try {
+            if (rs != null) rs.close();
+            if (ps != null) ps.close();
+            if (con != null) con.close();
+        } catch (SQLException e) {
+            System.err.println("Error al cerrar flujos: " + e.getMessage());
+        }
     }
 
 }

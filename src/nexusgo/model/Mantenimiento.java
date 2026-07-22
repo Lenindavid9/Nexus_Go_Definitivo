@@ -12,28 +12,30 @@ import java.util.Date;
  */
 public class Mantenimiento {
 
-    // Atributos privados (Variables básicas de la tabla)
     private int idMantenimiento;
     private int idHerramienta;
+    private String nombreHerramienta;
+    private String marca;
+    private String fechaHora;
+    private String observaciones;
     private String tipoMantenimiento;
     private Date fechaProgramada;
-    private String evidenciaNotas;
     private int idTecnicoResponsable;
 
-    // 1. Constructor vacío (Obligatorio en Java para inicializaciones limpias)
+    // --- Constructor Vacío ---
     public Mantenimiento() {
     }
 
-    // 2. Constructor lleno (Te permite empaquetar los datos rápidamente en el Controlador)
-    public Mantenimiento(int idHerramienta, String tipoMantenimiento, Date fechaProgramada, String evidenciaNotas, int idTecnicoResponsable) {
+    // --- Constructor Parametrizado (El que estás llamando) ---
+    public Mantenimiento(int idHerramienta, String tipoMantenimiento, Date fechaProgramada, String observaciones, int idTecnicoResponsable) {
         this.idHerramienta = idHerramienta;
         this.tipoMantenimiento = tipoMantenimiento;
         this.fechaProgramada = fechaProgramada;
-        this.evidenciaNotas = evidenciaNotas;
+        this.observaciones = observaciones;
         this.idTecnicoResponsable = idTecnicoResponsable;
     }
 
-    // 3. Métodos Getters y Setters normales para leer y escribir las propiedades
+    // --- Getters y Setters ---
     public int getIdMantenimiento() {
         return idMantenimiento;
     }
@@ -50,6 +52,38 @@ public class Mantenimiento {
         this.idHerramienta = idHerramienta;
     }
 
+    public String getNombreHerramienta() {
+        return nombreHerramienta;
+    }
+
+    public void setNombreHerramienta(String nombreHerramienta) {
+        this.nombreHerramienta = nombreHerramienta;
+    }
+
+    public String getMarca() {
+        return marca;
+    }
+
+    public void setMarca(String marca) {
+        this.marca = marca;
+    }
+
+    public String getFechaHora() {
+        return fechaHora;
+    }
+
+    public void setFechaHora(String fechaHora) {
+        this.fechaHora = fechaHora;
+    }
+
+    public String getObservaciones() {
+        return observaciones;
+    }
+
+    public void setObservaciones(String observaciones) {
+        this.observaciones = observaciones;
+    }
+
     public String getTipoMantenimiento() {
         return tipoMantenimiento;
     }
@@ -64,14 +98,6 @@ public class Mantenimiento {
 
     public void setFechaProgramada(Date fechaProgramada) {
         this.fechaProgramada = fechaProgramada;
-    }
-
-    public String getEvidenciaNotas() {
-        return evidenciaNotas;
-    }
-
-    public void setEvidenciaNotas(String evidenciaNotas) {
-        this.evidenciaNotas = evidenciaNotas;
     }
 
     public int getIdTecnicoResponsable() {

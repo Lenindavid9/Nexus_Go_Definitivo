@@ -42,7 +42,7 @@ public class VistaReservarCitas extends JPanel {
     public JTextArea txtObservaciones;
     
     public JButton btnAgendar; // Botón "Reservar cita"
-    public JButton btnVolver;  // Botón auxiliar para el controlador
+  
 
     // Compatibilidad con el controlador
     public JTextField txtFechaHora; 
@@ -181,7 +181,7 @@ public class VistaReservarCitas extends JPanel {
         tarjetaBlanca.add(btnAgendar, gbc);
 
         // Instancias auxiliares de respaldo
-        btnVolver = new JButton();
+       
         txtFechaHora = new JTextField();
 
         add(tarjetaBlanca);

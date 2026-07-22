@@ -15,33 +15,39 @@ import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 import nexusgo.model.HerramientaDao;
 import nexusgo.model.Herramientas;
+import nexusgo.model.Mantenimiento;
+import nexusgo.model.MantenimientoDao;
 import nexusgo.model.ProductoDao;
 import nexusgo.model.Usuario;
 import nexusgo.view.PanelAdmi;
 import nexusgo.view.PanelBienvenida;
 import nexusgo.view.ReportesFinancieros;
+import nexusgo.view.VistaHistorialMantenimiento;
 
 /**
  *
  * @author INGRID
  */
-public class ControladorAdmiPeluqueria implements ActionListener {
-    
- private final PanelAdmi vistaAdmin;
-    private ReportesFinancieros panelReportes;
+public class ControladorPrincipalAdmiPeluqueria implements ActionListener {
 
-    // Instancias de DAOs para consultas reales a la BD
+    private final PanelAdmi vistaAdmin;
+    private ReportesFinancieros panelReportes;
+    private VistaHistorialMantenimiento panelHistorial;
+
+    // Instancias de DAOs para la capa de datos
     private final ProductoDao productoDao = new ProductoDao();
     private final HerramientaDao herramientaDao = new HerramientaDao();
+    private final MantenimientoDao mantenimientoDao = new MantenimientoDao();
 
     private final Usuario usuarioLogueado;
 
-    public ControladorAdmiPeluqueria(PanelAdmi vistaAdmin, Usuario usuarioLogueado) {
+    public ControladorPrincipalAdmiPeluqueria(PanelAdmi vistaAdmin, Usuario usuarioLogueado) {
         this.vistaAdmin = vistaAdmin;
         this.usuarioLogueado = usuarioLogueado;
 
         try {
             this.panelReportes = new ReportesFinancieros();
+            this.panelHistorial = new VistaHistorialMantenimiento();
 
             inicializarListeners();
 
@@ -67,7 +73,7 @@ public class ControladorAdmiPeluqueria implements ActionListener {
                 });
             }
 
-            // LISTENERS A LA BARRA LATERAL (VistaBarraLateral)
+            // LISTENERS A LA BARRA LATERAL
             if (this.vistaAdmin.getMenuLateral() != null) {
                 if (this.vistaAdmin.getMenuLateral().bCasa != null) {
                     this.vistaAdmin.getMenuLateral().bCasa.addActionListener(this);
@@ -80,7 +86,7 @@ public class ControladorAdmiPeluqueria implements ActionListener {
                 }
             }
 
-            // LISTENER PARA BOTÓN REPORTE (Si está declarado público en PanelAdmi)
+            // LISTENER PARA BOTÓN REPORTE
             if (this.vistaAdmin.btnReporte != null) {
                 this.vistaAdmin.btnReporte.addActionListener(this);
             }
@@ -107,36 +113,31 @@ public class ControladorAdmiPeluqueria implements ActionListener {
         try {
             // --- NAVEGACIÓN BARRA LATERAL ---
             if (this.vistaAdmin.getMenuLateral() != null) {
-                // Botón Inicio / Casa
                 if (e.getSource() == vistaAdmin.getMenuLateral().bCasa) {
                     cambiarPanelCentral(new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol()));
                     return;
                 }
-                
-                // Botón Inventario
+
                 if (e.getSource() == vistaAdmin.getMenuLateral().bInventario) {
-                    JOptionPane.showMessageDialog(vistaAdmin, 
-                        "Módulo de Inventario en integración.", 
-                        "NexusGO", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(vistaAdmin,
+                            "Módulo de Inventario en integración.",
+                            "NexusGO", JOptionPane.INFORMATION_MESSAGE);
                     return;
                 }
 
-                // Botón Citas
+                // Acción de ver el Historial de Mantenimientos
                 if (e.getSource() == vistaAdmin.getMenuLateral().misCitas) {
-                    JOptionPane.showMessageDialog(vistaAdmin, 
-                        "Módulo de Citas en desarrollo.", 
-                        "NexusGO", JOptionPane.INFORMATION_MESSAGE);
+                    mostrarHistorialMantenimiento();
                     return;
                 }
             }
 
-            // Botón btnReporte (si existe en PanelAdmi)
             if (e.getSource() == vistaAdmin.btnReporte) {
                 cambiarPanelCentral(panelReportes);
                 return;
             }
 
-            // --- NAVEGACIÓN Y ACCIONES DESDE REPORTES ---
+            // --- NAVEGACIÓN DESDE REPORTES ---
             if (panelReportes != null) {
                 if (e.getSource() == panelReportes.getBtnInicio()) {
                     cambiarPanelCentral(new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol()));
@@ -164,7 +165,6 @@ public class ControladorAdmiPeluqueria implements ActionListener {
         }
     }
 
-    // Consulta de datos reales usando la base de datos
     private void ejecutarProcesamientoReporte() {
         try {
             String mesSeleccionado = panelReportes.getComboMes().getSelectedItem().toString();
@@ -200,21 +200,40 @@ public class ControladorAdmiPeluqueria implements ActionListener {
         }
     }
 
+    // Consulta y llena la tabla del Historial de Mantenimientos
     private void mostrarHistorialMantenimiento() {
         try {
-            List<Herramientas> lista = herramientaDao.listar();
-            if (lista != null && !lista.isEmpty()) {
-                JOptionPane.showMessageDialog(panelReportes,
-                        "Se encontraron " + lista.size() + " herramientas registradas en la base de datos.",
-                        "Historial Mantenimiento", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(panelReportes,
-                        "No se encontraron herramientas o mantenimientos en el sistema.",
-                        "Información", JOptionPane.INFORMATION_MESSAGE);
+            // Obtenemos los registros cruzados desde HerramientaDao
+            List<Mantenimiento> listaMantenimientos = herramientaDao.listarMantenimientosRealizados();
+
+            String[] columnas = {"Número de referencia", "Nombre", "Marca", "Fecha / Hora"};
+            DefaultTableModel modelo = new DefaultTableModel(null, columnas) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+
+            if (listaMantenimientos != null && !listaMantenimientos.isEmpty()) {
+                for (Mantenimiento m : listaMantenimientos) {
+                    modelo.addRow(new Object[]{
+                        m.getIdMantenimiento(), 
+                        m.getNombreHerramienta(),
+                        m.getMarca() != null ? m.getMarca() : "Original",
+                        m.getFechaHora() != null ? m.getFechaHora() : "N/A"
+                    });
+                }
             }
+
+            // Inyectamos el modelo en la vista del historial
+            panelHistorial.setDatosHistorial(modelo);
+
+            // Cambiamos la vista central
+            cambiarPanelCentral(panelHistorial);
+
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(panelReportes,
-                    "Error al consultar la BD: " + e.getMessage(),
+            JOptionPane.showMessageDialog(vistaAdmin,
+                    "Error al consultar la BD para el historial de mantenimientos: " + e.getMessage(),
                     "Error de Conexión", JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -245,5 +264,5 @@ public class ControladorAdmiPeluqueria implements ActionListener {
         } catch (Exception e) {
             System.err.println("Error en el enrutador dinámico de vistas: " + e.getMessage());
         }
-    }   
+    }
 }

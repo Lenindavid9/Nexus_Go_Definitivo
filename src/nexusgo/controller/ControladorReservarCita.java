@@ -41,17 +41,12 @@ public class ControladorReservarCita implements ActionListener {
 
     private void inicializarEventos() {
         this.panelReserva.btnAgendar.addActionListener(this);
-        this.panelReserva.btnVolver.addActionListener(this);
+        
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == panelReserva.btnAgendar) {
-            procesarReserva();
-        } else if (e.getSource() == panelReserva.btnVolver) {
-            System.out.println("Regresando desde la vista de reservas...");
-            // Lógica adicional para el botón volver si la necesitas
-        }
+        
     }
 
     private void procesarReserva() {
