@@ -38,7 +38,7 @@ public class VistaPrincipalAdminSoftware extends JFrame {
 
         // Inicializar el panel 'contenido' explícitamente con BorderLayout
         contenido = new JPanel(new BorderLayout());
-        contenido.setBackground(Color.red);
+        contenido.setBackground(Color.white);
 
         // Agregar el contenedor general 'contenido' al centro del JFrame
         // El Controlador se encargará de inyectar los paneles dinámicamente aquí

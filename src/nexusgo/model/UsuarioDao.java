@@ -106,56 +106,56 @@ public class UsuarioDao {
         return usuario;
     }
 
-    // LISTAR CITAS VIGENTES DE UN CLIENTE
+    
     // LISTAR USUARIOS COMPLETO PARA JTABLE
     public List<Usuario> listarUsuarios() {
-        List<Usuario> lista = new ArrayList<>();
-        String sql = """
-                 SELECT u.numero_identificacion, u.nombre, u.apellido, r.nombre_rol AS rol, u.correo
-                 FROM usuarios u
-                 INNER JOIN roles r ON u.id_rol = r.id_rol
-                 """;
+    List<Usuario> lista = new ArrayList<>();
+    String sql = "SELECT u.numero_identificacion, u.nombre, u.apellido, "
+               + "COALESCE(r.nombre_rol, 'Sin Rol') AS rol, u.correo "
+               + "FROM usuarios u "
+               + "LEFT JOIN roles r ON u.id_rol = r.id_rol";
 
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+    try (Connection con = new Conexion().getConection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
-                Usuario u = new Usuario();
-                u.setIdentificacion(rs.getInt("numero_identificacion"));
-                u.setNombre(rs.getString("nombre"));
-                u.setApellido(rs.getString("apellido"));
-                u.setRol(rs.getString("rol"));
-                u.setCorreo(rs.getString("correo"));
+        while (rs.next()) {
+            Usuario u = new Usuario();
+            // ¡OJO! Usa los nombres de columna EXACTOS de tu BD:
+            u.setIdentificacion(rs.getInt("numero_identificacion"));
+            u.setNombre(rs.getString("nombre"));
+            u.setApellido(rs.getString("apellido"));
+            u.setRol(rs.getString("rol"));
+            u.setCorreo(rs.getString("correo"));
 
-                lista.add(u);
-            }
-        } catch (SQLException e) {
-            System.err.println(" ERROR SQL AL LISTAR USUARIOS:");
-            e.printStackTrace(); // <--- ESTO MOSTRARÁ LA CAUSA EXACTA EN CONSOLA
+            lista.add(u);
         }
-        return lista;
+    } catch (SQLException e) {
+        System.err.println("❌ Error SQL: " + e.getMessage());
     }
+    return lista;
+}
 
     // ACTUALIZAR ROL DEL USUARIO (Subconsulta para obtener id_rol desde el nombre_rol)
     public boolean actualizarRol(String numeroIdentificacion, String nuevoRol) {
-        String sql = """
-                     UPDATE usuarios 
-                     SET id_rol = (SELECT id_rol FROM roles WHERE nombre_rol = ?) 
-                     WHERE numero_identificacion = ?
-                     """;
+    String sql = "UPDATE usuarios "
+               + "SET id_rol = (SELECT id_rol FROM roles WHERE nombre_rol = ?) "
+               + "WHERE numero_identificacion = ?";
 
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+    try (Connection con = new Conexion().getConection();
+         PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setString(1, nuevoRol);
-            ps.setString(2, numeroIdentificacion);
+        ps.setString(1, nuevoRol);
+        ps.setString(2, numeroIdentificacion);
 
-            int filasAfectadas = ps.executeUpdate();
-            return filasAfectadas > 0;
+        int filasAfectadas = ps.executeUpdate();
+        return filasAfectadas > 0;
 
-        } catch (SQLException e) {
-            System.err.println("Error al actualizar el rol del usuario: " + e.getMessage());
-            return false;
-        }
+    } catch (SQLException e) {
+        System.err.println("❌ Error al actualizar rol: " + e.getMessage());
+        return false;
     }
+}
 
     // REGISTRAR CITA NUEVA
     public boolean registrarCita(int idCliente, int idServicio, String fechahora) {
