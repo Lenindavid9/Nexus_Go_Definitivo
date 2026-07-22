@@ -300,7 +300,7 @@ public class ControladorInicioSesion implements ActionListener {
 
                     /*Se llama el controlador encargado de gestionar las acciones
                     que realizará el Admin en el sistema*/
-                    ControladorAdmiPeluqueria controlAdminPelu = new ControladorAdmiPeluqueria(panelAdmiPelu, usuarioLogueado);
+                    ControladorPrincipalAdmiPeluqueria controlAdminPelu = new ControladorPrincipalAdmiPeluqueria(panelAdmiPelu, usuarioLogueado);
 
                     // La ventana se abre por completo en toda la pantalla
                     panelAdmiPelu.setExtendedState(JFrame.MAXIMIZED_BOTH);
