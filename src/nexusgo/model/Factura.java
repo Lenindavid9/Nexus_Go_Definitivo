@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class Factura {
 
-    private int idFactura;
+   private int idFactura;
     private int idVenta;
     private int idCliente;
     private int idCaja;
@@ -21,6 +21,7 @@ public class Factura {
     private double descuentoAplicado;
     private double total;
     private Date fechaEmision;
+    private String nombreServicio; // <--- Campo agregado para la vista/PDF
     private List<DetalleCarrito> detalles;
 
     public Factura(int idFactura, int idVenta, int idCliente, int idCaja, double subtotal, double descuentoAplicado, double total, Date fechaEmision, List<DetalleCarrito> detalles) {
@@ -112,6 +113,14 @@ public class Factura {
         this.fechaEmision = fechaVenta;
     }
 
+    public String getNombreServicio() {
+        return nombreServicio;
+    }
+
+    public void setNombreServicio(String nombreServicio) {
+        this.nombreServicio = nombreServicio;
+    }
+
     public List<DetalleCarrito> getDetalles() {
         return detalles;
     }
@@ -131,6 +140,7 @@ public class Factura {
                 + ", descuentoAplicado=" + descuentoAplicado
                 + ", total=" + total
                 + ", fechaEmision=" + fechaEmision
+                + ", nombreServicio=" + nombreServicio
                 + ", detalles=" + detalles
                 + '}';
     }
