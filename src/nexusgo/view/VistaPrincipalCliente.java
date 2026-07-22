@@ -38,7 +38,7 @@ public class VistaPrincipalCliente extends JFrame {
     private JPanel panelGridPromociones;
     private JScrollPane scrollContenido;
 
-    // Componentes interactivos para el controlador
+    // Componentes interactivos accesibles desde el controlador
     public JButton btnReservarCita;
     public JButton btnCerrarSesion;
     public JButton btnHistorial;
@@ -52,52 +52,38 @@ public class VistaPrincipalCliente extends JFrame {
     public VistaPrincipalCliente(String nombreUsuario, String rolUsuario) {
         super("Nexus GO - Cliente");
 
-        // 1. Fondo de Mármol
-        this.fondoMarmol = new JLabel(new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg"));
-        this.fondoMarmol.setLayout(new GridBagLayout()); // Centra el contenedor interno
+        // 1. Fondo principal
         this.fondoMarmol = new JLabel(new ImageIcon("src/nexusgo/img/fondoprincipal.jpg"));
-        this.fondoMarmol.setLayout(new BorderLayout()); // Centra el contenedor interno
+        this.fondoMarmol.setLayout(new BorderLayout());
         this.setContentPane(fondoMarmol);
 
-        // 2. Contenedor Principal (Marco transparente que une Sidebar + Tarjeta Blanca)
+        // 2. Contenedor ESTRUCTURAL
         JPanel contenedorEstructural = new JPanel(new BorderLayout(15, 0));
         contenedorEstructural.setPreferredSize(new Dimension(980, 650));
         contenedorEstructural.setOpaque(false);
 
         // 3. Barra Lateral (Sidebar)
         sidebar = new VistaBarraLateral();
-        sidebar.setPreferredSize(new Dimension(70, 650));
+        sidebar.setPreferredSize(new Dimension(80, 650));
         sidebar.setBackground(Color.WHITE);
-        if (sidebar.bInventario != null) sidebar.bInventario.setVisible(true);
-        if (sidebar.misCitas != null) sidebar.misCitas.setVisible(true);
-
-        // 4. Tarjeta Blanca Central Flotante (Como en Figma)
-        panelFlotanteBlanco = new JPanel(new BorderLayout());
-        panelFlotanteBlanco.setBackground(Color.red);
-        
-        sidebar.setBackground(Color.WHITE);
-        sidebar.setPreferredSize(new Dimension(80,0));
         if (sidebar.bInventario != null) sidebar.bInventario.setVisible(false);
         if (sidebar.misCitas != null) sidebar.misCitas.setVisible(true);
-        
 
-
-        // 4. Tarjeta Blanca Central Flotante (Como en Figma)
+        // 4. Tarjeta Blanca Central Flotante
         panelFlotanteBlanco = new JPanel(new BorderLayout());
         panelFlotanteBlanco.setOpaque(false);
         panelFlotanteBlanco.setBorder(new EmptyBorder(15, 20, 15, 20));
 
-        // 5. Panel Interno Dinámico (Donde va el catálogo y otras vistas)
+        // 5. Panel Interno Dinámico
         contenidoCentralDinamico = new JPanel();
         contenidoCentralDinamico.setLayout(new BoxLayout(contenidoCentralDinamico, BoxLayout.Y_AXIS));
         contenidoCentralDinamico.setBackground(Color.WHITE);
         contenidoCentralDinamico.setOpaque(false);
 
-        // --- Botones y Encabezados ---
+        // --- Componentes ---
         lblBienvenida = new JLabel("Hola, " + nombreUsuario + " | Bienvenido a Nexus GO", SwingConstants.CENTER);
         lblBienvenida.setFont(new Font("Segoe UI", Font.BOLD, 17));
         lblBienvenida.setForeground(Color.BLACK);
-        lblBienvenida.setForeground(Color.WHITE);
 
         btnCerrarSesion = new JButton("cerrar sesión");
         btnCerrarSesion.setBackground(new Color(255, 220, 90));
@@ -105,7 +91,7 @@ public class VistaPrincipalCliente extends JFrame {
         btnCerrarSesion.setFocusPainted(false);
         btnCerrarSesion.setBorderPainted(false);
         btnCerrarSesion.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnCerrarSesion.setPreferredSize(new Dimension(110, 28)); // Tamaño controlado para evitar que se estire
+        btnCerrarSesion.setPreferredSize(new Dimension(110, 28));
 
         btnReservarCita = new JButton("Reservar cita");
         btnReservarCita.setBackground(new Color(255, 220, 90));
@@ -116,19 +102,12 @@ public class VistaPrincipalCliente extends JFrame {
         btnReservarCita.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnReservarCita.setMaximumSize(new Dimension(150, 32));
 
-        btnHistorial = new JButton("Historial"); // Necesario para evitar NullPointerException en el controlador
+        btnHistorial = new JButton("Historial");
 
-        // --- Grids de Tarjetas ---
-        panelGridProductos = new JPanel(new GridLayout(0, 3, 15, 15));
-        panelGridProductos.setBackground(Color.WHITE);
-
-        panelGridPromociones = new JPanel(new GridLayout(0, 3, 15, 15));
-        panelGridPromociones.setBackground(Color.WHITE);
-
-        // Cargar vista inicial de la tienda
+        // Cargar estructura inicial
         restaurarComponentesTienda();
 
-        // ScrollPane transparente asignado a la tarjeta blanca
+        // ScrollPane
         scrollContenido = new JScrollPane(contenidoCentralDinamico);
         scrollContenido.setBackground(Color.WHITE);
         scrollContenido.getViewport().setBackground(Color.WHITE);
@@ -136,7 +115,7 @@ public class VistaPrincipalCliente extends JFrame {
 
         panelFlotanteBlanco.add(scrollContenido, BorderLayout.CENTER);
 
-        // Ensamblar
+        // Ensamblaje
         contenedorEstructural.add(sidebar, BorderLayout.WEST);
         contenedorEstructural.add(panelFlotanteBlanco, BorderLayout.CENTER);
 
@@ -147,26 +126,32 @@ public class VistaPrincipalCliente extends JFrame {
     }
 
     /**
-     * Reconstruye y limpia el panel central para volver al catálogo de productos.
+     * Reconstruye y limpia el panel central para volver al catálogo.
      */
     public void restaurarComponentesTienda() {
         contenidoCentralDinamico.removeAll();
 
-        // Header Superior: Saludo centrado y Botón Cerrar Sesión fijo a la derecha
+        panelGridProductos = new JPanel(new GridLayout(0, 3, 15, 15));
+        panelGridProductos.setBackground(Color.WHITE);
+        panelGridProductos.setOpaque(false);
+
+        panelGridPromociones = new JPanel(new GridLayout(0, 3, 15, 15));
+        panelGridPromociones.setBackground(Color.WHITE);
+        panelGridPromociones.setOpaque(false);
+
+        // Header Superior
         JPanel panelHeader = new JPanel(new BorderLayout());
-        panelHeader.setBackground(Color.WHITE);
+        panelHeader.setOpaque(false);
+        panelHeader.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         panelHeader.add(lblBienvenida, BorderLayout.CENTER);
 
-        // Subpanel para que el botón "cerrar sesión" no se extienda a lo alto
         JPanel panelBotonDerecha = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        panelBotonDerecha.setBackground(Color.WHITE);
         panelBotonDerecha.setOpaque(false);
         panelBotonDerecha.add(btnCerrarSesion);
         panelHeader.add(panelBotonDerecha, BorderLayout.EAST);
 
-        // Banner/Pestaña amarilla de Promociones (Figma)
+        // Banner de Promociones
         JPanel panelEtiquetaPromo = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        panelEtiquetaPromo.setBackground(Color.WHITE);
         panelEtiquetaPromo.setOpaque(false);
         
         JLabel lblPromociones = new JLabel("Promociones", SwingConstants.CENTER);
@@ -176,13 +161,13 @@ public class VistaPrincipalCliente extends JFrame {
         lblPromociones.setPreferredSize(new Dimension(140, 26));
         panelEtiquetaPromo.add(lblPromociones);
 
-        // Ensamblaje vertical
+        // Ensamblado vertical
         contenidoCentralDinamico.add(panelHeader);
         contenidoCentralDinamico.add(Box.createVerticalStrut(15));
-        contenidoCentralDinamico.add(btnReservarCita);
-        contenidoCentralDinamico.add(Box.createVerticalStrut(20));
         contenidoCentralDinamico.add(panelGridProductos);
-        contenidoCentralDinamico.add(Box.createVerticalStrut(20));
+        contenidoCentralDinamico.add(Box.createVerticalStrut(25));
+        contenidoCentralDinamico.add(btnReservarCita);
+        contenidoCentralDinamico.add(Box.createVerticalStrut(25));
         contenidoCentralDinamico.add(panelEtiquetaPromo);
         contenidoCentralDinamico.add(Box.createVerticalStrut(15));
         contenidoCentralDinamico.add(panelGridPromociones);
@@ -192,15 +177,19 @@ public class VistaPrincipalCliente extends JFrame {
     }
 
     public void limpiarGridProductos() {
-        panelGridProductos.removeAll();
-        panelGridProductos.revalidate();
-        panelGridProductos.repaint();
+        if (panelGridProductos != null) {
+            panelGridProductos.removeAll();
+            panelGridProductos.revalidate();
+            panelGridProductos.repaint();
+        }
     }
 
     public void limpiarGridPromociones() {
-        panelGridPromociones.removeAll();
-        panelGridPromociones.revalidate();
-        panelGridPromociones.repaint();
+        if (panelGridPromociones != null) {
+            panelGridPromociones.removeAll();
+            panelGridPromociones.revalidate();
+            panelGridPromociones.repaint();
+        }
     }
 
     public void agregarTarjetaProducto(int id, String nombre, double precio, String rutaImagen, MouseListener listener) {
@@ -218,7 +207,7 @@ public class VistaPrincipalCliente extends JFrame {
     }
 
     /**
-     * Maqueta tarjetas individuales blancas con sombra/borde suave.
+     * Maqueta la tarjeta visual e individual para cada producto u oferta.
      */
     private JPanel crearTarjetaVisual(String idStr, String nombre, double precio, String rutaImagen, MouseListener listener) {
         JPanel tarjeta = new JPanel();
@@ -227,80 +216,81 @@ public class VistaPrincipalCliente extends JFrame {
         tarjeta.setBorder(new EmptyBorder(10, 10, 10, 10));
         tarjeta.setName(idStr);
         tarjeta.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        tarjeta.addMouseListener(listener);
+        if (listener != null) tarjeta.addMouseListener(listener);
 
         JLabel lblImg = new JLabel();
         lblImg.setAlignmentX(CENTER_ALIGNMENT);
         lblImg.setName(idStr);
-        lblImg.addMouseListener(listener);
+        if (listener != null) lblImg.addMouseListener(listener);
 
-        // 1. Normalización de la ruta proveniente de la Base de Datos
-        if (rutaImagen == null || rutaImagen.trim().isEmpty()) {
-            rutaImagen = "/nexusgo/img/default.jpg";
+        // --- 1. Formateo y Normalización de Ruta ---
+        String rutaLimpia = (rutaImagen != null) ? rutaImagen.trim() : "";
+        
+        if (rutaLimpia.isEmpty()) {
+            rutaLimpia = "/nexusgo/img/default.jpg";
         } else {
-            rutaImagen = rutaImagen.trim();
-            
-            // Si la BD solo trae el nombre del archivo (ej. "champu.jpg")
-            if (!rutaImagen.contains("/")) {
-                rutaImagen = "/nexusgo/img/" + rutaImagen;
-            } else {
-                // Si la BD trae "src/nexusgo/img/champu.jpg", le remueve "src"
-                if (rutaImagen.startsWith("src/")) {
-                    rutaImagen = rutaImagen.substring(3);
-                }
-                // Asegurar que comience con '/' para el Classpath
-                if (!rutaImagen.startsWith("/")) {
-                    rutaImagen = "/" + rutaImagen;
+            if (rutaLimpia.startsWith("src/")) {
+                rutaLimpia = rutaLimpia.substring(4);
+            }
+            if (rutaLimpia.startsWith("nexusgo/")) {
+                rutaLimpia = "/" + rutaLimpia;
+            } else if (!rutaLimpia.startsWith("/nexusgo/")) {
+                if (rutaLimpia.startsWith("/")) {
+                    rutaLimpia = "/nexusgo" + rutaLimpia;
+                } else {
+                    rutaLimpia = "/nexusgo/" + rutaLimpia;
                 }
             }
         }
 
-        // 2. Intentar cargar desde el Classpath
+        // --- 2. Intento de Carga por Classpath y File Fallback ---
         ImageIcon iconoOriginal = null;
         try {
-            java.net.URL imgURL = getClass().getResource(rutaImagen);
+            java.net.URL imgURL = getClass().getResource(rutaLimpia);
             if (imgURL != null) {
                 iconoOriginal = new ImageIcon(imgURL);
             } else {
-                // Intento secundario si la ruta es absoluta fuera del proyecto
-                iconoOriginal = new ImageIcon(rutaImagen);
+                iconoOriginal = new ImageIcon("src" + rutaLimpia);
             }
         } catch (Exception ex) {
-            System.err.println("Error al cargar la imagen: " + rutaImagen);
+            System.err.println("❌ No se pudo cargar la imagen desde: " + rutaLimpia);
         }
 
-        // 3. Renderizar imagen si existe y no está vacía
+        // --- 3. Renderizado en el JLabel ---
         if (iconoOriginal != null && iconoOriginal.getImage() != null && iconoOriginal.getIconWidth() > 0) {
-            Image imgEscalada = iconoOriginal.getImage().getScaledInstance(150, 105, Image.SCALE_SMOOTH);
+            Image imgEscalada = iconoOriginal.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
             lblImg.setIcon(new ImageIcon(imgEscalada));
         } else {
-            lblImg.setText("Sin Imagen");
-            lblImg.setFont(new Font("Segoe UI", Font.ITALIC, 10));
+            lblImg.setText("[Sin Foto]");
+            lblImg.setFont(new Font("Segoe UI", Font.ITALIC, 11));
+            lblImg.setForeground(Color.GRAY);
         }
 
-        JLabel lblNombre = new JLabel("<html><center>" + nombre.toUpperCase() + "</center></html>");
-        lblNombre.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        // --- 4. Etiquetas de Texto (Nombre y Precio) ---
+        JLabel lblNombre = new JLabel(nombre, SwingConstants.CENTER);
+        lblNombre.setFont(new Font("Segoe UI", Font.BOLD, 12));
         lblNombre.setAlignmentX(CENTER_ALIGNMENT);
         lblNombre.setName(idStr);
-        lblNombre.addMouseListener(listener);
+        if (listener != null) lblNombre.addMouseListener(listener);
 
-        JLabel lblPrecio = new JLabel(String.format("$ %,.0f", precio));
-        lblPrecio.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        lblPrecio.setForeground(Color.GRAY);
+        JLabel lblPrecio = new JLabel(String.format("$%.2f", precio), SwingConstants.CENTER);
+        lblPrecio.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblPrecio.setForeground(new Color(40, 140, 40));
         lblPrecio.setAlignmentX(CENTER_ALIGNMENT);
         lblPrecio.setName(idStr);
-        lblPrecio.addMouseListener(listener);
+        if (listener != null) lblPrecio.addMouseListener(listener);
 
+        // --- Ensamblado de la tarjeta ---
         tarjeta.add(lblImg);
-        tarjeta.add(Box.createVerticalStrut(6));
+        tarjeta.add(Box.createVerticalStrut(8));
         tarjeta.add(lblNombre);
-        tarjeta.add(Box.createVerticalStrut(3));
+        tarjeta.add(Box.createVerticalStrut(4));
         tarjeta.add(lblPrecio);
 
         return tarjeta;
     }
-    
+
     public JPanel getContenidoCentralDinamico() {
-        return this.contenidoCentralDinamico;
+        return contenidoCentralDinamico;
     }
 }

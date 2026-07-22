@@ -18,10 +18,26 @@ public class Promocion {
     private Date fechaInicio;
     private Date fechaFin;
     private String estado;
+    
+    // Campos auxiliares opcionales (útiles para Join con Producto en Vistas)
+    private String nombreProducto;
+    private double precioOriginal;
 
+    // Constructor vacío
     public Promocion() {
     }
 
+    // Constructor completo
+    public Promocion(int idPromocion, int idProducto, double porcentajeDescuento, Date fechaInicio, Date fechaFin, String estado) {
+        this.idPromocion = idPromocion;
+        this.idProducto = idProducto;
+        this.porcentajeDescuento = porcentajeDescuento;
+        this.fechaInicio = fechaInicio;
+        this.fechaFin = fechaFin;
+        this.estado = estado;
+    }
+
+    // Getters y Setters Básicos
     public int getIdPromocion() {
         return idPromocion;
     }
@@ -69,5 +85,39 @@ public class Promocion {
     public void setEstado(String estado) {
         this.estado = estado;
     }
-    
+
+    // Getters y Setters Auxiliares
+    public String getNombreProducto() {
+        return nombreProducto;
+    }
+
+    public void setNombreProducto(String nombreProducto) {
+        this.nombreProducto = nombreProducto;
+    }
+
+    public double getPrecioOriginal() {
+        return precioOriginal;
+    }
+
+    public void setPrecioOriginal(double precioOriginal) {
+        this.precioOriginal = precioOriginal;
+    }
+
+    // Método de conveniencia para calcular el precio final con el descuento aplicado
+    public double getPrecioConDescuento() {
+        if (this.precioOriginal > 0) {
+            return this.precioOriginal - (this.precioOriginal * (this.porcentajeDescuento / 100.0));
+        }
+        return 0.0;
+    }
+
+    @Override
+    public String toString() {
+        return "Promocion{" +
+                "idPromocion=" + idPromocion +
+                ", idProducto=" + idProducto +
+                ", porcentajeDescuento=" + porcentajeDescuento +
+                ", estado='" + estado + '\'' +
+                '}';
+    }
 }
