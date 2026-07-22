@@ -68,6 +68,12 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
             // Verificar si ya existe una caja abierta (de una sesión anterior)
             this.idCajaActual = cajaDao.obtenerCajaAbierta();
+            
+            // Si la caja sigue abierta debe mostrar su monto de apertura (no debe verse vacío solo porque se recargó la pantalla o se reinició sesión)
+            if (this.idCajaActual > 0) {
+                double montoApertura = cajaDao.obtenerMontoApertura(this.idCajaActual);
+                panelAperturaCierre.getLbltxtMontoA().setText(String.format("$%,.2f", montoApertura));
+            }
 
             inicializarListeners();
 
@@ -235,13 +241,13 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                     try {
                         monto = parsearMonto(montoStr);
                     } catch (NumberFormatException nfe) {
-                        JOptionPane.showMessageDialog(vistaPrincipal, "El monto ingresado no es un número válido.", 
+                        JOptionPane.showMessageDialog(vistaPrincipal, "El monto ingresado no es un número válido.",
                                 "Formato inválido", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
 
                     if (monto <= 0 || monto > 99999999.99) {
-                        JOptionPane.showMessageDialog(vistaPrincipal, "El monto debe ser mayor a 0 y no superar $99.999.999,99.", 
+                        JOptionPane.showMessageDialog(vistaPrincipal, "El monto debe ser mayor a 0 y no superar $99.999.999,99.",
                                 "Monto fuera de rango", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
@@ -250,10 +256,11 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
                     if (idCajaActual > 0) {
                         panelAperturaCierre.getLbltxtMontoA().setText(String.format("$%,.2f", monto));
-                        JOptionPane.showMessageDialog(vistaPrincipal, "Apertura de caja realizada con: $" + String.format("%,.2f", monto), 
+                        JOptionPane.showMessageDialog(vistaPrincipal, "Apertura de caja realizada con: $" + String.format("%,.2f", monto),
                                 "Caja Registrada", JOptionPane.INFORMATION_MESSAGE);
+                        vistaPrincipal.repaint();
                     } else {
-                        JOptionPane.showMessageDialog(vistaPrincipal, "No se pudo registrar la apertura de caja en la base de datos.", 
+                        JOptionPane.showMessageDialog(vistaPrincipal, "No se pudo registrar la apertura de caja en la base de datos.",
                                 "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
                     }
                 }
@@ -267,6 +274,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                     JOptionPane.showMessageDialog(vistaPrincipal, "Cierre procesado con monto físico en caja: $" + montoFisico,
                             "Cierre de Caja", JOptionPane.INFORMATION_MESSAGE);
                     idCajaActual = 0;
+                    panelAperturaCierre.getLbltxtMontoA().setText("");
                 } else if (idCajaActual <= 0) {
                     JOptionPane.showMessageDialog(vistaPrincipal, "No hay ninguna caja abierta para cerrar.",
                             "Atención", JOptionPane.WARNING_MESSAGE);
@@ -287,10 +295,11 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             System.err.println("Error en eventos del Supervisor: " + ex.getMessage());
         }
     }
-    
+
     /**
-     * Convierte texto de monto en formato colombiano ($1.000.000,50 o 1000000) a double.
-     * El punto se interpreta como separador de miles y la coma como separador decimal.
+     * Convierte texto de monto en formato colombiano ($1.000.000,50 o 1000000)
+     * a double. El punto se interpreta como separador de miles y la coma como
+     * separador decimal.
      */
     private double parsearMonto(String texto) {
         String limpio = texto.replace("$", "").trim();
