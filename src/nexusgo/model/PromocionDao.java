@@ -21,6 +21,7 @@ public class PromocionDao {
 
     public boolean guardarPromocion(Promocion promo) {
         String sql = "INSERT INTO promociones (id_producto, porcentaje_descuento, fecha_inicio, fecha_fin, estado) VALUES (?, ?, ?, ?, ?)";
+        
         try (Connection con = conexion.getConection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             

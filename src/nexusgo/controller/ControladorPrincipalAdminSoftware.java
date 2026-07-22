@@ -41,10 +41,17 @@ public class ControladorPrincipalAdminSoftware implements ActionListener {
             PanelBienvenida bienvenida = new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol());
             cambiarPanel(bienvenida);
         } 
-        // Clic en CAMBIO DE ROL (Inyecta el JPanel en el centro)
+        // Clic en CAMBIO DE ROL
         else if (e.getSource() == vista.getsidebar().bInventario) {
+            // 1. Instanciar el JPanel de la vista
             VistaCambioRol panelCambioRol = new VistaCambioRol();
-            cambiarPanel(panelCambioRol); // ✅ Enrutamiento correcto para JPanel
+            
+            // 2. ⚡ INSTANCIAR Y CONECTAR EL CONTROLADOR ⚡
+            // Esto ejecuta la carga de usuarios desde la BD en la tabla
+            ControladorCambioRol controladorRol = new ControladorCambioRol(panelCambioRol);
+            
+            // 3. Renderizar en el contenedor central
+            cambiarPanel(panelCambioRol);
         }
     }
 
