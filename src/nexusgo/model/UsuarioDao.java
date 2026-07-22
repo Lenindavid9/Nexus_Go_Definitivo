@@ -22,7 +22,7 @@ public class UsuarioDao {
     // AUTENTICAR USUARIO (LOGIN)
     public Usuario autenticarUsuario(int identificacion, String contrasena) {
         String sql = """
-                     SELECT u.nombre, r.nombre_rol AS rol 
+                     SELECT u.id_usuario, u.nombre, r.nombre_rol AS rol 
                      FROM usuarios u 
                      INNER JOIN roles r ON u.id_rol = r.id_rol 
                      WHERE u.numero_identificacion = ? AND u.contrasena = ?
@@ -37,6 +37,7 @@ public class UsuarioDao {
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     Usuario user = new Usuario();
+                    user.setIdUsuario(rs.getInt("id_usuario"));
                     user.setIdentificacion(identificacion);
                     user.setNombre(rs.getString("nombre"));
                     user.setRol(rs.getString("rol"));

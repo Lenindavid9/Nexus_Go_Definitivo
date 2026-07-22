@@ -16,7 +16,7 @@ import nexusgo.view.VistaPdV;
 
 public class ControladorPdV implements ActionListener {
 
-   private final VistaPdV vista;
+    private final VistaPdV vista;
     private final FacturaDao facturaDao;
     private final ProductoDao productoDao;
     private final nexusgo.model.CajaDao cajaDao = new nexusgo.model.CajaDao();
@@ -68,15 +68,15 @@ public class ControladorPdV implements ActionListener {
         if (productos != null && !productos.isEmpty()) {
             for (Producto p : productos) {
                 String precioFormateado = String.format("$%.0f", p.getPrecioCompra());
-                String imagen = (p.getUrlImagen() != null && !p.getUrlImagen().isEmpty()) 
-                                ? p.getUrlImagen() 
-                                : "tratamiento.png";
+                String imagen = (p.getUrlImagen() != null && !p.getUrlImagen().isEmpty())
+                        ? p.getUrlImagen()
+                        : "tratamiento.png";
 
                 // Crear la tarjeta en la vista y recibir sus componentes interactivos
                 VistaPdV.TarjetaProductoComponentes componentes = vista.agregarTarjetaComponentes(
-                        p.getNombreProducto(), 
-                        precioFormateado, 
-                        p.getStockActual(), 
+                        p.getNombreProducto(),
+                        precioFormateado,
+                        p.getStockActual(),
                         imagen
                 );
 
@@ -102,8 +102,8 @@ public class ControladorPdV implements ActionListener {
     }
 
     /**
-     * Acumula la cantidad seleccionada en el producto existente dentro del carrito,
-     * o agrega una nueva línea si no había sido seleccionado antes.
+     * Acumula la cantidad seleccionada en el producto existente dentro del
+     * carrito, o agrega una nueva línea si no había sido seleccionado antes.
      */
     private void agregarOActualizarItem(Producto p, int cantidad, double precioUnitario) {
         boolean productoExiste = false;
@@ -125,15 +125,15 @@ public class ControladorPdV implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         // Evento Botón Facturar -> Transición hacia Método de Pago
         if (e.getSource() == vista.getFacturarButton()) {
-            
+
             if (carrito.isEmpty()) {
-                JOptionPane.showMessageDialog(vista,"El carrito está vacío. Agrega productos presionando el botón (+).", 
+                JOptionPane.showMessageDialog(vista, "El carrito está vacío. Agrega productos presionando el botón (+).",
                         "Advertencia", JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            
-            if (idCajaActual <=0){
-                JOptionPane.showMessageDialog(vista,"No hay ninguna caja abierta. Debe abrir caja antes de facturar.",
+
+            if (idCajaActual <= 0) {
+                JOptionPane.showMessageDialog(vista, "No hay ninguna caja abierta. Debe abrir caja antes de facturar.",
                         "Caja no disponible", JOptionPane.WARNING_MESSAGE);
                 return;
             }
@@ -142,18 +142,17 @@ public class ControladorPdV implements ActionListener {
             VistaMetododePago vistaPago = new VistaMetododePago();
 
             // 2. Instanciar su controlador pasándole la vista, los datos de la venta y el contenedor
-            ControladorMetododePago  controladorPago = new ControladorMetododePago (vistaPago, carrito, totalVenta,obtenerContenedorObjetivo(),idCajaActual);
+            ControladorMetododePago controladorPago = new ControladorMetododePago(vistaPago, carrito, totalVenta, obtenerContenedorObjetivo());
 
             // 3. Redireccionar a la pantalla de selección de Método de Pago
             cambiarPanel(vistaPago);
-        } 
-        // Evento Botón Reiniciar / Limpiar Carrito
+        } // Evento Botón Reiniciar / Limpiar Carrito
         else if (e.getSource() == vista.getReiniciarButton()) {
             reiniciarCarrito();
             JOptionPane.showMessageDialog(
-                    vista, 
-                    "El carrito se ha reiniciado correctamente.", 
-                    "Carrito Vaciado", 
+                    vista,
+                    "El carrito se ha reiniciado correctamente.",
+                    "Carrito Vaciado",
                     JOptionPane.INFORMATION_MESSAGE
             );
         }

@@ -229,14 +229,28 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
             // --- LÓGICA DE APERTURA / CIERRE DE CAJA ---
             if (e.getSource() == panelAperturaCierre.getBtnApertura()) {
-                String montoStr = panelAperturaCierre.getTxtMontoInicial().getText().replace("$", "").trim();
-                if (!montoStr.isEmpty()) {
-                    double monto = Double.parseDouble(montoStr);
+                String montoStr = panelAperturaCierre.getTxtMontoInicial().getText();
+                if (!montoStr.trim().isEmpty()) {
+                    double monto;
+                    try {
+                        monto = parsearMonto(montoStr);
+                    } catch (NumberFormatException nfe) {
+                        JOptionPane.showMessageDialog(vistaPrincipal, "El monto ingresado no es un número válido.", 
+                                "Formato inválido", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+
+                    if (monto <= 0 || monto > 99999999.99) {
+                        JOptionPane.showMessageDialog(vistaPrincipal, "El monto debe ser mayor a 0 y no superar $99.999.999,99.", 
+                                "Monto fuera de rango", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+
                     idCajaActual = cajaDao.guardarApertura(monto, usuarioLogueado.getIdUsuario());
 
                     if (idCajaActual > 0) {
-                        panelAperturaCierre.getLbltxtMontoA().setText("$" + montoStr);
-                        JOptionPane.showMessageDialog(vistaPrincipal, "Apertura de caja realizada con: $" + montoStr, 
+                        panelAperturaCierre.getLbltxtMontoA().setText(String.format("$%,.2f", monto));
+                        JOptionPane.showMessageDialog(vistaPrincipal, "Apertura de caja realizada con: $" + String.format("%,.2f", monto), 
                                 "Caja Registrada", JOptionPane.INFORMATION_MESSAGE);
                     } else {
                         JOptionPane.showMessageDialog(vistaPrincipal, "No se pudo registrar la apertura de caja en la base de datos.", 
@@ -250,11 +264,11 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 if (!montoFisico.isEmpty() && idCajaActual > 0) {
                     double monto = Double.parseDouble(montoFisico);
                     cajaDao.guardarCierre(idCajaActual, monto, monto);
-                    JOptionPane.showMessageDialog(vistaPrincipal, "Cierre procesado con monto físico en caja: $" + montoFisico, 
+                    JOptionPane.showMessageDialog(vistaPrincipal, "Cierre procesado con monto físico en caja: $" + montoFisico,
                             "Cierre de Caja", JOptionPane.INFORMATION_MESSAGE);
                     idCajaActual = 0;
                 } else if (idCajaActual <= 0) {
-                    JOptionPane.showMessageDialog(vistaPrincipal, "No hay ninguna caja abierta para cerrar.", 
+                    JOptionPane.showMessageDialog(vistaPrincipal, "No hay ninguna caja abierta para cerrar.",
                             "Atención", JOptionPane.WARNING_MESSAGE);
                 }
             }
@@ -272,6 +286,17 @@ public class ControladorPrincipalSupervisor implements ActionListener {
         } catch (Exception ex) {
             System.err.println("Error en eventos del Supervisor: " + ex.getMessage());
         }
+    }
+    
+    /**
+     * Convierte texto de monto en formato colombiano ($1.000.000,50 o 1000000) a double.
+     * El punto se interpreta como separador de miles y la coma como separador decimal.
+     */
+    private double parsearMonto(String texto) {
+        String limpio = texto.replace("$", "").trim();
+        limpio = limpio.replace(".", "");       // quita separadores de miles
+        limpio = limpio.replace(",", ".");      // convierte la coma decimal en punto
+        return Double.parseDouble(limpio);
     }
 
     private void ejecutarGuardadoProgramacion() {

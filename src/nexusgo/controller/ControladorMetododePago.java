@@ -44,7 +44,7 @@ public class ControladorMetododePago {
     private int idCajaActual = 0;
 
     // 1. Constructor Completo
-    public ControladorMetododePago(VistaMetododePago vistaPago, DineroEfectivo vistaEfectivo, List<DetalleCarrito> carrito, double totalVenta, JPanel contenedorCentral) {
+     public ControladorMetododePago(VistaMetododePago vistaPago, DineroEfectivo vistaEfectivo, List<DetalleCarrito> carrito, double totalVenta, JPanel contenedorCentral) {
         this.vistaPrincipal = vistaPago;
         this.vistaEfectivo = vistaEfectivo;
         this.carritoActual = carrito;
@@ -55,7 +55,7 @@ public class ControladorMetododePago {
     }
 
     // 2. Constructor Sobrecargado (Compatibilidad)
-    public ControladorMetododePago(VistaMetododePago vistaPago, List<DetalleCarrito> carrito, double totalVenta, JPanel contenedorCentral) {
+     public ControladorMetododePago(VistaMetododePago vistaPago, List<DetalleCarrito> carrito, double totalVenta, JPanel contenedorCentral) {
         this.vistaPrincipal = vistaPago;
         this.vistaEfectivo = new DineroEfectivo();
         this.carritoActual = carrito;
