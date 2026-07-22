@@ -161,6 +161,6 @@ public class FacturaDao {
                 System.err.println("⚠️ No se pudo obtener el ID de caja automático: " + ex.getMessage());
             }
         }
-        return 0; // Retorna 0 para enviar NULL a la BD
+        return 0;
     }
 }

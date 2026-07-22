@@ -4,15 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import nexusgo.model.DetalleCarrito;
-import nexusgo.model.Factura;
 import nexusgo.model.FacturaDao;
 import nexusgo.model.Producto;
-import nexusgo.view.VistaFactura;
 import nexusgo.model.ProductoDao;
 import nexusgo.view.VistaMetododePago;
 import nexusgo.view.VistaPdV;
@@ -22,7 +19,11 @@ public class ControladorPdV implements ActionListener {
    private final VistaPdV vista;
     private final FacturaDao facturaDao;
     private final ProductoDao productoDao;
+    private final nexusgo.model.CajaDao cajaDao = new nexusgo.model.CajaDao();
     private JPanel contenedorCentral;
+
+    // ID de la caja abierta con la que se está operando (0 = ninguna)
+    private int idCajaActual = 0;
 
     // Estado del Carrito y Vista
     private final List<DetalleCarrito> carrito = new ArrayList<>();
@@ -30,12 +31,18 @@ public class ControladorPdV implements ActionListener {
     private double totalVenta = 0.0;
     private int contadorProductos = 0;
 
-    // Constructor Principal (recibe el contenedor explícito)
-    public ControladorPdV(VistaPdV vista, JPanel contenedorCentral) {
+    // Constructor Principal (recibe el contenedor y el id de la caja abierta)
+    public ControladorPdV(VistaPdV vista, JPanel contenedorCentral, int idCajaActual) {
         this.vista = vista;
         this.contenedorCentral = contenedorCentral;
         this.facturaDao = new FacturaDao();
         this.productoDao = new ProductoDao();
+        this.idCajaActual = idCajaActual;
+
+        // Respaldo: si no nos pasaron una caja abierta explícita, buscamos la más reciente
+        if (this.idCajaActual <= 0) {
+            this.idCajaActual = cajaDao.obtenerCajaAbierta();
+        }
 
         // Enlazar eventos de los botones principales
         this.vista.getFacturarButton().addActionListener(this);
@@ -45,9 +52,14 @@ public class ControladorPdV implements ActionListener {
         cargarProductos();
     }
 
+    // Constructor Sobrecargado (recibe el contenedor, sin id de caja explícito)
+    public ControladorPdV(VistaPdV vista, JPanel contenedorCentral) {
+        this(vista, contenedorCentral, 0);
+    }
+
     // Constructor Sobrecargado (Compatibilidad cuando no se pasa el contenedor)
     public ControladorPdV(VistaPdV vista) {
-        this(vista, null);
+        this(vista, null, 0);
     }
 
     private void cargarProductos() {
@@ -115,12 +127,14 @@ public class ControladorPdV implements ActionListener {
         if (e.getSource() == vista.getFacturarButton()) {
             
             if (carrito.isEmpty()) {
-                JOptionPane.showMessageDialog(
-                        vista, 
-                        "El carrito está vacío. Agrega productos presionando el botón (+).", 
-                        "Advertencia", 
-                        JOptionPane.WARNING_MESSAGE
-                );
+                JOptionPane.showMessageDialog(vista,"El carrito está vacío. Agrega productos presionando el botón (+).", 
+                        "Advertencia", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            if (idCajaActual <=0){
+                JOptionPane.showMessageDialog(vista,"No hay ninguna caja abierta. Debe abrir caja antes de facturar.",
+                        "Caja no disponible", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
@@ -128,12 +142,7 @@ public class ControladorPdV implements ActionListener {
             VistaMetododePago vistaPago = new VistaMetododePago();
 
             // 2. Instanciar su controlador pasándole la vista, los datos de la venta y el contenedor
-            ControladorMetododePago controladorPago = new ControladorMetododePago(
-                    vistaPago, 
-                    carrito, 
-                    totalVenta, 
-                    obtenerContenedorObjetivo()
-            );
+            ControladorMetododePago  controladorPago = new ControladorMetododePago (vistaPago, carrito, totalVenta,obtenerContenedorObjetivo(),idCajaActual);
 
             // 3. Redireccionar a la pantalla de selección de Método de Pago
             cambiarPanel(vistaPago);
