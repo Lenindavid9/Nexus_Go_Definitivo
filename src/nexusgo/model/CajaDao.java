@@ -65,6 +65,19 @@ public class CajaDao {
         }
         return 0;
     }
+    
+    public boolean verificarCajaAbierta(int idCaja){
+        String sql = "SELECT id_caja FROM cajas WHERE id_caja = ? AND estado_caja = 'ABIERTA'";
+        try(Connection con = cn.getConection();  PreparedStatement ps = con.prepareStatement(sql)){
+            ps.setInt(1, idCaja);
+                        try (ResultSet rs = ps.executeQuery()) {
+                            return rs.next();
+                        }
+        }catch(SQLException e){
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     public double obtenerMontoApertura(int idCaja) {
         String sql = "SELECT monto_apertura FROM cajas WHERE id_caja = ?";

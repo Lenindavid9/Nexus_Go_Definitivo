@@ -20,6 +20,7 @@ import nexusgo.view.VistaFactura;
 import nexusgo.view.VistaMetododePago;
 import java.awt.BorderLayout;
 import javax.swing.SwingWorker;
+import nexusgo.model.CajaDao;
 import nexusgo.model.Usuario;
 import nexusgo.model.UsuarioDao;
 
@@ -236,8 +237,9 @@ public class ControladorMetododePago {
             }
 
             // Asignar ID de caja abierta por defecto (1) para cumplir restricción FK
-            if (idCajaActual <= 0){
-                JOptionPane.showMessageDialog(null, "No hay una caja abierta válida. No se puede registrar la venta.",
+            if (idCajaActual <= 0 || !new CajaDao().verificarCajaAbierta(idCajaActual)){
+                JOptionPane.showMessageDialog(null, "La caja en estos momentos se encuentra en ESTADO CERRADO.\n" +
+                        "No se puede registrar la venta. Por favor,  verifique con el Supervisor encargado el estado de la caja.",
                         "Caja no disponible", JOptionPane.ERROR_MESSAGE);
                 return;
             }
