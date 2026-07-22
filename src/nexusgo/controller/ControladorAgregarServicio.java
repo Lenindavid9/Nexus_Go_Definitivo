@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package nexusgo.controller;
+
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,12 +17,13 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import nexusgo.model.ServicioDao;
 import nexusgo.model.Servicios;
 import nexusgo.view.VistaAgregarServicio;
+
 /**
  *
  * @author USUARIO
  */
-public class ControladorAgregarServicio implements ActionListener{
-    
+public class ControladorAgregarServicio implements ActionListener {
+
     // Referencias al modelo y la vista
     private final VistaAgregarServicio vista;
     private final ServicioDao servicioDao;
@@ -110,9 +112,9 @@ public class ControladorAgregarServicio implements ActionListener{
             }
 
             // Extracción de datos con limpieza de placeholders
-            String nombre = obtenerTextoValido(vista.txtNombreServicio, "Ingrese el nombre del servicio");
+            String nombre = obtenerTextoValido(vista.txtNombreServicio, "");
             String descripcion = obtenerTextoValido(vista.txtDescripcion, "Ingrese una breve descripción");
-            String precioTexto = obtenerTextoValido(vista.txtPrecio, "Ingrese el precio en pesos colombianos");
+            String precioTexto = obtenerTextoValido(vista.txtPrecio, "Ingrese el precio ");
 
             // --- CÁLCULO DE DURACIÓN EN MINUTOS ---
             int horas = 0;
@@ -194,7 +196,9 @@ public class ControladorAgregarServicio implements ActionListener{
      * Método auxiliar para evitar que los textos del placeholder de la vista se lean como datos reales.
      */
     private String obtenerTextoValido(JTextField txtField, String placeholder) {
-        if (txtField == null) return "";
+        if (txtField == null) {
+            return "";
+        }
         String texto = txtField.getText().trim();
         return texto.equals(placeholder) ? "" : texto;
     }
@@ -206,10 +210,10 @@ public class ControladorAgregarServicio implements ActionListener{
         try {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Seleccionar imagen del servicio");
-            
+
             // Filtro para formatos de imagen
-            FileNameExtensionFilter filtro = 
-                    new FileNameExtensionFilter("Archivos de Imagen (*.png, *.jpg, *.jpeg)", "png", "jpg", "jpeg");
+            FileNameExtensionFilter filtro
+                    = new FileNameExtensionFilter("Archivos de Imagen (*.png, *.jpg, *.jpeg)", "png", "jpg", "jpeg");
             fileChooser.setFileFilter(filtro);
 
             int resultado = fileChooser.showOpenDialog(vista);
@@ -258,12 +262,24 @@ public class ControladorAgregarServicio implements ActionListener{
      */
     private void limpiarCampos() {
         try {
-            if (vista.txtNombreServicio != null) vista.txtNombreServicio.setText("Ingrese el nombre del servicio");
-            if (vista.txtDescripcion != null) vista.txtDescripcion.setText("Ingrese una breve descripción");
-            if (vista.spinDuracionHoras != null) vista.spinDuracionHoras.setValue(1);
-            if (vista.comboDuracionMinutos != null) vista.comboDuracionMinutos.setSelectedIndex(0);
-            if (vista.txtPrecio != null) vista.txtPrecio.setText("Ingrese el precio en pesos colombianos");
-            if (vista.lblNombreImagen != null) vista.lblNombreImagen.setText("imagenservicio.png");
+            if (vista.txtNombreServicio != null) {
+                vista.txtNombreServicio.setText("Ingrese el nombre del servicio");
+            }
+            if (vista.txtDescripcion != null) {
+                vista.txtDescripcion.setText("Ingrese una breve descripción");
+            }
+            if (vista.spinDuracionHoras != null) {
+                vista.spinDuracionHoras.setValue(1);
+            }
+            if (vista.comboDuracionMinutos != null) {
+                vista.comboDuracionMinutos.setSelectedIndex(0);
+            }
+            if (vista.txtPrecio != null) {
+                vista.txtPrecio.setText("Ingrese el precio en pesos colombianos");
+            }
+            if (vista.lblNombreImagen != null) {
+                vista.lblNombreImagen.setText("imagenservicio.png");
+            }
 
             // Dejar el cursor en el primer campo
             if (vista.txtNombreServicio != null) {

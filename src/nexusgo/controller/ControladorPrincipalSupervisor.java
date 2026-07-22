@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -19,6 +20,8 @@ import javax.swing.table.DefaultTableModel;
 import nexusgo.model.CajaDao;
 import nexusgo.model.Herramientas;
 import nexusgo.model.HerramientaDao;
+import nexusgo.model.Mantenimiento;
+import nexusgo.model.MantenimientoDao;
 import nexusgo.model.Producto;
 import nexusgo.model.ProductoDao;
 import nexusgo.model.Usuario;
@@ -36,7 +39,7 @@ import nexusgo.view.VistaProgramarMantenimiento;
  */
 public class ControladorPrincipalSupervisor implements ActionListener {
 
-    private final VistaPrincipalSupervisor vistaPrincipal;
+   private final VistaPrincipalSupervisor vistaPrincipal;
     private VistaInventarioSupervisor panelInventario;
     private VistaProgramarMantenimiento panelProgramarMantenimiento;
 
@@ -46,6 +49,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
     // Componentes de datos y sesión
     private final ProductoDao productoDao = new ProductoDao();
     private final HerramientaDao herramientaDao = new HerramientaDao();
+    private final MantenimientoDao mantenimientoDao = new MantenimientoDao();
     private final CajaDao cajaDao = new CajaDao();
     private final Usuario usuarioLogueado;
 
@@ -69,7 +73,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             // Verificar si ya existe una caja abierta (de una sesión anterior)
             this.idCajaActual = cajaDao.obtenerCajaAbierta();
             
-            // Si la caja sigue abierta debe mostrar su monto de apertura (no debe verse vacío solo porque se recargó la pantalla o se reinició sesión)
+            // Si la caja sigue abierta debe mostrar su monto de apertura
             if (this.idCajaActual > 0) {
                 double montoApertura = cajaDao.obtenerMontoApertura(this.idCajaActual);
                 panelAperturaCierre.getLbltxtMontoA().setText(String.format("$%,.2f", montoApertura));
@@ -168,10 +172,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
         }
     }
 
-    /**
-     * Muestra la pantalla inicial (Panel de Bienvenida) garantizando un
-     * repintado correcto dentro del contenedor dinámico.
-     */
     private void mostrarInicio() {
         PanelBienvenida bienvenida = new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol());
         cambiarPanelCentral(bienvenida);
@@ -191,14 +191,11 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
             // --- ABRIR LA VISTA DEL PUNTO DE VENTA (PdV) ---
             if (e.getSource() == vistaPrincipal.sidebar.bInventario) {
-                // 1. Instanciar la vista de Punto de Venta
                 VistaPdV vistaPdV = new VistaPdV();
                 JPanel panelPdV = vistaPdV.VistaNexus();
 
-                // 2. Enlazar su controlador de eventos (para pagos, facturar y reiniciar)
                 ControladorPdV controladorPdV = new ControladorPdV(vistaPdV, panelPdV, idCajaActual);
 
-                // 3. Obtener los productos reales registrados en la BD
                 List<Producto> listaProductos = productoDao.listar();
 
                 if (listaProductos != null && !listaProductos.isEmpty()) {
@@ -218,7 +215,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                     }
                 }
 
-                // 4. Cambiar el contenedor central por la vista del PdV
                 cambiarPanelCentral(panelPdV);
             }
 
@@ -296,11 +292,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
         }
     }
 
-    /**
-     * Convierte texto de monto en formato colombiano ($1.000.000,50 o 1000000)
-     * a double. El punto se interpreta como separador de miles y la coma como
-     * separador decimal.
-     */
     private double parsearMonto(String texto) {
         String limpio = texto.replace("$", "").trim();
         limpio = limpio.replace(".", "");       // quita separadores de miles
@@ -308,12 +299,47 @@ public class ControladorPrincipalSupervisor implements ActionListener {
         return Double.parseDouble(limpio);
     }
 
-    private void ejecutarGuardadoProgramacion() {
+   private void ejecutarGuardadoProgramacion() {
         try {
-            Date fechaSeleccionada = (Date) panelProgramarMantenimiento.spinnerFechaHora.getValue();
+            // 1. Obtener fecha directamente del selector gráfico
+            Date fechaCalendario = panelProgramarMantenimiento.selectorFecha.getDate();
+
+            if (fechaCalendario == null) {
+                JOptionPane.showMessageDialog(panelProgramarMantenimiento,
+                        "Por favor seleccione una fecha válida en el calendario.",
+                        "Fecha Vacía", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // 2. Fusionar fecha con la hora elegida en el Spinner de hora
+            Calendar calFechaElegida = Calendar.getInstance();
+            calFechaElegida.setTime(fechaCalendario);
+
+            if (panelProgramarMantenimiento.spinnerHora != null) {
+                Date horaSpinner = (Date) panelProgramarMantenimiento.spinnerHora.getValue();
+                Calendar calHora = Calendar.getInstance();
+                calHora.setTime(horaSpinner);
+
+                calFechaElegida.set(Calendar.HOUR_OF_DAY, calHora.get(Calendar.HOUR_OF_DAY));
+                calFechaElegida.set(Calendar.MINUTE, calHora.get(Calendar.MINUTE));
+                calFechaElegida.set(Calendar.SECOND, 0);
+                calFechaElegida.set(Calendar.MILLISECOND, 0);
+            }
+
+            Date fechaFinalProgramada = calFechaElegida.getTime();
+
+            // 3. Obtener textos del formulario
             String tipoMantenimiento = panelProgramarMantenimiento.cbTipoMantenimiento.getSelectedItem().toString();
             String fallaProblema = panelProgramarMantenimiento.txtFallaProblema.getText().trim();
+            String observaciones = (panelProgramarMantenimiento.txtObservaciones != null) 
+                    ? panelProgramarMantenimiento.txtObservaciones.getText().trim() : "";
 
+            File imagenAdjunta = panelProgramarMantenimiento.getArchivoImagenSeleccionado();
+            String nombreImagen = (imagenAdjunta != null) ? imagenAdjunta.getName() : "Sin imagen";
+
+            String notasCompletas = "Falla: " + fallaProblema + " | Obs: " + observaciones + " | Img: " + nombreImagen;
+
+            // 4. Validar campos de texto obligatorios
             if (tipoMantenimiento.equals("Seleccione su tipo de mantenimiento") || fallaProblema.isEmpty()) {
                 JOptionPane.showMessageDialog(panelProgramarMantenimiento,
                         "Por favor, seleccione un tipo de mantenimiento e ingrese la falla o problema.",
@@ -321,45 +347,72 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 return;
             }
 
-            Calendar calSeleccionada = Calendar.getInstance();
-            calSeleccionada.setTime(fechaSeleccionada);
+            // 5. REGLA DE NEGOCIO Y EXCEPCIONES DE FECHA (Mínimo 48 horas)
+            Calendar calLimiteMañana = Calendar.getInstance();
+            calLimiteMañana.add(Calendar.DAY_OF_MONTH, 1);
+            calLimiteMañana.set(Calendar.HOUR_OF_DAY, 23);
+            calLimiteMañana.set(Calendar.MINUTE, 59);
+            calLimiteMañana.set(Calendar.SECOND, 59);
+            calLimiteMañana.set(Calendar.MILLISECOND, 999);
 
-            Calendar calLimiteHoy = Calendar.getInstance();
-            calLimiteHoy.set(Calendar.HOUR_OF_DAY, 23);
-            calLimiteHoy.set(Calendar.MINUTE, 59);
-            calLimiteHoy.set(Calendar.SECOND, 59);
-
-            if (calSeleccionada.before(calLimiteHoy)) {
+            if (calFechaElegida.before(calLimiteMañana)) {
                 JOptionPane.showMessageDialog(panelProgramarMantenimiento,
-                        "Excepción de Agenda: No se puede programar mantenimiento para hoy mismo ni para fechas pasadas.\nDebe agendarse a partir de mañana.",
+                        "Excepción de Agenda:\n\n" +
+                        "• No se permite programar mantenimientos para fechas pasadas.\n" +
+                        "• No se permite programar mantenimientos para hoy.\n" +
+                        "• No se permite programar mantenimientos para mañana.\n\n" +
+                        "La agenda requiere un margen mínimo de 48 horas. Seleccione a partir de pasado mañana.",
                         "Fecha No Permitida", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-            JOptionPane.showMessageDialog(panelProgramarMantenimiento,
-                    "¡Mantenimiento Programado!\n\n"
-                    + "Herramienta: " + nombreHerramientaSeleccionada + "\n"
-                    + "Tipo: " + tipoMantenimiento + "\n"
-                    + "Fecha: " + sdf.format(fechaSeleccionada),
-                    "NEXUS GO", JOptionPane.INFORMATION_MESSAGE);
+            // 6. Instanciar objeto modelo e insertar en la Base de Datos
+            Mantenimiento nuevoMantenimiento = new Mantenimiento(
+                    idHerramientaSeleccionada,
+                    tipoMantenimiento,
+                    fechaFinalProgramada,
+                    notasCompletas,
+                    usuarioLogueado.getIdUsuario()
+            );
 
-            limpiarCamposProgramacion();
-            cambiarPanelCentral(this.panelInventario);
-            listarHerramientasEnTabla();
+            boolean guardadoExitoso = mantenimientoDao.registrarProgramacion(nuevoMantenimiento);
+
+            if (guardadoExitoso) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                JOptionPane.showMessageDialog(panelProgramarMantenimiento,
+                        "¡Mantenimiento programado con éxito!\n\n" +
+                        "Herramienta: " + nombreHerramientaSeleccionada + "\n" +
+                        "Tipo: " + tipoMantenimiento + "\n" +
+                        "Fecha Agendada: " + sdf.format(fechaFinalProgramada) + "\n" +
+                        "Imagen Adjunta: " + nombreImagen,
+                        "NEXUS GO - Agenda Exitosa", JOptionPane.INFORMATION_MESSAGE);
+
+                limpiarCamposProgramacion();
+                cambiarPanelCentral(this.panelInventario);
+                listarHerramientasEnTabla();
+            } else {
+                JOptionPane.showMessageDialog(panelProgramarMantenimiento,
+                        "Ocurrió un problema al guardar en la base de datos.",
+                        "Error de Almacenamiento", JOptionPane.ERROR_MESSAGE);
+            }
 
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(panelProgramarMantenimiento,
-                    "Error al guardar: " + ex.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
+                    "Error al procesar el guardado: " + ex.getMessage(),
+                    "Error General", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void limpiarCamposProgramacion() {
         panelProgramarMantenimiento.cbTipoMantenimiento.setSelectedIndex(0);
         panelProgramarMantenimiento.txtFallaProblema.setText("");
-        panelProgramarMantenimiento.txtObservaciones.setText("");
-        panelProgramarMantenimiento.lblNombreImagen.setText("tratamiento.png");
+        if (panelProgramarMantenimiento.txtObservaciones != null) {
+            panelProgramarMantenimiento.txtObservaciones.setText("");
+        }
+        panelProgramarMantenimiento.lblNombreImagen.setText("Ninguna imagen seleccionada");
+        if (panelProgramarMantenimiento.selectorFecha != null) {
+            panelProgramarMantenimiento.selectorFecha.setDate(new Date());
+        }
     }
 
     public void listarProductosEnTabla() {
@@ -425,5 +478,4 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             loginVista.setVisible(true);
         }
     }
-
 }

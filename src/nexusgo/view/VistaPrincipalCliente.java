@@ -30,15 +30,18 @@ import javax.swing.border.EmptyBorder;
  * @author USUARIO
  */
 public class VistaPrincipalCliente extends JFrame {
-    
-   private JLabel fondoMarmol;
+
+    private JLabel fondoMarmol;
     private JPanel panelFlotanteBlanco;
     private JPanel contenidoCentralDinamico;
+    
+    // Grids independientes para cada catálogo
     private JPanel panelGridProductos;
     private JPanel panelGridPromociones;
+    private JPanel panelGridCombos;      // SECCIÓN DEDICADA PARA COMBOS
+    private JPanel panelGridServicios;
     private JScrollPane scrollContenido;
 
-    // Componentes interactivos accesibles desde el controlador
     public JButton btnReservarCita;
     public JButton btnCerrarSesion;
     public JButton btnHistorial;
@@ -52,35 +55,29 @@ public class VistaPrincipalCliente extends JFrame {
     public VistaPrincipalCliente(String nombreUsuario, String rolUsuario) {
         super("Nexus GO - Cliente");
 
-        // 1. Fondo principal
         this.fondoMarmol = new JLabel(new ImageIcon("src/nexusgo/img/fondoprincipal.jpg"));
         this.fondoMarmol.setLayout(new BorderLayout());
         this.setContentPane(fondoMarmol);
 
-        // 2. Contenedor ESTRUCTURAL
         JPanel contenedorEstructural = new JPanel(new BorderLayout(15, 0));
         contenedorEstructural.setPreferredSize(new Dimension(980, 650));
         contenedorEstructural.setOpaque(false);
 
-        // 3. Barra Lateral (Sidebar)
         sidebar = new VistaBarraLateral();
         sidebar.setPreferredSize(new Dimension(80, 650));
         sidebar.setBackground(Color.WHITE);
         if (sidebar.bInventario != null) sidebar.bInventario.setVisible(false);
         if (sidebar.misCitas != null) sidebar.misCitas.setVisible(true);
 
-        // 4. Tarjeta Blanca Central Flotante
         panelFlotanteBlanco = new JPanel(new BorderLayout());
         panelFlotanteBlanco.setOpaque(false);
         panelFlotanteBlanco.setBorder(new EmptyBorder(15, 20, 15, 20));
 
-        // 5. Panel Interno Dinámico
         contenidoCentralDinamico = new JPanel();
         contenidoCentralDinamico.setLayout(new BoxLayout(contenidoCentralDinamico, BoxLayout.Y_AXIS));
         contenidoCentralDinamico.setBackground(Color.WHITE);
         contenidoCentralDinamico.setOpaque(false);
 
-        // --- Componentes ---
         lblBienvenida = new JLabel("Hola, " + nombreUsuario + " | Bienvenido a Nexus GO", SwingConstants.CENTER);
         lblBienvenida.setFont(new Font("Segoe UI", Font.BOLD, 17));
         lblBienvenida.setForeground(Color.BLACK);
@@ -104,10 +101,8 @@ public class VistaPrincipalCliente extends JFrame {
 
         btnHistorial = new JButton("Historial");
 
-        // Cargar estructura inicial
         restaurarComponentesTienda();
 
-        // ScrollPane
         scrollContenido = new JScrollPane(contenidoCentralDinamico);
         scrollContenido.setBackground(Color.WHITE);
         scrollContenido.getViewport().setBackground(Color.WHITE);
@@ -115,7 +110,6 @@ public class VistaPrincipalCliente extends JFrame {
 
         panelFlotanteBlanco.add(scrollContenido, BorderLayout.CENTER);
 
-        // Ensamblaje
         contenedorEstructural.add(sidebar, BorderLayout.WEST);
         contenedorEstructural.add(panelFlotanteBlanco, BorderLayout.CENTER);
 
@@ -125,19 +119,14 @@ public class VistaPrincipalCliente extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    /**
-     * Reconstruye y limpia el panel central para volver al catálogo.
-     */
     public void restaurarComponentesTienda() {
         contenidoCentralDinamico.removeAll();
 
-        panelGridProductos = new JPanel(new GridLayout(0, 3, 15, 15));
-        panelGridProductos.setBackground(Color.WHITE);
-        panelGridProductos.setOpaque(false);
-
-        panelGridPromociones = new JPanel(new GridLayout(0, 3, 15, 15));
-        panelGridPromociones.setBackground(Color.WHITE);
-        panelGridPromociones.setOpaque(false);
+        // Inicialización de Grids
+        panelGridProductos = crearGridPanel();
+        panelGridPromociones = crearGridPanel();
+        panelGridCombos = crearGridPanel();      // Grid Combos
+        panelGridServicios = crearGridPanel();
 
         // Header Superior
         JPanel panelHeader = new JPanel(new BorderLayout());
@@ -150,65 +139,78 @@ public class VistaPrincipalCliente extends JFrame {
         panelBotonDerecha.add(btnCerrarSesion);
         panelHeader.add(panelBotonDerecha, BorderLayout.EAST);
 
-        // Banner de Promociones
-        JPanel panelEtiquetaPromo = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        panelEtiquetaPromo.setOpaque(false);
-        
-        JLabel lblPromociones = new JLabel("Promociones", SwingConstants.CENTER);
-        lblPromociones.setOpaque(true);
-        lblPromociones.setBackground(new Color(255, 220, 90));
-        lblPromociones.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblPromociones.setPreferredSize(new Dimension(140, 26));
-        panelEtiquetaPromo.add(lblPromociones);
+        // Banners / Encabezados de Sección
+        JPanel panelEtiquetaPromo = crearBannerEtiqueta("Promociones");
+        JPanel panelEtiquetaCombos = crearBannerEtiqueta("Kits y Combos");
+        JPanel panelEtiquetaServicios = crearBannerEtiqueta("Servicios");
 
-        // Ensamblado vertical
+        // ENSAMBLADO VERTICAL ORDENADO
         contenidoCentralDinamico.add(panelHeader);
         contenidoCentralDinamico.add(Box.createVerticalStrut(15));
+        
         contenidoCentralDinamico.add(panelGridProductos);
-        contenidoCentralDinamico.add(Box.createVerticalStrut(25));
+        contenidoCentralDinamico.add(Box.createVerticalStrut(20));
+        
         contenidoCentralDinamico.add(btnReservarCita);
-        contenidoCentralDinamico.add(Box.createVerticalStrut(25));
+        contenidoCentralDinamico.add(Box.createVerticalStrut(20));
+        
+        // 1. Promociones
         contenidoCentralDinamico.add(panelEtiquetaPromo);
         contenidoCentralDinamico.add(Box.createVerticalStrut(15));
         contenidoCentralDinamico.add(panelGridPromociones);
+        contenidoCentralDinamico.add(Box.createVerticalStrut(25));
+        
+        // 2. Combos
+        contenidoCentralDinamico.add(panelEtiquetaCombos);
+        contenidoCentralDinamico.add(Box.createVerticalStrut(15));
+        contenidoCentralDinamico.add(panelGridCombos);
+        contenidoCentralDinamico.add(Box.createVerticalStrut(25));
+        
+        // 3. Servicios
+        contenidoCentralDinamico.add(panelEtiquetaServicios);
+        contenidoCentralDinamico.add(Box.createVerticalStrut(15));
+        contenidoCentralDinamico.add(panelGridServicios);
 
         contenidoCentralDinamico.revalidate();
         contenidoCentralDinamico.repaint();
     }
 
-    public void limpiarGridProductos() {
-        if (panelGridProductos != null) {
-            panelGridProductos.removeAll();
-            panelGridProductos.revalidate();
-            panelGridProductos.repaint();
-        }
+    private JPanel crearGridPanel() {
+        JPanel grid = new JPanel(new GridLayout(0, 3, 15, 15));
+        grid.setBackground(Color.WHITE);
+        grid.setOpaque(false);
+        return grid;
     }
 
-    public void limpiarGridPromociones() {
-        if (panelGridPromociones != null) {
-            panelGridPromociones.removeAll();
-            panelGridPromociones.revalidate();
-            panelGridPromociones.repaint();
-        }
+    private JPanel crearBannerEtiqueta(String titulo) {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        panel.setOpaque(false);
+        JLabel label = new JLabel(titulo, SwingConstants.CENTER);
+        label.setOpaque(true);
+        label.setBackground(new Color(255, 220, 90));
+        label.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        label.setPreferredSize(new Dimension(150, 26));
+        panel.add(label);
+        return panel;
     }
 
+    // Métodos para agregar tarjetas por tipo explícito
     public void agregarTarjetaProducto(int id, String nombre, double precio, String rutaImagen, MouseListener listener) {
-        JPanel tarjeta = crearTarjetaVisual(String.valueOf(id), nombre, precio, rutaImagen, listener);
-        panelGridProductos.add(tarjeta);
-        panelGridProductos.revalidate();
-        panelGridProductos.repaint();
+        panelGridProductos.add(crearTarjetaVisual("PROD_" + id, nombre, precio, rutaImagen, listener));
     }
 
     public void agregarTarjetaPromocion(int id, String nombre, double precio, String rutaImagen, MouseListener listener) {
-        JPanel tarjeta = crearTarjetaVisual(String.valueOf(id), nombre, precio, rutaImagen, listener);
-        panelGridPromociones.add(tarjeta);
-        panelGridPromociones.revalidate();
-        panelGridPromociones.repaint();
+        panelGridPromociones.add(crearTarjetaVisual("PROMO_" + id, nombre, precio, rutaImagen, listener));
     }
 
-    /**
-     * Maqueta la tarjeta visual e individual para cada producto u oferta.
-     */
+    public void agregarTarjetaCombo(int id, String nombre, double precio, String rutaImagen, MouseListener listener) {
+        panelGridCombos.add(crearTarjetaVisual("COMBO_" + id, nombre, precio, rutaImagen, listener));
+    }
+
+    public void agregarTarjetaServicio(int id, String nombre, double precio, String rutaImagen, MouseListener listener) {
+        panelGridServicios.add(crearTarjetaVisual("SERV_" + id, nombre, precio, rutaImagen, listener));
+    }
+
     private JPanel crearTarjetaVisual(String idStr, String nombre, double precio, String rutaImagen, MouseListener listener) {
         JPanel tarjeta = new JPanel();
         tarjeta.setLayout(new BoxLayout(tarjeta, BoxLayout.Y_AXIS));
@@ -223,27 +225,15 @@ public class VistaPrincipalCliente extends JFrame {
         lblImg.setName(idStr);
         if (listener != null) lblImg.addMouseListener(listener);
 
-        // --- 1. Formateo y Normalización de Ruta ---
         String rutaLimpia = (rutaImagen != null) ? rutaImagen.trim() : "";
-        
         if (rutaLimpia.isEmpty()) {
             rutaLimpia = "/nexusgo/img/default.jpg";
         } else {
-            if (rutaLimpia.startsWith("src/")) {
-                rutaLimpia = rutaLimpia.substring(4);
-            }
-            if (rutaLimpia.startsWith("nexusgo/")) {
-                rutaLimpia = "/" + rutaLimpia;
-            } else if (!rutaLimpia.startsWith("/nexusgo/")) {
-                if (rutaLimpia.startsWith("/")) {
-                    rutaLimpia = "/nexusgo" + rutaLimpia;
-                } else {
-                    rutaLimpia = "/nexusgo/" + rutaLimpia;
-                }
-            }
+            if (rutaLimpia.startsWith("src/")) rutaLimpia = rutaLimpia.substring(4);
+            if (!rutaLimpia.startsWith("/")) rutaLimpia = "/" + rutaLimpia;
+            if (!rutaLimpia.startsWith("/nexusgo/")) rutaLimpia = "/nexusgo" + rutaLimpia;
         }
 
-        // --- 2. Intento de Carga por Classpath y File Fallback ---
         ImageIcon iconoOriginal = null;
         try {
             java.net.URL imgURL = getClass().getResource(rutaLimpia);
@@ -253,10 +243,9 @@ public class VistaPrincipalCliente extends JFrame {
                 iconoOriginal = new ImageIcon("src" + rutaLimpia);
             }
         } catch (Exception ex) {
-            System.err.println("❌ No se pudo cargar la imagen desde: " + rutaLimpia);
+            System.err.println("❌ Error al cargar imagen: " + rutaLimpia);
         }
 
-        // --- 3. Renderizado en el JLabel ---
         if (iconoOriginal != null && iconoOriginal.getImage() != null && iconoOriginal.getIconWidth() > 0) {
             Image imgEscalada = iconoOriginal.getImage().getScaledInstance(140, 100, Image.SCALE_SMOOTH);
             lblImg.setIcon(new ImageIcon(imgEscalada));
@@ -266,7 +255,6 @@ public class VistaPrincipalCliente extends JFrame {
             lblImg.setForeground(Color.GRAY);
         }
 
-        // --- 4. Etiquetas de Texto (Nombre y Precio) ---
         JLabel lblNombre = new JLabel(nombre, SwingConstants.CENTER);
         lblNombre.setFont(new Font("Segoe UI", Font.BOLD, 12));
         lblNombre.setAlignmentX(CENTER_ALIGNMENT);
@@ -280,7 +268,6 @@ public class VistaPrincipalCliente extends JFrame {
         lblPrecio.setName(idStr);
         if (listener != null) lblPrecio.addMouseListener(listener);
 
-        // --- Ensamblado de la tarjeta ---
         tarjeta.add(lblImg);
         tarjeta.add(Box.createVerticalStrut(8));
         tarjeta.add(lblNombre);

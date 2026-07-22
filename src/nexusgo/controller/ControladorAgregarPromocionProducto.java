@@ -13,28 +13,28 @@ import java.util.Date;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import nexusgo.model.Producto;
+import nexusgo.model.ProductoDao;
 import nexusgo.model.Promocion;
 import nexusgo.model.PromocionDao;
-import nexusgo.model.ServicioDao;
-import nexusgo.model.Servicios;
-import nexusgo.view.VistaAgregarPromocionServicio;
+import nexusgo.view.VistaAgregarPromocionProducto;
 /**
  *
  * @author USUARIO
  */
-public class ControladorAgregarPromocionServicio implements ActionListener {
+public class ControladorAgregarPromocionProducto implements ActionListener{
     
-    private final VistaAgregarPromocionServicio vista;
+    private final VistaAgregarPromocionProducto vista;
     private final PromocionDao promocionDao;
-    private final ServicioDao servicioDao;
+    private final ProductoDao productoDao;
     private File imagenSeleccionada;
 
     private static final SimpleDateFormat FORMATO_FECHA = new SimpleDateFormat("dd.MM.yyyy");
 
-    public ControladorAgregarPromocionServicio(VistaAgregarPromocionServicio vista, PromocionDao promocionDao, ServicioDao servicioDao) {
+    public ControladorAgregarPromocionProducto(VistaAgregarPromocionProducto vista, PromocionDao promocionDao, ProductoDao productoDao) {
         this.vista = vista;
         this.promocionDao = promocionDao;
-        this.servicioDao = servicioDao;
+        this.productoDao = productoDao;
 
         FORMATO_FECHA.setLenient(false); // Validación estricta para días y meses reales
 
@@ -89,10 +89,10 @@ public class ControladorAgregarPromocionServicio implements ActionListener {
      */
     private void ejecutarRegistroPromocion() {
         try {
-            // 1. VALIDACIÓN: Selección del Servicio en el ComboBox
-            Servicios servicioSeleccionado = (Servicios) vista.comboServicios.getSelectedItem();
-            if (servicioSeleccionado == null) {
-                throw new IllegalArgumentException("Debe seleccionar un servicio válido de la lista.");
+            // 1. VALIDACIÓN: Selección del Producto en el ComboBox
+            Producto productoSeleccionado = (Producto) vista.comboProductos.getSelectedItem();
+            if (productoSeleccionado == null) {
+                throw new IllegalArgumentException("Debe seleccionar un producto válido de la lista.");
             }
 
             // 2. VALIDACIÓN: Descripción
@@ -145,17 +145,17 @@ public class ControladorAgregarPromocionServicio implements ActionListener {
                 throw new IllegalArgumentException("El precio promocional debe ser mayor a cero.");
             }
 
-            // Cálculo dinámico del porcentaje de descuento relativo al precio del servicio
-            double precioOriginalServicio = servicioSeleccionado.getPrecio();
+            // Cálculo dinámico del porcentaje de descuento relativo al precio del producto
+            double precioOriginalProducto = productoSeleccionado.getPrecioCompra();
             double porcentajeCalculado = 0.0;
-            if (precioOriginalServicio > 0 && precioPromocional < precioOriginalServicio) {
-                porcentajeCalculado = ((precioOriginalServicio - precioPromocional) / precioOriginalServicio) * 100.0;
+            if (precioOriginalProducto > 0 && precioPromocional < precioOriginalProducto) {
+                porcentajeCalculado = ((precioOriginalProducto - precioPromocional) / precioOriginalProducto) * 100.0;
             }
 
             // 5. CONSTRUCCIÓN DEL OBJETO MODELO
             Promocion promocion = new Promocion();
-            promocion.setIdServicio(servicioSeleccionado.getIdServicio());
-            promocion.setIdProducto(null); // Explícitamente Nulo para Promociones de Servicio
+            promocion.setIdServicio(null); // Explícitamente Nulo para Promociones de Producto
+            promocion.setIdProducto(productoSeleccionado.getIdProducto());
             promocion.setPorcentajeDescuento(porcentajeCalculado);
             promocion.setFechaInicio(fechaInicio);
             promocion.setFechaFin(fechaFin);
@@ -172,7 +172,7 @@ public class ControladorAgregarPromocionServicio implements ActionListener {
 
             if (exito) {
                 JOptionPane.showMessageDialog(vista,
-                        "¡Promoción de servicio registrada exitosamente en NexusGO!",
+                        "¡Promoción de producto registrada exitosamente en NexusGO!",
                         "Registro Exitoso", JOptionPane.INFORMATION_MESSAGE);
                 limpiarCampos();
             } else {
@@ -247,8 +247,8 @@ public class ControladorAgregarPromocionServicio implements ActionListener {
 
     private void limpiarCampos() {
         try {
-            if (vista.comboServicios != null && vista.comboServicios.getItemCount() > 0) {
-                vista.comboServicios.setSelectedIndex(0);
+            if (vista.comboProductos != null && vista.comboProductos.getItemCount() > 0) {
+                vista.comboProductos.setSelectedIndex(0);
             }
             if (vista.txtDescripcionPromocion != null) {
                 vista.txtDescripcionPromocion.setText("Ingrese el nombre del producto");
@@ -263,7 +263,7 @@ public class ControladorAgregarPromocionServicio implements ActionListener {
                 vista.txtPrecio.setText("Ingrese el precio en pesos colombianos");
             }
             if (vista.lblNombreImagen != null) {
-                vista.lblNombreImagen.setText("imagenservicio.png");
+                vista.lblNombreImagen.setText("imagenproducto.png");
             }
             imagenSeleccionada = null;
         } catch (Exception e) {

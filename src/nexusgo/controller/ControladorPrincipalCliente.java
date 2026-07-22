@@ -4,29 +4,31 @@
  */
 package nexusgo.controller;
 
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
+
 import nexusgo.model.Producto;
 import nexusgo.model.ProductoDao;
+import nexusgo.model.PromocionCombo;
+import nexusgo.model.PromocionComboDao;
+import nexusgo.model.ServicioDao;
+import nexusgo.model.Servicios;
 import nexusgo.model.Usuario;
 import nexusgo.model.UsuarioDao;
 import nexusgo.view.VistaHistorialCita;
 import nexusgo.view.VistaHstorialPagos;
 import nexusgo.view.VistaInicioSesion;
 import nexusgo.view.VistaPrincipalCliente;
-import nexusgo.view.VistaProductoDetalles; // Confirma el nombre de tu clase Vista
+import nexusgo.view.VistaProductoDetalles;
 import nexusgo.view.VistaReservarCitas;
-
 /**
  *
  * @author USUARIO
@@ -36,14 +38,19 @@ import nexusgo.view.VistaReservarCitas;
  */
 public class ControladorPrincipalCliente implements ActionListener, MouseListener {
 
-    private final VistaPrincipalCliente vista;
+   private final VistaPrincipalCliente vista;
     private final ProductoDao productoDAO;
+    private final ServicioDao servicioDAO; 
+    private final PromocionComboDao promocionComboDAO;
+
+    // Listas independientes en memoria
     private List<Producto> listaProductos;
     private List<Producto> listaPromociones;
+    private List<PromocionCombo> listaCombos;
+    private List<Servicios> listaServicios; 
+
     private final int idUsuarioLogueado;
 
-    // --- NUEVAS REFERENCIAS DE CONTROLADORES SECUNDARIOS ---
-    // (Al guardar el controlador como atributo, evitamos que el Garbage Collector lo elimine)
     private ControladorReservarCita controladorReservarCita;
     private ControladorHistorialCita controladorHistorialCita;
     private ControladorHistorialPagos controladorHistorialPagos;
@@ -52,20 +59,15 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
     public ControladorPrincipalCliente(VistaPrincipalCliente vista, int idUsuarioLogueado) {
         this.vista = vista;
         this.idUsuarioLogueado = idUsuarioLogueado;
+        
         this.productoDAO = new ProductoDao();
+        this.servicioDAO = new ServicioDao(); 
+        this.promocionComboDAO = new PromocionComboDao();
 
-        // 1. Enlace de botones de la cabecera superior
-        if (this.vista.btnHistorial != null) {
-            this.vista.btnHistorial.addActionListener(this);
-        }
-        if (this.vista.btnReservarCita != null) {
-            this.vista.btnReservarCita.addActionListener(this);
-        }
-        if (this.vista.btnCerrarSesion != null) {
-            this.vista.btnCerrarSesion.addActionListener(this);
-        }
+        if (this.vista.btnHistorial != null) this.vista.btnHistorial.addActionListener(this);
+        if (this.vista.btnReservarCita != null) this.vista.btnReservarCita.addActionListener(this);
+        if (this.vista.btnCerrarSesion != null) this.vista.btnCerrarSesion.addActionListener(this);
 
-        // 2. Enlace de navegación de la barra lateral (Sidebar)
         if (this.vista.sidebar != null) {
             if (this.vista.sidebar.bCasa != null) {
                 this.vista.sidebar.bCasa.addActionListener(e -> restaurarTiendaYCatalogo());
@@ -78,7 +80,6 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
             }
         }
 
-        // 3. Cargar datos del catálogo al iniciar
         cargarCatalogo();
     }
 
@@ -86,57 +87,62 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
         this(vista, 1);
     }
 
-    /**
-     * Consulta la Base de Datos mediante el DAO y puebla los grids de Productos
-     * y Promociones.
-     */
     public void cargarCatalogo() {
         try {
-            // Obtener registros de la BD
+            // 1. Cargar Productos
             this.listaProductos = productoDAO.listar();
 
+            // 2. Cargar Promociones
             try {
                 this.listaPromociones = productoDAO.listarPromociones();
-            } catch (Exception exPromo) {
-                System.err.println("Aviso: No se pudieron listar promociones: " + exPromo.getMessage());
+            } catch (Exception ex) {
                 this.listaPromociones = null;
             }
 
-            // Trazabilidad en consola
-            System.out.println("--- Carga de Catálogo Nexus GO ---");
-            System.out.println("Productos regulares encontrados: " + (listaProductos != null ? listaProductos.size() : 0));
-            System.out.println("Promociones encontradas: " + (listaPromociones != null ? listaPromociones.size() : 0));
+            // 3. Cargar Combos
+            try {
+                this.listaCombos = promocionComboDAO.listarCombosActivos();
+            } catch (Exception ex) {
+                this.listaCombos = null;
+            }
 
-            // Reiniciar y limpiar la estructura visual
+            // 4. Cargar Servicios
+            try {
+                this.listaServicios = servicioDAO.listarServiciosActivos();
+            } catch (Exception ex) {
+                this.listaServicios = null;
+            }
+
             this.vista.restaurarComponentesTienda();
 
-            // Llenar Grid de Catálogo General (Genera tarjetas con Fotos)
-            if (this.listaProductos != null && !this.listaProductos.isEmpty()) {
+            // Renderizado de Productos
+            if (this.listaProductos != null) {
                 for (Producto p : this.listaProductos) {
-                    this.vista.agregarTarjetaProducto(
-                            p.getIdProducto(),
-                            p.getNombreProducto(),
-                            p.getPrecioVenta(),
-                            p.getUrlImagen(),
-                            this
-                    );
+                    this.vista.agregarTarjetaProducto(p.getIdProducto(), p.getNombreProducto(), p.getPrecioVenta(), p.getUrlImagen(), this);
                 }
             }
 
-            // Llenar Grid de Promociones (Genera tarjetas con Fotos de Oferta)
-            if (this.listaPromociones != null && !this.listaPromociones.isEmpty()) {
+            // Renderizado de Promociones
+            if (this.listaPromociones != null) {
                 for (Producto promo : this.listaPromociones) {
-                    this.vista.agregarTarjetaPromocion(
-                            promo.getIdProducto(),
-                            promo.getNombreProducto(),
-                            promo.getPrecioVenta(),
-                            promo.getUrlImagen(),
-                            this
-                    );
+                    this.vista.agregarTarjetaPromocion(promo.getIdProducto(), promo.getNombreProducto(), promo.getPrecioVenta(), promo.getUrlImagen(), this);
                 }
             }
 
-            // Refrescar contenedor principal
+            // Renderizado de Combos
+            if (this.listaCombos != null) {
+                for (PromocionCombo combo : this.listaCombos) {
+                    this.vista.agregarTarjetaCombo(combo.getIdPromocion(), combo.getNombreCombo(), combo.getPrecioCombo(), combo.getRutaImagen(), this);
+                }
+            }
+
+            // Renderizado de Servicios
+            if (this.listaServicios != null) {
+                for (Servicios serv : this.listaServicios) {
+                    this.vista.agregarTarjetaServicio(serv.getIdServicio(), serv.getNombreServicio(), serv.getPrecio(), "/nexusgo/img/default.jpg", this);
+                }
+            }
+
             if (this.vista.getContenidoCentralDinamico() != null) {
                 this.vista.getContenidoCentralDinamico().revalidate();
                 this.vista.getContenidoCentralDinamico().repaint();
@@ -144,37 +150,56 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
 
         } catch (Exception ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(
-                    vista,
-                    "Error al conectar con el catálogo de productos: " + ex.getMessage(),
-                    "Error de Sistema",
-                    JOptionPane.ERROR_MESSAGE
-            );
         }
     }
 
-    /**
-     * Busca un producto por ID dentro de las listas locales en memoria.
-     */
-    private Producto buscarProductoPorId(int id) {
-        if (listaProductos != null) {
-            for (Producto prod : listaProductos) {
-                if (prod.getIdProducto() == id) {
-                    return prod;
+    private Producto buscarYAdaptarElemento(String identificadorCompleto) {
+        if (identificadorCompleto == null) return null;
+
+        if (identificadorCompleto.startsWith("PROD_")) {
+            int id = Integer.parseInt(identificadorCompleto.replace("PROD_", ""));
+            if (listaProductos != null) {
+                for (Producto prod : listaProductos) if (prod.getIdProducto() == id) return prod;
+            }
+        } else if (identificadorCompleto.startsWith("PROMO_")) {
+            int id = Integer.parseInt(identificadorCompleto.replace("PROMO_", ""));
+            if (listaPromociones != null) {
+                for (Producto promo : listaPromociones) if (promo.getIdProducto() == id) return promo;
+            }
+        } else if (identificadorCompleto.startsWith("COMBO_")) {
+            int id = Integer.parseInt(identificadorCompleto.replace("COMBO_", ""));
+            if (listaCombos != null) {
+                for (PromocionCombo combo : listaCombos) {
+                    if (combo.getIdPromocion() == id) {
+                        Producto p = new Producto();
+                        p.setIdProducto(combo.getIdPromocion());
+                        p.setNombreProducto(combo.getNombreCombo());
+                        p.setPrecioVenta(combo.getPrecioCombo());
+                        p.setDescripcion(combo.getDescripcion());
+                        p.setUrlImagen(combo.getRutaImagen());
+                        return p;
+                    }
                 }
             }
-        }
-        if (listaPromociones != null) {
-            for (Producto promo : listaPromociones) {
-                if (promo.getIdProducto() == id) {
-                    return promo;
+        } else if (identificadorCompleto.startsWith("SERV_")) {
+            int id = Integer.parseInt(identificadorCompleto.replace("SERV_", ""));
+            if (listaServicios != null) {
+                for (Servicios serv : listaServicios) {
+                    if (serv.getIdServicio() == id) {
+                        Producto p = new Producto();
+                        p.setIdProducto(serv.getIdServicio());
+                        p.setNombreProducto(serv.getNombreServicio());
+                        p.setPrecioVenta(serv.getPrecio());
+                        p.setDescripcion(serv.getDescripcion());
+                        p.setUrlImagen("/nexusgo/img/default.jpg");
+                        return p;
+                    }
                 }
             }
         }
         return null;
     }
 
-    // --- MANEJO DE EVENTOS DE MOUSE (CLICK EN TARJETAS DE PRODUCTOS) ---
     @Override
     public void mouseClicked(MouseEvent e) {
         Object origen = e.getSource();
@@ -183,8 +208,6 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
         if (origen instanceof JComponent) {
             JComponent comp = (JComponent) origen;
             idStr = comp.getName();
-
-            // Si el componente hijo no tiene el ID, buscarlo en el padre (tarjeta)
             if (idStr == null && comp.getParent() != null) {
                 idStr = comp.getParent().getName();
             }
@@ -192,13 +215,11 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
 
         if (idStr != null) {
             try {
-                int idProducto = Integer.parseInt(idStr);
-                Producto productoSeleccionado = buscarProductoPorId(idProducto);
+                Producto elementoSeleccionado = buscarYAdaptarElemento(idStr);
 
-                if (productoSeleccionado != null) {
+                if (elementoSeleccionado != null) {
                     VistaProductoDetalles panelDetalle = new VistaProductoDetalles();
-                    // Se asigna al atributo de la clase para evitar la recolección de basura
-                    this.controladorDetallesProducto = new ControladorDetallesProducto(panelDetalle, productoSeleccionado, this);
+                    this.controladorDetallesProducto = new ControladorDetallesProducto(panelDetalle, elementoSeleccionado, this);
 
                     JPanel contenedor = vista.getContenidoCentralDinamico();
                     if (contenedor != null) {
@@ -209,29 +230,15 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
                         hacerScrollArriba(contenedor);
                     }
                 }
-            } catch (NumberFormatException ignored) {
-                // Si el evento provino de un componente sin ID numérico
-            }
+            } catch (NumberFormatException ignored) {}
         }
     }
 
-    @Override
-    public void mousePressed(MouseEvent e) {
-    }
+    @Override public void mousePressed(MouseEvent e) {}
+    @Override public void mouseReleased(MouseEvent e) {}
+    @Override public void mouseEntered(MouseEvent e) {}
+    @Override public void mouseExited(MouseEvent e) {}
 
-    @Override
-    public void mouseReleased(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-    }
-
-    // --- MANEJO DE BOTONES (ACTION LISTENERS) ---
     @Override
     public void actionPerformed(ActionEvent e) {
         Object origen = e.getSource();
@@ -262,10 +269,8 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
         }
     }
 
-    // --- MÉTODOS DE NAVEGACIÓN Y CARGA DE VISTAS ---
     public void abrirVistaHistorialCitas() {
         VistaHistorialCita panelHistorial = new VistaHistorialCita();
-        // Se asigna al atributo de la clase
         this.controladorHistorialCita = new ControladorHistorialCita(panelHistorial, vista, this.idUsuarioLogueado);
 
         JPanel contenedor = vista.getContenidoCentralDinamico();
@@ -289,7 +294,6 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
             usuario.setIdUsuario(this.idUsuarioLogueado);
         }
 
-        // Se asigna al atributo de la clase
         this.controladorHistorialPagos = new ControladorHistorialPagos(panelPagos, usuario);
 
         JPanel contenedor = vista.getContenidoCentralDinamico();
@@ -304,8 +308,6 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
 
     private void abrirVistaReservarCitas() {
         VistaReservarCitas panelReserva = new VistaReservarCitas();
-
-        // ¡SOLUCIÓN!: Se almacena en la variable global/atributo de la clase
         this.controladorReservarCita = new ControladorReservarCita(panelReserva, vista, this.idUsuarioLogueado);
 
         JPanel contenedor = vista.getContenidoCentralDinamico();

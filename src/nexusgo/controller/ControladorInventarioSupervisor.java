@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -38,7 +39,7 @@ public class ControladorInventarioSupervisor implements ActionListener {
     private VistaInventarioSupervisor panelInventario;
     private VistaProgramarMantenimiento panelProgramarMantenimiento;
 
-    // Instancia de los DAOs del proyecto (Cada uno para su respectiva tabla)
+    // Instancias para el acceso a datos (DAOs)
     private final ProductoDao productoDao = new ProductoDao();
     private final HerramientaDao herramientaDao = new HerramientaDao();
     private final MantenimientoDao mantenimientoDao = new MantenimientoDao();
@@ -53,17 +54,18 @@ public class ControladorInventarioSupervisor implements ActionListener {
         this.usuarioLogueado = usuarioLogueado;
 
         try {
-            // Inicialización de las vistas del módulo
+            // Inicializar las vistas
             this.panelInventario = new VistaInventarioSupervisor();
             this.panelProgramarMantenimiento = new VistaProgramarMantenimiento();
 
+            // Vincular listeners de la interfaz
             inicializarListeners();
 
-            // Carga inicial de datos desde MySQL
+            // Cargar tablas desde la base de datos
             listarProductosEnTabla();
             listarHerramientasEnTabla();
 
-            // Panel de bienvenida por defecto al cargar el sistema
+            // Vista por defecto al ingresar al módulo
             cambiarPanelCentral(new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol()));
 
         } catch (Exception e) {
@@ -75,15 +77,15 @@ public class ControladorInventarioSupervisor implements ActionListener {
 
     private void inicializarListeners() {
         try {
-            // Escuchar clics en los botones de la barra lateral izquierda
+            // Escuchar clics del menú lateral
             this.vistaPrincipal.sidebar.bCasa.addActionListener(this);
             this.vistaPrincipal.sidebar.bInventario.addActionListener(this);
 
-            // Escuchar los botones de la vista sencilla de programación
+            // Escuchar botones del formulario de programación
             this.panelProgramarMantenimiento.btnGuardarMantenimiento.addActionListener(this);
             this.panelProgramarMantenimiento.btnVolver.addActionListener(this);
 
-            // Clic en Productos -> Modo Solo Lectura para el Rol de Supervisor
+            // Evento: Selección de producto (Solo Lectura)
             this.panelInventario.tablaProductos.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -96,7 +98,7 @@ public class ControladorInventarioSupervisor implements ActionListener {
                 }
             });
 
-            // Clic en Herramientas -> Dispara las opciones de gestión de mantenimiento
+            // Evento: Selección de herramienta para mantenimiento
             this.panelInventario.tablaHerramientas.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -115,6 +117,7 @@ public class ControladorInventarioSupervisor implements ActionListener {
         }
     }
 
+    // Opciones flotantes al presionar un elemento en la tabla de herramientas
     private void lanzarMenuDecisionMantenimiento() {
         String[] opciones = {"Registrar Ejecutado", "Programar Agenda", "Cancelar"};
         
@@ -127,7 +130,7 @@ public class ControladorInventarioSupervisor implements ActionListener {
                 opciones, 
                 opciones[0]);
 
-        if (seleccion == 1) { // Programar Agenda (Abre el formulario básico)
+        if (seleccion == 1) { // Redirigir al formulario de "Programar Agenda"
             panelProgramarMantenimiento.txtEquipo.setText(nombreHerramientaSeleccionada);
             cambiarPanelCentral(this.panelProgramarMantenimiento);
         }
@@ -136,7 +139,7 @@ public class ControladorInventarioSupervisor implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            // --- EVENTOS DE NAVEGACIÓN ---
+            // --- NAVEGACIÓN PRINCIPAL ---
             if (e.getSource() == vistaPrincipal.sidebar.bCasa) {
                 cambiarPanelCentral(new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol()));
             }
@@ -152,7 +155,7 @@ public class ControladorInventarioSupervisor implements ActionListener {
                 listarHerramientasEnTabla();
             }
 
-            // --- BOTÓN PRINCIPAL GUARDAR ---
+            // --- ACCIÓN DE GUARDADO ---
             if (e.getSource() == panelProgramarMantenimiento.btnGuardarMantenimiento) {
                 ejecutarGuardadoProgramacion();
             }
@@ -164,16 +167,70 @@ public class ControladorInventarioSupervisor implements ActionListener {
 
     private void ejecutarGuardadoProgramacion() {
         try {
-            // 1. Extraer los datos desde la interfaz de usuario sencilla
-            Date fechaSeleccionada = (Date) panelProgramarMantenimiento.spinnerFechaHora.getValue(); 
+            // 1. Obtener la fecha seleccionada en el JDateChooser (Mantenimiento)
+            Date fechaCalendario = panelProgramarMantenimiento.selectorFecha.getDate();
+
+            if (fechaCalendario == null) {
+                JOptionPane.showMessageDialog(panelProgramarMantenimiento,
+                        "Por favor seleccione una fecha válida para el mantenimiento.",
+                        "Fecha Vacía", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // --- NUEVO: Capturar y Validar Fechas de Promoción ---
+            Date fechaInicioPromo = panelProgramarMantenimiento.fechaInicioPromocion.getDate();
+            Date fechaFinPromo = panelProgramarMantenimiento.fechaFinPromocion.getDate();
+
+            if (fechaInicioPromo == null || fechaFinPromo == null) {
+                JOptionPane.showMessageDialog(panelProgramarMantenimiento,
+                        "Por favor complete ambas fechas de vigencia para la promoción (Inicio y Fin).",
+                        "Fechas de Promoción Incompletas", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            if (fechaInicioPromo.after(fechaFinPromo)) {
+                JOptionPane.showMessageDialog(panelProgramarMantenimiento,
+                        "La fecha de inicio de la promoción no puede ser posterior a la fecha de fin.",
+                        "Rango de Fechas Inválido", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Format para presentar o guardar las fechas de promoción
+            SimpleDateFormat sdfPromo = new SimpleDateFormat("yyyy-MM-dd");
+            String strInicioPromo = sdfPromo.format(fechaInicioPromo);
+            String strFinPromo = sdfPromo.format(fechaFinPromo);
+
+            // 2. Extraer y fusionar la hora proveniente del Spinner
+            Date horaSpinner = (Date) panelProgramarMantenimiento.spinnerHora.getValue();
+
+            Calendar calFechaElegida = Calendar.getInstance();
+            calFechaElegida.setTime(fechaCalendario);
+
+            Calendar calHoraElegida = Calendar.getInstance();
+            calHoraElegida.setTime(horaSpinner);
+
+            calFechaElegida.set(Calendar.HOUR_OF_DAY, calHoraElegida.get(Calendar.HOUR_OF_DAY));
+            calFechaElegida.set(Calendar.MINUTE, calHoraElegida.get(Calendar.MINUTE));
+            calFechaElegida.set(Calendar.SECOND, 0);
+            calFechaElegida.set(Calendar.MILLISECOND, 0);
+
+            Date fechaFinalProgramada = calFechaElegida.getTime();
+
+            // 3. Extraer los datos textuales de la vista
             String tipoMantenimiento = panelProgramarMantenimiento.cbTipoMantenimiento.getSelectedItem().toString();
             String fallaProblema = panelProgramarMantenimiento.txtFallaProblema.getText().trim();
             String observaciones = panelProgramarMantenimiento.txtObservaciones.getText().trim();
 
-            // Juntamos falla y observaciones en una sola cadena de texto para la BD
-            String notasCompletas = "Falla: " + fallaProblema + " | Obs: " + observaciones;
+            File imagenAdjunta = panelProgramarMantenimiento.getArchivoImagenSeleccionado();
+            String nombreImagen = (imagenAdjunta != null) ? imagenAdjunta.getName() : "Sin imagen";
 
-            // 2. Validación obligatoria de campos vacíos
+            // Se agregan los rangos de fecha de promoción a las notas de auditoría/registro
+            String notasCompletas = "Falla: " + fallaProblema + 
+                                    " | Promo: " + strInicioPromo + " a " + strFinPromo + 
+                                    " | Obs: " + observaciones + 
+                                    " | Img: " + nombreImagen;
+
+            // 4. Validación de campos de texto obligatorios
             if (tipoMantenimiento.equals("Seleccione su tipo de mantenimiento") || fallaProblema.isEmpty()) {
                 JOptionPane.showMessageDialog(panelProgramarMantenimiento,
                         "Por favor, seleccione un tipo de mantenimiento e ingrese la falla o problema.",
@@ -181,57 +238,63 @@ public class ControladorInventarioSupervisor implements ActionListener {
                 return;
             }
 
-            // 3. Validación de Regra de Negocio para la Fecha (No hoy, no pasados)
-            Calendar calSeleccionada = Calendar.getInstance();
-            calSeleccionada.setTime(fechaSeleccionada);
+            // =========================================================================
+            // 5. REGLA DE NEGOCIO: VALIDACIÓN DE FECHA DE MANTENIMIENTO
+            // =========================================================================
+            Calendar calLimiteManana = Calendar.getInstance();
+            calLimiteManana.add(Calendar.DAY_OF_MONTH, 1);
+            calLimiteManana.set(Calendar.HOUR_OF_DAY, 23);
+            calLimiteManana.set(Calendar.MINUTE, 59);
+            calLimiteManana.set(Calendar.SECOND, 59);
+            calLimiteManana.set(Calendar.MILLISECOND, 999);
 
-            Calendar calLimiteHoy = Calendar.getInstance();
-            calLimiteHoy.set(Calendar.HOUR_OF_DAY, 23);
-            calLimiteHoy.set(Calendar.MINUTE, 59);
-            calLimiteHoy.set(Calendar.SECOND, 59);
-
-            if (calSeleccionada.before(calLimiteHoy)) {
+            if (calFechaElegida.before(calLimiteManana)) {
                 JOptionPane.showMessageDialog(panelProgramarMantenimiento,
-                        "Excepción de Agenda: No se puede programar mantenimiento para hoy mismo ni para fechas pasadas.\nDebe agendarse a partir de mañana.",
+                        "Excepción de Agenda:\n\n" +
+                        "• No se permite programar mantenimientos para fechas pasadas.\n" +
+                        "• No se permite programar mantenimientos para hoy o mañana.\n\n" +
+                        "La agenda requiere un margen mínimo de 48 horas. Seleccione a partir de pasado mañana.",
                         "Fecha No Permitida", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
-            // 4. Instanciar la clase normal Mantenimiento con la sesión activa
+            // 6. Instanciar el modelo
             Mantenimiento nuevoMantenimiento = new Mantenimiento(
                     idHerramientaSeleccionada, 
                     tipoMantenimiento, 
-                    fechaSeleccionada, 
+                    fechaFinalProgramada, 
                     notasCompletas, 
-                    usuarioLogueado.getIdUsuario() // ID del supervisor que agendó en la BD
+                    usuarioLogueado.getIdUsuario()
             );
 
-            // 5. Enviar el objeto al nuevo MantenimientoDao independiente
+            // 7. Insertar el registro en la base de datos
             boolean guardadoExitoso = mantenimientoDao.registrarProgramacion(nuevoMantenimiento);
 
             if (guardadoExitoso) {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                 JOptionPane.showMessageDialog(panelProgramarMantenimiento,
-                        "¡Mantenimiento programado con éxito en la Base de Datos!\n\n" +
+                        "¡Mantenimiento y Promoción registrados con éxito!\n\n" +
                         "Herramienta: " + nombreHerramientaSeleccionada + "\n" +
-                        "Tipo: " + tipoMantenimiento + "\n" +
-                        "Fecha: " + sdf.format(fechaSeleccionada),
-                        "NEXUS GO - Éxito", JOptionPane.INFORMATION_MESSAGE);
+                        "Tipo Mantenimiento: " + tipoMantenimiento + "\n" +
+                        "Fecha Mantenimiento: " + sdf.format(fechaFinalProgramada) + "\n" +
+                        "Promoción Vigente: Del " + strInicioPromo + " al " + strFinPromo + "\n" +
+                        "Imagen Adjunta: " + nombreImagen,
+                        "NEXUS GO - Registro Exitoso", JOptionPane.INFORMATION_MESSAGE);
 
-                // 6. Limpieza de interfaz y redirección al inventario
+                // 8. Limpiar controles y regresar
                 limpiarCamposProgramacion();
                 cambiarPanelCentral(this.panelInventario);
                 listarHerramientasEnTabla();
             } else {
                 JOptionPane.showMessageDialog(panelProgramarMantenimiento,
-                        "No se pudo guardar la programación. Revise la consola del servidor.",
-                        "Error de Conexión", JOptionPane.ERROR_MESSAGE);
+                        "Ocurrió un problema al guardar en la base de datos.",
+                        "Error de Almacenamiento", JOptionPane.ERROR_MESSAGE);
             }
 
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(panelProgramarMantenimiento, 
                     "Error al procesar el guardado: " + ex.getMessage(), 
-                    "Error", JOptionPane.ERROR_MESSAGE);
+                    "Error General", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -239,7 +302,13 @@ public class ControladorInventarioSupervisor implements ActionListener {
         panelProgramarMantenimiento.cbTipoMantenimiento.setSelectedIndex(0);
         panelProgramarMantenimiento.txtFallaProblema.setText("");
         panelProgramarMantenimiento.txtObservaciones.setText("");
-        panelProgramarMantenimiento.lblNombreImagen.setText("tratamiento.png");
+        panelProgramarMantenimiento.lblNombreImagen.setText("Ninguna imagen seleccionada");
+        
+        // Reset de calendarios JCalendar
+        Date hoy = new Date();
+        panelProgramarMantenimiento.selectorFecha.setDate(hoy);
+        panelProgramarMantenimiento.fechaInicioPromocion.setDate(hoy);
+        panelProgramarMantenimiento.fechaFinPromocion.setDate(hoy);
     }
 
     public void listarProductosEnTabla() {
@@ -286,7 +355,5 @@ public class ControladorInventarioSupervisor implements ActionListener {
             System.err.println("Error en el enrutador dinámico de vistas: " + e.getMessage());
         }
     }
-    
-
     
 }
