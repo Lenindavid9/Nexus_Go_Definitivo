@@ -4,9 +4,7 @@
  */
 package nexusgo.controller;
 
-import java.awt.CardLayout;
 import java.awt.Desktop;
-import java.awt.LayoutManager;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -43,6 +41,7 @@ public class ControladorMetododePago {
     private UsuarioDao usuarioDao = new UsuarioDao();
     private FacturaDao facturaDao;
     private List<DetalleCarrito> carritoActual;
+    private int idCajaActual = 0;
 
     // 1. Constructor Completo
     public ControladorMetododePago(VistaMetododePago vistaPago, DineroEfectivo vistaEfectivo, List<DetalleCarrito> carrito, double totalVenta, JPanel contenedorCentral) {
@@ -51,6 +50,7 @@ public class ControladorMetododePago {
         this.carritoActual = carrito;
         this.panelContenedor = contenedorCentral;
         this.facturaDao = new FacturaDao();
+        this.idCajaActual = idCajaActual;
         inicializarControlador(totalVenta);
     }
 
@@ -61,6 +61,7 @@ public class ControladorMetododePago {
         this.carritoActual = carrito;
         this.panelContenedor = contenedorCentral;
         this.facturaDao = new FacturaDao();
+        this.idCajaActual = idCajaActual;
         inicializarControlador(totalVenta);
     }
 
@@ -235,7 +236,13 @@ public class ControladorMetododePago {
             }
 
             // Asignar ID de caja abierta por defecto (1) para cumplir restricción FK
-            factura.setIdCaja(1); 
+            if (idCajaActual <= 0){
+                JOptionPane.showMessageDialog(null, "No hay una caja abierta válida. No se puede registrar la venta.",
+                        "Caja no disponible", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            factura.setIdCaja(idCajaActual);
 
             // 2. Guardar en Base de Datos a través del DAO
             boolean guardadoExitoso = facturaDao.guardarFactura(factura);
