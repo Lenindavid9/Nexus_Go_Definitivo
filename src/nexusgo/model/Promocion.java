@@ -13,31 +13,20 @@ import java.util.Date;
 public class Promocion {
     
     private int idPromocion;
-    private int idProducto;
+    private Integer idProducto; // Se usa Integer (Wrapper) para permitir nulls
+    private Integer idServicio; // Nuevo campo opcional
     private double porcentajeDescuento;
     private Date fechaInicio;
     private Date fechaFin;
     private String estado;
     
-    // Campos auxiliares opcionales (útiles para Join con Producto en Vistas)
-    private String nombreProducto;
+    // Campos auxiliares opcionales para vistas
+    private String nombreItem; // Puede ser el nombre del producto o del servicio
     private double precioOriginal;
 
-    // Constructor vacío
     public Promocion() {
     }
 
-    // Constructor completo
-    public Promocion(int idPromocion, int idProducto, double porcentajeDescuento, Date fechaInicio, Date fechaFin, String estado) {
-        this.idPromocion = idPromocion;
-        this.idProducto = idProducto;
-        this.porcentajeDescuento = porcentajeDescuento;
-        this.fechaInicio = fechaInicio;
-        this.fechaFin = fechaFin;
-        this.estado = estado;
-    }
-
-    // Getters y Setters Básicos
     public int getIdPromocion() {
         return idPromocion;
     }
@@ -46,12 +35,20 @@ public class Promocion {
         this.idPromocion = idPromocion;
     }
 
-    public int getIdProducto() {
+    public Integer getIdProducto() {
         return idProducto;
     }
 
-    public void setIdProducto(int idProducto) {
+    public void setIdProducto(Integer idProducto) {
         this.idProducto = idProducto;
+    }
+
+    public Integer getIdServicio() {
+        return idServicio;
+    }
+
+    public void setIdServicio(Integer idServicio) {
+        this.idServicio = idServicio;
     }
 
     public double getPorcentajeDescuento() {
@@ -86,13 +83,12 @@ public class Promocion {
         this.estado = estado;
     }
 
-    // Getters y Setters Auxiliares
-    public String getNombreProducto() {
-        return nombreProducto;
+    public String getNombreItem() {
+        return nombreItem;
     }
 
-    public void setNombreProducto(String nombreProducto) {
-        this.nombreProducto = nombreProducto;
+    public void setNombreItem(String nombreItem) {
+        this.nombreItem = nombreItem;
     }
 
     public double getPrecioOriginal() {
@@ -103,21 +99,10 @@ public class Promocion {
         this.precioOriginal = precioOriginal;
     }
 
-    // Método de conveniencia para calcular el precio final con el descuento aplicado
     public double getPrecioConDescuento() {
         if (this.precioOriginal > 0) {
             return this.precioOriginal - (this.precioOriginal * (this.porcentajeDescuento / 100.0));
         }
         return 0.0;
-    }
-
-    @Override
-    public String toString() {
-        return "Promocion{" +
-                "idPromocion=" + idPromocion +
-                ", idProducto=" + idProducto +
-                ", porcentajeDescuento=" + porcentajeDescuento +
-                ", estado='" + estado + '\'' +
-                '}';
     }
 }

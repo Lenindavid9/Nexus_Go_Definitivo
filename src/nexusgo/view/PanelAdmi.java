@@ -29,42 +29,69 @@ import javax.swing.SwingConstants;
  */
 public class PanelAdmi extends JFrame { 
 
+    // --- Componentes Visuales Principales ---
     private JPanel principal;
     private JButton btnCerrar;
     private JLabel TituloPrincipal, imagen, lblEstado, texto1, texto2, imgJornada, imgVentas, tituloJ, estadoJ, detalleJ, tituloVentas, actividadV, detalleVentas;
     private JPanel pnlTarjeta, pnlEstado, Jornada, textoJornada, Ventas, textoVentas;
 
-    // Componente Barra Lateral
+    // --- Componentes de Navegación y Barra Lateral ---
     private VistaBarraLateral menuLateral;
     public JButton btnReporte;
 
+    // Botones explícitos para la Sidebar
+    public JButton bServicios;
+    public JButton bPromociones;
+
+    // --- Constantes de Estilo ---
     private final Color COLOR_DORADO = new Color(223, 205, 141);
 
+    /**
+     * Constructor principal. Configura la ventana, la barra lateral con los nuevos
+     * botones de Servicios y Promociones, y ensambla el panel central.
+     */
     public PanelAdmi() {
         super("Panel de Administración - N E X U S GO");
         
-        // Imagen de fondo con contenedor principal
+        // 1. Configuración de la imagen de fondo en el ContentPane
         JLabel fondoConImagen = new JLabel(new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg"));
         fondoConImagen.setLayout(new BorderLayout());
         this.setContentPane(fondoConImagen);
 
-        // --- BARRA LATERAL ---
+        // 2. Inicialización de la Barra Lateral
         menuLateral = new VistaBarraLateral();
         menuLateral.setBackground(COLOR_DORADO);
         menuLateral.setPreferredSize(new Dimension(250, 0));
         menuLateral.setBorder(BorderFactory.createEmptyBorder(30, 15, 10, 15));
 
-        // --- PANEL PRINCIPAL (CONTENIDO CENTRAL) ---
+        // Asignación/Creación de los botones de Servicios y Promociones en la sidebar
+        bServicios = new JButton("Agregar Servicio");
+        bServicios.setFont(new Font("SansSerif", Font.BOLD, 14));
+        bServicios.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        bPromociones = new JButton("Agregar Promoción");
+        bPromociones.setFont(new Font("SansSerif", Font.BOLD, 14));
+        bPromociones.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        // Agregamos los botones al contenedor de la barra lateral si no estaban añadidos
+        menuLateral.add(Box.createVerticalStrut(15));
+        menuLateral.add(bServicios);
+        menuLateral.add(Box.createVerticalStrut(10));
+        menuLateral.add(bPromociones);
+
+        // 3. Inicialización del Panel Central de Trabajo
         principal = new JPanel();
         principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
         principal.setBackground(Color.WHITE);
         principal.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
+        // Encabezado principal
         TituloPrincipal = new JLabel("Hola, Administrador de Peluqueria Bienvenid@ a N E X U S GO");
         TituloPrincipal.setForeground(COLOR_DORADO);
         TituloPrincipal.setFont(new Font("SansSerif", Font.BOLD, 32));
         TituloPrincipal.setAlignmentX(CENTER_ALIGNMENT);
 
+        // Tarjeta central de acceso rápido a Reportes
         pnlTarjeta = new JPanel();
         pnlTarjeta.setLayout(new BoxLayout(pnlTarjeta, BoxLayout.Y_AXIS));
         pnlTarjeta.setBackground(Color.WHITE);
@@ -86,6 +113,7 @@ public class PanelAdmi extends JFrame {
         pnlTarjeta.add(texto1);
         pnlTarjeta.add(texto2);
 
+        // Sección de Estado del Sistema
         lblEstado = new JLabel("Estado del Sistema");
         lblEstado.setFont(new Font("SansSerif", Font.BOLD, 22));
         lblEstado.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -93,6 +121,7 @@ public class PanelAdmi extends JFrame {
         pnlEstado = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20));
         pnlEstado.setBackground(Color.WHITE);
 
+        // Subpanel: Jornada
         Jornada = new JPanel(new BorderLayout());
         Jornada.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         Jornada.setPreferredSize(new Dimension(450, 100));
@@ -122,6 +151,7 @@ public class PanelAdmi extends JFrame {
 
         Jornada.add(textoJornada, BorderLayout.CENTER);
 
+        // Subpanel: Ventas
         Ventas = new JPanel(new BorderLayout());
         Ventas.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         Ventas.setPreferredSize(new Dimension(450, 100));
@@ -154,6 +184,7 @@ public class PanelAdmi extends JFrame {
         pnlEstado.add(Jornada);
         pnlEstado.add(Ventas);
 
+        // Ensamble de la vista central
         principal.add(TituloPrincipal);
         principal.add(Box.createVerticalStrut(40));
         principal.add(pnlTarjeta);
@@ -162,16 +193,17 @@ public class PanelAdmi extends JFrame {
         principal.add(Box.createVerticalStrut(20));
         principal.add(pnlEstado);
 
+        // Ensamble final en la ventana
         this.getContentPane().add(menuLateral, BorderLayout.WEST);
         this.getContentPane().add(principal, BorderLayout.CENTER);
 
-        // Ajustes finales del marco
+        // Ajustes del Frame
         this.setSize(1250, 780);
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
-    // --- GETTERS DE CONTROL ---
+    // --- Getters de control ---
     public VistaBarraLateral getMenuLateral() {
         return menuLateral;
     }
