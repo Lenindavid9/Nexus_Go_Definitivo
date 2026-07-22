@@ -38,16 +38,16 @@ public class ControladorDetallesProducto implements ActionListener {
      * Envía la información del modelo hacia la vista de forma desacoplada.
      */
     private void mostrarDatosProducto() {
-        if (producto != null) {
-            // Se delega el formateo y carga de imagen directamente a la Vista (MVC)
-            this.vista.mostrarDetalleProducto(
-                producto.getNombreProducto(),
-                producto.getPrecioCompra(),
-                producto.getDescripcion(),
-                producto.getUrlImagen()
-            );
-        }
+    if (producto != null) {
+        // Se envía getPrecioVenta() para mostrar el precio correcto al cliente
+        this.vista.mostrarDetalleProducto(
+            producto.getNombreProducto(),
+            producto.getPrecioVenta(), // 
+            producto.getDescripcion(),
+            producto.getUrlImagen()
+        );
     }
+}
 
     @Override
     public void actionPerformed(ActionEvent e) {

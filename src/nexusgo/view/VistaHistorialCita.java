@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 
@@ -26,26 +27,25 @@ import javax.swing.table.DefaultTableModel;
  */
 public class VistaHistorialCita extends JPanel {
 
-    private JLabel lblTitulo;
+   private JLabel lblTitulo;
     public JButton btnVolver;
     public JTable tablaCitas;
     private JScrollPane scrollPane;
     private JPanel contenedorBlanco;
-    private DefaultTableModel modelo; // Lo volvemos atributo para usarlo en el método público
-
+    private DefaultTableModel modelo;
 
     public VistaHistorialCita() {
         this.setLayout(new BorderLayout());
         this.setBackground(Color.WHITE);
         this.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
-        // 1. TÍTULO PRINCIPAL
+        // 1. TÍTULO
         lblTitulo = new JLabel("Historial de servicios vigentes", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 26));
         lblTitulo.setForeground(new Color(62, 58, 46));
         this.add(lblTitulo, BorderLayout.NORTH);
 
-        // 2. CONTENEDOR GRIS CLARO
+        // 2. CONTENEDOR PRINCIPAL
         contenedorBlanco = new JPanel(new BorderLayout());
         contenedorBlanco.setBackground(new Color(245, 245, 245));
         contenedorBlanco.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
@@ -60,7 +60,7 @@ public class VistaHistorialCita extends JPanel {
         panelVolver.add(btnVolver);
         contenedorBlanco.add(panelVolver, BorderLayout.NORTH);
 
-        // 3. TABLA DE DATOS (Vacía por defecto)
+        // 3. TABLA
         String[] columnas = {"Nombre del servicio.", "Horario fecha y hora", "Valor"};
 
         modelo = new DefaultTableModel(columnas, 0) {
@@ -72,33 +72,40 @@ public class VistaHistorialCita extends JPanel {
 
         tablaCitas = new JTable(modelo);
         tablaCitas.setRowHeight(40);
-        tablaCitas.setBackground(new Color(245, 245, 245));
         tablaCitas.setFont(new Font("SansSerif", Font.PLAIN, 14));
-
+        tablaCitas.setFillsViewportHeight(true);
         tablaCitas.setGridColor(new Color(223, 205, 141));
         tablaCitas.setShowHorizontalLines(true);
         tablaCitas.setShowVerticalLines(false);
 
+        // Encabezado
         tablaCitas.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 14));
-        tablaCitas.getTableHeader().setBackground(new Color(245, 245, 245));
+        tablaCitas.getTableHeader().setBackground(new Color(230, 230, 230));
+        tablaCitas.getTableHeader().setReorderingAllowed(false);
+
+        // Centrado de contenido
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        for (int i = 0; i < tablaCitas.getColumnCount(); i++) {
+            tablaCitas.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
 
         scrollPane = new JScrollPane(tablaCitas);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());
-        scrollPane.getViewport().setBackground(new Color(245, 245, 245));
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
 
         contenedorBlanco.add(scrollPane, BorderLayout.CENTER);
         this.add(contenedorBlanco, BorderLayout.CENTER);
     }
 
-    /**
-     * MÉTODO CLAVE: Permite al controlador limpiar la tabla y rellenarla con
-     * los datos frescos que traiga desde el DAO de la Base de Datos.
-     */
-    public void limpiarYAgregarFila(Object[] fila) {
-        modelo.addRow(fila);
+    public void agregarFila(Object[] fila) {
+        if (modelo != null) {
+            modelo.addRow(fila);
+        }
     }
 
     public void limpiarTabla() {
-        modelo.setRowCount(0);
+        if (modelo != null) {
+            modelo.setRowCount(0);
+        }
     }
 }

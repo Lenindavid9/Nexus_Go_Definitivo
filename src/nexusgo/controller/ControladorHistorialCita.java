@@ -9,6 +9,8 @@ import java.awt.event.ActionListener;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableModel;
 import nexusgo.model.UsuarioDao;
 import nexusgo.view.VistaHistorialCita;
 import nexusgo.view.VistaPrincipalCliente;
@@ -19,57 +21,59 @@ import nexusgo.view.VistaPrincipalCliente;
  */
 public class ControladorHistorialCita implements ActionListener {
 
-    private VistaHistorialCita vistaHistorial;
-    private VistaPrincipalCliente vistaPrincipal; // Para poder manejar la restauración del centro
-    private int idClienteLogueado;
-    private UsuarioDao UsuarioDao;
+    private final VistaHistorialCita vistaHistorial;
+    private final VistaPrincipalCliente vistaPrincipal;
+    private final int idClienteLogueado;
+    private final UsuarioDao usuarioDao;
 
     public ControladorHistorialCita(VistaHistorialCita vistaHistorial, VistaPrincipalCliente vistaPrincipal, int idClienteLogueado) {
         this.vistaHistorial = vistaHistorial;
         this.vistaPrincipal = vistaPrincipal;
         this.idClienteLogueado = idClienteLogueado;
-        this.UsuarioDao = new UsuarioDao();
+        this.usuarioDao = new UsuarioDao();
 
-        // Escuchamos el botón Volver de la vista simplificada
         this.vistaHistorial.btnVolver.addActionListener(this);
+        cargarHistorial();
     }
 
-    /**
-     * Método encargado de limpiar la tabla, consultar a MySQL y rellenar la
-     * interfaz
-     */
     public void cargarHistorial() {
-        // 1. Limpiamos cualquier residuo visual en el JTable
         vistaHistorial.limpiarTabla();
 
         try {
-            // 2. Consultamos al CitaDAO pasándole el ID real del cliente logueado
-            List<Object[]> registrosCitas = UsuarioDao.listarCitasPorCliente(this.idClienteLogueado);
+            List<Object[]> registrosCitas = usuarioDao.listarCitasPorCliente(this.idClienteLogueado);
 
-            // 3. Si no hay citas, podemos informarlo; si hay, las agregamos una a una
-            if (registrosCitas.isEmpty()) {
-                vistaHistorial.limpiarYAgregarFila(new Object[]{"No registra citas vigentes", "-", "-"});
+            if (registrosCitas == null || registrosCitas.isEmpty()) {
+                vistaHistorial.agregarFila(new Object[]{"No registra citas vigentes", "-", "-"});
             } else {
                 for (Object[] fila : registrosCitas) {
-                    vistaHistorial.limpiarYAgregarFila(fila);
+                    vistaHistorial.agregarFila(fila);
                 }
             }
+
+            SwingUtilities.invokeLater(() -> {
+                vistaHistorial.tablaCitas.revalidate();
+                vistaHistorial.tablaCitas.repaint();
+            });
+
         } catch (Exception ex) {
-            System.err.println("Error en ControladorHistorialCitas: " + ex.getMessage());
-            JOptionPane.showMessageDialog(vistaHistorial, "Error al conectar con la base de datos de citas.", "Error", JOptionPane.ERROR_MESSAGE);
+            System.err.println("Error en ControladorHistorialCita: " + ex.getMessage());
+            JOptionPane.showMessageDialog(
+                vistaHistorial, 
+                "Error al cargar las citas: " + ex.getMessage(), 
+                "Error", 
+                JOptionPane.ERROR_MESSAGE
+            );
         }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // Al presionar el botón "< Volver" desde el historial
         if (e.getSource() == vistaHistorial.btnVolver) {
             JPanel contenedorCentral = vistaPrincipal.getContenidoCentralDinamico();
             contenedorCentral.removeAll();
-
             contenedorCentral.revalidate();
             contenedorCentral.repaint();
         }
-
     }
+    
 }
