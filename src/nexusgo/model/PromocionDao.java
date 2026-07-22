@@ -6,10 +6,8 @@ package nexusgo.model;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Types;
 
 /**
  *
@@ -20,16 +18,29 @@ public class PromocionDao {
     private final Conexion conexion = new Conexion();
 
     public boolean guardarPromocion(Promocion promo) {
-        String sql = "INSERT INTO promociones (id_producto, porcentaje_descuento, fecha_inicio, fecha_fin, estado) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO promociones (id_producto, id_servicio, porcentaje_descuento, fecha_inicio, fecha_fin, estado) VALUES (?, ?, ?, ?, ?, ?)";
         
         try (Connection con = conexion.getConection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             
-            ps.setInt(1, promo.getIdProducto());
-            ps.setDouble(2, promo.getPorcentajeDescuento());
-            ps.setDate(3, new java.sql.Date(promo.getFechaInicio().getTime()));
-            ps.setDate(4, new java.sql.Date(promo.getFechaFin().getTime()));
-            ps.setString(5, promo.getEstado());
+            // Asignar ID Producto (o NULL)
+            if (promo.getIdProducto() != null && promo.getIdProducto() > 0) {
+                ps.setInt(1, promo.getIdProducto());
+            } else {
+                ps.setNull(1, Types.INTEGER);
+            }
+
+            // Asignar ID Servicio (o NULL)
+            if (promo.getIdServicio() != null && promo.getIdServicio() > 0) {
+                ps.setInt(2, promo.getIdServicio());
+            } else {
+                ps.setNull(2, Types.INTEGER);
+            }
+
+            ps.setDouble(3, promo.getPorcentajeDescuento());
+            ps.setDate(4, new java.sql.Date(promo.getFechaInicio().getTime()));
+            ps.setDate(5, new java.sql.Date(promo.getFechaFin().getTime()));
+            ps.setString(6, promo.getEstado());
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -37,5 +48,4 @@ public class PromocionDao {
             return false;
         }
     }
-    
 }
