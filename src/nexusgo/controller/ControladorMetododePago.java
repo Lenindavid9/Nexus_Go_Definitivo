@@ -38,6 +38,7 @@ public class ControladorMetododePago {
     private String clienteIdActual = "";
     private String tipoCliente = "General";
     private int idClienteRealBD = 0; // Guardará el PK (id_usuario) de la BD
+    private Usuario clienteRegistrado = null; // Objeto cliente cuando es Registrado
     
     private UsuarioDao usuarioDao = new UsuarioDao();
     private FacturaDao facturaDao;
@@ -45,7 +46,7 @@ public class ControladorMetododePago {
     private int idCajaActual = 0;
 
     // 1. Constructor Completo
-     public ControladorMetododePago(VistaMetododePago vistaPago, DineroEfectivo vistaEfectivo, List<DetalleCarrito> carrito, double totalVenta, JPanel contenedorCentral, int idCajaActual) {
+    public ControladorMetododePago(VistaMetododePago vistaPago, DineroEfectivo vistaEfectivo, List<DetalleCarrito> carrito, double totalVenta, JPanel contenedorCentral, int idCajaActual) {
         this.vistaPrincipal = vistaPago;
         this.vistaEfectivo = vistaEfectivo;
         this.carritoActual = carrito;
@@ -56,7 +57,7 @@ public class ControladorMetododePago {
     }
 
     // 2. Constructor Sobrecargado (Compatibilidad)
-     public ControladorMetododePago(VistaMetododePago vistaPago, List<DetalleCarrito> carrito, double totalVenta, JPanel contenedorCentral, int idCajaActual) {
+    public ControladorMetododePago(VistaMetododePago vistaPago, List<DetalleCarrito> carrito, double totalVenta, JPanel contenedorCentral, int idCajaActual) {
         this.vistaPrincipal = vistaPago;
         this.vistaEfectivo = new DineroEfectivo();
         this.carritoActual = carrito;
@@ -93,6 +94,7 @@ public class ControladorMetododePago {
                 tipoCliente = "General";
                 clienteIdActual = "";
                 idClienteRealBD = 0;
+                clienteRegistrado = null;
                 vistaPrincipal.getNumId().setText("");
                 vistaPrincipal.alternarModoCliente(false);
             });
@@ -156,7 +158,9 @@ public class ControladorMetododePago {
 
         if (clienteEncontrado != null) {
             clienteIdActual = numIdentificacion;
-            idClienteRealBD = clienteEncontrado.getIdUsuario(); // Extraemos la clave primaria (PK) real
+            idClienteRealBD = clienteEncontrado.getIdUsuario(); 
+            clienteRegistrado = clienteEncontrado; // Guardamos el objeto cliente hallado
+            
             JOptionPane.showMessageDialog(
                 vistaPrincipal, 
                 "Cliente verificado: " + clienteEncontrado.getNombre() + " " + clienteEncontrado.getApellido(), 
@@ -166,6 +170,7 @@ public class ControladorMetododePago {
         } else {
             idClienteRealBD = 0;
             clienteIdActual = "";
+            clienteRegistrado = null;
             JOptionPane.showMessageDialog(vistaPrincipal, "Cliente no encontrado en la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -225,21 +230,24 @@ public class ControladorMetododePago {
             // 1. Instanciar y estructurar el objeto Factura
             Factura factura = new Factura();
             factura.setFechaVenta(new Date());
-            factura.setSubtotal(totalFactura); // Asignar subtotal
+            factura.setSubtotal(totalFactura); 
             factura.setTotal(totalFactura);
             factura.setDetalles(carritoActual);
 
+            // Determinar si hay un cliente registrado activo
+            Usuario clienteParaFactura = ("Registrado".equals(tipoCliente) && idClienteRealBD > 0) ? clienteRegistrado : null;
+
             // Asignar id_cliente según corresponda (0 para Cliente General -> NULL en BD)
-            if ("Registrado".equals(tipoCliente) && idClienteRealBD > 0) {
-                factura.setIdCliente(idClienteRealBD);
+            if (clienteParaFactura != null) {
+                factura.setIdCliente(clienteParaFactura.getIdUsuario());
             } else {
                 factura.setIdCliente(0); 
             }
 
-            // Asignar ID de caja abierta por defecto (1) para cumplir restricción FK
+            // Validar estado de la caja
             if (idCajaActual <= 0 || !new CajaDao().verificarCajaAbierta(idCajaActual)){
                 JOptionPane.showMessageDialog(null, "La caja en estos momentos se encuentra en ESTADO CERRADO.\n" +
-                        "No se puede registrar la venta. Por favor,  verifique con el Supervisor encargado el estado de la caja.",
+                        "No se puede registrar la venta. Por favor, verifique con el Supervisor encargado el estado de la caja.",
                         "Caja no disponible", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -257,17 +265,25 @@ public class ControladorMetododePago {
                         JOptionPane.INFORMATION_MESSAGE
                 );
 
-                // 3. Generar el PDF de la factura
-                String rutaPdf = GeneradorFacturaPdf.generarPdf(factura);
+                // 3. Generar el PDF de la factura pasando los datos del cliente
+                String pdfPath = GeneradorFacturaPdf.generarPdf(factura, clienteParaFactura);
+                final String rutaPdfFinal = pdfPath; // Variable final explícita para las lambdas
 
-                // 4. Instanciar la vista final de la factura
-                VistaFactura vistaFactura = new VistaFactura(factura, carritoActual);
+                // 4. Instanciar la vista final de la factura enviando el cliente actual
+                VistaFactura vistaTemporal;
+                try {
+                    vistaTemporal = new VistaFactura(factura, carritoActual, clienteParaFactura);
+                } catch (NoSuchMethodError | Exception ex) {
+                    vistaTemporal = new VistaFactura(factura, carritoActual);
+                }
+                
+                final VistaFactura vistaFactura = vistaTemporal; // Variable final explícita
 
                 // Evento: Abrir o imprimir PDF
                 vistaFactura.getBtnImprimir().addActionListener(evt -> {
                     try {
-                        if (rutaPdf != null && Desktop.isDesktopSupported()) {
-                            Desktop.getDesktop().open(new File(rutaPdf));
+                        if (rutaPdfFinal != null && Desktop.isDesktopSupported()) {
+                            Desktop.getDesktop().open(new File(rutaPdfFinal));
                         } else {
                             JOptionPane.showMessageDialog(vistaFactura, "No se pudo encontrar el archivo PDF.", "Error", JOptionPane.ERROR_MESSAGE);
                         }
@@ -276,17 +292,24 @@ public class ControladorMetododePago {
                     }
                 });
 
-                // Evento: Enviar correo en segundo plano (Evita congelar Swing)
+                // Evento: Enviar correo en segundo plano
                 vistaFactura.getBtnEnviar().addActionListener(evt -> {
-                    String correo = JOptionPane.showInputDialog(vistaFactura, "Ingrese el correo electrónico del cliente:");
+                    String correoDestino = "";
 
-                    if (correo != null && !correo.trim().isEmpty()) {
+                    if (clienteParaFactura != null && clienteParaFactura.getCorreo() != null && !clienteParaFactura.getCorreo().trim().isEmpty()) {
+                        correoDestino = clienteParaFactura.getCorreo().trim();
+                    } else {
+                        correoDestino = JOptionPane.showInputDialog(vistaFactura, "Ingrese el correo electrónico del cliente para enviar la factura:");
+                    }
+
+                    if (correoDestino != null && !correoDestino.trim().isEmpty()) {
+                        final String correoFinal = correoDestino.trim();
                         vistaFactura.getBtnEnviar().setEnabled(false);
 
                         new SwingWorker<Boolean, Void>() {
                             @Override
                             protected Boolean doInBackground() {
-                                return GeneradorFacturaPdf.enviarCorreo(correo.trim(), rutaPdf);
+                                return GeneradorFacturaPdf.enviarCorreo(correoFinal, rutaPdfFinal);
                             }
 
                             @Override
@@ -295,7 +318,7 @@ public class ControladorMetododePago {
                                 try {
                                     boolean enviado = get();
                                     if (enviado) {
-                                        JOptionPane.showMessageDialog(vistaFactura, "¡Factura enviada por correo exitosamente!", "Correo Enviado", JOptionPane.INFORMATION_MESSAGE);
+                                        JOptionPane.showMessageDialog(vistaFactura, "¡Factura enviada por correo exitosamente a " + correoFinal + "!", "Correo Enviado", JOptionPane.INFORMATION_MESSAGE);
                                     } else {
                                         JOptionPane.showMessageDialog(vistaFactura, "No se pudo enviar el correo. Verifique la configuración SMTP.", "Error de Envío", JOptionPane.ERROR_MESSAGE);
                                     }
@@ -345,6 +368,7 @@ public class ControladorMetododePago {
     private void reiniciarFormulario() {
         clienteIdActual = "";
         idClienteRealBD = 0;
+        clienteRegistrado = null;
         tipoCliente = "General";
         if (vistaPrincipal.getNumId() != null) {
             vistaPrincipal.getNumId().setText("");
