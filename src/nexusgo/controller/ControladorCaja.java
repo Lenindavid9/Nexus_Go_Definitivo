@@ -1,4 +1,3 @@
-
 package nexusgo.controller;
 
 import nexusgo.view.AperturaCierre;
@@ -8,8 +7,8 @@ import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
 import nexusgo.model.Usuario;
 
-public class ControladorCaja implements ActionListener{
-    
+public class ControladorCaja implements ActionListener {
+
     private AperturaCierre vista;
     private CajaDao dao;
     private final Usuario usuarioLogueado;
@@ -26,8 +25,8 @@ public class ControladorCaja implements ActionListener{
         vista.getTxtMontoF().setEnabled(false);
         vista.getBtnCalcular().setEnabled(false);
     }
-    
-    public int getICajaActual(){
+
+    public int getICajaActual() {
         return idCajaActual;
     }
 
@@ -42,7 +41,7 @@ public class ControladorCaja implements ActionListener{
                     vista.getTxtMontoF().setEnabled(true);
                     vista.getBtnCalcular().setEnabled(true);
                 } else {
-                    JOptionPane.showMessageDialog(vista, "No se pudo abrir la caja en la base de datos.", 
+                    JOptionPane.showMessageDialog(vista, "No se pudo abrir la caja en la base de datos.",
                             "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }

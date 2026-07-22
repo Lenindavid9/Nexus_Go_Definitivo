@@ -18,12 +18,13 @@ import java.util.List;
  * @author USUARIO
  */
 public class FacturaDao {
-    
+
     private final Conexion conexion = new Conexion();
 
     /**
-     * Guarda una nueva factura en la base de datos junto con el detalle de sus productos.
-     * Utiliza una transacción explícita (commit/rollback) para garantizar la consistencia.
+     * Guarda una nueva factura en la base de datos junto con el detalle de sus
+     * productos. Utiliza una transacción explícita (commit/rollback) para
+     * garantizar la consistencia.
      */
     public boolean guardarFactura(Factura factura) {
         String sqlFactura = "INSERT INTO facturas (id_cita, id_cliente, id_caja, subtotal, descuento_aplicado, total) VALUES (?, ?, ?, ?, ?, ?)";
@@ -121,9 +122,15 @@ public class FacturaDao {
             return false;
         } finally {
             try {
-                if (rsKeys != null) rsKeys.close();
-                if (psFactura != null) psFactura.close();
-                if (psDetalle != null) psDetalle.close();
+                if (rsKeys != null) {
+                    rsKeys.close();
+                }
+                if (psFactura != null) {
+                    psFactura.close();
+                }
+                if (psDetalle != null) {
+                    psDetalle.close();
+                }
                 if (con != null) {
                     con.setAutoCommit(true);
                     con.close();
@@ -135,18 +142,19 @@ public class FacturaDao {
     }
 
     /**
-     * Obtiene el listado de facturas asociadas a un cliente para la vista Historial de Pagos.
+     * Obtiene el listado de facturas asociadas a un cliente para la vista
+     * Historial de Pagos.
      */
     public List<Factura> obtenerFacturasPorCliente(int idCliente) {
         List<Factura> lista = new ArrayList<>();
-        String sql = "SELECT f.id_factura, f.id_cita, f.id_cliente, f.id_caja, " +
-                    "f.fecha_emision, f.subtotal, f.descuento_aplicado, f.total, " +
-                    "s.nombre_servicio " +
-                    "FROM facturas f " +
-                    "LEFT JOIN citas c ON f.id_cita = c.id_cita " +
-                    "LEFT JOIN servicios s ON c.id_servicio = s.id_servicio " +
-                    "WHERE f.id_cliente = ? " +
-                    "ORDER BY f.fecha_emision DESC";
+        String sql = "SELECT f.id_factura, f.id_cita, f.id_cliente, f.id_caja, "
+                + "f.fecha_emision, f.subtotal, f.descuento_aplicado, f.total, "
+                + "s.nombre_servicio "
+                + "FROM facturas f "
+                + "LEFT JOIN citas c ON f.id_cita = c.id_cita "
+                + "LEFT JOIN servicios s ON c.id_servicio = s.id_servicio "
+                + "WHERE f.id_cliente = ? "
+                + "ORDER BY f.fecha_emision DESC";
 
         Connection con = null;
         PreparedStatement ps = null;
@@ -154,7 +162,9 @@ public class FacturaDao {
 
         try {
             con = conexion.getConection();
-            if (con == null) return lista;
+            if (con == null) {
+                return lista;
+            }
 
             ps = con.prepareStatement(sql);
             ps.setInt(1, idCliente);
@@ -166,10 +176,10 @@ public class FacturaDao {
                 f.setIdVenta(rs.getInt("id_cita"));
                 f.setIdCliente(rs.getInt("id_cliente"));
                 f.setIdCaja(rs.getInt("id_caja"));
-                
+
                 // Mapear fecha SQL a java.util.Date
                 f.setFechaEmision(rs.getTimestamp("fecha_emision"));
-                
+
                 f.setSubtotal(rs.getDouble("subtotal"));
                 f.setDescuentoAplicado(rs.getDouble("descuento_aplicado"));
                 f.setTotal(rs.getDouble("total"));
@@ -189,9 +199,15 @@ public class FacturaDao {
             e.printStackTrace();
         } finally {
             try {
-                if (rs != null) rs.close();
-                if (ps != null) ps.close();
-                if (con != null) con.close();
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (con != null) {
+                    con.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -204,10 +220,10 @@ public class FacturaDao {
      */
     private List<DetalleCarrito> obtenerDetallesProductos(int idFactura, Connection con) {
         List<DetalleCarrito> detalles = new ArrayList<>();
-        String sql = "SELECT df.id_producto, p.nombre_producto, df.cantidad, df.precio_unitario_historico " +
-                     "FROM detalle_factura_productos df " +
-                     "INNER JOIN productos p ON df.id_producto = p.id_producto " +
-                     "WHERE df.id_factura = ?";
+        String sql = "SELECT df.id_producto, p.nombre_producto, df.cantidad, df.precio_unitario_historico "
+                + "FROM detalle_factura_productos df "
+                + "INNER JOIN productos p ON df.id_producto = p.id_producto "
+                + "WHERE df.id_factura = ?";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, idFactura);
@@ -232,23 +248,15 @@ public class FacturaDao {
      * Método auxiliar para obtener el ID de la última caja registrada.
      */
     private int obtenerUltimaCajaActiva(Connection con) {
-        String sql = "SELECT id FROM caja ORDER BY id DESC LIMIT 1";
-        try (PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        // Consultar la caja actualmente ABIERTA en la tabla real 'cajas'
+        String sql = "SELECT id_caja FROM cajas WHERE estado_caja = 'ABIERTA' ORDER BY id_caja DESC LIMIT 1";
+        try (PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(1);
             }
         } catch (SQLException e) {
-            String sqlFallback = "SELECT id_caja FROM cajas ORDER BY id_caja DESC LIMIT 1";
-            try (PreparedStatement psF = con.prepareStatement(sqlFallback);
-                 ResultSet rsF = psF.executeQuery()) {
-                if (rsF.next()) {
-                    return rsF.getInt(1);
-                }
-            } catch (SQLException ex) {
-                System.err.println("⚠️ No se pudo obtener el ID de caja automático: " + ex.getMessage());
-            }
+            System.err.println("⚠️ No se pudo obtener el ID de caja automático: " + e.getMessage());
         }
-        return 0;
+        return 0; // Retorna 0 para enviar NULL a la BD
     }
 }
