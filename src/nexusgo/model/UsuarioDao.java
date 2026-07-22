@@ -249,4 +249,37 @@ public class UsuarioDao {
     }
     return lista;
 }
+    
+    public Usuario obtenerPorId(int idUsuario) {
+        String sql = """
+                     SELECT u.*, r.nombre_rol AS rol 
+                     FROM usuarios u 
+                     INNER JOIN roles r ON u.id_rol = r.id_rol 
+                     WHERE u.id_usuario = ?
+                     """;
+
+        Usuario usuario = null;
+
+        try (Connection con = conexion.getConection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idUsuario);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    usuario = new Usuario();
+                    usuario.setIdUsuario(rs.getInt("id_usuario"));
+                    usuario.setIdentificacion(rs.getInt("numero_identificacion"));
+                    usuario.setNombre(rs.getString("nombre"));
+                    usuario.setApellido(rs.getString("apellido"));
+                    usuario.setTipoDocumento(rs.getString("tipo_documento"));
+                    usuario.setCorreo(rs.getString("correo"));
+                    usuario.setRol(rs.getString("rol"));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error en UsuarioDao.obtenerPorId: " + e.getMessage());
+        }
+        return usuario;
+    }
 }
