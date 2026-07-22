@@ -193,22 +193,33 @@ public class UsuarioDao {
     }
 
     public List<Producto> listarPromociones() {
-        List<Producto> lista = new ArrayList<>();
-        String sql = """
-                 SELECT p.* 
-                 FROM productos p
-                 INNER JOIN promociones pr ON p.id_producto = pr.id_producto
-                 WHERE pr.estado = 'ACTIVA'
-                 """;
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        List<Producto> promociones = new ArrayList<>();
+        String sql = "SELECT p.id_producto, p.nombre_producto, p.precio_venta, p.url_imagen, pr.porcentaje_descuento "
+                   + "FROM promociones pr "
+                   + "INNER JOIN productos p ON pr.id_producto = p.id_producto "
+                   + "WHERE pr.estado = 'ACTIVA'";
+
+        try (Connection con = conexion.getConection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                // Mapear campos de Producto...
+                Producto prod = new Producto();
+                prod.setIdProducto(rs.getInt("id_producto"));
+                prod.setNombreProducto(rs.getString("nombre_producto"));
+                
+                // Aplicar el descuento al precio de venta
+                double precioOriginal = rs.getDouble("precio_venta");
+                double porcentaje = rs.getDouble("porcentaje_descuento");
+                prod.setPrecioVenta(precioOriginal - (precioOriginal * (porcentaje / 100.0)));
+                
+                prod.setUrlImagen(rs.getString("url_imagen"));
+                promociones.add(prod);
             }
         } catch (SQLException e) {
-            System.err.println("❌ Error al listar promociones desde ProductoDao: " + e.getMessage());
+            System.err.println("Error al listar promociones: " + e.getMessage());
         }
-        return lista;
+        return promociones;
     }
 
     public Usuario obtenerPorId(int idUsuario) {
