@@ -36,11 +36,18 @@ import nexusgo.view.VistaReservarCitas;
  */
 public class ControladorPrincipalCliente implements ActionListener, MouseListener {
 
-   private final VistaPrincipalCliente vista;
+    private final VistaPrincipalCliente vista;
     private final ProductoDao productoDAO;
     private List<Producto> listaProductos;
     private List<Producto> listaPromociones;
     private final int idUsuarioLogueado;
+
+    // --- NUEVAS REFERENCIAS DE CONTROLADORES SECUNDARIOS ---
+    // (Al guardar el controlador como atributo, evitamos que el Garbage Collector lo elimine)
+    private ControladorReservarCita controladorReservarCita;
+    private ControladorHistorialCita controladorHistorialCita;
+    private ControladorHistorialPagos controladorHistorialPagos;
+    private ControladorDetallesProducto controladorDetallesProducto;
 
     public ControladorPrincipalCliente(VistaPrincipalCliente vista, int idUsuarioLogueado) {
         this.vista = vista;
@@ -80,7 +87,8 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
     }
 
     /**
-     * Consulta la Base de Datos mediante el DAO y puebla los grids de Productos y Promociones.
+     * Consulta la Base de Datos mediante el DAO y puebla los grids de Productos
+     * y Promociones.
      */
     public void cargarCatalogo() {
         try {
@@ -167,7 +175,6 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
     }
 
     // --- MANEJO DE EVENTOS DE MOUSE (CLICK EN TARJETAS DE PRODUCTOS) ---
-
     @Override
     public void mouseClicked(MouseEvent e) {
         Object origen = e.getSource();
@@ -190,7 +197,8 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
 
                 if (productoSeleccionado != null) {
                     VistaProductoDetalles panelDetalle = new VistaProductoDetalles();
-                    new ControladorDetallesProducto(panelDetalle, productoSeleccionado, this);
+                    // Se asigna al atributo de la clase para evitar la recolección de basura
+                    this.controladorDetallesProducto = new ControladorDetallesProducto(panelDetalle, productoSeleccionado, this);
 
                     JPanel contenedor = vista.getContenidoCentralDinamico();
                     if (contenedor != null) {
@@ -207,13 +215,23 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
         }
     }
 
-    @Override public void mousePressed(MouseEvent e) {}
-    @Override public void mouseReleased(MouseEvent e) {}
-    @Override public void mouseEntered(MouseEvent e) {}
-    @Override public void mouseExited(MouseEvent e) {}
+    @Override
+    public void mousePressed(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+    }
 
     // --- MANEJO DE BOTONES (ACTION LISTENERS) ---
-
     @Override
     public void actionPerformed(ActionEvent e) {
         Object origen = e.getSource();
@@ -245,10 +263,10 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
     }
 
     // --- MÉTODOS DE NAVEGACIÓN Y CARGA DE VISTAS ---
-
     public void abrirVistaHistorialCitas() {
         VistaHistorialCita panelHistorial = new VistaHistorialCita();
-        new ControladorHistorialCita(panelHistorial, vista, this.idUsuarioLogueado);
+        // Se asigna al atributo de la clase
+        this.controladorHistorialCita = new ControladorHistorialCita(panelHistorial, vista, this.idUsuarioLogueado);
 
         JPanel contenedor = vista.getContenidoCentralDinamico();
         if (contenedor != null) {
@@ -271,7 +289,8 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
             usuario.setIdUsuario(this.idUsuarioLogueado);
         }
 
-        new ControladorHistorialPagos(panelPagos, usuario);
+        // Se asigna al atributo de la clase
+        this.controladorHistorialPagos = new ControladorHistorialPagos(panelPagos, usuario);
 
         JPanel contenedor = vista.getContenidoCentralDinamico();
         if (contenedor != null) {
@@ -285,7 +304,9 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
 
     private void abrirVistaReservarCitas() {
         VistaReservarCitas panelReserva = new VistaReservarCitas();
-        new ControladorReservarCita(panelReserva, vista, this.idUsuarioLogueado);
+
+        // ¡SOLUCIÓN!: Se almacena en la variable global/atributo de la clase
+        this.controladorReservarCita = new ControladorReservarCita(panelReserva, vista, this.idUsuarioLogueado);
 
         JPanel contenedor = vista.getContenidoCentralDinamico();
         if (contenedor != null) {

@@ -23,13 +23,14 @@ import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import nexusgo.model.DetalleCarrito;
 import nexusgo.model.Factura;
+import nexusgo.model.Usuario;
 
 /**
  * @author INGRID
  */
 public class VistaFactura extends JPanel {
     
-   private JPanel principal, infoFactura, pnlOpciones, pnlDatos, 
+    private JPanel principal, infoFactura, pnlOpciones, pnlDatos, 
             tablaC, pnlProductosContenedor, linea1, linea2, pnlTotal;
     private JLabel lblEmpresa, lblGiro, lblOperario, lblCliente, lblFecha, lblEstado, SoP, 
             Cant, PrecU, total, lblFelicidades, lbltxtPagar, lblMonto, 
@@ -40,17 +41,22 @@ public class VistaFactura extends JPanel {
     private final Color COLOR_DORADO = new Color(184, 149, 78);
     private final Color COLOR_GRIS_CLARITO = new Color(220, 220, 220);
 
-    // Constructor que recibe la Factura y el Carrito desde el Controlador
+    // 1. Nuevo constructor principal que recibe también el objeto cliente
+    public VistaFactura(Factura factura, List<DetalleCarrito> carrito, Usuario cliente) {
+        crearVistaFactura(factura, carrito, cliente);
+    }
+
+    // 2. Constructor para mantener compatibilidad con 2 parámetros
     public VistaFactura(Factura factura, List<DetalleCarrito> carrito) {
-        crearVistaFactura(factura, carrito);
+        this(factura, carrito, null);
     }
 
-    // Constructor opcional por defecto
+    // 3. Constructor por defecto
     public VistaFactura() {
-        this(null, null);
+        this(null, null, null);
     }
 
-    public JPanel crearVistaFactura(Factura factura, List<DetalleCarrito> carrito) {
+    public JPanel crearVistaFactura(Factura factura, List<DetalleCarrito> carrito, Usuario cliente) {
         this.setLayout(new BorderLayout());
         
         principal = new JPanel(new GridLayout(1, 2, 40, 0));
@@ -77,7 +83,7 @@ public class VistaFactura extends JPanel {
         pnlDatos = new JPanel();
         pnlDatos.setLayout(new BoxLayout(pnlDatos, BoxLayout.Y_AXIS));
         pnlDatos.setOpaque(false);
-        pnlDatos.setMaximumSize(new Dimension(450, 100));
+        pnlDatos.setMaximumSize(new Dimension(480, 140)); 
         pnlDatos.setAlignmentX(CENTER_ALIGNMENT);
         
         // Formatear la fecha actual o de la factura
@@ -88,11 +94,29 @@ public class VistaFactura extends JPanel {
 
         lblOperario = new JLabel("Operario: Nexus Admin");
         lblOperario.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        lblCliente = new JLabel("Cliente: Cliente General");
+
+        // Determinar dinámicamente los datos del cliente
+        String textoCliente = "Cliente: Cliente General";
+        String textoTipoCliente = "Cliente General";
+
+        if (cliente != null) {
+            String nombreCompleto = (cliente.getNombre() != null ? cliente.getNombre() : "") + " " + 
+                                    (cliente.getApellido() != null ? cliente.getApellido() : "");
+            
+            // Conversión directa de int a String
+            String doc = String.valueOf(cliente.getIdentificacion());
+            
+            textoCliente = "Cliente: " + nombreCompleto.trim() + " (" + doc + ")";
+            textoTipoCliente = "Cliente Registrado";
+        }
+
+        lblCliente = new JLabel(textoCliente);
         lblCliente.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        
         lblFecha = new JLabel("Fecha/Hora: " + fechaTexto);
         lblFecha.setFont(new Font("SansSerif", Font.PLAIN, 16));
-        lblEstado = new JLabel("Cliente General");
+        
+        lblEstado = new JLabel("Tipo: " + textoTipoCliente);
         lblEstado.setFont(new Font("SansSerif", Font.PLAIN, 16));
 
         lblOperario.setAlignmentX(LEFT_ALIGNMENT);
@@ -297,14 +321,14 @@ public class VistaFactura extends JPanel {
     public void setClienteRegistrado(String nombre, String numeroId) {
         if (lblCliente != null && lblEstado != null) {
             lblCliente.setText("Cliente: " + nombre + " / " + numeroId);
-            lblEstado.setText("Cliente Registrado");
+            lblEstado.setText("Tipo: Cliente Registrado");
         }
     }
 
     public void setClienteGeneral() {
         if (lblCliente != null && lblEstado != null) {
-            lblCliente.setText("Cliente General");
-            lblEstado.setText("Cliente General");
+            lblCliente.setText("Cliente: Cliente General");
+            lblEstado.setText("Tipo: Cliente General");
         }
     }
     
@@ -327,4 +351,5 @@ public class VistaFactura extends JPanel {
     public JTextArea getTxtNota() {
         return txtNota;
     }
+   
 }
