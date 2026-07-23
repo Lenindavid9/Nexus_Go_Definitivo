@@ -10,10 +10,11 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.MouseListener;
+import java.io.File;
+import java.net.URL;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -226,24 +227,33 @@ public class VistaPrincipalCliente extends JFrame {
         if (listener != null) lblImg.addMouseListener(listener);
 
         String rutaLimpia = (rutaImagen != null) ? rutaImagen.trim() : "";
-        if (rutaLimpia.isEmpty()) {
-            rutaLimpia = "/nexusgo/img/default.jpg";
-        } else {
-            if (rutaLimpia.startsWith("src/")) rutaLimpia = rutaLimpia.substring(4);
-            if (!rutaLimpia.startsWith("/")) rutaLimpia = "/" + rutaLimpia;
-            if (!rutaLimpia.startsWith("/nexusgo/")) rutaLimpia = "/nexusgo" + rutaLimpia;
-        }
+        // Nos quedamos solo con el nombre del archivo (sin importar qué carpeta
+        // traiga por delante en la BD, como "img/productos/x.jpg" o "src/img/x.jpg").
+        String nombreArchivo = rutaLimpia.isEmpty() ? "default.jpg" : new File(rutaLimpia).getName();
 
         ImageIcon iconoOriginal = null;
-        try {
-            java.net.URL imgURL = getClass().getResource(rutaLimpia);
+
+        /* Las imágenes subidas desde el panel de inventario quedan guardadas
+        en disco, en la carpeta "img/" junto al programa (no dentro del
+        proyecto compilado), así que se buscan primero ahí como archivo real.*/
+        File archivoEnDisco = new File("img", nombreArchivo);
+        if (archivoEnDisco.exists()) {
+            iconoOriginal = new ImageIcon(archivoEnDisco.getPath());
+        }
+
+        /* Si no está en disco, probamos como recurso interno del proyecto
+        (por si la imagen viene empaquetada dentro de src/nexusgo/img).*/
+        if (iconoOriginal == null || iconoOriginal.getIconWidth() <= 0) {
+            URL imgURL = getClass().getResource("/nexusgo/img/" + nombreArchivo);
             if (imgURL != null) {
                 iconoOriginal = new ImageIcon(imgURL);
-            } else {
-                iconoOriginal = new ImageIcon("src" + rutaLimpia);
             }
-        } catch (Exception ex) {
-            System.err.println("❌ Error al cargar imagen: " + rutaLimpia);
+        }
+
+        // Si nada de lo anterior funcionó, usamos la imagen por defecto.
+        if (iconoOriginal == null || iconoOriginal.getIconWidth() <= 0) {
+            URL defaultURL = getClass().getResource("/nexusgo/img/default.jpg");
+            iconoOriginal = (defaultURL != null) ? new ImageIcon(defaultURL) : null;
         }
 
         if (iconoOriginal != null && iconoOriginal.getImage() != null && iconoOriginal.getIconWidth() > 0) {
