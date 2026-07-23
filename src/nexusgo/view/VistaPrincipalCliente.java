@@ -10,10 +10,11 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.MouseListener;
+import java.io.File;
+import java.net.URL;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -34,7 +35,7 @@ public class VistaPrincipalCliente extends JFrame {
     private JLabel fondoMarmol;
     private JPanel panelFlotanteBlanco;
     private JPanel contenidoCentralDinamico;
-    
+
     // Grids independientes para cada catálogo
     private JPanel panelGridProductos;
     private JPanel panelGridPromociones;
@@ -66,8 +67,12 @@ public class VistaPrincipalCliente extends JFrame {
         sidebar = new VistaBarraLateral();
         sidebar.setPreferredSize(new Dimension(80, 650));
         sidebar.setBackground(Color.WHITE);
-        if (sidebar.bInventario != null) sidebar.bInventario.setVisible(false);
-        if (sidebar.misCitas != null) sidebar.misCitas.setVisible(true);
+        if (sidebar.bInventario != null) {
+            sidebar.bInventario.setVisible(false);
+        }
+        if (sidebar.misCitas != null) {
+            sidebar.misCitas.setVisible(true);
+        }
 
         panelFlotanteBlanco = new JPanel(new BorderLayout());
         panelFlotanteBlanco.setOpaque(false);
@@ -147,25 +152,25 @@ public class VistaPrincipalCliente extends JFrame {
         // ENSAMBLADO VERTICAL ORDENADO
         contenidoCentralDinamico.add(panelHeader);
         contenidoCentralDinamico.add(Box.createVerticalStrut(15));
-        
+
         contenidoCentralDinamico.add(panelGridProductos);
         contenidoCentralDinamico.add(Box.createVerticalStrut(20));
-        
+
         contenidoCentralDinamico.add(btnReservarCita);
         contenidoCentralDinamico.add(Box.createVerticalStrut(20));
-        
+
         // 1. Promociones
         contenidoCentralDinamico.add(panelEtiquetaPromo);
         contenidoCentralDinamico.add(Box.createVerticalStrut(15));
         contenidoCentralDinamico.add(panelGridPromociones);
         contenidoCentralDinamico.add(Box.createVerticalStrut(25));
-        
+
         // 2. Combos
         contenidoCentralDinamico.add(panelEtiquetaCombos);
         contenidoCentralDinamico.add(Box.createVerticalStrut(15));
         contenidoCentralDinamico.add(panelGridCombos);
         contenidoCentralDinamico.add(Box.createVerticalStrut(25));
-        
+
         // 3. Servicios
         contenidoCentralDinamico.add(panelEtiquetaServicios);
         contenidoCentralDinamico.add(Box.createVerticalStrut(15));
@@ -218,32 +223,78 @@ public class VistaPrincipalCliente extends JFrame {
         tarjeta.setBorder(new EmptyBorder(10, 10, 10, 10));
         tarjeta.setName(idStr);
         tarjeta.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        if (listener != null) tarjeta.addMouseListener(listener);
+        if (listener != null) {
+            tarjeta.addMouseListener(listener);
+        }
 
         JLabel lblImg = new JLabel();
         lblImg.setAlignmentX(CENTER_ALIGNMENT);
         lblImg.setName(idStr);
-        if (listener != null) lblImg.addMouseListener(listener);
-
-        String rutaLimpia = (rutaImagen != null) ? rutaImagen.trim() : "";
-        if (rutaLimpia.isEmpty()) {
-            rutaLimpia = "/nexusgo/img/default.jpg";
-        } else {
-            if (rutaLimpia.startsWith("src/")) rutaLimpia = rutaLimpia.substring(4);
-            if (!rutaLimpia.startsWith("/")) rutaLimpia = "/" + rutaLimpia;
-            if (!rutaLimpia.startsWith("/nexusgo/")) rutaLimpia = "/nexusgo" + rutaLimpia;
+        if (listener != null) {
+            lblImg.addMouseListener(listener);
         }
 
+        String rutaLimpia = (rutaImagen != null) ? rutaImagen.trim() : "";
+
+        /* Nos quedamos solo con el nombre del archivo (sin importar qué carpeta
+        traiga por delante en la BD, como "img/productos/x.jpg" o "src/img/x.jpg").*/
+        String nombreArchivo = rutaLimpia.isEmpty() ? "default.jpg" : new File(rutaLimpia).getName();
+
         ImageIcon iconoOriginal = null;
-        try {
-            java.net.URL imgURL = getClass().getResource(rutaLimpia);
+
+        /* Las imágenes subidas desde el panel de inventario quedan guardadas
+        en disco, en la carpeta "img/" junto al sistema (no dentro del
+        proyecto), así que se buscan primero ahí como archivo real.*/
+        File archivoEnDisco = new File("img", nombreArchivo);
+
+        // Se verifica si el archivo de imagen realmente existe en la ubicación indicada dentro del disco.
+        if (archivoEnDisco.exists()) {
+
+            /* Si el archivo fue encontrado, se crea un objeto ImageIcon
+            utilizando la ruta del archivo. Este objeto permitirá
+            mostrar la imagen*/
+            iconoOriginal = new ImageIcon(archivoEnDisco.getPath());
+        }
+
+        /* Si no está en disco, probamos como recurso interno del proyecto
+        (por si la imagen viene empaquetada dentro de src/nexusgo/img).
+        
+        Se verifica si la imagen aún no ha sido cargada correctamente.
+
+        La condición será verdadera en dos casos:
+
+        Priero Si iconoOriginal es null, significa que todavía no existe ninguna imagen cargada.
+        
+        segundo Si el ancho de la imagen es menor o igual a cero, significa
+        que la imagen no pudo cargarse correctamente.*/
+        if (iconoOriginal == null || iconoOriginal.getIconWidth() <= 0) {
+            
+             /* Se intenta como "localizar" la imagen dentro de los recursos
+             internos del proyecto utilizando su nombre de archivo.*/
+            URL imgURL = getClass().getResource("/nexusgo/img/" + nombreArchivo);
+            
+            // Se verifica que la imagen haya sido encontrada.
             if (imgURL != null) {
+                
+                // Si la imagen existe dentro del proyecto, se crea un nuevo objeto
                 iconoOriginal = new ImageIcon(imgURL);
-            } else {
-                iconoOriginal = new ImageIcon("src" + rutaLimpia);
             }
-        } catch (Exception ex) {
-            System.err.println("❌ Error al cargar imagen: " + rutaLimpia);
+        }
+
+        // Si nada de lo anterior funcionó, usamos la imagen por defecto.
+        if (iconoOriginal == null || iconoOriginal.getIconWidth() <= 0) {
+            
+            //Se usa la imagen predeterminada.
+            URL defaultURL = getClass().getResource("/nexusgo/img/default.jpg");
+            
+            /*se utiliza el operador ternario para comprobar si la imagen predeterminada fue encontrada.
+            (RECUERDEN QUE!! (? :), que es una forma abreviada de escribir un if...else.)
+            Si defaultURL contiene una ruta válida, se crea un nuevo
+            objeto ImageIcon con esa imagen.
+            
+            Si no se encuentra el archivo, la variable quedará con
+            el valor null.*/
+            iconoOriginal = (defaultURL != null) ? new ImageIcon(defaultURL) : null;
         }
 
         if (iconoOriginal != null && iconoOriginal.getImage() != null && iconoOriginal.getIconWidth() > 0) {
@@ -259,14 +310,18 @@ public class VistaPrincipalCliente extends JFrame {
         lblNombre.setFont(new Font("Segoe UI", Font.BOLD, 12));
         lblNombre.setAlignmentX(CENTER_ALIGNMENT);
         lblNombre.setName(idStr);
-        if (listener != null) lblNombre.addMouseListener(listener);
+        if (listener != null) {
+            lblNombre.addMouseListener(listener);
+        }
 
         JLabel lblPrecio = new JLabel(String.format("$%.2f", precio), SwingConstants.CENTER);
         lblPrecio.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblPrecio.setForeground(new Color(40, 140, 40));
         lblPrecio.setAlignmentX(CENTER_ALIGNMENT);
         lblPrecio.setName(idStr);
-        if (listener != null) lblPrecio.addMouseListener(listener);
+        if (listener != null) {
+            lblPrecio.addMouseListener(listener);
+        }
 
         tarjeta.add(lblImg);
         tarjeta.add(Box.createVerticalStrut(8));

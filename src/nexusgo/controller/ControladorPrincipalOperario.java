@@ -79,7 +79,8 @@ public class ControladorPrincipalOperario implements ActionListener {
         // 1. Instanciar vista y vincular controlador del PdV
         VistaPdV vistaPdV = new VistaPdV();
         JPanel panelPdV = vistaPdV.VistaNexus();
-        new ControladorPdV(vistaPdV);
+        ControladorPdV controlPuntoDeVenta = new ControladorPdV(vistaPdV);
+        controlPuntoDeVenta.setUsuarioLogueado(usuarioLogueado);
 
         // 2. Consultar y renderizar catálogo de productos
         List<Producto> listaProductos = productoDao.listar();

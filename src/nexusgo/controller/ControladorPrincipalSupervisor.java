@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import nexusgo.model.CajaDao;
 import nexusgo.model.Herramientas;
@@ -39,7 +40,7 @@ import nexusgo.view.VistaProgramarMantenimiento;
  */
 public class ControladorPrincipalSupervisor implements ActionListener {
 
-   private final VistaPrincipalSupervisor vistaPrincipal;
+    private final VistaPrincipalSupervisor vistaPrincipal;
     private VistaInventarioSupervisor panelInventario;
     private VistaProgramarMantenimiento panelProgramarMantenimiento;
 
@@ -72,7 +73,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
             // Verificar si ya existe una caja abierta (de una sesión anterior)
             this.idCajaActual = cajaDao.obtenerCajaAbierta();
-            
+
             // Si la caja sigue abierta debe mostrar su monto de apertura
             if (this.idCajaActual > 0) {
                 double montoApertura = cajaDao.obtenerMontoApertura(this.idCajaActual);
@@ -224,13 +225,22 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 listarHerramientasEnTabla();
             }
 
-            // --- ACCIÓN AL PRESIONAR BOTÓN CAJA ---
+            //  ACCIÓN AL PRESIONAR BOTÓN CAJA
             if (e.getSource() == vistaPrincipal.btnCaja) {
                 cambiarPanelCentral(this.panelAperturaCierre);
             }
 
-            // --- LÓGICA DE APERTURA / CIERRE DE CAJA ---
+            //  LÓGICA DE APERTURA / CIERRE DE CAJA 
             if (e.getSource() == panelAperturaCierre.getBtnApertura()) {
+
+                /* Bloquear una nueva apertura si ya existe una caja abierta,
+                solo se puede volver a abrir después de hacer el cierre.*/
+                if (idCajaActual > 0) {
+                    JOptionPane.showMessageDialog(vistaPrincipal,"Ya existe una caja abierta. Debe realizar el cierre antes de registrar una nueva apertura.",
+                            "Caja ya abierta", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
                 String montoStr = panelAperturaCierre.getTxtMontoInicial().getText();
                 if (!montoStr.trim().isEmpty()) {
                     double monto;
@@ -254,7 +264,10 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                         panelAperturaCierre.getLbltxtMontoA().setText(String.format("$%,.2f", monto));
                         JOptionPane.showMessageDialog(vistaPrincipal, "Apertura de caja realizada con: $" + String.format("%,.2f", monto),
                                 "Caja Registrada", JOptionPane.INFORMATION_MESSAGE);
-                        vistaPrincipal.repaint();
+                        SwingUtilities.invokeLater(() -> {
+                            vistaPrincipal.getContenidoCentralDinamico().revalidate();
+                            vistaPrincipal.getContenidoCentralDinamico().repaint();
+                        });
                     } else {
                         JOptionPane.showMessageDialog(vistaPrincipal, "No se pudo registrar la apertura de caja en la base de datos.",
                                 "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
@@ -271,6 +284,10 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                             "Cierre de Caja", JOptionPane.INFORMATION_MESSAGE);
                     idCajaActual = 0;
                     panelAperturaCierre.getLbltxtMontoA().setText("");
+                    SwingUtilities.invokeLater(() -> {
+                        vistaPrincipal.getContenidoCentralDinamico().revalidate();
+                        vistaPrincipal.getContenidoCentralDinamico().repaint();
+                    });
                 } else if (idCajaActual <= 0) {
                     JOptionPane.showMessageDialog(vistaPrincipal, "No hay ninguna caja abierta para cerrar.",
                             "Atención", JOptionPane.WARNING_MESSAGE);
@@ -299,7 +316,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
         return Double.parseDouble(limpio);
     }
 
-   private void ejecutarGuardadoProgramacion() {
+    private void ejecutarGuardadoProgramacion() {
         try {
             // 1. Obtener fecha directamente del selector gráfico
             Date fechaCalendario = panelProgramarMantenimiento.selectorFecha.getDate();
@@ -331,7 +348,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             // 3. Obtener textos del formulario
             String tipoMantenimiento = panelProgramarMantenimiento.cbTipoMantenimiento.getSelectedItem().toString();
             String fallaProblema = panelProgramarMantenimiento.txtFallaProblema.getText().trim();
-            String observaciones = (panelProgramarMantenimiento.txtObservaciones != null) 
+            String observaciones = (panelProgramarMantenimiento.txtObservaciones != null)
                     ? panelProgramarMantenimiento.txtObservaciones.getText().trim() : "";
 
             File imagenAdjunta = panelProgramarMantenimiento.getArchivoImagenSeleccionado();
@@ -357,11 +374,11 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
             if (calFechaElegida.before(calLimiteMañana)) {
                 JOptionPane.showMessageDialog(panelProgramarMantenimiento,
-                        "Excepción de Agenda:\n\n" +
-                        "• No se permite programar mantenimientos para fechas pasadas.\n" +
-                        "• No se permite programar mantenimientos para hoy.\n" +
-                        "• No se permite programar mantenimientos para mañana.\n\n" +
-                        "La agenda requiere un margen mínimo de 48 horas. Seleccione a partir de pasado mañana.",
+                        "Excepción de Agenda:\n\n"
+                        + "• No se permite programar mantenimientos para fechas pasadas.\n"
+                        + "• No se permite programar mantenimientos para hoy.\n"
+                        + "• No se permite programar mantenimientos para mañana.\n\n"
+                        + "La agenda requiere un margen mínimo de 48 horas. Seleccione a partir de pasado mañana.",
                         "Fecha No Permitida", JOptionPane.WARNING_MESSAGE);
                 return;
             }
@@ -380,11 +397,11 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             if (guardadoExitoso) {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                 JOptionPane.showMessageDialog(panelProgramarMantenimiento,
-                        "¡Mantenimiento programado con éxito!\n\n" +
-                        "Herramienta: " + nombreHerramientaSeleccionada + "\n" +
-                        "Tipo: " + tipoMantenimiento + "\n" +
-                        "Fecha Agendada: " + sdf.format(fechaFinalProgramada) + "\n" +
-                        "Imagen Adjunta: " + nombreImagen,
+                        "¡Mantenimiento programado con éxito!\n\n"
+                        + "Herramienta: " + nombreHerramientaSeleccionada + "\n"
+                        + "Tipo: " + tipoMantenimiento + "\n"
+                        + "Fecha Agendada: " + sdf.format(fechaFinalProgramada) + "\n"
+                        + "Imagen Adjunta: " + nombreImagen,
                         "NEXUS GO - Agenda Exitosa", JOptionPane.INFORMATION_MESSAGE);
 
                 limpiarCamposProgramacion();

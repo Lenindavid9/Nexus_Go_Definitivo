@@ -25,6 +25,13 @@ public class ControladorPdV implements ActionListener {
     // ID de la caja abierta con la que se está operando (0 = ninguna)
     private int idCajaActual = 0;
 
+    // Usuario que inició sesión (el operario/supervisor que está haciendo la venta)
+    private nexusgo.model.Usuario usuarioLogueado = null;
+
+    public void setUsuarioLogueado(nexusgo.model.Usuario usuarioLogueado) {
+        this.usuarioLogueado = usuarioLogueado;
+    }
+
     // Estado del Carrito y Vista
     private final List<DetalleCarrito> carrito = new ArrayList<>();
     private final List<VistaPdV.TarjetaProductoComponentes> componentesTarjetas = new ArrayList<>();
@@ -143,6 +150,7 @@ public class ControladorPdV implements ActionListener {
 
             // 2. Instanciar su controlador pasándole la vista, los datos de la venta y el contenedor
             ControladorMetododePago controladorPago = new ControladorMetododePago(vistaPago, carrito, totalVenta, obtenerContenedorObjetivo(), idCajaActual);
+            controladorPago.setOperarioLogueado(usuarioLogueado); 
 
             // 3. Redireccionar a la pantalla de selección de Método de Pago
             cambiarPanel(vistaPago);

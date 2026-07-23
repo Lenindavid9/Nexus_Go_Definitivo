@@ -44,6 +44,12 @@ public class ControladorMetododePago {
     private FacturaDao facturaDao;
     private List<DetalleCarrito> carritoActual;
     private int idCajaActual = 0;
+    private Usuario operarioLogueado = null; //Operario que inicio sesion para atenderlo
+    private boolean cambioValidado = false; //true solo si el dinero recibido ya se calculo y alcanza  
+    
+    public void setOperarioLogueado(Usuario operarioLogueado) {
+        this.operarioLogueado = operarioLogueado;
+    }
 
     // 1. Constructor Completo
     public ControladorMetododePago(VistaMetododePago vistaPago, DineroEfectivo vistaEfectivo, List<DetalleCarrito> carrito, double totalVenta, JPanel contenedorCentral, int idCajaActual) {
@@ -203,7 +209,8 @@ public class ControladorMetododePago {
                 break;
 
             default:
-                JOptionPane.showMessageDialog(vistaPrincipal, "Seleccione un método de pago válido.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(vistaPrincipal, "Seleccione un método de pago válido.", 
+                        "Advertencia", JOptionPane.WARNING_MESSAGE);
                 break;
         }
     }
@@ -214,14 +221,19 @@ public class ControladorMetododePago {
             double dineroRecibido = Double.parseDouble(textoMonto);
 
             if (dineroRecibido < totalFactura) {
-                JOptionPane.showMessageDialog(vistaEfectivo, "El monto ingresado es menor al total a pagar.", "Monto Insuficiente", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(vistaEfectivo, "El monto ingresado es menor al total a pagar.", 
+                        "Monto Insuficiente", JOptionPane.WARNING_MESSAGE);
                 vistaEfectivo.setCambioMonto(0);
+                cambioValidado = false;
             } else {
                 double cambio = dineroRecibido - totalFactura;
                 vistaEfectivo.setCambioMonto(cambio);
+                cambioValidado = true;
             }
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(vistaEfectivo, "Por favor ingrese un valor numérico válido.", "Error de Formato", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(vistaEfectivo, "Por favor ingrese un valor numérico válido.", 
+                    "Error de Formato", JOptionPane.ERROR_MESSAGE);
+            cambioValidado = false;
         }
     }
 
@@ -272,7 +284,7 @@ public class ControladorMetododePago {
                 // 4. Instanciar la vista final de la factura enviando el cliente actual
                 VistaFactura vistaTemporal;
                 try {
-                    vistaTemporal = new VistaFactura(factura, carritoActual, clienteParaFactura);
+                    vistaTemporal = new VistaFactura(factura, carritoActual, clienteParaFactura, operarioLogueado);
                 } catch (NoSuchMethodError | Exception ex) {
                     vistaTemporal = new VistaFactura(factura, carritoActual);
                 }
