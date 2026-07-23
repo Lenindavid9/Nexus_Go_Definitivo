@@ -18,27 +18,27 @@ import nexusgo.model.ProductoDao;
 import nexusgo.model.Promocion;
 import nexusgo.model.PromocionDao;
 import nexusgo.view.VistaAgregarPromocionProducto;
+
 /**
  *
  * @author USUARIO
  */
-public class ControladorAgregarPromocionProducto implements ActionListener{
-   private final VistaAgregarPromocionProducto vista;
+public class ControladorAgregarPromocionProducto implements ActionListener {
+
+    // Componentes visuales y de persistencia de datos
+    private final VistaAgregarPromocionProducto vista;
     private final PromocionDao promocionDao;
     private final ProductoDao productoDao;
-    private ControladorPrincipalAdmiPeluqueria controladorPrincipal; // Referencia para la navegación
+    private ControladorPrincipalAdmiPeluqueria controladorPrincipal; // Permite la navegación entre vistas
     private File imagenSeleccionada;
 
-    // Constructor de 3 parámetros (compatibilidad)
+    // Constructor de 3 parámetros (Mantiene compatibilidad con invocaciones antiguas)
     public ControladorAgregarPromocionProducto(VistaAgregarPromocionProducto vista, PromocionDao promocionDao, ProductoDao productoDao) {
         this(vista, promocionDao, productoDao, null);
     }
 
-    // Constructor de 4 parámetros (incluye ControladorPrincipalAdmiPeluqueria)
-    public ControladorAgregarPromocionProducto(VistaAgregarPromocionProducto vista, 
-                                               PromocionDao promocionDao, 
-                                               ProductoDao productoDao, 
-                                               ControladorPrincipalAdmiPeluqueria controladorPrincipal) {
+    // Constructor principal de 4 parámetros
+    public ControladorAgregarPromocionProducto(VistaAgregarPromocionProducto vista, PromocionDao promocionDao, ProductoDao productoDao, ControladorPrincipalAdmiPeluqueria controladorPrincipal) {
         this.vista = vista;
         this.promocionDao = promocionDao;
         this.productoDao = productoDao;
@@ -47,6 +47,7 @@ public class ControladorAgregarPromocionProducto implements ActionListener{
         inicializarListeners();
     }
 
+    // Vincula los eventos de la vista con este controlador
     private void inicializarListeners() {
         try {
             if (this.vista.btnGuardar != null) {
@@ -68,6 +69,7 @@ public class ControladorAgregarPromocionProducto implements ActionListener{
         }
     }
 
+    // Captura y distribuye las acciones según el botón presionado
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
@@ -87,21 +89,22 @@ public class ControladorAgregarPromocionProducto implements ActionListener{
         }
     }
 
+    // Procesa el formulario, valida las entradas y registra la nueva promoción
     private void ejecutarRegistroPromocion() {
         try {
-            // 1. VALIDACIÓN: Selección del Producto en el ComboBox
+            // Validación de producto seleccionado
             Producto productoSeleccionado = (Producto) vista.comboProductos.getSelectedItem();
             if (productoSeleccionado == null) {
                 throw new IllegalArgumentException("Debe seleccionar un producto válido de la lista.");
             }
 
-            // 2. VALIDACIÓN: Descripción
+            // Validación del texto descriptivo
             String descripcion = vista.txtDescripcionPromocion.getText().trim();
             if (descripcion.isEmpty() || descripcion.equalsIgnoreCase("Ingrese la descripcion de la promocion")) {
                 throw new IllegalArgumentException("Debe ingresar una descripción para la promoción.");
             }
 
-            // 3. VALIDACIÓN: Extracción de Fechas desde JDateChooser
+            // Validación del rango de fechas
             Date fechaInicio = vista.dateFechaInicio.getDate();
             Date fechaFin = vista.dateFechaFin.getDate();
 
@@ -113,7 +116,7 @@ public class ControladorAgregarPromocionProducto implements ActionListener{
                 throw new IllegalArgumentException("La fecha de finalización no puede ser anterior a la fecha de inicio.");
             }
 
-            // 4. VALIDACIÓN: Precio / Descuento
+            // Validación de formato numérico del precio promocional
             String strPrecio = vista.txtPrecio.getText().trim();
             if (strPrecio.isEmpty() || strPrecio.equalsIgnoreCase("Ingrese el precio en pesos colombianos")) {
                 throw new IllegalArgumentException("Debe ingresar el valor numérico para la promoción.");
@@ -130,27 +133,28 @@ public class ControladorAgregarPromocionProducto implements ActionListener{
                 throw new IllegalArgumentException("El precio promocional debe ser mayor a cero.");
             }
 
-            // Cálculo dinámico del porcentaje de descuento relativo al precio del producto
+            // Cálculo dinámico del porcentaje de descuento respecto al precio original del producto
             double precioOriginalProducto = productoSeleccionado.getPrecioCompra();
             double porcentajeCalculado = 0.0;
             if (precioOriginalProducto > 0 && precioPromocional < precioOriginalProducto) {
                 porcentajeCalculado = ((precioOriginalProducto - precioPromocional) / precioOriginalProducto) * 100.0;
             }
 
-            // 5. CONSTRUCCIÓN DEL OBJETO MODELO
+            // Mapeo y construcción del modelo de datos Promocion
             Promocion promocion = new Promocion();
             promocion.setIdProducto(productoSeleccionado.getIdProducto());
-            promocion.setIdServicio(null); // Explícitamente Nulo para Promociones de Producto
+            promocion.setIdServicio(null); // Es nulo porque es una promoción de producto, no de servicio
             promocion.setPorcentajeDescuento(porcentajeCalculado);
             promocion.setFechaInicio(fechaInicio);
             promocion.setFechaFin(fechaFin);
             promocion.setEstado("ACTIVA");
 
             if (imagenSeleccionada != null) {
+                // Se asigna la ruta de la imagen en caso de que el modelo maneje ese campo
                 // promocion.setRutaImagen(imagenSeleccionada.getAbsolutePath());
             }
 
-            // 6. INSERCIÓN EN BASE DE DATOS
+            // Guardado en la base de datos a través del DAO
             boolean exito = promocionDao.guardarPromocion(promocion);
 
             if (exito) {
@@ -171,6 +175,7 @@ public class ControladorAgregarPromocionProducto implements ActionListener{
         }
     }
 
+    // Muestra una ventana de selección de archivos para elegir una imagen
     private void ejecutarCargaImagen() {
         try {
             JFileChooser fileChooser = new JFileChooser();
@@ -195,6 +200,7 @@ public class ControladorAgregarPromocionProducto implements ActionListener{
         }
     }
 
+    // Regresa al panel principal de administración
     private void ejecutarVolver() {
         try {
             limpiarCampos();
@@ -206,6 +212,7 @@ public class ControladorAgregarPromocionProducto implements ActionListener{
         }
     }
 
+    // Cierra la sesión activa del usuario
     private void ejecutarCierreSesion() {
         try {
             if (controladorPrincipal != null) {
@@ -218,6 +225,7 @@ public class ControladorAgregarPromocionProducto implements ActionListener{
         }
     }
 
+    // Restablece los campos de la interfaz a sus valores por defecto
     private void limpiarCampos() {
         try {
             if (vista.comboProductos != null && vista.comboProductos.getItemCount() > 0) {
@@ -244,6 +252,7 @@ public class ControladorAgregarPromocionProducto implements ActionListener{
         }
     }
 
+    // Método auxiliar para centralizar el despliegue de mensajes de error
     private void mostrarError(String mensajeContexto, Exception ex) {
         System.err.println(mensajeContexto + " -> Details: " + ex.getMessage());
         JOptionPane.showMessageDialog(vista,

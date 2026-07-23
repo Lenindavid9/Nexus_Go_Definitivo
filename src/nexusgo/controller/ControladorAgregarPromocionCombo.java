@@ -29,50 +29,49 @@ import nexusgo.view.VistaAgregarPromocionCombo;
  */
 public class ControladorAgregarPromocionCombo implements ActionListener {
 
-  // Vistas y DAOs requeridos
+    // Vistas y DAOs requeridos
     private final VistaAgregarPromocionCombo vista;
     private final PromocionDao promocionDao;
     private final ProductoDao productoDao;
     private final ServicioDao servicioDao;
     private ControladorPrincipalAdmiPeluqueria controladorPrincipal; // Permite volver o cerrar sesión desde la vista
-    
+
     private final PromocionComboDao comboDao = new PromocionComboDao();
     private File archivoImagenSeleccionado; // Guarda la imagen elegida
     private String tipoSeleccionado; // "PROMOCION" o "COMBO"
 
     // --- CONSTRUCTORES ---
-
     // Constructor base de 4 parámetros
-    public ControladorAgregarPromocionCombo(VistaAgregarPromocionCombo vista, 
-                                            PromocionDao promocionDao, 
-                                            ProductoDao productoDao, 
-                                            ServicioDao servicioDao) {
+    public ControladorAgregarPromocionCombo(VistaAgregarPromocionCombo vista,
+            PromocionDao promocionDao,
+            ProductoDao productoDao,
+            ServicioDao servicioDao) {
         this(vista, promocionDao, productoDao, servicioDao, "PROMOCION", null);
     }
 
     // Constructor de 5 parámetros
-    public ControladorAgregarPromocionCombo(VistaAgregarPromocionCombo vista, 
-                                            PromocionDao promocionDao, 
-                                            ProductoDao productoDao, 
-                                            ServicioDao servicioDao,
-                                            String tipoSeleccionado) {
+    public ControladorAgregarPromocionCombo(VistaAgregarPromocionCombo vista,
+            PromocionDao promocionDao,
+            ProductoDao productoDao,
+            ServicioDao servicioDao,
+            String tipoSeleccionado) {
         this(vista, promocionDao, productoDao, servicioDao, tipoSeleccionado, null);
     }
 
     // Constructor completo de 6 parámetros (con soporte de navegación)
-    public ControladorAgregarPromocionCombo(VistaAgregarPromocionCombo vista, 
-                                            PromocionDao promocionDao, 
-                                            ProductoDao productoDao, 
-                                            ServicioDao servicioDao,
-                                            String tipoSeleccionado,
-                                            ControladorPrincipalAdmiPeluqueria controladorPrincipal) {
+    public ControladorAgregarPromocionCombo(VistaAgregarPromocionCombo vista,
+            PromocionDao promocionDao,
+            ProductoDao productoDao,
+            ServicioDao servicioDao,
+            String tipoSeleccionado,
+            ControladorPrincipalAdmiPeluqueria controladorPrincipal) {
         this.vista = vista;
         this.promocionDao = promocionDao;
         this.productoDao = productoDao;
         this.servicioDao = servicioDao;
         this.tipoSeleccionado = tipoSeleccionado;
         this.controladorPrincipal = controladorPrincipal;
-        
+
         inicializarListeners();
         cargarListas();
     }
