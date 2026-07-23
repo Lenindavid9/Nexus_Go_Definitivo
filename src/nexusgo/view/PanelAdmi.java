@@ -63,6 +63,8 @@ public class PanelAdmi extends JFrame {
         menuLateral.setBackground(COLOR_DORADO);
         menuLateral.setPreferredSize(new Dimension(250, 0));
         menuLateral.setBorder(BorderFactory.createEmptyBorder(30, 15, 10, 15));
+        menuLateral.bInventario.setVisible(false); // Ventas / Inventario
+        menuLateral.misCitas.setVisible(false);
 
         // Asignación/Creación de los botones de Servicios y Promociones en la sidebar
         bServicios = new JButton("Agregar Servicio");
