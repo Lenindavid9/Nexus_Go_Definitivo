@@ -25,7 +25,9 @@ public class ProductoDao implements Crud<Producto> {
         List<Producto> lista = new ArrayList<>();
         String sql = "SELECT * FROM productos";
 
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection con = conexion.getConection(); 
+             PreparedStatement ps = con.prepareStatement(sql); 
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Producto producto = new Producto();
@@ -37,6 +39,7 @@ public class ProductoDao implements Crud<Producto> {
                 producto.setPrecioCompra(rs.getDouble("precio_compra"));
                 producto.setPrecioVenta(rs.getDouble("precio_venta"));
                 producto.setUrlImagen(rs.getString("url_imagen"));
+                producto.setProveedor(rs.getString("proveedor")); // Mapeo agregado
 
                 lista.add(producto);
             }
@@ -55,7 +58,8 @@ public class ProductoDao implements Crud<Producto> {
                      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                      """;
 
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, producto.getNombreProducto());
             ps.setString(2, producto.getDescripcion());
@@ -74,16 +78,17 @@ public class ProductoDao implements Crud<Producto> {
         return 0;
     }
 
-    // U - UPDATE: EDITAR PRODUCTO
+    // U - UPDATE: EDITAR PRODUCTO (Se corrigió para incluir el proveedor)
     @Override
     public int editar(Producto producto) {
         String sql = """
                      UPDATE productos 
-                     SET nombre_producto = ?, descripcion = ?, stock_actual = ?, stock_minimo = ?, precio_compra = ?, precio_venta = ?, url_imagen = ? 
+                     SET nombre_producto = ?, descripcion = ?, stock_actual = ?, stock_minimo = ?, precio_compra = ?, precio_venta = ?, url_imagen = ?, proveedor = ? 
                      WHERE id_producto = ?
                      """;
 
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, producto.getNombreProducto());
             ps.setString(2, producto.getDescripcion());
@@ -92,7 +97,8 @@ public class ProductoDao implements Crud<Producto> {
             ps.setDouble(5, producto.getPrecioCompra());
             ps.setDouble(6, producto.getPrecioVenta());
             ps.setString(7, producto.getUrlImagen());
-            ps.setInt(8, producto.getIdProducto());
+            ps.setString(8, producto.getProveedor());
+            ps.setInt(9, producto.getIdProducto());
 
             return ps.executeUpdate();
 
@@ -107,7 +113,8 @@ public class ProductoDao implements Crud<Producto> {
     public int eliminar(int id) {
         String sql = "DELETE FROM productos WHERE id_producto = ?";
 
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
             return ps.executeUpdate();
@@ -118,12 +125,13 @@ public class ProductoDao implements Crud<Producto> {
         return 0;
     }
 
-    // MÉTODO PROPIO: Buscar un único producto por ID
+    // MÉTODO PROPIO: Buscar un único producto por ID (Se corrigió para leer el proveedor)
     public Producto buscarPorId(int id) {
         Producto producto = null;
         String sql = "SELECT * FROM productos WHERE id_producto = ?";
 
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
@@ -137,6 +145,7 @@ public class ProductoDao implements Crud<Producto> {
                     producto.setPrecioCompra(rs.getDouble("precio_compra"));
                     producto.setPrecioVenta(rs.getDouble("precio_venta"));
                     producto.setUrlImagen(rs.getString("url_imagen"));
+                    producto.setProveedor(rs.getString("proveedor")); // Mapeo agregado
                 }
             }
         } catch (SQLException e) {
@@ -153,7 +162,8 @@ public class ProductoDao implements Crud<Producto> {
                      WHERE id_producto = ? AND stock_actual >= ?
                      """;
 
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); 
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, cantidad);
             ps.setInt(2, idProducto);
@@ -173,7 +183,9 @@ public class ProductoDao implements Crud<Producto> {
         List<Producto> listaProds = new ArrayList<>();
         String sql = "SELECT id_producto, nombre_producto, precio_compra, precio_venta, stock_actual, stock_minimo, url_imagen FROM productos";
 
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection con = conexion.getConection(); 
+             PreparedStatement ps = con.prepareStatement(sql); 
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Producto prod = new Producto();
@@ -197,22 +209,21 @@ public class ProductoDao implements Crud<Producto> {
     public List<Producto> listarPromociones() {
         List<Producto> promociones = new ArrayList<>();
 
-        // Consulta SQL flexible para cualquier variación de 'ACTIVO' / 'ACTIVA'
-        // y con validación de rango de fechas de vigencia
         String sql = "SELECT DISTINCT p.id_producto, p.nombre_producto, p.precio_venta, p.url_imagen, pr.porcentaje_descuento "
                 + "FROM productos p "
                 + "INNER JOIN promociones pr ON p.id_producto = pr.id_producto "
                 + "WHERE (UPPER(pr.estado) LIKE '%ACTIV%' OR UPPER(pr.estado) = '1') "
                 + "AND (pr.fecha_fin IS NULL OR pr.fecha_fin >= CURDATE())";
 
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection con = conexion.getConection(); 
+             PreparedStatement ps = con.prepareStatement(sql); 
+             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Producto prod = new Producto();
                 prod.setIdProducto(rs.getInt("id_producto"));
                 prod.setNombreProducto(rs.getString("nombre_producto"));
 
-                // Aplicar el descuento al precio de venta para mostrar el precio de oferta
                 double precioOriginal = rs.getDouble("precio_venta");
                 double pctDescuento = rs.getDouble("porcentaje_descuento");
                 double precioConDescuento = precioOriginal - (precioOriginal * (pctDescuento / 100.0));

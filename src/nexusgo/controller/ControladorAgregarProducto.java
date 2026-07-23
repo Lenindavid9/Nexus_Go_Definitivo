@@ -108,27 +108,16 @@ public class ControladorAgregarProducto implements ActionListener {
 
     private void registrarNuevoProducto() {
         try {
-            Producto nuevoProducto = new Producto();
-            nuevoProducto.setNombreProducto(panelFormulario.txtNombre.getText().trim());
-            nuevoProducto.setDescripcion(panelFormulario.txtDescripcion.getText().trim());
-            nuevoProducto.setStockActual(Integer.parseInt(panelFormulario.txtCantidad.getText().trim()));
-            nuevoProducto.setStockMinimo(panelFormulario.txtStockMinimo.getText().trim().isEmpty() ? 0 : Integer.parseInt(panelFormulario.txtStockMinimo.getText().trim()));
-
-            String precioLimpio = panelFormulario.txtPrecio.getText().replace("$", "").replace(".", "").trim();
-            double precioCompra = Double.parseDouble(precioLimpio);
-            nuevoProducto.setPrecioCompra(precioCompra);
-
-            String precioVentaLimpio = panelFormulario.txtPrecioVenta.getText().replace("$", "").replace(".", "").trim();
-            double precioVenta = precioVentaLimpio.isEmpty() ? precioCompra : Double.parseDouble(precioVentaLimpio);
-            nuevoProducto.setPrecioVenta(precioVenta);
-
-            nuevoProducto.setProveedor(panelFormulario.txtProveedor.getText().trim());
-            nuevoProducto.setUrlImagen(panelFormulario.lblNombreImagen.getText());
+            Producto nuevoProducto = extraermeObjetoProductoFormulario();
 
             if (productoDao.agregar(nuevoProducto) > 0) {
-                JOptionPane.showMessageDialog(panelFormulario, "¡Insumo registrado con éxito!");
+                JOptionPane.showMessageDialog(panelFormulario, "¡Insumo registrado con éxito!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 volverAlPanelPrincipal();
+            } else {
+                JOptionPane.showMessageDialog(panelFormulario, "No se pudo registrar el producto en la base de datos.", "Error SQL", JOptionPane.ERROR_MESSAGE);
             }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(panelFormulario, "Por favor revisa los números/precios ingresados.", "Error de Formato", JOptionPane.WARNING_MESSAGE);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(panelFormulario, "Campos inválidos: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -136,31 +125,45 @@ public class ControladorAgregarProducto implements ActionListener {
 
     private void actualizarProducto() {
         try {
-            Producto p = new Producto();
+            Producto p = extraermeObjetoProductoFormulario();
             p.setIdProducto(idSeleccionado);
-            p.setNombreProducto(panelFormulario.txtNombre.getText().trim());
-            p.setDescripcion(panelFormulario.txtDescripcion.getText().trim());
-            p.setStockActual(Integer.parseInt(panelFormulario.txtCantidad.getText().trim()));
-            p.setStockMinimo(panelFormulario.txtStockMinimo.getText().trim().isEmpty() ? 0 : Integer.parseInt(panelFormulario.txtStockMinimo.getText().trim()));
-
-            String precioLimpio = panelFormulario.txtPrecio.getText().replace("$", "").replace(".", "").trim();
-            double precioCompra = Double.parseDouble(precioLimpio);
-            p.setPrecioCompra(precioCompra);
-
-            String precioVentaLimpio = panelFormulario.txtPrecioVenta.getText().replace("$", "").replace(".", "").trim();
-            double precioVenta = precioVentaLimpio.isEmpty() ? precioCompra : Double.parseDouble(precioVentaLimpio);
-            p.setPrecioVenta(precioVenta);
-
-            p.setProveedor(panelFormulario.txtProveedor.getText().trim());
-            p.setUrlImagen(panelFormulario.lblNombreImagen.getText());
 
             if (productoDao.editar(p) > 0) {
-                JOptionPane.showMessageDialog(panelFormulario, "¡Insumo modificado correctamente!");
+                JOptionPane.showMessageDialog(panelFormulario, "¡Insumo modificado correctamente!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                 volverAlPanelPrincipal();
+            } else {
+                JOptionPane.showMessageDialog(panelFormulario, "No se pudo actualizar el producto en la base de datos.", "Error SQL", JOptionPane.ERROR_MESSAGE);
             }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(panelFormulario, "Por favor revisa los números/precios ingresados.", "Error de Formato", JOptionPane.WARNING_MESSAGE);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(panelFormulario, "Error al editar: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    // Método auxiliar para evitar duplicidad de lectura de formulario
+    private Producto extraermeObjetoProductoFormulario() {
+        Producto p = new Producto();
+        p.setNombreProducto(panelFormulario.txtNombre.getText().trim());
+        p.setDescripcion(panelFormulario.txtDescripcion.getText().trim());
+        p.setStockActual(Integer.parseInt(panelFormulario.txtCantidad.getText().trim()));
+        
+        String stockMinTexto = panelFormulario.txtStockMinimo.getText().trim();
+        p.setStockMinimo(stockMinTexto.isEmpty() ? 0 : Integer.parseInt(stockMinTexto));
+
+        // Limpieza de moneda (soporta formato $1.000,00 o $1000.00)
+        String precioLimpio = panelFormulario.txtPrecio.getText().replaceAll("[^0-9,.]", "").replace(",", ".").trim();
+        double precioCompra = Double.parseDouble(precioLimpio);
+        p.setPrecioCompra(precioCompra);
+
+        String precioVentaLimpio = panelFormulario.txtPrecioVenta.getText().replaceAll("[^0-9,.]", "").replace(",", ".").trim();
+        double precioVenta = precioVentaLimpio.isEmpty() ? precioCompra : Double.parseDouble(precioVentaLimpio);
+        p.setPrecioVenta(precioVenta);
+
+        p.setProveedor(panelFormulario.txtProveedor.getText().trim());
+        p.setUrlImagen(panelFormulario.lblNombreImagen.getText());
+
+        return p;
     }
 
     private void buscarYCopiarImagen() {
