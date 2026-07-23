@@ -33,6 +33,7 @@ import nexusgo.view.VistaInventarioSupervisor;
 import nexusgo.view.VistaPdV;
 import nexusgo.view.VistaPrincipalSupervisor;
 import nexusgo.view.VistaProgramarMantenimiento;
+import nexusgo.view.VistaRealizacionMantenimiento;
 
 /**
  *
@@ -40,7 +41,7 @@ import nexusgo.view.VistaProgramarMantenimiento;
  */
 public class ControladorPrincipalSupervisor implements ActionListener {
 
-    private final VistaPrincipalSupervisor vistaPrincipal;
+   private final VistaPrincipalSupervisor vistaPrincipal;
     private VistaInventarioSupervisor panelInventario;
     private VistaProgramarMantenimiento panelProgramarMantenimiento;
     private AperturaCierre panelAperturaCierre;
@@ -52,8 +53,8 @@ public class ControladorPrincipalSupervisor implements ActionListener {
     private final CajaDao cajaDao = new CajaDao();
     private final Usuario usuarioLogueado;
 
-    // Estado interno del supervisor
-    private int idCajaActual = 0; // 0 = sin caja abierta
+    // Estado interno
+    private int idCajaActual = 0;
     private int idHerramientaSeleccionada = -1;
     private String nombreHerramientaSeleccionada = "";
 
@@ -62,12 +63,10 @@ public class ControladorPrincipalSupervisor implements ActionListener {
         this.usuarioLogueado = usuarioLogueado;
 
         try {
-            // 1. Inicialización de las vistas secundarias del panel
             this.panelInventario = new VistaInventarioSupervisor();
             this.panelProgramarMantenimiento = new VistaProgramarMantenimiento();
             this.panelAperturaCierre = new AperturaCierre();
 
-            // 2. Verificar estado de caja previo
             this.idCajaActual = cajaDao.obtenerCajaAbierta();
 
             if (this.idCajaActual > 0) {
@@ -75,14 +74,10 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 panelAperturaCierre.getLbltxtMontoA().setText(String.format("$%,.2f", montoApertura));
             }
 
-            // 3. Suscripción a eventos
             inicializarListeners();
-
-            // 4. Carga inicial de datos
             listarProductosEnTabla();
             listarHerramientasEnTabla();
 
-            // 5. Configuración de la interfaz principal
             this.vistaPrincipal.setTitle("Sistema NexusGO - Panel de Supervisión: " + usuarioLogueado.getNombre());
             mostrarInicio();
 
@@ -95,7 +90,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
     private void inicializarListeners() {
         try {
-            // Navegación Sidebar y Barra Principal
             this.vistaPrincipal.sidebar.bCasa.addActionListener(this);
             this.vistaPrincipal.sidebar.bInventario.addActionListener(this);
             this.vistaPrincipal.sidebar.misCitas.addActionListener(this);
@@ -105,15 +99,12 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 this.vistaPrincipal.btnCaja.addActionListener(this);
             }
 
-            // Eventos del Panel Caja
             this.panelAperturaCierre.getBtnApertura().addActionListener(this);
             this.panelAperturaCierre.getBtnCalcular().addActionListener(this);
 
-            // Eventos del Panel Mantenimiento
             this.panelProgramarMantenimiento.btnGuardarMantenimiento.addActionListener(this);
             this.panelProgramarMantenimiento.btnVolver.addActionListener(this);
 
-            // Listeners de Tablas (Modo lectura y selección)
             this.panelInventario.tablaProductos.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -140,15 +131,15 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             });
 
         } catch (NullPointerException npe) {
-            System.err.println("Error al vincular eventos en el controlador del supervisor: " + npe.getMessage());
+            System.err.println("Error al vincular eventos en el controlador: " + npe.getMessage());
         }
     }
 
     private void lanzarMenuDecisionMantenimiento() {
-        String[] opciones = {"Registrar Ejecutado", "Programar Agenda", "Cancelar"};
+        String[] opciones = {"Confirmacion de Mantenimiento", "Programar de Mantenimiento", "Cancelar"};
 
         int seleccion = JOptionPane.showOptionDialog(panelInventario,
-                "¿Qué acción de mantenimiento desea gestionar para:\n" + nombreHerramientaSeleccionada + "?",
+                "¿Qué acción desea ejecutar para la herramienta:\n" + nombreHerramientaSeleccionada + "?",
                 "NEXUS GO - Gestión de Mantenimiento",
                 JOptionPane.DEFAULT_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
@@ -157,13 +148,96 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 opciones[0]);
 
         if (seleccion == 0) {
-            JOptionPane.showMessageDialog(panelInventario,
-                    "Abriendo registro inmediato de mantenimientos ejecutados para:\n" + nombreHerramientaSeleccionada,
-                    "Módulo Herramientas", JOptionPane.INFORMATION_MESSAGE);
+            // Opción 1: Realizar Mantenimiento (Ejecución inmediata)
+            abrirVistaRealizacionMantenimiento();
         } else if (seleccion == 1) {
+            // Opción 2: Registrar Mantenimiento (Programación a futuro)
             panelProgramarMantenimiento.txtEquipo.setText(nombreHerramientaSeleccionada);
             cambiarPanelCentral(this.panelProgramarMantenimiento);
         }
+    }
+
+    private void abrirVistaRealizacionMantenimiento() {
+        VistaRealizacionMantenimiento panelRealizar = new VistaRealizacionMantenimiento();
+
+        // Cargar lista actualizada de herramientas en el JComboBox
+        List<Herramientas> listaHerramientas = herramientaDao.listar();
+        panelRealizar.cargarHerramientas(listaHerramientas);
+
+        // Preseleccionar la herramienta que se clickeó en la tabla
+        if (idHerramientaSeleccionada > 0) {
+            panelRealizar.seleccionarHerramientaPorId(idHerramientaSeleccionada);
+        }
+
+        panelRealizar.btnVolver.addActionListener(e -> {
+            cambiarPanelCentral(this.panelInventario);
+            listarHerramientasEnTabla();
+        });
+
+        panelRealizar.btnGuardar.addActionListener(e -> {
+            Herramientas herramientaElegida = panelRealizar.getHerramientaSeleccionada();
+
+            if (herramientaElegida == null) {
+                JOptionPane.showMessageDialog(panelRealizar,
+                        "Por favor seleccione una herramienta de la lista desplegable.",
+                        "Selección Requerida", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            String descripcionTrabajo = panelRealizar.txtDescripcionTrabajo.getText().trim();
+            String horas = panelRealizar.txtHorasInvertidas.getText().trim();
+            String observaciones = panelRealizar.txtObservaciones.getText().trim();
+
+            if (descripcionTrabajo.isEmpty() || horas.isEmpty()) {
+                JOptionPane.showMessageDialog(panelRealizar,
+                        "Por favor complete la descripción del trabajo realizado y las horas invertidas.",
+                        "Campos Requeridos", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            File imgAntes = panelRealizar.getArchivoImagenAntes();
+            File imgDespues = panelRealizar.getArchivoImagenDespues();
+
+            String nombreAntes = (imgAntes != null) ? imgAntes.getName() : "Sin foto";
+            String nombreDespues = (imgDespues != null) ? imgDespues.getName() : "Sin foto";
+
+            String detalleNotas = "Ejecutado: " + descripcionTrabajo + " | Horas: " + horas + "h | Obs: "
+                    + observaciones + " | Antes: " + nombreAntes + " | Desp: " + nombreDespues;
+
+            // 1. Guardar el registro de mantenimiento realizado
+            Mantenimiento mEjecutado = new Mantenimiento(
+                    herramientaElegida.getIdHerramienta(),
+                    "Mantenimiento Realizado Inmediato",
+                    new Date(),
+                    detalleNotas,
+                    usuarioLogueado.getIdUsuario()
+            );
+
+            boolean guardado = mantenimientoDao.registrarProgramacion(mEjecutado);
+
+            if (guardado) {
+                // 2. Cambiar el estado de la herramienta en la BD (ej. "Ocupado" o "En Mantenimiento")
+                String nuevoEstado = "Ocupado"; 
+                boolean estadoActualizado = herramientaDao.actualizarEstado(herramientaElegida.getIdHerramienta(), nuevoEstado);
+
+                String msgEstado = estadoActualizado 
+                        ? "\nEstado de la herramienta actualizado a: '" + nuevoEstado + "'." 
+                        : "\n(No se pudo actualizar el estado de la herramienta).";
+
+                JOptionPane.showMessageDialog(panelRealizar,
+                        "¡Mantenimiento de '" + herramientaElegida.getNombreHerramienta() + "' registrado exitosamente!" + msgEstado,
+                        "Registro Exitoso", JOptionPane.INFORMATION_MESSAGE);
+
+                cambiarPanelCentral(this.panelInventario);
+                listarHerramientasEnTabla();
+            } else {
+                JOptionPane.showMessageDialog(panelRealizar,
+                        "Error al guardar el registro del mantenimiento en la base de datos.",
+                        "Error de BD", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        cambiarPanelCentral(panelRealizar);
     }
 
     private void mostrarInicio() {
@@ -174,7 +248,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            // --- NAVEGACIÓN PRINCIPAL ---
             if (e.getSource() == vistaPrincipal.sidebar.bCasa) {
                 mostrarInicio();
             }
@@ -183,7 +256,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 ejecutarCerrarSesion();
             }
 
-            // --- ABRIR PUNTO DE VENTA (PdV) ---
             if (e.getSource() == vistaPrincipal.sidebar.bInventario) {
                 VistaPdV vistaPdV = new VistaPdV();
                 JPanel panelPdV = vistaPdV.VistaNexus();
@@ -211,19 +283,16 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 cambiarPanelCentral(panelPdV);
             }
 
-            // --- VISTA INVENTARIO / TABLAS ---
             if (e.getSource() == vistaPrincipal.sidebar.misCitas) {
                 cambiarPanelCentral(this.panelInventario);
                 listarProductosEnTabla();
                 listarHerramientasEnTabla();
             }
 
-            // --- MODULO DE CAJA ---
             if (e.getSource() == vistaPrincipal.btnCaja) {
                 cambiarPanelCentral(this.panelAperturaCierre);
             }
 
-            // --- EVENTOS CAJA: APERTURA ---
             if (e.getSource() == panelAperturaCierre.getBtnApertura()) {
                 if (idCajaActual > 0) {
                     JOptionPane.showMessageDialog(vistaPrincipal,
@@ -258,7 +327,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                         JOptionPane.showMessageDialog(vistaPrincipal,
                                 "Apertura de caja realizada con: $" + String.format("%,.2f", monto),
                                 "Caja Registrada", JOptionPane.INFORMATION_MESSAGE);
-                        
+
                         refrescarVistaDinamica();
                     } else {
                         JOptionPane.showMessageDialog(vistaPrincipal,
@@ -268,10 +337,9 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 }
             }
 
-            // --- EVENTOS CAJA: CIERRE ---
             if (e.getSource() == panelAperturaCierre.getBtnCalcular()) {
                 String montoFisicoStr = panelAperturaCierre.getTxtMontoF().getText();
-                
+
                 if (!montoFisicoStr.trim().isEmpty() && idCajaActual > 0) {
                     try {
                         double montoFisico = parsearMonto(montoFisicoStr);
@@ -299,7 +367,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 }
             }
 
-            // --- EVENTOS PANEL PROGRAMACIÓN MANTENIMIENTO ---
             if (e.getSource() == panelProgramarMantenimiento.btnVolver) {
                 cambiarPanelCentral(this.panelInventario);
                 listarHerramientasEnTabla();
@@ -316,14 +383,13 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
     private double parsearMonto(String texto) {
         String limpio = texto.replace("$", "").trim();
-        limpio = limpio.replace(".", "");       // Quita separadores de miles
-        limpio = limpio.replace(",", ".");      // Normaliza el separador decimal
+        limpio = limpio.replace(".", "");
+        limpio = limpio.replace(",", ".");
         return Double.parseDouble(limpio);
     }
 
     private void ejecutarGuardadoProgramacion() {
         try {
-            // 1. Obtención de fecha
             Date fechaCalendario = panelProgramarMantenimiento.fechaProgramacion.getDate();
 
             if (fechaCalendario == null) {
@@ -333,7 +399,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 return;
             }
 
-            // 2. Fusión de fecha y hora del Spinner
             Calendar calFechaElegida = Calendar.getInstance();
             calFechaElegida.setTime(fechaCalendario);
 
@@ -350,7 +415,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
             Date fechaFinalProgramada = calFechaElegida.getTime();
 
-            // 3. Campos del formulario
             String tipoMantenimiento = panelProgramarMantenimiento.cbTipoMantenimiento.getSelectedItem().toString();
             String fallaProblema = panelProgramarMantenimiento.txtFallaProblema.getText().trim();
             String observaciones = (panelProgramarMantenimiento.txtObservaciones != null)
@@ -361,7 +425,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
             String notasCompletas = "Falla: " + fallaProblema + " | Obs: " + observaciones + " | Img: " + nombreImagen;
 
-            // 4. Validaciones obligatorias
             if (tipoMantenimiento.equals("Seleccione su tipo de mantenimiento") || fallaProblema.isEmpty()) {
                 JOptionPane.showMessageDialog(panelProgramarMantenimiento,
                         "Debe seleccionar el tipo de mantenimiento y describir la falla/problema.",
@@ -369,7 +432,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 return;
             }
 
-            // 5. Regla de Negocio: Mínimo 48 horas de anticipación
             Calendar calLimiteMañana = Calendar.getInstance();
             calLimiteMañana.add(Calendar.DAY_OF_MONTH, 1);
             calLimiteMañana.set(Calendar.HOUR_OF_DAY, 23);
@@ -387,7 +449,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 return;
             }
 
-            // 6. Construcción del modelo y guardado
             Mantenimiento nuevoMantenimiento = new Mantenimiento(
                     idHerramientaSeleccionada,
                     tipoMantenimiento,
@@ -434,7 +495,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
         Date hoy = new Date();
         panelProgramarMantenimiento.fechaProgramacion.setDate(hoy);
-        panelProgramarMantenimiento.fechaProgramacion.setDate(hoy);
     }
 
     private void ejecutarCerrarSesion() {
@@ -447,8 +507,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
         if (confirmacion == JOptionPane.YES_OPTION) {
             vistaPrincipal.dispose();
-            
-            // Reabre el login para nuevas autenticaciones
+
             VistaInicioSesion vistaLogin = new VistaInicioSesion();
             new ControladorInicioSesion(vistaLogin);
             vistaLogin.setVisible(true);

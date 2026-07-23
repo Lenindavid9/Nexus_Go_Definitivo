@@ -23,27 +23,30 @@ import nexusgo.view.VistaAgregarPromocionProducto;
  * @author USUARIO
  */
 public class ControladorAgregarPromocionProducto implements ActionListener{
-    
-    private final VistaAgregarPromocionProducto vista;
+   private final VistaAgregarPromocionProducto vista;
     private final PromocionDao promocionDao;
     private final ProductoDao productoDao;
+    private ControladorPrincipalAdmiPeluqueria controladorPrincipal; // Referencia para la navegación
     private File imagenSeleccionada;
 
-    private static final SimpleDateFormat FORMATO_FECHA = new SimpleDateFormat("dd.MM.yyyy");
-
+    // Constructor de 3 parámetros (compatibilidad)
     public ControladorAgregarPromocionProducto(VistaAgregarPromocionProducto vista, PromocionDao promocionDao, ProductoDao productoDao) {
+        this(vista, promocionDao, productoDao, null);
+    }
+
+    // Constructor de 4 parámetros (incluye ControladorPrincipalAdmiPeluqueria)
+    public ControladorAgregarPromocionProducto(VistaAgregarPromocionProducto vista, 
+                                               PromocionDao promocionDao, 
+                                               ProductoDao productoDao, 
+                                               ControladorPrincipalAdmiPeluqueria controladorPrincipal) {
         this.vista = vista;
         this.promocionDao = promocionDao;
         this.productoDao = productoDao;
-
-        FORMATO_FECHA.setLenient(false); // Validación estricta para días y meses reales
+        this.controladorPrincipal = controladorPrincipal;
 
         inicializarListeners();
     }
 
-    /**
-     * Suscribe los eventos de la vista al controlador comprobando posibles referencias nulas.
-     */
     private void inicializarListeners() {
         try {
             if (this.vista.btnGuardar != null) {
@@ -84,9 +87,6 @@ public class ControladorAgregarPromocionProducto implements ActionListener{
         }
     }
 
-    /**
-     * Valida los datos introducidos por el usuario y procesa la inserción en BD.
-     */
     private void ejecutarRegistroPromocion() {
         try {
             // 1. VALIDACIÓN: Selección del Producto en el ComboBox
@@ -97,31 +97,16 @@ public class ControladorAgregarPromocionProducto implements ActionListener{
 
             // 2. VALIDACIÓN: Descripción
             String descripcion = vista.txtDescripcionPromocion.getText().trim();
-            if (descripcion.isEmpty() || descripcion.equalsIgnoreCase("Ingrese el nombre del producto")) {
+            if (descripcion.isEmpty() || descripcion.equalsIgnoreCase("Ingrese la descripcion de la promocion")) {
                 throw new IllegalArgumentException("Debe ingresar una descripción para la promoción.");
             }
 
-            // 3. VALIDACIÓN: Conversión y formato de Fechas
-            String strFechaInicio = vista.txtFechaInicio.getText().trim();
-            String strFechaFin = vista.txtFechaFin.getText().trim();
+            // 3. VALIDACIÓN: Extracción de Fechas desde JDateChooser
+            Date fechaInicio = vista.dateFechaInicio.getDate();
+            Date fechaFin = vista.dateFechaFin.getDate();
 
-            if (strFechaInicio.isEmpty() || strFechaFin.isEmpty()) {
-                throw new IllegalArgumentException("Las fechas de inicio y finalización no pueden estar vacías.");
-            }
-
-            Date fechaInicio;
-            Date fechaFin;
-
-            try {
-                fechaInicio = FORMATO_FECHA.parse(strFechaInicio);
-            } catch (ParseException ex) {
-                throw new IllegalArgumentException("La fecha de inicio no tiene un formato válido (DD.MM.YYYY). Ej: 12.12.2026");
-            }
-
-            try {
-                fechaFin = FORMATO_FECHA.parse(strFechaFin);
-            } catch (ParseException ex) {
-                throw new IllegalArgumentException("La fecha de finalización no tiene un formato válido (DD.MM.YYYY). Ej: 12.12.2026");
+            if (fechaInicio == null || fechaFin == null) {
+                throw new IllegalArgumentException("Debe seleccionar la fecha de inicio y de finalización.");
             }
 
             if (fechaFin.before(fechaInicio)) {
@@ -130,7 +115,7 @@ public class ControladorAgregarPromocionProducto implements ActionListener{
 
             // 4. VALIDACIÓN: Precio / Descuento
             String strPrecio = vista.txtPrecio.getText().trim();
-            if (strPrecio.isEmpty() || strPrecio.equalsIgnoreCase("Ingrese el precio ")) {
+            if (strPrecio.isEmpty() || strPrecio.equalsIgnoreCase("Ingrese el precio en pesos colombianos")) {
                 throw new IllegalArgumentException("Debe ingresar el valor numérico para la promoción.");
             }
 
@@ -154,17 +139,15 @@ public class ControladorAgregarPromocionProducto implements ActionListener{
 
             // 5. CONSTRUCCIÓN DEL OBJETO MODELO
             Promocion promocion = new Promocion();
-            promocion.setIdServicio(null); // Explícitamente Nulo para Promociones de Producto
             promocion.setIdProducto(productoSeleccionado.getIdProducto());
+            promocion.setIdServicio(null); // Explícitamente Nulo para Promociones de Producto
             promocion.setPorcentajeDescuento(porcentajeCalculado);
             promocion.setFechaInicio(fechaInicio);
             promocion.setFechaFin(fechaFin);
             promocion.setEstado("ACTIVA");
 
-            // Si el modelo Promocion soporta la ruta o nombre de la imagen:
             if (imagenSeleccionada != null) {
                 // promocion.setRutaImagen(imagenSeleccionada.getAbsolutePath());
-                // promocion.setNombreImagen(imagenSeleccionada.getName());
             }
 
             // 6. INSERCIÓN EN BASE DE DATOS
@@ -188,9 +171,6 @@ public class ControladorAgregarPromocionProducto implements ActionListener{
         }
     }
 
-    /**
-     * Despliega el explorador de archivos para asociar imágenes a la promoción.
-     */
     private void ejecutarCargaImagen() {
         try {
             JFileChooser fileChooser = new JFileChooser();
@@ -217,13 +197,9 @@ public class ControladorAgregarPromocionProducto implements ActionListener{
 
     private void ejecutarVolver() {
         try {
-            int confirmacion = JOptionPane.showConfirmDialog(vista,
-                    "¿Desea salir del formulario de registro?",
-                    "NexusGO", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-
-            if (confirmacion == JOptionPane.YES_OPTION) {
-                limpiarCampos();
-                // Si la vista está en un panel contenedor, puedes notificar al controlador principal para removerla o cerrarla.
+            limpiarCampos();
+            if (controladorPrincipal != null) {
+                controladorPrincipal.mostrarPanelBienvenida();
             }
         } catch (Exception ex) {
             mostrarError("Error al procesar el retorno.", ex);
@@ -232,13 +208,10 @@ public class ControladorAgregarPromocionProducto implements ActionListener{
 
     private void ejecutarCierreSesion() {
         try {
-            int confirm = JOptionPane.showConfirmDialog(vista,
-                    "¿Está seguro que desea cerrar sesión?",
-                    "Cerrar Sesión", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-
-            if (confirm == JOptionPane.YES_OPTION) {
-                // Destruir marco o invocar controlador de Login
-                System.exit(0);
+            if (controladorPrincipal != null) {
+                controladorPrincipal.ejecutarCierreSesion();
+            } else {
+                limpiarCampos();
             }
         } catch (Exception ex) {
             mostrarError("Error al cerrar la sesión.", ex);
@@ -251,13 +224,13 @@ public class ControladorAgregarPromocionProducto implements ActionListener{
                 vista.comboProductos.setSelectedIndex(0);
             }
             if (vista.txtDescripcionPromocion != null) {
-                vista.txtDescripcionPromocion.setText("Ingrese el nombre del producto");
+                vista.txtDescripcionPromocion.setText("Ingrese la descripcion de la promocion");
             }
-            if (vista.txtFechaInicio != null) {
-                vista.txtFechaInicio.setText("12.12.2026");
+            if (vista.dateFechaInicio != null) {
+                vista.dateFechaInicio.setDate(null);
             }
-            if (vista.txtFechaFin != null) {
-                vista.txtFechaFin.setText("12.12.2026");
+            if (vista.dateFechaFin != null) {
+                vista.dateFechaFin.setDate(null);
             }
             if (vista.txtPrecio != null) {
                 vista.txtPrecio.setText("Ingrese el precio en pesos colombianos");
@@ -277,5 +250,4 @@ public class ControladorAgregarPromocionProducto implements ActionListener{
                 mensajeContexto + "\nDetalle: " + ex.getMessage(),
                 "Error de Sistema", JOptionPane.ERROR_MESSAGE);
     }
-    
 }

@@ -4,6 +4,7 @@
  */
 package nexusgo.view;
 
+import com.toedter.calendar.JDateChooser;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -32,8 +33,8 @@ public class VistaAgregarPromocionServicio extends JPanel {
     // Componentes interactivos del formulario
     public JComboBox<Servicios> comboServicios;
     public JTextField txtDescripcionPromocion;
-    public JTextField txtFechaInicio;
-    public JTextField txtFechaFin;
+    public JDateChooser dateFechaInicio;
+    public JDateChooser dateFechaFin;
     public JTextField txtPrecio;
 
     // Botones de acción y navegación
@@ -93,7 +94,7 @@ public class VistaAgregarPromocionServicio extends JPanel {
         btnVolver.setCursor(new Cursor(Cursor.HAND_CURSOR));
         panelTarjeta.add(btnVolver, gbc);
 
-        // 1. CAMPO: Nombre del servicio (JComboBox con servicios de BD)
+        // 1. CAMPO: Nombre del servicio
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.gridwidth = 2;
@@ -113,10 +114,10 @@ public class VistaAgregarPromocionServicio extends JPanel {
         panelTarjeta.add(crearEtiqueta("descripcion de la promocion"), gbc);
 
         gbc.gridy++;
-        txtDescripcionPromocion = crearCampoTexto("Ingrese el nombre del producto");
+        txtDescripcionPromocion = crearCampoTexto("Ingrese la descripcion de la promocion");
         panelTarjeta.add(txtDescripcionPromocion, gbc);
 
-        // 3. CAMPOS: Fecha de inicio y Fecha de finalización
+        // 3. CAMPOS: Fecha de inicio y Fecha de finalización (JCalendar)
         gbc.gridy++;
         JPanel panelFechas = new JPanel(new GridBagLayout());
         panelFechas.setOpaque(false);
@@ -135,12 +136,12 @@ public class VistaAgregarPromocionServicio extends JPanel {
 
         gbcF.gridx = 0;
         gbcF.gridy = 1;
-        txtFechaInicio = crearCampoTexto("12.12.2022");
-        panelFechas.add(txtFechaInicio, gbcF);
+        dateFechaInicio = crearSelectorFecha();
+        panelFechas.add(dateFechaInicio, gbcF);
 
         gbcF.gridx = 1;
-        txtFechaFin = crearCampoTexto("12.12.2022");
-        panelFechas.add(txtFechaFin, gbcF);
+        dateFechaFin = crearSelectorFecha();
+        panelFechas.add(dateFechaFin, gbcF);
 
         panelTarjeta.add(panelFechas, gbc);
 
@@ -191,7 +192,6 @@ public class VistaAgregarPromocionServicio extends JPanel {
         panelBotonGuardar.add(btnGuardar, BorderLayout.WEST);
         panelTarjeta.add(panelBotonGuardar, gbc);
 
-        // Scroll para resoluciones ajustadas
         JScrollPane scrollTarjeta = new JScrollPane(panelTarjeta);
         scrollTarjeta.setBorder(null);
         add(scrollTarjeta, BorderLayout.CENTER);
@@ -206,12 +206,12 @@ public class VistaAgregarPromocionServicio extends JPanel {
         return txtDescripcionPromocion;
     }
 
-    public JTextField getTxtFechaInicio() {
-        return txtFechaInicio;
+    public JDateChooser getDateFechaInicio() {
+        return dateFechaInicio;
     }
 
-    public JTextField getTxtFechaFin() {
-        return txtFechaFin;
+    public JDateChooser getDateFechaFin() {
+        return dateFechaFin;
     }
 
     public JTextField getTxtPrecio() {
@@ -238,7 +238,7 @@ public class VistaAgregarPromocionServicio extends JPanel {
         return btnCerrarSesion;
     }
 
-    // --- MÉTODOS AUXILIARES DE ESTILO ---
+    // --- MÉTODOS AUXILIARES ---
     private JLabel crearEtiqueta(String texto) {
         JLabel label = new JLabel(texto);
         label.setFont(new Font("SansSerif", Font.PLAIN, 13));
@@ -258,4 +258,12 @@ public class VistaAgregarPromocionServicio extends JPanel {
         return field;
     }
 
+    private JDateChooser crearSelectorFecha() {
+        JDateChooser dateChooser = new JDateChooser();
+        dateChooser.setDateFormatString("yyyy-MM-dd");
+        dateChooser.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        dateChooser.setPreferredSize(new Dimension(180, 38));
+        dateChooser.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
+        return dateChooser;
+    }
 }

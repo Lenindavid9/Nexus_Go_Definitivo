@@ -149,5 +149,24 @@ public class HerramientaDao {
             System.err.println("Error al cerrar flujos: " + e.getMessage());
         }
     }
+    
+    public boolean actualizarEstado(int idHerramienta, String nuevoEstado) {
+    String sql = "UPDATE herramientas SET estado_actual = ? WHERE id_herramienta = ?";
+    
+    try (Connection con = conexion.getConection(); // Adapta esta línea según tu clase de conexión
+         PreparedStatement ps = con.prepareStatement(sql)) {
+        
+        ps.setString(1, nuevoEstado);
+        ps.setInt(2, idHerramienta);
+        
+        int filasAfectadas = ps.executeUpdate();
+        return filasAfectadas > 0;
+
+    } catch (SQLException e) {
+        System.err.println("Error al actualizar el estado de la herramienta: " + e.getMessage());
+        e.printStackTrace();
+        return false;
+    }
+}
 
 }

@@ -4,6 +4,7 @@
  */
 package nexusgo.view;
 
+import com.toedter.calendar.JDateChooser;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -12,6 +13,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.Date;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -28,260 +30,202 @@ import nexusgo.model.Servicios;
  *
  * @author USUARIO
  */
-public class VistaAgregarPromocionCombo extends JPanel{
-    
-    // Componentes interactivos del formulario
-    public JTextField txtNombreCombo;
-    public JTextField txtDescripcionPromocion;
-    public JTextField txtFechaInicio;
-    public JTextField txtFechaFin;
-    public JTextField txtPrecioCombo;
+public class VistaAgregarPromocionCombo extends JPanel {
 
-    // Listas de Selección Múltiple
-    public DefaultListModel<Producto> modeloListaProductos;
-    public JList<Producto> listaProductos;
-    
-    public DefaultListModel<Servicios> modeloListaServicios;
-    public JList<Servicios> listaServicios;
+    // Componentes del Formulario
+    private JTextField txtNombreCombo;
+    private JTextField txtDescripcionPromocion;
+    private JTextField txtPrecioCombo;
 
-    // Botones de acción y navegación
+    // Componentes de Fecha (JCalendar)
+    private JDateChooser dateChooserInicio;
+    private JDateChooser dateChooserFin;
+
+    // Listas para Selección Múltiple
+    private JList<Producto> listaProductos;
+    private DefaultListModel<Producto> modeloListaProductos;
+
+    private JList<Servicios> listaServicios;
+    private DefaultListModel<Servicios> modeloListaServicios;
+
+    // Botones e Indicadores
     public JButton btnCargarImagen;
-    public JLabel lblNombreImagen;
     public JButton btnGuardar;
     public JButton btnVolver;
     public JButton btnCerrarSesion;
+    public JLabel lblNombreImagen;
 
     public VistaAgregarPromocionCombo() {
-        setLayout(new BorderLayout());
-        setBackground(new Color(245, 245, 245));
+        setLayout(null);
+        setBackground(Color.WHITE);
+        inicializarComponentes();
+    }
 
-        // --- PANEL SUPERIOR: Botón Cerrar Sesión ---
-        JPanel panelSuperior = new JPanel(new BorderLayout());
-        panelSuperior.setOpaque(false);
-        panelSuperior.setBorder(BorderFactory.createEmptyBorder(15, 20, 10, 20));
+    private void inicializarComponentes() {
+        Font fontTitulo = new Font("SansSerif", Font.BOLD, 22);
+        Font fontLabel = new Font("SansSerif", Font.BOLD, 12);
+        Font fontTexto = new Font("SansSerif", Font.PLAIN, 12);
 
-        btnCerrarSesion = new JButton("cerrar sesion");
-        btnCerrarSesion.setFont(new Font("SansSerif", Font.BOLD, 13));
-        btnCerrarSesion.setForeground(Color.WHITE);
-        btnCerrarSesion.setBackground(new Color(255, 204, 0));
-        btnCerrarSesion.setFocusPainted(false);
-        btnCerrarSesion.setBorder(BorderFactory.createEmptyBorder(8, 18, 8, 18));
-        btnCerrarSesion.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        panelSuperior.add(btnCerrarSesion, BorderLayout.EAST);
-        add(panelSuperior, BorderLayout.NORTH);
-
-        // --- TARJETA CENTRAL BLANCA ---
-        JPanel panelTarjeta = new JPanel(new GridBagLayout());
-        panelTarjeta.setBackground(Color.WHITE);
-        panelTarjeta.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(230, 230, 230), 1),
-                BorderFactory.createEmptyBorder(25, 35, 25, 35)
-        ));
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 10, 6, 10);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-
-        // HEADER: Título y enlace Volver al inicio
+        // --- ENCABEZADO Y NAVEGACIÓN ---
         JLabel lblTitulo = new JLabel("Registrar Promoción Combo / Kit");
-        lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 22));
-        lblTitulo.setForeground(Color.BLACK);
-        panelTarjeta.add(lblTitulo, gbc);
+        lblTitulo.setFont(fontTitulo);
+        lblTitulo.setBounds(40, 20, 400, 30);
+        add(lblTitulo);
 
-        gbc.gridx = 1;
-        gbc.anchor = GridBagConstraints.EAST;
         btnVolver = new JButton("< Volver al inicio");
-        btnVolver.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        btnVolver.setForeground(new Color(80, 80, 80));
+        btnVolver.setBounds(460, 25, 140, 25);
         btnVolver.setContentAreaFilled(false);
         btnVolver.setBorderPainted(false);
-        btnVolver.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        panelTarjeta.add(btnVolver, gbc);
+        btnVolver.setFont(fontTexto);
+        add(btnVolver);
 
-        // 1. CAMPO: Nombre del Combo
-        gbc.gridx = 0;
-        gbc.gridy++;
-        gbc.gridwidth = 2;
-        gbc.anchor = GridBagConstraints.WEST;
-        panelTarjeta.add(crearEtiqueta("Nombre del Kit / Combo"), gbc);
+        btnCerrarSesion = new JButton("Cerrar Sesión");
+        btnCerrarSesion.setBounds(610, 25, 120, 25);
+        btnCerrarSesion.setBackground(new Color(220, 53, 69));
+        btnCerrarSesion.setForeground(Color.WHITE);
+        add(btnCerrarSesion);
 
-        gbc.gridy++;
-        txtNombreCombo = crearCampoTexto("Ej: Kit Renovación Total (Corte + Producto)");
-        panelTarjeta.add(txtNombreCombo, gbc);
+        // --- NOMBRE DEL COMBO ---
+        JLabel lblNombre = new JLabel("Nombre del Kit / Combo");
+        lblNombre.setFont(fontLabel);
+        lblNombre.setBounds(40, 70, 300, 20);
+        add(lblNombre);
 
-        // 2. SELECCIÓN MÚLTIPLE: Productos y Servicios en Paralelo
-        gbc.gridy++;
-        JPanel panelListasSeleccion = new JPanel(new GridBagLayout());
-        panelListasSeleccion.setOpaque(false);
+        txtNombreCombo = new JTextField();
+        txtNombreCombo.setBounds(40, 95, 690, 30);
+        txtNombreCombo.setFont(fontTexto);
+        add(txtNombreCombo);
 
-        GridBagConstraints gbcL = new GridBagConstraints();
-        gbcL.fill = GridBagConstraints.BOTH;
-        gbcL.weightx = 0.5;
-        gbcL.weighty = 1.0;
-        gbcL.insets = new Insets(0, 0, 0, 10);
+        // --- SELECCIÓN DE PRODUCTOS Y SERVICIOS ---
+        JLabel lblProductos = new JLabel("Seleccione Productos (Mantenga CTRL o SHIFT)");
+        lblProductos.setFont(fontLabel);
+        lblProductos.setBounds(40, 140, 320, 20);
+        add(lblProductos);
 
-        // --- Lista de Productos ---
-        gbcL.gridx = 0;
-        gbcL.gridy = 0;
-        panelListasSeleccion.add(crearEtiqueta("Seleccione Productos (Mantenga CTRL o SHIFT)"), gbcL);
-
-        gbcL.gridy = 1;
         modeloListaProductos = new DefaultListModel<>();
         listaProductos = new JList<>(modeloListaProductos);
         listaProductos.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        listaProductos.setFont(new Font("SansSerif", Font.PLAIN, 12));
         JScrollPane scrollProductos = new JScrollPane(listaProductos);
-        scrollProductos.setPreferredSize(new Dimension(200, 110));
-        scrollProductos.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
-        panelListasSeleccion.add(scrollProductos, gbcL);
+        scrollProductos.setBounds(40, 165, 330, 120);
+        add(scrollProductos);
 
-        // --- Lista de Servicios ---
-        gbcL.insets = new Insets(0, 10, 0, 0);
-        gbcL.gridx = 1;
-        gbcL.gridy = 0;
-        panelListasSeleccion.add(crearEtiqueta("Seleccione Servicios (Mantenga CTRL o SHIFT)"), gbcL);
+        JLabel lblServicios = new JLabel("Seleccione Servicios (Mantenga CTRL o SHIFT)");
+        lblServicios.setFont(fontLabel);
+        lblServicios.setBounds(400, 140, 330, 20);
+        add(lblServicios);
 
-        gbcL.gridy = 1;
         modeloListaServicios = new DefaultListModel<>();
         listaServicios = new JList<>(modeloListaServicios);
         listaServicios.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        listaServicios.setFont(new Font("SansSerif", Font.PLAIN, 12));
         JScrollPane scrollServicios = new JScrollPane(listaServicios);
-        scrollServicios.setPreferredSize(new Dimension(200, 110));
-        scrollServicios.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
-        panelListasSeleccion.add(scrollServicios, gbcL);
+        scrollServicios.setBounds(400, 165, 330, 120);
+        add(scrollServicios);
 
-        panelTarjeta.add(panelListasSeleccion, gbc);
+        // --- DESCRIPCIÓN ---
+        JLabel lblDesc = new JLabel("Descripción de la promoción");
+        lblDesc.setFont(fontLabel);
+        lblDesc.setBounds(40, 300, 300, 20);
+        add(lblDesc);
 
-        // 3. CAMPO: Descripción de la promoción
-        gbc.gridy++;
-        panelTarjeta.add(crearEtiqueta("Descripción de la promoción"), gbc);
+        txtDescripcionPromocion = new JTextField();
+        txtDescripcionPromocion.setBounds(40, 325, 690, 30);
+        txtDescripcionPromocion.setFont(fontTexto);
+        add(txtDescripcionPromocion);
 
-        gbc.gridy++;
-        txtDescripcionPromocion = crearCampoTexto("Ingrese detalles de la promoción o combo");
-        panelTarjeta.add(txtDescripcionPromocion, gbc);
+        // --- COMPONENTES JDATECHOOSER (FECHAS) ---
+        JLabel lblFechaInicio = new JLabel("Fecha de inicio");
+        lblFechaInicio.setFont(fontLabel);
+        lblFechaInicio.setBounds(40, 370, 200, 20);
+        add(lblFechaInicio);
 
-        // 4. CAMPOS: Fecha de inicio y Fecha de finalización
-        gbc.gridy++;
-        JPanel panelFechas = new JPanel(new GridBagLayout());
-        panelFechas.setOpaque(false);
+        dateChooserInicio = new JDateChooser();
+        dateChooserInicio.setBounds(40, 395, 330, 30);
+        dateChooserInicio.setDateFormatString("dd.MM.yyyy");
+        add(dateChooserInicio);
 
-        GridBagConstraints gbcF = new GridBagConstraints();
-        gbcF.fill = GridBagConstraints.HORIZONTAL;
-        gbcF.weightx = 0.5;
-        gbcF.insets = new Insets(0, 0, 0, 15);
+        JLabel lblFechaFin = new JLabel("Fecha de finalización");
+        lblFechaFin.setFont(fontLabel);
+        lblFechaFin.setBounds(400, 370, 200, 20);
+        add(lblFechaFin);
 
-        gbcF.gridx = 0;
-        gbcF.gridy = 0;
-        panelFechas.add(crearEtiqueta("Fecha de inicio"), gbcF);
+        dateChooserFin = new JDateChooser();
+        dateChooserFin.setBounds(400, 395, 330, 30);
+        dateChooserFin.setDateFormatString("dd.MM.yyyy");
+        add(dateChooserFin);
 
-        gbcF.gridx = 1;
-        panelFechas.add(crearEtiqueta("Fecha de finalización"), gbcF);
+        // RESTICCION: Bloquea la selección de fechas anteriores al día actual
+        Date hoy = new Date();
+        dateChooserInicio.setMinSelectableDate(hoy);
+        dateChooserFin.setMinSelectableDate(hoy);
 
-        gbcF.gridx = 0;
-        gbcF.gridy = 1;
-        txtFechaInicio = crearCampoTexto("12.12.2026");
-        panelFechas.add(txtFechaInicio, gbcF);
+        // --- PRECIO Y CARGA DE IMAGEN ---
+        JLabel lblPrecio = new JLabel("Precio Especial del Combo / Kit");
+        lblPrecio.setFont(fontLabel);
+        lblPrecio.setBounds(40, 440, 300, 20);
+        add(lblPrecio);
 
-        gbcF.gridx = 1;
-        txtFechaFin = crearCampoTexto("31.12.2026");
-        panelFechas.add(txtFechaFin, gbcF);
-
-        panelTarjeta.add(panelFechas, gbc);
-
-        // 5. CAMPO: Precio Combo
-        gbc.gridy++;
-        panelTarjeta.add(crearEtiqueta("Precio Especial del Combo / Kit"), gbc);
-
-        gbc.gridy++;
-        txtPrecioCombo = crearCampoTexto("Ingrese el precio en pesos colombianos");
-        panelTarjeta.add(txtPrecioCombo, gbc);
-
-        // 6. CARGA DE IMAGEN
-        gbc.gridy++;
-        gbc.insets = new Insets(12, 10, 12, 10);
-        JPanel panelImagen = new JPanel(new BorderLayout(15, 0));
-        panelImagen.setOpaque(false);
+        txtPrecioCombo = new JTextField();
+        txtPrecioCombo.setBounds(40, 465, 690, 30);
+        txtPrecioCombo.setFont(fontTexto);
+        add(txtPrecioCombo);
 
         btnCargarImagen = new JButton("Imagen del Combo");
-        btnCargarImagen.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        btnCargarImagen.setForeground(Color.GRAY);
+        btnCargarImagen.setBounds(40, 510, 160, 35);
         btnCargarImagen.setBackground(Color.WHITE);
-        btnCargarImagen.setBorder(BorderFactory.createLineBorder(new Color(255, 204, 0), 2));
-        btnCargarImagen.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnCargarImagen.setPreferredSize(new Dimension(160, 36));
+        add(btnCargarImagen);
 
-        lblNombreImagen = new JLabel("imagencombo.png");
-        lblNombreImagen.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        lblNombreImagen.setForeground(Color.DARK_GRAY);
+        lblNombreImagen = new JLabel("No se ha seleccionado imagen");
+        lblNombreImagen.setFont(fontTexto);
+        lblNombreImagen.setBounds(210, 515, 300, 25);
+        add(lblNombreImagen);
 
-        panelImagen.add(btnCargarImagen, BorderLayout.WEST);
-        panelImagen.add(lblNombreImagen, BorderLayout.CENTER);
-        panelTarjeta.add(panelImagen, gbc);
-
-        // 7. BOTÓN PRINCIPAL: Guardar
-        gbc.gridy++;
-        gbc.insets = new Insets(15, 10, 5, 10);
+        // --- BOTÓN DE GUARDADO ---
         btnGuardar = new JButton("Guardar Promo Combo");
-        btnGuardar.setFont(new Font("SansSerif", Font.BOLD, 18));
-        btnGuardar.setForeground(Color.WHITE);
-        btnGuardar.setBackground(new Color(255, 204, 0));
+        btnGuardar.setBounds(40, 565, 230, 40);
+        btnGuardar.setBackground(new Color(255, 193, 7)); // Color corporativo NexusGO
+        btnGuardar.setFont(new Font("SansSerif", Font.BOLD, 14));
         btnGuardar.setFocusPainted(false);
-        btnGuardar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        btnGuardar.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnGuardar.setPreferredSize(new Dimension(240, 45));
-
-        JPanel panelBotonGuardar = new JPanel(new BorderLayout());
-        panelBotonGuardar.setOpaque(false);
-        panelBotonGuardar.add(btnGuardar, BorderLayout.WEST);
-        panelTarjeta.add(panelBotonGuardar, gbc);
-
-        // Scroll contenedor para pantallas con baja resolución
-        JScrollPane scrollTarjeta = new JScrollPane(panelTarjeta);
-        scrollTarjeta.setBorder(null);
-        add(scrollTarjeta, BorderLayout.CENTER);
+        add(btnGuardar);
     }
 
-    // --- MÉTODOS GETTERS ---
-    public JTextField getTxtNombreCombo() { return txtNombreCombo; }
-    public JTextField getTxtDescripcionPromocion() { return txtDescripcionPromocion; }
-    public JTextField getTxtFechaInicio() { return txtFechaInicio; }
-    public JTextField getTxtFechaFin() { return txtFechaFin; }
-    public JTextField getTxtPrecioCombo() { return txtPrecioCombo; }
-
-    public JList<Producto> getListaProductos() { return listaProductos; }
-    public DefaultListModel<Producto> getModeloListaProductos() { return modeloListaProductos; }
-    
-    public JList<Servicios> getListaServicios() { return listaServicios; }
-    public DefaultListModel<Servicios> getModeloListaServicios() { return modeloListaServicios; }
-
-    public JButton getBtnCargarImagen() { return btnCargarImagen; }
-    public JLabel getLblNombreImagen() { return lblNombreImagen; }
-    public JButton getBtnGuardar() { return btnGuardar; }
-    public JButton getBtnVolver() { return btnVolver; }
-    public JButton getBtnCerrarSesion() { return btnCerrarSesion; }
-
-    // --- MÉTODOS AUXILIARES DE ESTILO ---
-    private JLabel crearEtiqueta(String texto) {
-        JLabel label = new JLabel(texto);
-        label.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        label.setForeground(new Color(50, 50, 50));
-        return label;
+    // --- GETTERS ---
+    public JTextField getTxtNombreCombo() {
+        return txtNombreCombo;
     }
 
-    private JTextField crearCampoTexto(String placeholder) {
-        JTextField field = new JTextField(placeholder);
-        field.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        field.setForeground(Color.GRAY);
-        field.setPreferredSize(new Dimension(380, 38));
-        field.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)
-        ));
-        return field;
+    public JTextField getTxtDescripcionPromocion() {
+        return txtDescripcionPromocion;
     }
-    
+
+    public JTextField getTxtPrecioCombo() {
+        return txtPrecioCombo;
+    }
+
+    public JDateChooser getDateChooserInicio() {
+        return dateChooserInicio;
+    }
+
+    public JDateChooser getDateChooserFin() {
+        return dateChooserFin;
+    }
+
+    public JList<Producto> getListaProductos() {
+        return listaProductos;
+    }
+
+    public DefaultListModel<Producto> getModeloListaProductos() {
+        return modeloListaProductos;
+    }
+
+    public JList<Servicios> getListaServicios() {
+        return listaServicios;
+    }
+
+    public DefaultListModel<Servicios> getModeloListaServicios() {
+        return modeloListaServicios;
+    }
+
+    public JLabel getLblNombreImagen() {
+        return lblNombreImagen;
+    }
 }
