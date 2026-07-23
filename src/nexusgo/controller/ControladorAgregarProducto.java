@@ -64,13 +64,25 @@ public class ControladorAgregarProducto implements ActionListener {
     }
 
     private void inicializarListeners() {
+        /* Como panelFormulario se reutiliza cada vez que se abre esta pantalla,
+        primero quitamos cualquier listener que haya quedado pegado de una
+        apertura anterior,(PORQUE YA ME PASO) para que solo quede activo el de esta instancia actual.*/
         if (panelFormulario.btnVolver != null) {
+            for (ActionListener al : panelFormulario.btnVolver.getActionListeners()) {
+                panelFormulario.btnVolver.removeActionListener(al);
+            }
             panelFormulario.btnVolver.addActionListener(this);
         }
         if (panelFormulario.btnEditar != null) {
+            for (ActionListener al : panelFormulario.btnEditar.getActionListeners()) {
+                panelFormulario.btnEditar.removeActionListener(al);
+            }
             panelFormulario.btnEditar.addActionListener(this);
         }
         if (panelFormulario.btnImagen != null) {
+            for (ActionListener al : panelFormulario.btnImagen.getActionListeners()) {
+                panelFormulario.btnImagen.removeActionListener(al);
+            }
             panelFormulario.btnImagen.addActionListener(this);
         }
     }

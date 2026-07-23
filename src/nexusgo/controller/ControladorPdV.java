@@ -7,10 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import nexusgo.model.CajaDao;
 import nexusgo.model.DetalleCarrito;
 import nexusgo.model.FacturaDao;
 import nexusgo.model.Producto;
 import nexusgo.model.ProductoDao;
+import nexusgo.model.PromocionCombo;
+import nexusgo.model.PromocionComboDao;
+import nexusgo.model.ServicioDao;
+import nexusgo.model.Servicios;
 import nexusgo.view.VistaMetododePago;
 import nexusgo.view.VistaPdV;
 
@@ -19,7 +24,9 @@ public class ControladorPdV implements ActionListener {
     private final VistaPdV vista;
     private final FacturaDao facturaDao;
     private final ProductoDao productoDao;
-    private final nexusgo.model.CajaDao cajaDao = new nexusgo.model.CajaDao();
+    private final CajaDao cajaDao = new CajaDao();
+    private final ServicioDao servicioDao = new ServicioDao();
+    private final PromocionComboDao comboDao = new PromocionComboDao();
     private JPanel contenedorCentral;
 
     // ID de la caja abierta con la que se está operando (0 = ninguna)
@@ -57,6 +64,8 @@ public class ControladorPdV implements ActionListener {
 
         // Cargar los productos dinámicamente desde el DAO
         cargarProductos();
+        cargarServicios();
+        cargarCombos();
     }
 
     // Constructor Sobrecargado (recibe el contenedor, sin id de caja explícito)
@@ -67,6 +76,28 @@ public class ControladorPdV implements ActionListener {
     // Constructor Sobrecargado (Compatibilidad cuando no se pasa el contenedor)
     public ControladorPdV(VistaPdV vista) {
         this(vista, null, 0);
+    }
+
+    private void cargarServicios() {
+        List<Servicios> servicios = servicioDao.listarServiciosActivos();
+        if (servicios != null) {
+            for (Servicios s : servicios) {
+                String precioFormateado = String.format("$%.0f", s.getPrecio());
+                // Todavía no se pueden facturar: solo se muestran de forma informativa.
+                vista.agregarTarjetaServicio(s.getNombreServicio(), precioFormateado, null);
+            }
+        }
+    }
+
+    private void cargarCombos() {
+        List<PromocionCombo> combos = comboDao.listarCombosActivos();
+        if (combos != null) {
+            for (PromocionCombo c : combos) {
+                String precioFormateado = String.format("$%.0f", c.getPrecioCombo());
+                // Todavía no se pueden facturar: solo se muestran de forma informativa.
+                vista.agregarTarjetaCombo(c.getNombreCombo(), precioFormateado, c.getRutaImagen());
+            }
+        }
     }
 
     private void cargarProductos() {
