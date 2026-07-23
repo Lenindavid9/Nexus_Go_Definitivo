@@ -96,6 +96,7 @@ public class UsuarioDao {
                     usuario.setIdUsuario(rs.getInt("id_usuario"));
                     usuario.setIdentificacion(rs.getInt("numero_identificacion"));
                     usuario.setNombre(rs.getString("nombre"));
+                    usuario.setApellido(rs.getString("apellido"));
                     usuario.setRol(rs.getString("rol"));
                     usuario.setCorreo(rs.getString("correo"));
                 }
