@@ -16,6 +16,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -224,7 +225,7 @@ public class VistaRegistroDeUsuario extends JFrame {// Componente para colocar l
         cb.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
     }
 
-    private void agregarBloqueFormulario(JPanel panelDestino, String textoLabel, javax.swing.JComponent campoInput) {
+    private void agregarBloqueFormulario(JPanel panelDestino, String textoLabel, JComponent campoInput) {
         JLabel label = new JLabel(textoLabel);
         label.setFont(FUENTE_LABELS);
         label.setForeground(Color.BLACK);

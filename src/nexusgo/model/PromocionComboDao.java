@@ -122,11 +122,7 @@ public class PromocionComboDao {
         }
     }
 
-    /**
-     * R - READ: Listar combos activos que estén vigentes a la fecha actual.
-     *
-     * @return Lista de objetos PromocionCombo.
-     */
+    // Lista de objetos PromocionCombo.
     public List<PromocionCombo> listarCombosActivos() {
         List<PromocionCombo> lista = new ArrayList<>();
         String sql = """
@@ -156,12 +152,9 @@ public class PromocionComboDao {
         return lista;
     }
 
-    /**
-     * D - DELETE: Desactivar o eliminar una promoción combo por su ID.
-     *
-     * @param idPromocion Identificador del combo a desactivar.
-     * @return int número de filas afectadas (1 si fue exitoso, 0 si no).
-     */
+    /*Desactivar o eliminar una promoción combo por su ID.
+    idPromocion Identificador del combo a desactivar.
+    int número de filas afectadas (1 si fue exitoso, 0 si no).*/
     public int eliminarCombo(int idPromocion) {
         String sql = "DELETE FROM promocion_combo WHERE id_promocion = ?";
 
