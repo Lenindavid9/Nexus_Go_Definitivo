@@ -24,6 +24,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.category.DefaultCategoryDataset;
 
 /**
  *
@@ -138,6 +142,11 @@ public class ReportesFinancieros extends JPanel {
 
         tablaReporte = new JTable(modeloTabla);
 
+        modeloTabla.setValueAt(1000, 0, 0); // Servicios/Productos
+        modeloTabla.setValueAt(200, 0, 1);  // Promociones/Descuentos
+        modeloTabla.setValueAt(800, 0, 2);  // Total Neto
+        modeloTabla.setValueAt("Corte de Cabello", 0, 3); // Servicio del Mes
+
         tablaReporte.getTableHeader().setReorderingAllowed(false);
         tablaReporte.getTableHeader().setResizingAllowed(false);
 
@@ -148,7 +157,11 @@ public class ReportesFinancieros extends JPanel {
         scrollTabla.setPreferredSize(new Dimension(600, 80));
         principal.add(Box.createVerticalStrut(20));
         principal.add(scrollTabla);
-        
+        principal.add(Box.createVerticalStrut(20));
+        principal.add(crearGrafica());
+
+
+
         this.add(titulo, BorderLayout.NORTH);
         this.add(menu, BorderLayout.WEST);
         this.add(principal, BorderLayout.CENTER);
@@ -195,4 +208,27 @@ public class ReportesFinancieros extends JPanel {
     public DefaultTableModel getModeloTabla() {
         return modeloTabla;
     }
+  private ChartPanel crearGrafica() {
+    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+    Object val0 = modeloTabla.getValueAt(0, 0);
+    Object val1 = modeloTabla.getValueAt(0, 1);
+    Object val2 = modeloTabla.getValueAt(0, 2);
+
+    double servicios = val0 != null ? Double.parseDouble(val0.toString()) : 0;
+    double promociones = val1 != null ? Double.parseDouble(val1.toString()) : 0;
+    double total = val2 != null ? Double.parseDouble(val2.toString()) : 0;
+
+    dataset.addValue(servicios, "Ingresos", "Servicios/Productos");
+    dataset.addValue(promociones, "Ingresos", "Promociones/Descuentos");
+    dataset.addValue(total, "Ingresos", "Total Neto");
+
+    JFreeChart chart = ChartFactory.createBarChart(
+            "Reporte Financiero", "Categoría", "Valor", dataset
+    );
+
+    ChartPanel chartPanel = new ChartPanel(chart);
+    chartPanel.setPreferredSize(new Dimension(600, 400));
+    return chartPanel;
+}
 }
