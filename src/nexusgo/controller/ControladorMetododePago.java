@@ -51,7 +51,6 @@ public class ControladorMetododePago {
         this.operarioLogueado = operarioLogueado;
     }
 
-    // 1. Constructor Completo
     public ControladorMetododePago(VistaMetododePago vistaPago, DineroEfectivo vistaEfectivo, List<DetalleCarrito> carrito, double totalVenta, JPanel contenedorCentral, int idCajaActual) {
         this.vistaPrincipal = vistaPago;
         this.vistaEfectivo = vistaEfectivo;
@@ -62,7 +61,6 @@ public class ControladorMetododePago {
         inicializarControlador(totalVenta);
     }
 
-    // 2. Constructor Sobrecargado (Compatibilidad)
     public ControladorMetododePago(VistaMetododePago vistaPago, List<DetalleCarrito> carrito, double totalVenta, JPanel contenedorCentral, int idCajaActual) {
         this.vistaPrincipal = vistaPago;
         this.vistaEfectivo = new DineroEfectivo();
@@ -74,10 +72,17 @@ public class ControladorMetododePago {
     }
 
     private void inicializarControlador(double totalVenta) {
+        
+        // Se guarda el valor total de la venta
         this.totalFactura = totalVenta;
 
+        // Se verifica que la vista principal exista 
         if (this.vistaPrincipal != null) {
+            
+            // Se envía el valor total de la venta a la vista
             this.vistaPrincipal.setTotal(totalFactura);
+            
+            // Se registran los eventos correspondientes a la vista principal
             initListenersVistaPrincipal();
         }
 

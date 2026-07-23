@@ -94,15 +94,15 @@ public class ControladorPdV implements ActionListener {
                     int cantidadIngresada = (int) componentes.getSpinner().getValue();
                     double precioUnitario = p.getPrecioCompra();
 
-                    // Sumar o actualizar en la lista del carrito
-                    agregarOActualizarItem(p, cantidadIngresada, precioUnitario);
+                    // Sumar o actualizar en la lista del carrito, solo si hay stock suficiente
+                    if (agregarOActualizarItem(p, cantidadIngresada, precioUnitario)) {
+                        // Actualizar contadores globales del punto de venta
+                        totalVenta += (precioUnitario * cantidadIngresada);
+                        contadorProductos += cantidadIngresada;
 
-                    // Actualizar contadores globales del punto de venta
-                    totalVenta += (precioUnitario * cantidadIngresada);
-                    contadorProductos += cantidadIngresada;
-
-                    // Actualizar el estado del botón Facturar en la vista
-                    vista.actualizarTextoFacturar(contadorProductos);
+                        // Actualizar el estado del botón Facturar en la vista
+                        vista.actualizarTextoFacturar(contadorProductos);
+                    }
                 });
             }
         }
@@ -112,22 +112,46 @@ public class ControladorPdV implements ActionListener {
      * Acumula la cantidad seleccionada en el producto existente dentro del
      * carrito, o agrega una nueva línea si no había sido seleccionado antes.
      */
-    private void agregarOActualizarItem(Producto p, int cantidad, double precioUnitario) {
+    private boolean agregarOActualizarItem(Producto p, int cantidad, double precioUnitario) {
+        
+        //Variable que indica si el producto ya se encuentra registrado dentro
         boolean productoExiste = false;
+        
+         // Almacena la cantidad del producto que actualmente ya se encuentra agregada al carrito
+        int cantidadYaEnCarrito = 0;
 
+         // Se recorre cada elemento del carrito para comprobar
+        // si el producto ya había sido agregado anteriormente
         for (DetalleCarrito item : carrito) {
             if (item.getIdProducto() == p.getIdProducto()) {
-                item.setCantidad(item.getCantidad() + cantidad);
+                cantidadYaEnCarrito = item.getCantidad();
                 productoExiste = true;
                 break;
             }
         }
 
-        if (!productoExiste) {
+        // Validar que lo que ya está en el carrito + lo que se quiere agregar
+        // no supere el stock real disponible del producto.
+        if (cantidadYaEnCarrito + cantidad > p.getStockActual()) {
+            JOptionPane.showMessageDialog(vista,
+                    "No hay suficiente stock de \"" + p.getNombreProducto() + "\".\n"
+                    + "Disponible: " + p.getStockActual() + " | Ya en el carrito: " + cantidadYaEnCarrito,
+                    "Stock Insuficiente", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        if (productoExiste) {
+            for (DetalleCarrito item : carrito) {
+                if (item.getIdProducto() == p.getIdProducto()) {
+                    item.setCantidad(item.getCantidad() + cantidad);
+                    break;
+                }
+            }
+        } else {
             carrito.add(new DetalleCarrito(p.getIdProducto(), p.getNombreProducto(), precioUnitario, cantidad));
         }
+        return true;
     }
-
     @Override
     public void actionPerformed(ActionEvent e) {
         // Evento Botón Facturar -> Transición hacia Método de Pago
