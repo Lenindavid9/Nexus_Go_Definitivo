@@ -43,19 +43,17 @@ public class ControladorPrincipalSupervisor implements ActionListener {
     private final VistaPrincipalSupervisor vistaPrincipal;
     private VistaInventarioSupervisor panelInventario;
     private VistaProgramarMantenimiento panelProgramarMantenimiento;
-
-    // --- Instancia del panel AperturaCierre ---
     private AperturaCierre panelAperturaCierre;
 
-    // Componentes de datos y sesión
+    // DAOs y Sesión
     private final ProductoDao productoDao = new ProductoDao();
     private final HerramientaDao herramientaDao = new HerramientaDao();
     private final MantenimientoDao mantenimientoDao = new MantenimientoDao();
     private final CajaDao cajaDao = new CajaDao();
     private final Usuario usuarioLogueado;
 
-    // ID de la caja actualmente abierta (0 = no hay caja abierta)
-    private int idCajaActual = 0;
+    // Estado interno del supervisor
+    private int idCajaActual = 0; // 0 = sin caja abierta
     private int idHerramientaSeleccionada = -1;
     private String nombreHerramientaSeleccionada = "";
 
@@ -64,32 +62,28 @@ public class ControladorPrincipalSupervisor implements ActionListener {
         this.usuarioLogueado = usuarioLogueado;
 
         try {
-            // Inicialización de las vistas del módulo
+            // 1. Inicialización de las vistas secundarias del panel
             this.panelInventario = new VistaInventarioSupervisor();
             this.panelProgramarMantenimiento = new VistaProgramarMantenimiento();
-
-            // Inicializar Vista de Caja
             this.panelAperturaCierre = new AperturaCierre();
 
-            // Verificar si ya existe una caja abierta (de una sesión anterior)
+            // 2. Verificar estado de caja previo
             this.idCajaActual = cajaDao.obtenerCajaAbierta();
 
-            // Si la caja sigue abierta debe mostrar su monto de apertura
             if (this.idCajaActual > 0) {
                 double montoApertura = cajaDao.obtenerMontoApertura(this.idCajaActual);
                 panelAperturaCierre.getLbltxtMontoA().setText(String.format("$%,.2f", montoApertura));
             }
 
+            // 3. Suscripción a eventos
             inicializarListeners();
 
-            // Carga de datos en las JTables
+            // 4. Carga inicial de datos
             listarProductosEnTabla();
             listarHerramientasEnTabla();
 
-            // Título de la app según sesión
-            vistaPrincipal.setTitle("Sistema NexusGO - Panel de Supervisión: " + usuarioLogueado.getNombre());
-
-            // Panel de inicio por defecto
+            // 5. Configuración de la interfaz principal
+            this.vistaPrincipal.setTitle("Sistema NexusGO - Panel de Supervisión: " + usuarioLogueado.getNombre());
             mostrarInicio();
 
         } catch (Exception e) {
@@ -101,34 +95,33 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
     private void inicializarListeners() {
         try {
-            // Escuchar la barra lateral y botones principales
+            // Navegación Sidebar y Barra Principal
             this.vistaPrincipal.sidebar.bCasa.addActionListener(this);
             this.vistaPrincipal.sidebar.bInventario.addActionListener(this);
             this.vistaPrincipal.sidebar.misCitas.addActionListener(this);
             this.vistaPrincipal.btnCerrarSesion.addActionListener(this);
 
-            // Registrar el botón Caja
             if (this.vistaPrincipal.btnCaja != null) {
                 this.vistaPrincipal.btnCaja.addActionListener(this);
             }
 
-            // Escuchar botones del panel AperturaCierre (Caja)
+            // Eventos del Panel Caja
             this.panelAperturaCierre.getBtnApertura().addActionListener(this);
             this.panelAperturaCierre.getBtnCalcular().addActionListener(this);
 
-            // Escuchar botones de programación de mantenimiento
+            // Eventos del Panel Mantenimiento
             this.panelProgramarMantenimiento.btnGuardarMantenimiento.addActionListener(this);
             this.panelProgramarMantenimiento.btnVolver.addActionListener(this);
 
-            // Tablas (MouseListeners)
+            // Listeners de Tablas (Modo lectura y selección)
             this.panelInventario.tablaProductos.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     int fila = panelInventario.tablaProductos.getSelectedRow();
                     if (fila >= 0) {
                         JOptionPane.showMessageDialog(panelInventario,
-                                "Los productos están en modo de solo lectura para el Supervisor.",
-                                "Información", JOptionPane.INFORMATION_MESSAGE);
+                                "Los productos están en modo de solo lectura para el perfil de Supervisor.",
+                                "Modo Consulta", JOptionPane.INFORMATION_MESSAGE);
                     }
                 }
             });
@@ -147,7 +140,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             });
 
         } catch (NullPointerException npe) {
-            System.err.println("Error al enlazar los listeners del Supervisor: " + npe.getMessage());
+            System.err.println("Error al vincular eventos en el controlador del supervisor: " + npe.getMessage());
         }
     }
 
@@ -181,7 +174,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            // --- EVENTOS DE NAVEGACIÓN ---
+            // --- NAVEGACIÓN PRINCIPAL ---
             if (e.getSource() == vistaPrincipal.sidebar.bCasa) {
                 mostrarInicio();
             }
@@ -190,19 +183,18 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 ejecutarCerrarSesion();
             }
 
-            // --- ABRIR LA VISTA DEL PUNTO DE VENTA (PdV) ---
+            // --- ABRIR PUNTO DE VENTA (PdV) ---
             if (e.getSource() == vistaPrincipal.sidebar.bInventario) {
                 VistaPdV vistaPdV = new VistaPdV();
                 JPanel panelPdV = vistaPdV.VistaNexus();
 
-                ControladorPdV controladorPdV = new ControladorPdV(vistaPdV, panelPdV, idCajaActual);
+                new ControladorPdV(vistaPdV, panelPdV, idCajaActual);
 
                 List<Producto> listaProductos = productoDao.listar();
 
                 if (listaProductos != null && !listaProductos.isEmpty()) {
                     for (Producto p : listaProductos) {
                         String precioFormateado = String.format("$%.0f", p.getPrecioCompra());
-
                         String imagen = (p.getUrlImagen() != null && !p.getUrlImagen().isEmpty())
                                 ? p.getUrlImagen()
                                 : "tratamiento.png";
@@ -219,25 +211,24 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 cambiarPanelCentral(panelPdV);
             }
 
+            // --- VISTA INVENTARIO / TABLAS ---
             if (e.getSource() == vistaPrincipal.sidebar.misCitas) {
                 cambiarPanelCentral(this.panelInventario);
                 listarProductosEnTabla();
                 listarHerramientasEnTabla();
             }
 
-            //  ACCIÓN AL PRESIONAR BOTÓN CAJA
+            // --- MODULO DE CAJA ---
             if (e.getSource() == vistaPrincipal.btnCaja) {
                 cambiarPanelCentral(this.panelAperturaCierre);
             }
 
-            //  LÓGICA DE APERTURA / CIERRE DE CAJA 
+            // --- EVENTOS CAJA: APERTURA ---
             if (e.getSource() == panelAperturaCierre.getBtnApertura()) {
-
-                /* Bloquear una nueva apertura si ya existe una caja abierta,
-                solo se puede volver a abrir después de hacer el cierre.*/
                 if (idCajaActual > 0) {
-                    JOptionPane.showMessageDialog(vistaPrincipal,"Ya existe una caja abierta. Debe realizar el cierre antes de registrar una nueva apertura.",
-                            "Caja ya abierta", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(vistaPrincipal,
+                            "Ya existe una caja abierta. Debe realizar el cierre antes de registrar una nueva apertura.",
+                            "Caja en Uso", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
 
@@ -247,14 +238,16 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                     try {
                         monto = parsearMonto(montoStr);
                     } catch (NumberFormatException nfe) {
-                        JOptionPane.showMessageDialog(vistaPrincipal, "El monto ingresado no es un número válido.",
-                                "Formato inválido", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(vistaPrincipal,
+                                "El monto ingresado no es un número válido.",
+                                "Formato Inválido", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
 
                     if (monto <= 0 || monto > 99999999.99) {
-                        JOptionPane.showMessageDialog(vistaPrincipal, "El monto debe ser mayor a 0 y no superar $99.999.999,99.",
-                                "Monto fuera de rango", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(vistaPrincipal,
+                                "El monto debe ser mayor a $0 y no superar $99.999.999,99.",
+                                "Monto Fuera de Rango", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
 
@@ -262,39 +255,51 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
                     if (idCajaActual > 0) {
                         panelAperturaCierre.getLbltxtMontoA().setText(String.format("$%,.2f", monto));
-                        JOptionPane.showMessageDialog(vistaPrincipal, "Apertura de caja realizada con: $" + String.format("%,.2f", monto),
+                        JOptionPane.showMessageDialog(vistaPrincipal,
+                                "Apertura de caja realizada con: $" + String.format("%,.2f", monto),
                                 "Caja Registrada", JOptionPane.INFORMATION_MESSAGE);
-                        SwingUtilities.invokeLater(() -> {
-                            vistaPrincipal.getContenidoCentralDinamico().revalidate();
-                            vistaPrincipal.getContenidoCentralDinamico().repaint();
-                        });
+                        
+                        refrescarVistaDinamica();
                     } else {
-                        JOptionPane.showMessageDialog(vistaPrincipal, "No se pudo registrar la apertura de caja en la base de datos.",
-                                "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(vistaPrincipal,
+                                "No se pudo registrar la apertura de caja en la base de datos.",
+                                "Error de BD", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
 
+            // --- EVENTOS CAJA: CIERRE ---
             if (e.getSource() == panelAperturaCierre.getBtnCalcular()) {
-                String montoFisico = panelAperturaCierre.getTxtMontoF().getText().replace("$", "").trim();
-                if (!montoFisico.isEmpty() && idCajaActual > 0) {
-                    double monto = Double.parseDouble(montoFisico);
-                    cajaDao.guardarCierre(idCajaActual, monto, monto);
-                    JOptionPane.showMessageDialog(vistaPrincipal, "Cierre procesado con monto físico en caja: $" + montoFisico,
-                            "Cierre de Caja", JOptionPane.INFORMATION_MESSAGE);
-                    idCajaActual = 0;
-                    panelAperturaCierre.getLbltxtMontoA().setText("");
-                    SwingUtilities.invokeLater(() -> {
-                        vistaPrincipal.getContenidoCentralDinamico().revalidate();
-                        vistaPrincipal.getContenidoCentralDinamico().repaint();
-                    });
+                String montoFisicoStr = panelAperturaCierre.getTxtMontoF().getText();
+                
+                if (!montoFisicoStr.trim().isEmpty() && idCajaActual > 0) {
+                    try {
+                        double montoFisico = parsearMonto(montoFisicoStr);
+                        cajaDao.guardarCierre(idCajaActual, montoFisico, montoFisico);
+
+                        JOptionPane.showMessageDialog(vistaPrincipal,
+                                "Cierre procesado exitosamente.\nMonto en caja: $" + String.format("%,.2f", montoFisico),
+                                "Cierre de Caja", JOptionPane.INFORMATION_MESSAGE);
+
+                        idCajaActual = 0;
+                        panelAperturaCierre.getLbltxtMontoA().setText("");
+                        panelAperturaCierre.getTxtMontoF().setText("");
+                        panelAperturaCierre.getTxtMontoInicial().setText("");
+
+                        refrescarVistaDinamica();
+                    } catch (NumberFormatException nfe) {
+                        JOptionPane.showMessageDialog(vistaPrincipal,
+                                "Ingrese un monto físico válido para realizar el cierre.",
+                                "Monto Inválido", JOptionPane.WARNING_MESSAGE);
+                    }
                 } else if (idCajaActual <= 0) {
-                    JOptionPane.showMessageDialog(vistaPrincipal, "No hay ninguna caja abierta para cerrar.",
+                    JOptionPane.showMessageDialog(vistaPrincipal,
+                            "No hay ninguna caja abierta actualmente para cerrar.",
                             "Atención", JOptionPane.WARNING_MESSAGE);
                 }
             }
 
-            // --- EVENTOS PANEL PROGRAMACIÓN ---
+            // --- EVENTOS PANEL PROGRAMACIÓN MANTENIMIENTO ---
             if (e.getSource() == panelProgramarMantenimiento.btnVolver) {
                 cambiarPanelCentral(this.panelInventario);
                 listarHerramientasEnTabla();
@@ -305,21 +310,21 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             }
 
         } catch (Exception ex) {
-            System.err.println("Error en eventos del Supervisor: " + ex.getMessage());
+            System.err.println("Error general en eventos del Supervisor: " + ex.getMessage());
         }
     }
 
     private double parsearMonto(String texto) {
         String limpio = texto.replace("$", "").trim();
-        limpio = limpio.replace(".", "");       // quita separadores de miles
-        limpio = limpio.replace(",", ".");      // convierte la coma decimal en punto
+        limpio = limpio.replace(".", "");       // Quita separadores de miles
+        limpio = limpio.replace(",", ".");      // Normaliza el separador decimal
         return Double.parseDouble(limpio);
     }
 
     private void ejecutarGuardadoProgramacion() {
         try {
-            // 1. Obtener fecha directamente del selector gráfico
-            Date fechaCalendario = panelProgramarMantenimiento.selectorFecha.getDate();
+            // 1. Obtención de fecha
+            Date fechaCalendario = panelProgramarMantenimiento.fechaProgramacion.getDate();
 
             if (fechaCalendario == null) {
                 JOptionPane.showMessageDialog(panelProgramarMantenimiento,
@@ -328,7 +333,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 return;
             }
 
-            // 2. Fusionar fecha con la hora elegida en el Spinner de hora
+            // 2. Fusión de fecha y hora del Spinner
             Calendar calFechaElegida = Calendar.getInstance();
             calFechaElegida.setTime(fechaCalendario);
 
@@ -345,7 +350,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
             Date fechaFinalProgramada = calFechaElegida.getTime();
 
-            // 3. Obtener textos del formulario
+            // 3. Campos del formulario
             String tipoMantenimiento = panelProgramarMantenimiento.cbTipoMantenimiento.getSelectedItem().toString();
             String fallaProblema = panelProgramarMantenimiento.txtFallaProblema.getText().trim();
             String observaciones = (panelProgramarMantenimiento.txtObservaciones != null)
@@ -356,15 +361,15 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
             String notasCompletas = "Falla: " + fallaProblema + " | Obs: " + observaciones + " | Img: " + nombreImagen;
 
-            // 4. Validar campos de texto obligatorios
+            // 4. Validaciones obligatorias
             if (tipoMantenimiento.equals("Seleccione su tipo de mantenimiento") || fallaProblema.isEmpty()) {
                 JOptionPane.showMessageDialog(panelProgramarMantenimiento,
-                        "Por favor, seleccione un tipo de mantenimiento e ingrese la falla o problema.",
-                        "Campos Incompletos", JOptionPane.WARNING_MESSAGE);
+                        "Debe seleccionar el tipo de mantenimiento y describir la falla/problema.",
+                        "Datos Incompletos", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
-            // 5. REGLA DE NEGOCIO Y EXCEPCIONES DE FECHA (Mínimo 48 horas)
+            // 5. Regla de Negocio: Mínimo 48 horas de anticipación
             Calendar calLimiteMañana = Calendar.getInstance();
             calLimiteMañana.add(Calendar.DAY_OF_MONTH, 1);
             calLimiteMañana.set(Calendar.HOUR_OF_DAY, 23);
@@ -375,15 +380,14 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             if (calFechaElegida.before(calLimiteMañana)) {
                 JOptionPane.showMessageDialog(panelProgramarMantenimiento,
                         "Excepción de Agenda:\n\n"
-                        + "• No se permite programar mantenimientos para fechas pasadas.\n"
-                        + "• No se permite programar mantenimientos para hoy.\n"
-                        + "• No se permite programar mantenimientos para mañana.\n\n"
-                        + "La agenda requiere un margen mínimo de 48 horas. Seleccione a partir de pasado mañana.",
-                        "Fecha No Permitida", JOptionPane.WARNING_MESSAGE);
+                        + "• No se permite agendar mantenimientos para hoy ni días pasados.\n"
+                        + "• No se permite agendar mantenimientos para el día de mañana.\n\n"
+                        + "Requiere un margen mínimo de 48 horas. Seleccione a partir de pasado mañana.",
+                        "Fecha Restringida", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
-            // 6. Instanciar objeto modelo e insertar en la Base de Datos
+            // 6. Construcción del modelo y guardado
             Mantenimiento nuevoMantenimiento = new Mantenimiento(
                     idHerramientaSeleccionada,
                     tipoMantenimiento,
@@ -397,25 +401,25 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             if (guardadoExitoso) {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                 JOptionPane.showMessageDialog(panelProgramarMantenimiento,
-                        "¡Mantenimiento programado con éxito!\n\n"
+                        "¡Mantenimiento agendado exitosamente!\n\n"
                         + "Herramienta: " + nombreHerramientaSeleccionada + "\n"
                         + "Tipo: " + tipoMantenimiento + "\n"
-                        + "Fecha Agendada: " + sdf.format(fechaFinalProgramada) + "\n"
-                        + "Imagen Adjunta: " + nombreImagen,
-                        "NEXUS GO - Agenda Exitosa", JOptionPane.INFORMATION_MESSAGE);
+                        + "Fecha Programada: " + sdf.format(fechaFinalProgramada) + "\n"
+                        + "Adjunto: " + nombreImagen,
+                        "NEXUS GO - Éxito", JOptionPane.INFORMATION_MESSAGE);
 
                 limpiarCamposProgramacion();
                 cambiarPanelCentral(this.panelInventario);
                 listarHerramientasEnTabla();
             } else {
                 JOptionPane.showMessageDialog(panelProgramarMantenimiento,
-                        "Ocurrió un problema al guardar en la base de datos.",
-                        "Error de Almacenamiento", JOptionPane.ERROR_MESSAGE);
+                        "No se pudo guardar la información en la base de datos.",
+                        "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
             }
 
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(panelProgramarMantenimiento,
-                    "Error al procesar el guardado: " + ex.getMessage(),
+                    "Error inesperado al agendar: " + ex.getMessage(),
                     "Error General", JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -427,72 +431,84 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             panelProgramarMantenimiento.txtObservaciones.setText("");
         }
         panelProgramarMantenimiento.lblNombreImagen.setText("Ninguna imagen seleccionada");
-        if (panelProgramarMantenimiento.selectorFecha != null) {
-            panelProgramarMantenimiento.selectorFecha.setDate(new Date());
+
+        Date hoy = new Date();
+        panelProgramarMantenimiento.fechaProgramacion.setDate(hoy);
+        panelProgramarMantenimiento.fechaProgramacion.setDate(hoy);
+    }
+
+    private void ejecutarCerrarSesion() {
+        int confirmacion = JOptionPane.showConfirmDialog(
+                vistaPrincipal,
+                "¿Desea cerrar la sesión actual del sistema?",
+                "Cerrar Sesión",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirmacion == JOptionPane.YES_OPTION) {
+            vistaPrincipal.dispose();
+            
+            // Reabre el login para nuevas autenticaciones
+            VistaInicioSesion vistaLogin = new VistaInicioSesion();
+            new ControladorInicioSesion(vistaLogin);
+            vistaLogin.setVisible(true);
         }
     }
 
     public void listarProductosEnTabla() {
         try {
-            DefaultTableModel modeloBlindado = new DefaultTableModel(new Object[]{"ID", "Nombre", "Precio", "Stock", "Tipo"}, 0) {
+            DefaultTableModel modelo = new DefaultTableModel(new Object[]{"ID", "Nombre", "Precio", "Stock", "Tipo"}, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
                     return false;
                 }
             };
-            panelInventario.tablaProductos.setModel(modeloBlindado);
+            panelInventario.tablaProductos.setModel(modelo);
             List<Producto> lista = productoDao.listar();
             if (lista != null) {
                 for (Producto p : lista) {
-                    modeloBlindado.addRow(new Object[]{p.getIdProducto(), p.getNombreProducto(), p.getPrecioCompra(), p.getStockActual(), "Insumo Interno"});
+                    modelo.addRow(new Object[]{p.getIdProducto(), p.getNombreProducto(), p.getPrecioCompra(), p.getStockActual(), "Insumo Interno"});
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error al listar productos: " + e.getMessage());
+            System.err.println("Error al cargar la lista de productos: " + e.getMessage());
         }
     }
 
     public void listarHerramientasEnTabla() {
         try {
-            DefaultTableModel modeloBlindado = new DefaultTableModel(new Object[]{"ID", "Nombre", "Estado", "Tipo"}, 0) {
+            DefaultTableModel modelo = new DefaultTableModel(new Object[]{"ID", "Nombre", "Estado", "Tipo"}, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
                     return false;
                 }
             };
-            panelInventario.tablaHerramientas.setModel(modeloBlindado);
+            panelInventario.tablaHerramientas.setModel(modelo);
             List<Herramientas> lista = herramientaDao.listar();
             if (lista != null) {
                 for (Herramientas h : lista) {
-                    modeloBlindado.addRow(new Object[]{h.getIdHerramienta(), h.getNombreHerramienta(), h.getEstadoActual(), "Activo"});
+                    modelo.addRow(new Object[]{h.getIdHerramienta(), h.getNombreHerramienta(), h.getEstadoActual(), "Activo"});
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error al listar herramientas: " + e.getMessage());
+            System.err.println("Error al cargar la lista de herramientas: " + e.getMessage());
         }
     }
 
     private void cambiarPanelCentral(JPanel panelNuevo) {
-        JPanel contenedor = vistaPrincipal.getContenidoCentralDinamico();
-
-        if (contenedor != null) {
-            contenedor.removeAll();
-            contenedor.setLayout(new BorderLayout());
-            contenedor.add(panelNuevo, BorderLayout.CENTER);
-            contenedor.revalidate();
-            contenedor.repaint();
+        try {
+            vistaPrincipal.getContenidoCentralDinamico().removeAll();
+            vistaPrincipal.getContenidoCentralDinamico().add(panelNuevo, BorderLayout.CENTER);
+            refrescarVistaDinamica();
+        } catch (Exception e) {
+            System.err.println("Error en la conmutación de paneles centrales: " + e.getMessage());
         }
     }
 
-    private void ejecutarCerrarSesion() {
-        int confirmar = JOptionPane.showConfirmDialog(null, "¿Desea cerrar sesión en NEXUS GO?", "Cerrar Sesión", JOptionPane.YES_NO_OPTION);
-        if (confirmar == JOptionPane.YES_OPTION) {
-            vistaPrincipal.dispose();
-
-            VistaInicioSesion loginVista = new VistaInicioSesion();
-            new ControladorInicioSesion(loginVista);
-            loginVista.setLocationRelativeTo(null);
-            loginVista.setVisible(true);
-        }
+    private void refrescarVistaDinamica() {
+        SwingUtilities.invokeLater(() -> {
+            vistaPrincipal.getContenidoCentralDinamico().revalidate();
+            vistaPrincipal.getContenidoCentralDinamico().repaint();
+        });
     }
 }
