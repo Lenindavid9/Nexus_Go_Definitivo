@@ -7,327 +7,223 @@ package nexusgo.controller;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.SwingUtilities;
 
-import nexusgo.model.HerramientaDao;
-import nexusgo.model.Herramientas;
-import nexusgo.model.Mantenimiento;
-import nexusgo.model.MantenimientoDao;
+// Importación de Modelos y DAOs
 import nexusgo.model.ProductoDao;
 import nexusgo.model.PromocionDao;
 import nexusgo.model.ServicioDao;
-import nexusgo.model.Servicios;
 import nexusgo.model.Usuario;
+
+// Importación de Vistas
 import nexusgo.view.PanelAdmi;
 import nexusgo.view.PanelBienvenida;
-import nexusgo.view.ReportesFinancieros;
-import nexusgo.view.VistaAgregarPromocion;
+import nexusgo.view.VistaAgregarPromocionCombo;
+import nexusgo.view.VistaAgregarPromocionProducto;
 import nexusgo.view.VistaAgregarPromocionServicio;
 import nexusgo.view.VistaAgregarServicio;
-import nexusgo.view.VistaHistorialMantenimiento;
+import nexusgo.view.VistaInicioSesion;
 
 /**
  *
  * @author INGRID
  */
 public class ControladorPrincipalAdmiPeluqueria implements ActionListener {
-    
-  // Referencias a las vistas del módulo
+
     private final PanelAdmi vistaAdmin;
-    private ReportesFinancieros panelReportes;
-    private VistaHistorialMantenimiento panelHistorial;
-
-    // Instancias de los DAO para el acceso a datos
-    private final ProductoDao productoDao = new ProductoDao();
-    private final HerramientaDao herramientaDao = new HerramientaDao();
-    private final MantenimientoDao mantenimientoDao = new MantenimientoDao();
-    private final ServicioDao servicioDao = new ServicioDao();
-    private final PromocionDao promocionDao = new PromocionDao();
-
-    // Datos del usuario con sesión activa
     private final Usuario usuarioLogueado;
 
-    // Constructor principal
+    // Instancias de DAOs para la gestión de datos
+    private final PromocionDao promocionDao = new PromocionDao();
+    private final ProductoDao productoDao = new ProductoDao();
+    private final ServicioDao servicioDao = new ServicioDao();
+
     public ControladorPrincipalAdmiPeluqueria(PanelAdmi vistaAdmin, Usuario usuarioLogueado) {
         this.vistaAdmin = vistaAdmin;
         this.usuarioLogueado = usuarioLogueado;
 
-        try {
-            // Inicializar vistas secundarias que se reutilizan
-            this.panelReportes = new ReportesFinancieros();
-            this.panelHistorial = new VistaHistorialMantenimiento();
+        // Título personalizado para la ventana principal
+        this.vistaAdmin.setTitle("NexusGO - Panel de Administración: " + usuarioLogueado.getNombre());
 
-            // Asignar eventos a los botones y componentes
-            inicializarListeners();
+        // Vinculación de listeners de botones
+        inicializarListeners();
 
-            // Cargar la vista de bienvenida por defecto al centro
-            cambiarPanelCentral(new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol()));
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null,
-                    "Error al inicializar el módulo de administración: " + e.getMessage(),
-                    "Error de Inicio", JOptionPane.ERROR_MESSAGE);
-        }
+        // Muestra la vista de bienvenida por defecto al iniciar
+        mostrarPanelBienvenida();
     }
 
-    // Método para registrar los escuchadores de eventos
     private void inicializarListeners() {
         try {
-            // Clic en la tarjeta de reportes financieros
-            if (this.vistaAdmin.getPnlTarjeta() != null) {
-                this.vistaAdmin.getPnlTarjeta().addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        cambiarPanelCentral(panelReportes);
-                    }
-                });
+            // Botón de Inicio en la barra lateral
+            if (vistaAdmin.getMenuLateral() != null && vistaAdmin.getMenuLateral().bCasa != null) {
+                vistaAdmin.getMenuLateral().bCasa.addActionListener(this);
             }
 
-            // Opciones del menú lateral
-            if (this.vistaAdmin.getMenuLateral() != null) {
-                if (this.vistaAdmin.getMenuLateral().bCasa != null) {
-                    this.vistaAdmin.getMenuLateral().bCasa.addActionListener(this);
-                }
-                if (this.vistaAdmin.getMenuLateral().bInventario != null) {
-                    this.vistaAdmin.getMenuLateral().bInventario.addActionListener(this);
-                }
-                if (this.vistaAdmin.getMenuLateral().misCitas != null) {
-                    this.vistaAdmin.getMenuLateral().misCitas.addActionListener(this);
-                }
+            // Botón para Gestión de Servicios
+            if (vistaAdmin.bServicios != null) {
+                vistaAdmin.bServicios.addActionListener(this);
             }
 
-            // Botones directos del panel principal
-            if (this.vistaAdmin.bServicios != null) {
-                this.vistaAdmin.bServicios.addActionListener(this);
-            }
-            if (this.vistaAdmin.bPromociones != null) {
-                this.vistaAdmin.bPromociones.addActionListener(this);
-            }
-            if (this.vistaAdmin.btnReporte != null) {
-                this.vistaAdmin.btnReporte.addActionListener(this);
+            // Botón para Opciones de Promociones y Combos
+            if (vistaAdmin.bPromociones != null) {
+                vistaAdmin.bPromociones.addActionListener(this);
             }
 
-            // Botones dentro del panel de reportes financieros
-            if (this.panelReportes != null) {
-                this.panelReportes.getBtnInicio().addActionListener(this);
-                this.panelReportes.getBtnProcesar().addActionListener(this);
-                this.panelReportes.getBtnCerrar().addActionListener(this);
-                this.panelReportes.getBtnHistorialMH().addActionListener(this);
+            // Botón para Reportes Financieros
+            if (vistaAdmin.btnReporte != null) {
+                vistaAdmin.btnReporte.addActionListener(this);
             }
 
-            // Botón general de cerrar sesión
-            if (this.vistaAdmin.getBtnCerrar() != null) {
-                this.vistaAdmin.getBtnCerrar().addActionListener(this);
+            // Botón para Cerrar Sesión
+            if (vistaAdmin.getBtnCerrar() != null) {
+                vistaAdmin.getBtnCerrar().addActionListener(this);
             }
 
-        } catch (Exception e) {
-            System.err.println("Error al vincular los eventos: " + e.getMessage());
+        } catch (NullPointerException npe) {
+            System.err.println("Error al inicializar listeners en ControladorPrincipalAdmiPeluqueria: " + npe.getMessage());
         }
     }
 
-    // Gestor central de eventos (clics y acciones)
     @Override
     public void actionPerformed(ActionEvent e) {
-        try {
-            // Navegación desde el menú lateral
-            if (this.vistaAdmin.getMenuLateral() != null) {
-                if (e.getSource() == vistaAdmin.getMenuLateral().bCasa) {
-                    cambiarPanelCentral(new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol()));
-                    return;
-                }
+        Object source = e.getSource();
 
-                if (e.getSource() == vistaAdmin.getMenuLateral().bInventario) {
-                    JOptionPane.showMessageDialog(vistaAdmin,
-                            "Módulo de inventario en construcción.",
-                            "NexusGO", JOptionPane.INFORMATION_MESSAGE);
-                    return;
-                }
+        if (vistaAdmin.getMenuLateral() != null && source == vistaAdmin.getMenuLateral().bCasa) {
+            mostrarPanelBienvenida();
 
-                if (e.getSource() == vistaAdmin.getMenuLateral().misCitas) {
-                    mostrarHistorialMantenimiento();
-                    return;
-                }
-            }
+        } else if (source == vistaAdmin.bServicios) {
+            abrirModuloAgregarServicios();
 
-            // Botones principales
-            if (e.getSource() == vistaAdmin.bServicios) {
-                VistaAgregarServicio vistaServicios = new VistaAgregarServicio();
-                new ControladorAgregarServicio(vistaServicios, servicioDao);
-                cambiarPanelCentral(vistaServicios);
-                return;
-            }
+        } else if (source == vistaAdmin.bPromociones) {
+            // Despliega el JOptionPane con las 3 opciones principales
+            lanzarMenuDecisionPromociones();
 
-            // Redirige directamente a Promoción de Servicios
-            if (e.getSource() == vistaAdmin.bPromociones) {
-                gestionarAperturaPromocionServicio();
-                return;
-            }
+        } else if (source == vistaAdmin.btnReporte) {
+            JOptionPane.showMessageDialog(
+                    vistaAdmin, 
+                    "Módulo de Reportes Financieros en desarrollo.", 
+                    "NexusGO - Reportes", 
+                    JOptionPane.INFORMATION_MESSAGE
+            );
 
-            if (e.getSource() == vistaAdmin.btnReporte) {
-                cambiarPanelCentral(panelReportes);
-                return;
-            }
-
-            // Acciones dentro de la vista de reportes
-            if (panelReportes != null) {
-                if (e.getSource() == panelReportes.getBtnInicio()) {
-                    cambiarPanelCentral(new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol()));
-                }
-
-                if (e.getSource() == panelReportes.getBtnHistorialMH()) {
-                    mostrarHistorialMantenimiento();
-                }
-
-                if (e.getSource() == panelReportes.getBtnProcesar()) {
-                    ejecutarProcesamientoReporte();
-                }
-
-                if (e.getSource() == panelReportes.getBtnCerrar()) {
-                    ejecutarCierreSesion();
-                }
-            }
-
-            // Cierre de sesión global
-            if (e.getSource() == vistaAdmin.getBtnCerrar()) {
-                ejecutarCierreSesion();
-            }
-
-        } catch (Exception ex) {
-            System.err.println("Error procesando acción: " + ex.getMessage());
+        } else if (source == vistaAdmin.getBtnCerrar()) {
+            ejecutarCierreSesion();
         }
     }
 
-    // Abre de manera directa la vista configurada EXCLUSIVAMENTE para Promociones de Servicio
-    private void gestionarAperturaPromocionServicio() {
-        try {
-            // Instancia de la vista específica requerida por el constructor
-            VistaAgregarPromocionServicio vistaPromocion = new VistaAgregarPromocionServicio();
+    /**
+     * Muestra las 3 opciones de Promociones/Combos y direcciona a su respectiva vista y controlador.
+     */
+    private void lanzarMenuDecisionPromociones() {
+        String[] opciones = {
+            "Promoción Combo", 
+            "Promoción Producto", 
+            "Promoción Servicio", 
+            "Cancelar"
+        };
 
-            // Cargar los servicios activos desde la base de datos si la vista tiene el combo
-            List<Servicios> serviciosActivos = servicioDao.listarServiciosActivos();
-
-            if (serviciosActivos != null && vistaPromocion.comboServicios != null) {
-                vistaPromocion.comboServicios.removeAllItems();
-                for (Servicios s : serviciosActivos) {
-                    vistaPromocion.comboServicios.addItem(s);
-                }
-            }
-
-            // Inicializar el sub-controlador con los 3 parámetros exactos requeridos
-            new ControladorAgregarPromocionServicio(vistaPromocion, promocionDao, servicioDao);
-
-            // Mostrar la vista en el centro del panel
-            cambiarPanelCentral(vistaPromocion);
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(vistaAdmin,
-                    "Error al abrir la vista de promociones de servicio: " + e.getMessage(),
-                    "Error de Interfaz", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    // Genera la tabla del reporte financiero consultando las herramientas en BD
-    private void ejecutarProcesamientoReporte() {
-        try {
-            String mesSeleccionado = panelReportes.getComboMes().getSelectedItem().toString();
-            String anioSeleccionado = panelReportes.getComboAnio().getSelectedItem().toString();
-
-            DefaultTableModel modelo = panelReportes.getModeloTabla();
-            modelo.setRowCount(0); // Limpiar filas anteriores
-
-            List<Herramientas> listaHerramientas = herramientaDao.listar();
-
-            if (listaHerramientas != null && !listaHerramientas.isEmpty()) {
-                for (Herramientas h : listaHerramientas) {
-                    modelo.addRow(new Object[]{
-                        h.getIdHerramienta(),
-                        h.getNombreHerramienta(),
-                        h.getEstadoActual(),
-                        "Registro BD"
-                    });
-                }
-                JOptionPane.showMessageDialog(panelReportes,
-                        "Reporte procesado correctamente para " + mesSeleccionado + " " + anioSeleccionado + ".",
-                        "NexusGO - Reporte Financiero", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(panelReportes,
-                        "No hay datos registrados para el período seleccionado.",
-                        "Sin Datos", JOptionPane.WARNING_MESSAGE);
-            }
-
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(panelReportes,
-                    "Error consultando la base de datos: " + ex.getMessage(),
-                    "Error de Base de Datos", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    // Muestra la vista con el historial de mantenimientos realizados
-    private void mostrarHistorialMantenimiento() {
-        try {
-            List<Mantenimiento> listaMantenimientos = herramientaDao.listarMantenimientosRealizados();
-
-            String[] columnas = {"Número de referencia", "Nombre", "Marca", "Fecha / Hora"};
-            DefaultTableModel modelo = new DefaultTableModel(null, columnas) {
-                @Override
-                public boolean isCellEditable(int row, int column) {
-                    return false; // Bloquear edición de celdas
-                }
-            };
-
-            if (listaMantenimientos != null && !listaMantenimientos.isEmpty()) {
-                for (Mantenimiento m : listaMantenimientos) {
-                    modelo.addRow(new Object[]{
-                        m.getIdMantenimiento(),
-                        m.getNombreHerramienta(),
-                        m.getMarca() != null ? m.getMarca() : "Original",
-                        m.getFechaHora() != null ? m.getFechaHora() : "N/A"
-                    });
-                }
-            }
-
-            panelHistorial.setDatosHistorial(modelo);
-            cambiarPanelCentral(panelHistorial);
-
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(vistaAdmin,
-                    "Error consultando el historial de mantenimientos: " + e.getMessage(),
-                    "Error de Conexión", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    // Confirmar y cerrar la ventana actual del administrador
-    private void ejecutarCierreSesion() {
-        int confirmacion = JOptionPane.showConfirmDialog(
+        int seleccion = JOptionPane.showOptionDialog(
                 vistaAdmin,
-                "¿Desea cerrar la sesión actual?",
-                "NexusGO - Cerrar Sesión",
+                "¿Qué tipo de promoción o combo desea registrar?",
+                "NexusGO - Selección de Módulo",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                opciones,
+                opciones[0]
+        );
+
+        switch (seleccion) {
+            case 0: // Promoción Combo
+                abrirModuloPromocionCombo();
+                break;
+                
+            case 1: // Promoción Producto
+                abrirModuloPromocionProducto();
+                break;
+                
+            case 2: // Promoción Servicio
+                abrirModuloPromocionServicio();
+                break;
+
+            default:
+                // Cancelar o cerrar ventana
+                break;
+        }
+    }
+
+    // Muestra la vista de bienvenida
+    public void mostrarPanelBienvenida() {
+        PanelBienvenida bienvenida = new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol());
+        cambiarPanelCentral(bienvenida);
+    }
+
+    // 1. Abrir módulo Promoción Combo
+    private void abrirModuloPromocionCombo() {
+        VistaAgregarPromocionCombo vista = new VistaAgregarPromocionCombo();
+        new ControladorAgregarPromocionCombo(vista, promocionDao, productoDao, servicioDao, "COMBO", this);
+        cambiarPanelCentral(vista);
+    }
+
+    // 2. Abrir módulo Promoción Producto
+    private void abrirModuloPromocionProducto() {
+        VistaAgregarPromocionProducto vista = new VistaAgregarPromocionProducto();
+        new ControladorAgregarPromocionProducto(vista, promocionDao, productoDao, this);
+        cambiarPanelCentral(vista);
+    }
+
+    // 3. Abrir módulo Promoción Servicio
+    private void abrirModuloPromocionServicio() {
+        VistaAgregarPromocionServicio vista = new VistaAgregarPromocionServicio();
+        new ControladorAgregarPromocionServicio(vista, promocionDao, servicioDao, this);
+        cambiarPanelCentral(vista);
+    }
+
+    // Abrir módulo Servicios simples
+    private void abrirModuloAgregarServicios() {
+        VistaAgregarServicio vistaServicios = new VistaAgregarServicio();
+        new ControladorAgregarServicio(vistaServicios, servicioDao);
+        cambiarPanelCentral(vistaServicios);
+    }
+
+    /**
+     * Reemplaza dinámicamente el panel central dentro del contenedor principal.
+     */
+    private void cambiarPanelCentral(JPanel nuevoPanel) {
+        try {
+            JPanel contenedorCentral = vistaAdmin.getContenidoCentral();
+            contenedorCentral.removeAll();
+            contenedorCentral.setLayout(new BorderLayout());
+            contenedorCentral.add(nuevoPanel, BorderLayout.CENTER);
+
+            SwingUtilities.invokeLater(() -> {
+                contenedorCentral.revalidate();
+                contenedorCentral.repaint();
+            });
+        } catch (Exception e) {
+            System.err.println("Error al reemplazar el panel central: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Confirma la salida del usuario y redirige a la ventana de inicio de sesión.
+     */
+    public void ejecutarCierreSesion() {
+        int opcion = JOptionPane.showConfirmDialog(
+                vistaAdmin,
+                "¿Desea cerrar la sesión del Administrador?",
+                "Cerrar Sesión",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE
         );
 
-        if (confirmacion == JOptionPane.YES_OPTION) {
+        if (opcion == JOptionPane.YES_OPTION) {
             vistaAdmin.dispose();
-        }
-    }
-
-    // Reemplazar dinámicamente la vista del centro de la pantalla
-    private void cambiarPanelCentral(JPanel panelNuevo) {
-        try {
-            BorderLayout layout = (BorderLayout) vistaAdmin.getContentPane().getLayout();
-            if (layout.getLayoutComponent(BorderLayout.CENTER) != null) {
-                vistaAdmin.getContentPane().remove(layout.getLayoutComponent(BorderLayout.CENTER));
-            }
-            vistaAdmin.getContentPane().add(panelNuevo, BorderLayout.CENTER);
-            vistaAdmin.revalidate();
-            vistaAdmin.repaint();
-        } catch (Exception e) {
-            System.err.println("Error al reemplazar el panel central: " + e.getMessage());
+            VistaInicioSesion vistaLogin = new VistaInicioSesion();
+            new ControladorInicioSesion(vistaLogin);
+            vistaLogin.setVisible(true);
         }
     }
 }

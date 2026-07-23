@@ -275,7 +275,7 @@ public class ControladorAgregarServicio implements ActionListener {
                 vista.comboDuracionMinutos.setSelectedIndex(0);
             }
             if (vista.txtPrecio != null) {
-                vista.txtPrecio.setText("Ingrese el precio en pesos colombianos");
+                vista.txtPrecio.setText("Ingrese el precio ");
             }
             if (vista.lblNombreImagen != null) {
                 vista.lblNombreImagen.setText("imagenservicio.png");

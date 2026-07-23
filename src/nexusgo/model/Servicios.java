@@ -82,13 +82,8 @@ public class Servicios {
 
     @Override
     public String toString() {
-        return "Servicios{"
-                + "idServicio=" + idServicio
-                + ", nombreServicio='" + nombreServicio + '\''
-                + ", descripcion='" + descripcion + '\''
-                + ", duracionMinutos=" + duracionMinutos
-                + ", precio=" + precio
-                + ", activo=" + activo
-                + '}';
+        return this.nombreServicio + " - $" + this.precio;
     }
+
+
 }
