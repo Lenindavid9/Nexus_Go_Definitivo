@@ -35,10 +35,8 @@ import org.jfree.data.category.DefaultCategoryDataset;
  */
 public class ReportesFinancieros extends JPanel {
     
-    private JPanel titulo, menu, principal;
+    private JPanel principal;
     private JButton btnInicio, btnCerrar, btnHistorialMH, btnProcesar;
-    private JLabel logoyNombre;
-    private JPanel OpcTitulo;
     private JComboBox<String> comboMes, comboAnio;
     private JTable tablaReporte;
     private DefaultTableModel modeloTabla;
@@ -49,19 +47,6 @@ public class ReportesFinancieros extends JPanel {
     public JPanel VistaRF() {
         this.setLayout(new BorderLayout());
         this.setBackground(Color.white);
-
-        titulo = new JPanel(new BorderLayout());
-        titulo.setBackground(COLOR_CAFE_OSCURO);
-        titulo.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-
-        Icon iconLogo = new ImageIcon("logo.png"); 
-        logoyNombre = new JLabel("Reportes Financieros  - N E X U S", iconLogo, SwingConstants.LEFT);
-        logoyNombre.setForeground(Color.WHITE);
-        logoyNombre.setFont(new Font("SansSerif", Font.BOLD, 22));
-        titulo.add(logoyNombre, BorderLayout.WEST);
-
-        OpcTitulo = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
-        OpcTitulo.setOpaque(false);
         
         btnCerrar = new JButton("Cerrar Sesion");
         btnCerrar.setFont(new Font("SansSerif", Font.BOLD, 15));
@@ -69,24 +54,12 @@ public class ReportesFinancieros extends JPanel {
         btnCerrar.setContentAreaFilled(false);
         btnCerrar.setBorderPainted(false);
         
-        OpcTitulo.add(btnCerrar);
-        titulo.add(OpcTitulo, BorderLayout.EAST);
-
-        menu = new JPanel();
-        menu.setLayout(new BoxLayout(menu, BoxLayout.Y_AXIS));
-        menu.setBackground(COLOR_DORADO);
-        menu.setPreferredSize(new Dimension(250, 0));
-        menu.setBorder(BorderFactory.createEmptyBorder(30, 15, 10, 15)); 
 
         btnInicio = new JButton("Inicio");
         btnHistorialMH = new JButton("Historial Mantenimiento Herramientas");
 
         BotonMenu(btnInicio);
         BotonMenu(btnHistorialMH);
-
-        menu.add(btnInicio);
-        menu.add(Box.createVerticalStrut(20));
-        menu.add(btnHistorialMH);
 
         principal = new JPanel();
         principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
@@ -159,11 +132,6 @@ public class ReportesFinancieros extends JPanel {
         principal.add(scrollTabla);
         principal.add(Box.createVerticalStrut(20));
         principal.add(crearGrafica());
-
-
-
-        this.add(titulo, BorderLayout.NORTH);
-        this.add(menu, BorderLayout.WEST);
         this.add(principal, BorderLayout.CENTER);
 
         return this;
@@ -231,4 +199,6 @@ public class ReportesFinancieros extends JPanel {
     chartPanel.setPreferredSize(new Dimension(600, 400));
     return chartPanel;
 }
+  
+  
 }
