@@ -44,6 +44,11 @@ public class ControladorMetododePago {
     private FacturaDao facturaDao;
     private List<DetalleCarrito> carritoActual;
     private int idCajaActual = 0;
+    private Usuario operarioLogueado = null; //Operario que inicio sesion para atenderlo
+    
+    public void setOperarioLogueado(Usuario OperarioLogueado){
+        this.setOperarioLogueado(OperarioLogueado);
+    }
 
     // 1. Constructor Completo
     public ControladorMetododePago(VistaMetododePago vistaPago, DineroEfectivo vistaEfectivo, List<DetalleCarrito> carrito, double totalVenta, JPanel contenedorCentral, int idCajaActual) {
@@ -272,7 +277,7 @@ public class ControladorMetododePago {
                 // 4. Instanciar la vista final de la factura enviando el cliente actual
                 VistaFactura vistaTemporal;
                 try {
-                    vistaTemporal = new VistaFactura(factura, carritoActual, clienteParaFactura);
+                    vistaTemporal = new VistaFactura(factura, carritoActual, clienteParaFactura, operarioLogueado);
                 } catch (NoSuchMethodError | Exception ex) {
                     vistaTemporal = new VistaFactura(factura, carritoActual);
                 }
