@@ -32,317 +32,166 @@ import javax.swing.JTextField;
 import javax.swing.OverlayLayout;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 
 /**
  *
  * @author USUARIO
  */
-public class VistaAgregarServicio extends JPanel{
-    
-    
-   // Componentes del formulario
-    public JTextField txtNombreServicio;  // Campo para el nombre del servicio
-    public JTextField txtDescripcion;     // Campo para la descripción
-    public JSpinner spinDuracionHoras;    // Selector numérico para las horas de duración
-    public JComboBox<String> comboDuracionMinutos; // Selector rápido para fracciones de hora (00, 15, 30, 45 min)
-    public JTextField txtPrecio;           // Campo de texto para el precio
-    public JButton btnCargarImagen;       // Botón para examinar/subir imagen
-    public JLabel lblNombreImagen;         // Etiqueta que muestra el nombre del archivo seleccionado
-    public JButton btnGuardar;            // Botón principal de guardado
+public class VistaAgregarServicio extends JPanel {
 
-    // Botones de navegación
-    public JButton btnVolver;              // Enlace de retorno "< Volver"
-    public JButton btnCerrarSesion;        // Botón flotante superior "cerrar sesion"
+    // Componentes del formulario
+    public JTextField txtNombreServicio;
+    public JTextField txtDescripcion;
+    public JSpinner spinDuracionHoras;
+    public JComboBox<String> comboDuracionMinutos;
+    public JTextField txtPrecio;
+    public JButton btnCargarImagen;
+    public JLabel lblNombreImagen;
+    public JButton btnGuardar;
+    public JButton btnVolver;
+    public JButton btnCerrarSesion;
 
-    // Constantes de color
-    private static final Color COLOR_DORADO = new Color(223, 205, 141);
-    private static final Color COLOR_DORADO_OSCURO = new Color(185, 160, 90);
-    private static final Color COLOR_TARJETA = Color.WHITE;
-    private static final Color COLOR_TEXTO_TITULO = new Color(30, 30, 30);
-    private static final Color COLOR_TEXTO_LABEL = new Color(70, 70, 70);
-    private static final Color COLOR_TEXTO_MUTED = new Color(150, 150, 150);
+    // Constantes
+    private final Color COLOR_DORADO = new Color(184, 134, 11);
+    private static final Dimension TAMAÑO_BOTON = new Dimension(200, 45);
 
-    /**
-     * Constructor principal de la vista
-     */
     public VistaAgregarServicio() {
-        // Establece el layout principal del panel como BorderLayout
         setLayout(new BorderLayout());
         setOpaque(false);
 
-        // Contenedor central para la tarjeta (sin barra lateral)
-        JPanel panelContenido = new JPanel(new GridBagLayout());
-        panelContenido.setOpaque(false);
-        panelContenido.setBorder(new EmptyBorder(20, 20, 20, 20));
-
-        // Tarjeta blanca redondeada
-        JPanel tarjetaBlanca = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                g2.setColor(COLOR_TARJETA);
-                g2.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 25, 25));
-
-                g2.setColor(new Color(220, 220, 220));
-                g2.draw(new RoundRectangle2D.Double(0, 0, getWidth() - 1, getHeight() - 1, 25, 25));
-                g2.dispose();
-            }
-        };
-        tarjetaBlanca.setOpaque(false);
-        tarjetaBlanca.setLayout(new GridBagLayout());
-        tarjetaBlanca.setBorder(new EmptyBorder(30, 45, 30, 45));
-        tarjetaBlanca.setPreferredSize(new Dimension(650, 680));
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 0, 6, 0);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridx = 0;
-        int row = 0;
-
-        // Encabezado con título y enlace de regreso
-        JPanel panelHeader = new JPanel(new BorderLayout());
-        panelHeader.setOpaque(false);
-
-        JLabel lblTitulo = new JLabel("Registrar servicio");
-        lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 22));
-        lblTitulo.setForeground(COLOR_TEXTO_TITULO);
-
-        btnVolver = new JButton("< Volver");
-        btnVolver.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        btnVolver.setForeground(COLOR_TEXTO_LABEL);
-        btnVolver.setContentAreaFilled(false);
-        btnVolver.setBorderPainted(false);
-        btnVolver.setFocusPainted(false);
-        btnVolver.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        panelHeader.add(lblTitulo, BorderLayout.WEST);
-        panelHeader.add(btnVolver, BorderLayout.EAST);
-
-        gbc.gridy = row++;
-        tarjetaBlanca.add(panelHeader, gbc);
-
-        gbc.gridy = row++;
-        tarjetaBlanca.add(Box.createRigidArea(new Dimension(0, 10)), gbc);
-
-        // 1. Campo Nombre del Servicio
-        gbc.gridy = row++;
-        tarjetaBlanca.add(crearLabelCampo("Nombre del servicio"), gbc);
-
-        txtNombreServicio = crearTextFieldRedondeado("Ingrese el nombre del servicio");
-        gbc.gridy = row++;
-        tarjetaBlanca.add(txtNombreServicio, gbc);
-
-        // 2. Campo Descripción
-        gbc.gridy = row++;
-        tarjetaBlanca.add(crearLabelCampo("Descripción del servicio"), gbc);
-
-        txtDescripcion = crearTextFieldRedondeado("Ingrese una breve descripción");
-        gbc.gridy = row++;
-        tarjetaBlanca.add(txtDescripcion, gbc);
-
-        // 3. Campo Duración Optimizado (Horas y Minutos)
-        gbc.gridy = row++;
-        tarjetaBlanca.add(crearLabelCampo("Duración estimada"), gbc);
-
-        JPanel panelDuracion = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        panelDuracion.setOpaque(false);
-
-        // Spinner para horas (de 0 a 24)
-        spinDuracionHoras = new JSpinner(new SpinnerNumberModel(1, 0, 24, 1));
-        spinDuracionHoras.setPreferredSize(new Dimension(80, 38));
-        spinDuracionHoras.setFont(new Font("SansSerif", Font.PLAIN, 13));
-
-        JLabel lblHoras = new JLabel("Horas");
-        lblHoras.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        lblHoras.setForeground(COLOR_TEXTO_LABEL);
-
-        // Selector para minutos aproximados
-        String[] minutosOpciones = {"00 min", "15 min", "30 min", "45 min"};
-        comboDuracionMinutos = new JComboBox<>(minutosOpciones);
-        comboDuracionMinutos.setPreferredSize(new Dimension(100, 38));
-        comboDuracionMinutos.setFont(new Font("SansSerif", Font.PLAIN, 12));
-
-        panelDuracion.add(spinDuracionHoras);
-        panelDuracion.add(lblHoras);
-        panelDuracion.add(Box.createRigidArea(new Dimension(10, 0)));
-        panelDuracion.add(comboDuracionMinutos);
-
-        gbc.gridy = row++;
-        tarjetaBlanca.add(panelDuracion, gbc);
-
-        // 4. Campo Precio
-        gbc.gridy = row++;
-        tarjetaBlanca.add(crearLabelCampo("Precio"), gbc);
-
-        txtPrecio = crearTextFieldRedondeado("Ingrese el precio en pesos colombianos");
-        gbc.gridy = row++;
-        tarjetaBlanca.add(txtPrecio, gbc);
-
-        gbc.gridy = row++;
-        tarjetaBlanca.add(Box.createRigidArea(new Dimension(0, 10)), gbc);
-
-        // Subida de imagen
-        JPanel panelImagen = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
-        panelImagen.setOpaque(false);
-
-        btnCargarImagen = new JButton("Imagen del servicio") {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(COLOR_TARJETA);
-                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
-                g2.setColor(COLOR_DORADO);
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        btnCargarImagen.setFont(new Font("SansSerif", Font.BOLD, 12));
-        btnCargarImagen.setForeground(COLOR_DORADO_OSCURO);
-        btnCargarImagen.setContentAreaFilled(false);
-        btnCargarImagen.setBorderPainted(false);
-        btnCargarImagen.setFocusPainted(false);
-        btnCargarImagen.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnCargarImagen.setPreferredSize(new Dimension(170, 38));
-
-        lblNombreImagen = new JLabel("imagenservicio.png");
-        lblNombreImagen.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        lblNombreImagen.setForeground(COLOR_TEXTO_MUTED);
-
-        panelImagen.add(btnCargarImagen);
-        panelImagen.add(lblNombreImagen);
-
-        gbc.gridy = row++;
-        tarjetaBlanca.add(panelImagen, gbc);
-
-        gbc.gridy = row++;
-        tarjetaBlanca.add(Box.createRigidArea(new Dimension(0, 15)), gbc);
-
-        // Botón Guardar
-        btnGuardar = new JButton("Guardar") {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(COLOR_DORADO);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 30, 30);
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        btnGuardar.setFont(new Font("SansSerif", Font.BOLD, 18));
-        btnGuardar.setForeground(Color.WHITE);
-        btnGuardar.setContentAreaFilled(false);
-        btnGuardar.setBorderPainted(false);
-        btnGuardar.setFocusPainted(false);
-        btnGuardar.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnGuardar.setPreferredSize(new Dimension(190, 45));
-
-        JPanel panelBotonGuardar = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        panelBotonGuardar.setOpaque(false);
-        panelBotonGuardar.add(btnGuardar);
-
-        gbc.gridy = row++;
-        tarjetaBlanca.add(panelBotonGuardar, gbc);
-
-        panelContenido.add(tarjetaBlanca);
-
-        JScrollPane scrollPane = new JScrollPane(panelContenido);
-        scrollPane.setOpaque(false);
-        scrollPane.getViewport().setOpaque(false);
-        scrollPane.setBorder(null);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-
-        // Panel superior para el botón de cerrar sesión
+        // 1. PANEL SUPERIOR
         JPanel panelSuperiorDerecho = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         panelSuperiorDerecho.setOpaque(false);
         panelSuperiorDerecho.setBorder(new EmptyBorder(15, 0, 0, 25));
 
-        btnCerrarSesion = new JButton("cerrar sesion") {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(COLOR_DORADO);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 25, 25);
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        btnCerrarSesion.setFont(new Font("SansSerif", Font.BOLD, 13));
-        btnCerrarSesion.setForeground(Color.WHITE);
-        btnCerrarSesion.setContentAreaFilled(false);
-        btnCerrarSesion.setBorderPainted(false);
-        btnCerrarSesion.setFocusPainted(false);
-        btnCerrarSesion.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnCerrarSesion.setPreferredSize(new Dimension(140, 36));
-
+        btnCerrarSesion = new JButton("Cerrar Sesión");
+        estiloBotones(btnCerrarSesion);
         panelSuperiorDerecho.add(btnCerrarSesion);
+        add(panelSuperiorDerecho, BorderLayout.NORTH);
 
-        // OverlayLayout para mantener el botón superior sobre el scroll
-        JLayeredPane layeredPane = new JLayeredPane();
-        layeredPane.setLayout(new OverlayLayout(layeredPane));
+        // 2. PANEL CONTENIDO (Centrado absoluto)
+        JPanel panelContenido = new JPanel(new GridBagLayout());
+        panelContenido.setOpaque(false);
+        
+        JPanel tarjetaBlanca = new JPanel(new GridBagLayout());
+        tarjetaBlanca.setOpaque(false);
+        tarjetaBlanca.setBorder(new EmptyBorder(30, 45, 30, 45));
 
-        panelSuperiorDerecho.setAlignmentX(1.0f);
-        panelSuperiorDerecho.setAlignmentY(0.0f);
-        scrollPane.setAlignmentX(0.5f);
-        scrollPane.setAlignmentY(0.5f);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(8, 0, 8, 0); // Espaciado entre filas
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.anchor = GridBagConstraints.CENTER; // FUERZA EL CENTRADO
+        int row = 0;
 
-        layeredPane.add(panelSuperiorDerecho, JLayeredPane.PALETTE_LAYER);
-        layeredPane.add(scrollPane, JLayeredPane.DEFAULT_LAYER);
+        // Encabezado
+        JPanel panelHeader = new JPanel(new BorderLayout());
+        panelHeader.setOpaque(false);
+        JLabel lblTitulo = new JLabel("Registrar servicio");
+        lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 26));
+        lblTitulo.setForeground(Color.WHITE);
+        
+        btnVolver = new JButton("< Volver");
+        btnVolver.setForeground(Color.WHITE);
+        btnVolver.setContentAreaFilled(false);
+        btnVolver.setBorderPainted(false);
+        btnVolver.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnVolver.setFont(new Font("SansSerif", Font.PLAIN, 15));
 
-        add(layeredPane, BorderLayout.CENTER);
+        panelHeader.add(lblTitulo, BorderLayout.WEST);
+        panelHeader.add(btnVolver, BorderLayout.EAST);
+        gbc.gridy = row++; tarjetaBlanca.add(panelHeader, gbc);
+
+        // Campos
+        gbc.gridy = row++; tarjetaBlanca.add(campodeTexto("Nombre del servicio"), gbc);
+        txtNombreServicio = campoJtextField("Ingrese el nombre del servicio");
+        gbc.gridy = row++; tarjetaBlanca.add(txtNombreServicio, gbc);
+
+        gbc.gridy = row++; tarjetaBlanca.add(campodeTexto("Descripción del servicio"), gbc);
+        txtDescripcion = campoJtextField("Ingrese una breve descripción");
+        gbc.gridy = row++; tarjetaBlanca.add(txtDescripcion, gbc);
+
+        // Duración
+        gbc.gridy = row++; tarjetaBlanca.add(campodeTexto("Duración estimada"), gbc);
+        JPanel panelDuracion = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        panelDuracion.setOpaque(false);
+        spinDuracionHoras = new JSpinner(new SpinnerNumberModel(1, 0, 24, 1));
+        spinDuracionHoras.setPreferredSize(new Dimension(100, 40));
+        spinDuracionHoras.setFont(new Font("SansSerif", Font.PLAIN, 15));
+        comboDuracionMinutos = new JComboBox<>(new String[]{"00 min", "15 min", "30 min", "45 min"});
+        comboDuracionMinutos.setPreferredSize(new Dimension(120, 40));
+        comboDuracionMinutos.setFont(new Font("SansSerif", Font.PLAIN, 15));
+        panelDuracion.add(spinDuracionHoras);
+        panelDuracion.add(new JLabel("Horas"){{setForeground(Color.WHITE); setFont(new Font("SansSerif", Font.PLAIN, 15));}});
+        panelDuracion.add(comboDuracionMinutos);
+        gbc.gridy = row++; tarjetaBlanca.add(panelDuracion, gbc);
+
+        // Precio
+        gbc.gridy = row++; tarjetaBlanca.add(campodeTexto("Precio"), gbc);
+        txtPrecio = campoJtextField("Ingrese el precio en pesos");
+        gbc.gridy = row++; tarjetaBlanca.add(txtPrecio, gbc);
+
+        // Imagen
+        btnCargarImagen = new JButton("Imagen del servicio");
+        estiloBotones(btnCargarImagen);
+        lblNombreImagen = new JLabel("imagenservicio.png");
+        lblNombreImagen.setForeground(Color.WHITE);
+        lblNombreImagen.setFont(new Font("SansSerif", Font.PLAIN, 15));
+        JPanel panelImagen = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 10));
+        panelImagen.setOpaque(false);
+        panelImagen.add(btnCargarImagen); panelImagen.add(lblNombreImagen);
+        gbc.gridy = row++; tarjetaBlanca.add(panelImagen, gbc);
+
+        // Guardar
+        btnGuardar = new JButton("Guardar");
+        estiloBotones(btnGuardar);
+        JPanel panelBotonGuardar = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 10));
+        panelBotonGuardar.setOpaque(false);
+        panelBotonGuardar.add(btnGuardar);
+        gbc.gridy = row++; tarjetaBlanca.add(panelBotonGuardar, gbc);
+
+        // Añadimos la tarjeta al centro del panel de contenido
+        panelContenido.add(tarjetaBlanca, new GridBagConstraints()); 
+        
+        JScrollPane scrollPane = new JScrollPane(panelContenido);
+        scrollPane.setOpaque(false); scrollPane.getViewport().setOpaque(false);
+        scrollPane.setBorder(null);
+        add(scrollPane, BorderLayout.CENTER);
     }
 
-    // Métodos auxiliares de creación de componentes
-    private JLabel crearLabelCampo(String texto) {
+    private void estiloBotones(JButton btn) {
+        btn.setBackground(COLOR_DORADO);
+        btn.setForeground(Color.WHITE);
+        btn.setOpaque(true);
+        btn.setContentAreaFilled(true);
+        btn.setPreferredSize(new Dimension(200, 45));
+        btn.setFont(new Font("SansSerif", Font.BOLD, 16));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private JLabel campodeTexto(String texto) {
         JLabel lbl = new JLabel(texto);
-        lbl.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        lbl.setForeground(COLOR_TEXTO_LABEL);
+        lbl.setForeground(Color.WHITE);
+        lbl.setFont(new Font("SansSerif", Font.PLAIN, 19));
         return lbl;
     }
 
-    private JTextField crearTextFieldRedondeado(String placeholder) {
-        JTextField txt = new JTextField(placeholder) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(Color.WHITE);
-                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
-                g2.setColor(new Color(210, 210, 210));
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 10, 10);
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        txt.setOpaque(false);
-        txt.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        txt.setForeground(COLOR_TEXTO_MUTED);
-        txt.setBorder(new EmptyBorder(8, 12, 8, 12));
-        txt.setPreferredSize(new Dimension(0, 38));
-
+    private JTextField campoJtextField(String placeholder) {
+        JTextField txt = new JTextField(placeholder);
+        txt.setPreferredSize(new Dimension(550, 40));
+        txt.setFont(new Font("SansSerif", Font.PLAIN, 15));
+        txt.setForeground(new Color(150, 150, 150));
+        txt.setBorder(new LineBorder(Color.GRAY, 1));
+        
         txt.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent evt) {
-                if (txt.getText().equals(placeholder)) {
-                    txt.setText("");
-                    txt.setForeground(COLOR_TEXTO_TITULO);
-                }
+            public void focusGained(FocusEvent e) { 
+                if(txt.getText().equals(placeholder)) { txt.setText(""); txt.setForeground(Color.BLACK); } 
             }
-
-            @Override
-            public void focusLost(FocusEvent evt) {
-                if (txt.getText().trim().isEmpty()) {
-                    txt.setText(placeholder);
-                    txt.setForeground(COLOR_TEXTO_MUTED);
-                }
+            public void focusLost(FocusEvent e) { 
+                if(txt.getText().trim().isEmpty()) { txt.setText(placeholder); txt.setForeground(new Color(150, 150, 150)); } 
             }
         });
-
         return txt;
     }
 }

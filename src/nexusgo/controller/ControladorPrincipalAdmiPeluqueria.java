@@ -20,6 +20,7 @@ import nexusgo.model.Usuario;
 // Importación de Vistas
 import nexusgo.view.PanelAdmi;
 import nexusgo.view.PanelBienvenida;
+import nexusgo.view.ReportesFinancieros;
 import nexusgo.view.VistaAgregarPromocionCombo;
 import nexusgo.view.VistaAgregarPromocionProducto;
 import nexusgo.view.VistaAgregarPromocionServicio;
@@ -101,13 +102,8 @@ public class ControladorPrincipalAdmiPeluqueria implements ActionListener {
             lanzarMenuDecisionPromociones();
 
         } else if (source == vistaAdmin.btnReporte) {
-            JOptionPane.showMessageDialog(
-                    vistaAdmin, 
-                    "Módulo de Reportes Financieros en desarrollo.", 
-                    "NexusGO - Reportes", 
-                    JOptionPane.INFORMATION_MESSAGE
-            );
-
+            ReportesFinancieros vistaReportes = new ReportesFinancieros();
+            cambiarPanelCentral(vistaReportes.VistaRF());
         } else if (source == vistaAdmin.getBtnCerrar()) {
             ejecutarCierreSesion();
         }
