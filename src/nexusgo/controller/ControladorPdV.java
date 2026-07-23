@@ -83,8 +83,21 @@ public class ControladorPdV implements ActionListener {
         if (servicios != null) {
             for (Servicios s : servicios) {
                 String precioFormateado = String.format("$%.0f", s.getPrecio());
-                // Todavía no se pueden facturar: solo se muestran de forma informativa.
-                vista.agregarTarjetaServicio(s.getNombreServicio(), precioFormateado, null);
+
+                VistaPdV.TarjetaProductoComponentes componentes = vista.agregarTarjetaServicio(
+                        s.getNombreServicio(), precioFormateado, null);
+                componentesTarjetas.add(componentes);
+
+                componentes.getBtnAgregar().addActionListener(e -> {
+                    int cantidadIngresada = (int) componentes.getSpinner().getValue();
+                    double precioUnitario = s.getPrecio();
+
+                    if (agregarOActualizarItem(s.getIdServicio(), "SERVICIO", s.getNombreServicio(), cantidadIngresada, precioUnitario, -1)) {
+                        totalVenta += (precioUnitario * cantidadIngresada);
+                        contadorProductos += cantidadIngresada;
+                        vista.actualizarTextoFacturar(contadorProductos);
+                    }
+                });
             }
         }
     }
@@ -94,8 +107,21 @@ public class ControladorPdV implements ActionListener {
         if (combos != null) {
             for (PromocionCombo c : combos) {
                 String precioFormateado = String.format("$%.0f", c.getPrecioCombo());
-                // Todavía no se pueden facturar: solo se muestran de forma informativa.
-                vista.agregarTarjetaCombo(c.getNombreCombo(), precioFormateado, c.getRutaImagen());
+
+                VistaPdV.TarjetaProductoComponentes componentes = vista.agregarTarjetaCombo(
+                        c.getNombreCombo(), precioFormateado, c.getRutaImagen());
+                componentesTarjetas.add(componentes);
+
+                componentes.getBtnAgregar().addActionListener(e -> {
+                    int cantidadIngresada = (int) componentes.getSpinner().getValue();
+                    double precioUnitario = c.getPrecioCombo();
+
+                    if (agregarOActualizarItem(c.getIdPromocion(), "COMBO", c.getNombreCombo(), cantidadIngresada, precioUnitario, -1)) {
+                        totalVenta += (precioUnitario * cantidadIngresada);
+                        contadorProductos += cantidadIngresada;
+                        vista.actualizarTextoFacturar(contadorProductos);
+                    }
+                });
             }
         }
     }
