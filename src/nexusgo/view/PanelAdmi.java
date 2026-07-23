@@ -70,14 +70,12 @@ public class PanelAdmi extends JFrame {
         bServicios.setBorderPainted(false);
 
         bPromociones = new JButton(new ImageIcon("src/nexusgo/img/aggProm.png"));
-        bPromociones.setFont(new Font("SansSerif", Font.BOLD, 14));
         bPromociones.setBorderPainted(false);
         bPromociones.setContentAreaFilled(false);
         bPromociones.setFocusPainted(false);
         bPromociones.setOpaque(false);
 
-        btnReporte = new JButton("Reportes Financieros");
-        btnReporte.setFont(new Font("SansSerif", Font.BOLD, 14));
+        btnReporte = new JButton(new ImageIcon("src/nexusgo/img/aggProm.png"));
         btnReporte.setContentAreaFilled(false);
         btnReporte.setBorderPainted(false);
         btnReporte.setFocusPainted(false);
