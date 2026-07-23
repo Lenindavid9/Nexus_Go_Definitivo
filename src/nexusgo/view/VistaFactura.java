@@ -34,9 +34,8 @@ public class VistaFactura extends JPanel {
             tablaC, pnlProductosContenedor, linea1, linea2, pnlTotal;
     private JLabel lblEmpresa, lblGiro, lblOperario, lblCliente, lblFecha, lblEstado, SoP,
             Cant, PrecU, total, lblFelicidades, lbltxtPagar, lblMonto,
-            lbltxtA, lbltxtJ;
-    private JButton btnImprimir, btnEnviar, btnAnular, btnGuardarN;
-    private JTextArea txtNota;
+            lbltxtA;
+    private JButton btnImprimir, btnEnviar, btnAnular;
 
     private final Color COLOR_DORADO = new Color(184, 149, 78);
     private final Color COLOR_GRIS_CLARITO = new Color(220, 220, 220);
@@ -285,27 +284,6 @@ public class VistaFactura extends JPanel {
         btnAnular.setBorder(BorderFactory.createLineBorder(new Color(203, 67, 53), 1));
         btnAnular.setAlignmentX(CENTER_ALIGNMENT);
 
-        lbltxtJ = new JLabel("Justificación requerida para anulación:");
-        lbltxtJ.setFont(new Font("SansSerif", Font.PLAIN, 15));
-        lbltxtJ.setForeground(Color.DARK_GRAY);
-        lbltxtJ.setAlignmentX(CENTER_ALIGNMENT);
-
-        txtNota = new JTextArea("Escribir la nota de anulación aquí...");
-        txtNota.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        txtNota.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1),
-                BorderFactory.createEmptyBorder(5, 8, 5, 8)
-        ));
-        txtNota.setMaximumSize(new Dimension(400, 70));
-        txtNota.setAlignmentX(CENTER_ALIGNMENT);
-
-        btnGuardarN = new JButton("Guardar Nota");
-        btnGuardarN.setBackground(new Color(62, 58, 46));
-        btnGuardarN.setForeground(Color.WHITE);
-        btnGuardarN.setFont(new Font("SansSerif", Font.BOLD, 18));
-        btnGuardarN.setMaximumSize(new Dimension(400, 50));
-        btnGuardarN.setBorderPainted(false);
-        btnGuardarN.setAlignmentX(CENTER_ALIGNMENT);
 
         pnlOpciones.add(Box.createVerticalGlue());
         pnlOpciones.add(btnImprimir);
@@ -315,13 +293,6 @@ public class VistaFactura extends JPanel {
         pnlOpciones.add(lbltxtA);
         pnlOpciones.add(Box.createVerticalStrut(8));
         pnlOpciones.add(btnAnular);
-        pnlOpciones.add(Box.createVerticalStrut(20));
-        pnlOpciones.add(lbltxtJ);
-        pnlOpciones.add(Box.createVerticalStrut(10));
-        pnlOpciones.add(txtNota);
-        pnlOpciones.add(Box.createVerticalStrut(12));
-        pnlOpciones.add(btnGuardarN);
-        pnlOpciones.add(Box.createVerticalGlue());
 
         principal.add(infoFactura);
         principal.add(pnlOpciones);
@@ -355,14 +326,6 @@ public class VistaFactura extends JPanel {
 
     public JButton getBtnAnular() {
         return btnAnular;
-    }
-
-    public JButton getBtnGuardarN() {
-        return btnGuardarN;
-    }
-
-    public JTextArea getTxtNota() {
-        return txtNota;
     }
 
 }
