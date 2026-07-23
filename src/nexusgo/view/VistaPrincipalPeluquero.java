@@ -29,12 +29,13 @@ import javax.swing.border.EmptyBorder;
  */
 
 public class VistaPrincipalPeluquero extends JFrame {
-    public JButton btnInicio = new JButton("Casa");
-    public JButton btnInventario = new JButton("Inventario");
-    public JButton btnCitas = new JButton("Citas");
+    public JButton btnInicio = new JButton(new ImageIcon("src/nexusgo/img/inicio.png"));
+    public JButton btnInventario = new JButton(new ImageIcon("src/nexusgo/img/inventario.png"));
+    public JButton btnCitas = new JButton(new ImageIcon("src/nexusgo/img/citas.png"));
     public JButton btnCerrarSesion = new JButton("Cerrar Sesión");
 
     private JPanel contenidoCentralDinamico;
+    private final Color COLOR_DORADO = new Color(184, 134, 11);
 
     public VistaPrincipalPeluquero() {
         super("NexusGO - Panel de Peluquero");
@@ -56,15 +57,9 @@ public class VistaPrincipalPeluquero extends JFrame {
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
         sidebar.setBackground(Color.WHITE);
-        sidebar.setPreferredSize(new Dimension(80, 550));
+        sidebar.setPreferredSize(new Dimension(200, 550));
         sidebar.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(230, 230, 230)));
 
-        JLabel lblLogo = new JLabel("NX");
-        lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        lblLogo.setForeground(new Color(212, 175, 55));
-        lblLogo.setAlignmentX(CENTER_ALIGNMENT);
-        lblLogo.setBorder(new EmptyBorder(20, 0, 40, 0));
-        sidebar.add(lblLogo);
 
         JButton[] botones = {btnInicio, btnInventario, btnCitas};
         for (JButton btn : botones) {
@@ -74,15 +69,17 @@ public class VistaPrincipalPeluquero extends JFrame {
             btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
             btn.setAlignmentX(CENTER_ALIGNMENT);
             sidebar.add(btn);
-            sidebar.add(Box.createVerticalStrut(15));
+            sidebar.add(Box.createVerticalStrut(70));
         }
 
         // 3. Panel superior con botón cerrar sesión
         JPanel panelTop = new JPanel(new FlowLayout(FlowLayout.RIGHT, 30, 15));
         panelTop.setOpaque(false);
-        btnCerrarSesion.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnCerrarSesion.setForeground(Color.WHITE);
-        btnCerrarSesion.setBackground(new Color(255, 213, 79));
+        
+        
+        btnCerrarSesion.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        btnCerrarSesion.setForeground(COLOR_DORADO);
+        btnCerrarSesion.setBackground(Color.WHITE);
         btnCerrarSesion.setFocusPainted(false);
         btnCerrarSesion.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnCerrarSesion.setBorder(new EmptyBorder(5, 15, 5, 15));
@@ -96,14 +93,14 @@ public class VistaPrincipalPeluquero extends JFrame {
         JPanel tarjetaBienvenida = new JPanel();
         tarjetaBienvenida.setLayout(new BoxLayout(tarjetaBienvenida, BoxLayout.Y_AXIS));
         tarjetaBienvenida.setOpaque(false);
-        tarjetaBienvenida.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
+        tarjetaBienvenida.setBorder(BorderFactory.createEmptyBorder(20, 40, 40, 40));
 
         JLabel lblSaludo = new JLabel("Hola, Peluquer@ Bienvenido a Nexus GO");
         lblSaludo.setFont(new Font("Segoe UI", Font.BOLD, 30));
         lblSaludo.setAlignmentX(CENTER_ALIGNMENT);
         lblSaludo.setForeground(Color.WHITE);
 
-        JLabel lblTexto1 = new JLabel("Espero que te encuentres super bien,");
+        JLabel lblTexto1 = new JLabel("Espero que te encuentres super bien.");
         lblTexto1.setFont(new Font("Segoe UI", Font.PLAIN, 20));
         lblTexto1.setAlignmentX(CENTER_ALIGNMENT);
         lblTexto1.setForeground(Color.WHITE);

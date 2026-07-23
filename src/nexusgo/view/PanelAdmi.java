@@ -8,6 +8,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import static java.awt.Component.CENTER_ALIGNMENT;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -54,24 +55,28 @@ public class PanelAdmi extends JFrame {
         super("Panel de Administración - N E X U S GO");
         
         // 1. Configuración de la imagen de fondo en el ContentPane
-        JLabel fondoConImagen = new JLabel(new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg"));
+        JLabel fondoConImagen = new JLabel(new ImageIcon("src/nexusgo/img/fondoprincipal.jpg"));
         fondoConImagen.setLayout(new BorderLayout());
         this.setContentPane(fondoConImagen);
 
         // 2. Inicialización de la Barra Lateral
         menuLateral = new VistaBarraLateral();
-        menuLateral.setBackground(COLOR_DORADO);
+        menuLateral.setBackground(Color.WHITE);
         menuLateral.setPreferredSize(new Dimension(250, 0));
         menuLateral.setBorder(BorderFactory.createEmptyBorder(30, 15, 10, 15));
         menuLateral.bInventario.setVisible(false); // Ventas / Inventario
         menuLateral.misCitas.setVisible(false);
 
         // Asignación/Creación de los botones de Servicios y Promociones en la sidebar
-        bServicios = new JButton("Agregar Servicio");
-        bServicios.setFont(new Font("SansSerif", Font.BOLD, 14));
-        bServicios.setAlignmentX(Component.CENTER_ALIGNMENT);
+        bServicios = new JButton(new ImageIcon("src/nexusgo/img/aggServicios.jpg"));
+        bServicios.setBorderPainted(false);      // quita el borde
+        bServicios.setContentAreaFilled(false);  // quita el fondo gris
+        bServicios.setFocusPainted(false);       // quita el resaltado al hacer clic
+        bServicios.setOpaque(false);             // asegura transparencia
+        bServicios.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        bServicios.setToolTipText("Agregar Servicios");
 
-        bPromociones = new JButton("Agregar Promoción");
+        bPromociones = new JButton(new ImageIcon("src/nexusgo/img/aggProm.jpg"));
         bPromociones.setFont(new Font("SansSerif", Font.BOLD, 14));
         bPromociones.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -90,7 +95,7 @@ public class PanelAdmi extends JFrame {
         // Encabezado principal
         TituloPrincipal = new JLabel("Hola, Administrador de Peluqueria Bienvenid@ a N E X U S GO");
         TituloPrincipal.setForeground(COLOR_DORADO);
-        TituloPrincipal.setFont(new Font("SansSerif", Font.BOLD, 32));
+        TituloPrincipal.setFont(new Font("SansSerif", Font.BOLD, 30));
         TituloPrincipal.setAlignmentX(CENTER_ALIGNMENT);
 
         // Tarjeta central de acceso rápido a Reportes
