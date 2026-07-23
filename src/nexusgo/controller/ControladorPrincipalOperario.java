@@ -76,36 +76,15 @@ public class ControladorPrincipalOperario implements ActionListener {
     }
 
     private void cargarYMostrarPdV() {
-        // 1. Instanciar vista y vincular controlador del PdV
+        /* Instanciar vista y vincular controlador del PdV.
+        ControladorPdV ya carga por su cuenta productos, servicios y combos
+        en su propio constructor — por eso ya NO repetimos ese trabajo aquí abajo.*/
         VistaPdV vistaPdV = new VistaPdV();
-        JPanel panelPdV = vistaPdV.VistaNexus();
         ControladorPdV controlPuntoDeVenta = new ControladorPdV(vistaPdV);
         controlPuntoDeVenta.setUsuarioLogueado(usuarioLogueado);
 
-        // 2. Consultar y renderizar catálogo de productos
-        List<Producto> listaProductos = productoDao.listar();
-
-        if (listaProductos != null && !listaProductos.isEmpty()) {
-            for (Producto p : listaProductos) {
-                // Formato con precio de venta público
-                String precioFormateado = String.format("$%.0f", p.getPrecioVenta());
-
-                // Imagen predeterminada si el registro es nulo o vacío
-                String imagen = (p.getUrlImagen() != null && !p.getUrlImagen().trim().isEmpty())
-                                ? p.getUrlImagen()
-                                : "tratamiento.png";
-
-                vistaPdV.agregarTarjeta(
-                    p.getNombreProducto(),
-                    precioFormateado,
-                    p.getStockActual(),
-                    imagen
-                );
-            }
-        }
-
-        // 3. Renderizar en el panel central
-        cambiarPanel(panelPdV);
+        // Renderizar en el panel central
+        cambiarPanel(vistaPdV);
     }
 
     private void ejecutarCerrarSesion() {
