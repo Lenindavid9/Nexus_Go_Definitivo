@@ -126,7 +126,7 @@ public class ControladorPdV implements ActionListener {
                     double precioUnitario = p.getPrecioCompra();
 
                     // Sumar o actualizar en la lista del carrito, solo si hay stock suficiente
-                    if (agregarOActualizarItem(p, cantidadIngresada, precioUnitario)) {
+                    if (agregarOActualizarItem(p.getIdProducto(), "PRODUCTO", p.getNombreProducto(), cantidadIngresada, precioUnitario, p.getStockActual())) {
                         // Actualizar contadores globales del punto de venta
                         totalVenta += (precioUnitario * cantidadIngresada);
                         contadorProductos += cantidadIngresada;
@@ -143,43 +143,35 @@ public class ControladorPdV implements ActionListener {
      * Acumula la cantidad seleccionada en el producto existente dentro del
      * carrito, o agrega una nueva línea si no había sido seleccionado antes.
      */
-    private boolean agregarOActualizarItem(Producto p, int cantidad, double precioUnitario) {
-        
-        //Variable que indica si el producto ya se encuentra registrado dentro
-        boolean productoExiste = false;
-        
-         // Almacena la cantidad del producto que actualmente ya se encuentra agregada al carrito
+    private boolean agregarOActualizarItem(int id, String tipo, String nombre, int cantidad, double precioUnitario, int stockDisponible) {
+        boolean itemExiste = false;
         int cantidadYaEnCarrito = 0;
 
-         // Se recorre cada elemento del carrito para comprobar
-        // si el producto ya había sido agregado anteriormente
         for (DetalleCarrito item : carrito) {
-            if (item.getIdProducto() == p.getIdProducto()) {
+            if (item.getIdProducto() == id && tipo.equals(item.getTipo())) {
                 cantidadYaEnCarrito = item.getCantidad();
-                productoExiste = true;
+                itemExiste = true;
                 break;
             }
         }
 
-        // Validar que lo que ya está en el carrito + lo que se quiere agregar
-        // no supere el stock real disponible del producto.
-        if (cantidadYaEnCarrito + cantidad > p.getStockActual()) {
+        if (stockDisponible >= 0 && (cantidadYaEnCarrito + cantidad > stockDisponible)) {
             JOptionPane.showMessageDialog(vista,
-                    "No hay suficiente stock de \"" + p.getNombreProducto() + "\".\n"
-                    + "Disponible: " + p.getStockActual() + " | Ya en el carrito: " + cantidadYaEnCarrito,
+                    "No hay suficiente stock de \"" + nombre + "\".\n"
+                    + "Disponible: " + stockDisponible + " | Ya en el carrito: " + cantidadYaEnCarrito,
                     "Stock Insuficiente", JOptionPane.WARNING_MESSAGE);
             return false;
         }
 
-        if (productoExiste) {
+        if (itemExiste) {
             for (DetalleCarrito item : carrito) {
-                if (item.getIdProducto() == p.getIdProducto()) {
+                if (item.getIdProducto() == id && tipo.equals(item.getTipo())) {
                     item.setCantidad(item.getCantidad() + cantidad);
                     break;
                 }
             }
         } else {
-            carrito.add(new DetalleCarrito(p.getIdProducto(), p.getNombreProducto(), precioUnitario, cantidad));
+            carrito.add(new DetalleCarrito(id, nombre, precioUnitario, cantidad, tipo));
         }
         return true;
     }
