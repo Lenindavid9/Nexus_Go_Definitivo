@@ -6,6 +6,7 @@ package nexusgo.view;
 
 import com.toedter.calendar.JDateChooser;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.io.File;
 import java.util.Date;
@@ -24,13 +25,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  */
 public class VistaProgramarMantenimiento extends JPanel{
     
-   // Componentes públicos accesibles desde el controlador
-    public JDateChooser selectorFecha; 
+  // Componentes públicos accesibles desde el controlador
+    public JDateChooser fechaProgramacion; // Fecha de registro/agenda
     public JSpinner spinnerHora;       
-    
-    // --- NUEVO: Componentes JCalendar para Inicio y Fin de Promoción ---
-    public JDateChooser fechaInicioPromocion;
-    public JDateChooser fechaFinPromocion;
 
     public JComboBox<String> cbTipoMantenimiento;
     public JTextField txtFallaProblema, txtObservaciones;
@@ -44,19 +41,19 @@ public class VistaProgramarMantenimiento extends JPanel{
     public JTextField txtEquipo;
 
     public VistaProgramarMantenimiento() {
-        // Configuración básica del Panel (Aumentamos el alto a 750 para dar espacio)
+        // Configuración dinámica del Panel
         setBackground(Color.WHITE);
         setLayout(null);
-        setSize(650, 750);
+        setPreferredSize(new Dimension(650, 600));
 
         // --- Botón Volver ---
         btnVolver = new JButton("< Volver");
-        btnVolver.setBounds(500, 30, 90, 25);
+        btnVolver.setBounds(500, 20, 90, 25);
         add(btnVolver);
 
         // --- Título ---
-        JLabel lblTitulo = new JLabel("Programacion de Mantenimiento");
-        lblTitulo.setFont(new Font("Arial", Font.BOLD, 24));
+        JLabel lblTitulo = new JLabel("Programación de Mantenimiento");
+        lblTitulo.setFont(new Font("Arial", Font.BOLD, 22));
         lblTitulo.setBounds(40, 20, 400, 30);
         add(lblTitulo);
 
@@ -65,109 +62,81 @@ public class VistaProgramarMantenimiento extends JPanel{
         txtEquipo.setVisible(false);
         add(txtEquipo);
 
-        // --- 1. Entrada de Fecha (Mantenimiento) y Hora ---
-        JLabel lblFecha = new JLabel("Seleccione la fecha del mantenimiento");
-        lblFecha.setBounds(40, 75, 400, 20);
-        add(lblFecha);
+        // --- 1. SECCIÓN DE FECHA PROGRAMACIÓN Y HORA ---
+        
+        // Fecha Programación
+        JLabel lblFechaProg = new JLabel("Fecha Programación:");
+        lblFechaProg.setFont(new Font("Arial", Font.BOLD, 13));
+        lblFechaProg.setBounds(40, 70, 160, 20);
+        add(lblFechaProg);
 
-        selectorFecha = new JDateChooser();
-        selectorFecha.setDateFormatString("yyyy-MM-dd");
-        selectorFecha.setDate(new Date()); 
-        selectorFecha.setBounds(40, 98, 200, 30);
-        add(selectorFecha);
+        fechaProgramacion = new JDateChooser();
+        fechaProgramacion.setDateFormatString("yyyy-MM-dd");
+        fechaProgramacion.setDate(new Date()); 
+        fechaProgramacion.setBounds(40, 93, 160, 30);
+        add(fechaProgramacion);
 
-        JLabel lblHora = new JLabel("Hora (HH:mm)");
-        lblHora.setBounds(260, 75, 120, 20);
+        // Hora
+        JLabel lblHora = new JLabel("Hora (HH:mm):");
+        lblHora.setFont(new Font("Arial", Font.BOLD, 13));
+        lblHora.setBounds(220, 70, 110, 20);
         add(lblHora);
 
         SpinnerDateModel modeloHora = new SpinnerDateModel(new Date(), null, null, java.util.Calendar.MINUTE);
         spinnerHora = new JSpinner(modeloHora);
         JSpinner.DateEditor editorHora = new JSpinner.DateEditor(spinnerHora, "HH:mm");
         spinnerHora.setEditor(editorHora);
-        spinnerHora.setBounds(260, 98, 130, 30);
+        spinnerHora.setBounds(220, 93, 110, 30);
         add(spinnerHora);
 
-        // --- 2. NUEVA SECCIÓN: FECHAS DE PROMOCIÓN (JCalendar) ---
-        JLabel lblSeccionPromo = new JLabel("Vigencia de la Promoción");
-        lblSeccionPromo.setFont(new Font("Arial", Font.BOLD, 13));
-        lblSeccionPromo.setBounds(40, 145, 300, 20);
-        add(lblSeccionPromo);
-
-        // Fecha Inicio Promoción
-        JLabel lblFechaInicio = new JLabel("Inicio de promoción:");
-        lblFechaInicio.setBounds(40, 170, 150, 20);
-        add(lblFechaInicio);
-
-        fechaInicioPromocion = new JDateChooser();
-        fechaInicioPromocion.setDateFormatString("yyyy-MM-dd");
-        fechaInicioPromocion.setDate(new Date()); // Fecha por defecto: Hoy
-        fechaInicioPromocion.setBounds(40, 193, 170, 30);
-        add(fechaInicioPromocion);
-
-        // Fecha Fin Promoción
-        JLabel lblFechaFin = new JLabel("Fin de promoción:");
-        lblFechaFin.setBounds(230, 170, 150, 20);
-        add(lblFechaFin);
-
-        fechaFinPromocion = new JDateChooser();
-        fechaFinPromocion.setDateFormatString("yyyy-MM-dd");
-        fechaFinPromocion.setDate(new Date()); // Fecha por defecto: Hoy
-        fechaFinPromocion.setBounds(230, 193, 170, 30);
-        add(fechaFinPromocion);
-
-        // --- 3. Tipo de Mantenimiento ---
+        // --- 2. Tipo de Mantenimiento ---
         JLabel lblTipo = new JLabel("Tipo de mantenimiento");
         lblTipo.setFont(new Font("Arial", Font.BOLD, 13));
-        lblTipo.setBounds(40, 240, 200, 20);
+        lblTipo.setBounds(40, 145, 200, 20);
         add(lblTipo);
-
-        JLabel lblSubTipo = new JLabel("Seleccione el tipo de mantenimiento");
-        lblSubTipo.setForeground(Color.GRAY);
-        lblSubTipo.setBounds(40, 260, 300, 20);
-        add(lblSubTipo);
 
         String[] opciones = {"Seleccione su tipo de mantenimiento", "Preventivo", "Correctivo"};
         cbTipoMantenimiento = new JComboBox<>(opciones);
-        cbTipoMantenimiento.setBounds(40, 283, 350, 30);
+        cbTipoMantenimiento.setBounds(40, 168, 320, 30);
         add(cbTipoMantenimiento);
 
-        // --- 4. Falla o Problema ---
+        // --- 3. Falla o Problema ---
         JLabel lblFalla = new JLabel("Falla o problema que tiene la herramienta");
         lblFalla.setFont(new Font("Arial", Font.BOLD, 13));
-        lblFalla.setBounds(40, 330, 400, 20);
+        lblFalla.setBounds(40, 215, 400, 20);
         add(lblFalla);
 
         txtFallaProblema = new JTextField();
-        txtFallaProblema.setBounds(40, 353, 350, 35);
+        txtFallaProblema.setBounds(40, 238, 320, 35);
         add(txtFallaProblema);
 
-        // --- 5. Observaciones ---
+        // --- 4. Observaciones ---
         JLabel lblObs = new JLabel("Observaciones");
         lblObs.setFont(new Font("Arial", Font.BOLD, 13));
-        lblObs.setBounds(40, 405, 200, 20);
+        lblObs.setBounds(40, 290, 200, 20);
         add(lblObs);
 
         txtObservaciones = new JTextField();
-        txtObservaciones.setBounds(40, 428, 350, 35);
+        txtObservaciones.setBounds(40, 313, 320, 35);
         add(txtObservaciones);
 
-        // --- 6. Botón de Adjuntar Foto ---
+        // --- 5. Botón Adjuntar Imagen ---
         btnImagen = new JButton("Imagen del equipo");
-        btnImagen.setBounds(40, 485, 160, 30);
+        btnImagen.setBounds(40, 370, 160, 30);
         add(btnImagen);
 
         lblNombreImagen = new JLabel("Ninguna imagen seleccionada");
         lblNombreImagen.setForeground(Color.DARK_GRAY);
-        lblNombreImagen.setBounds(210, 490, 380, 20);
+        lblNombreImagen.setBounds(210, 375, 380, 20);
         add(lblNombreImagen);
 
         btnImagen.addActionListener(e -> abrirExploradorArchivos());
 
-        // --- 7. Botón Guardar ---
+        // --- 6. Botón Guardar ---
         btnGuardarMantenimiento = new JButton("Guardar");
         btnGuardarMantenimiento.setBackground(new Color(255, 215, 0));
         btnGuardarMantenimiento.setFont(new Font("Arial", Font.BOLD, 14));
-        btnGuardarMantenimiento.setBounds(40, 550, 150, 40);
+        btnGuardarMantenimiento.setBounds(40, 430, 150, 40);
         add(btnGuardarMantenimiento);
     }
 
