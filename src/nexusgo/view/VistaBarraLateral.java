@@ -35,7 +35,7 @@ public class VistaBarraLateral extends JPanel {
         setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(230, 230, 230))); // Sutil borde gris a la derecha
 
         // Layout con espacio entre botones
-        setLayout(new GridLayout(6, 1, 0, 15)); // Aumentamos filas para que los botones no se deformen a lo alto
+        setLayout(new GridLayout(8, 1, 0, 15)); // Aumentamos filas para que los botones no se deformen a lo alto
 
         // 2. Inicializar Botones
         bCasa = new JButton(new ImageIcon("src/nexusgo/img/inicio.png"));
@@ -50,6 +50,8 @@ public class VistaBarraLateral extends JPanel {
         misCitas.setContentAreaFilled(false);
         misCitas.setFocusPainted(false);
         misCitas.setOpaque(false);
+        
+        
 
         estilizarBoton(bCasa, "Inicio");
 
@@ -90,4 +92,5 @@ public class VistaBarraLateral extends JPanel {
     public JButton getBtnInventario() {
         return misCitas;
     }
+    
 }

@@ -7,6 +7,7 @@ package nexusgo.view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -34,8 +35,9 @@ public class PanelModificarCita extends JPanel {
     private JButton btnCerrarSesion;
     private JButton btnGuardar;
     private JButton btnImagen;
-    private JLabel lblNombreImagen;
     private JPanel tarjetaBlanca;
+    
+    private final Color COLOR_DORADO = new Color(184, 134, 11);
 
     public PanelModificarCita() {
         // Layout principal
@@ -46,18 +48,19 @@ public class PanelModificarCita extends JPanel {
         JPanel panelTop = new JPanel(new FlowLayout(FlowLayout.RIGHT, 30, 15));
         panelTop.setOpaque(false);
         btnCerrarSesion = new JButton("Cerrar Sesión");
-        btnCerrarSesion.setFont(new Font("SansSerif", Font.BOLD, 12));
-        btnCerrarSesion.setForeground(Color.WHITE);
-        btnCerrarSesion.setBackground(new Color(255, 213, 79));
+        btnCerrarSesion.setFont(new Font("SansSerif", Font.BOLD, 18));
+        btnCerrarSesion.setForeground(COLOR_DORADO);
+        btnCerrarSesion.setBackground(Color.WHITE);
         btnCerrarSesion.setFocusPainted(false);
         btnCerrarSesion.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnCerrarSesion.setPreferredSize(new Dimension(160, 45)); 
+
         panelTop.add(btnCerrarSesion);
         add(panelTop, BorderLayout.NORTH);
 
         // Tarjeta blanca sólida
         tarjetaBlanca = new JPanel(new BorderLayout(15, 15));
-        tarjetaBlanca.setBackground(Color.WHITE);
-        tarjetaBlanca.setOpaque(true);
+        tarjetaBlanca.setOpaque(false);
         tarjetaBlanca.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         add(tarjetaBlanca, BorderLayout.CENTER);
 
@@ -67,11 +70,8 @@ public class PanelModificarCita extends JPanel {
 
         JLabel lblTitulo = new JLabel("Modificar varias citas");
         lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 22));
+        lblTitulo.setForeground(Color.WHITE);
         panelSuperior.add(lblTitulo);
-
-        JLabel lblServicio = new JLabel("Servicio a seleccionar para cambiar");
-        lblServicio.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        panelSuperior.add(lblServicio);
 
         comboServicios = new JComboBox<>(new String[]{
             "Seleccione un servicio", "Alisado", "Corte", "Tinte", "Repolarización"
@@ -100,8 +100,9 @@ public class PanelModificarCita extends JPanel {
 
         tablaHorarios = new JTable(modeloTabla);
         tablaHorarios.setRowHeight(30);
-        tablaHorarios.setGridColor(new Color(230, 230, 230));
-        tablaHorarios.getTableHeader().setFont(new Font("SansSerif", Font.PLAIN, 12));
+        tablaHorarios.setGridColor(COLOR_DORADO);
+        tablaHorarios.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        tablaHorarios.getTableHeader().setFont(new Font("SansSerif", Font.PLAIN, 17));
         tablaHorarios.getTableHeader().setBackground(Color.WHITE);
 
         JScrollPane scrollTabla = new JScrollPane(tablaHorarios);
@@ -112,15 +113,19 @@ public class PanelModificarCita extends JPanel {
         panelInferior.setOpaque(false);
 
         btnImagen = new JButton("Imagen producto/servicio");
-        panelInferior.add(btnImagen);
-        lblNombreImagen = new JLabel("producto/servicio.png");
+        btnImagen.setPreferredSize(new Dimension(250, 45));
+        btnImagen.setFont(new Font("SansSerif", Font.BOLD, 17));
+        btnImagen.setBackground(COLOR_DORADO);
+        btnImagen.setForeground(Color.white);
 
-        lblNombreImagen.setForeground(Color.GRAY);
-        panelInferior.add(lblNombreImagen);
+        panelInferior.add(btnImagen);
+        
 
         btnGuardar = new JButton("Guardar");
-        btnGuardar.setBackground(new Color(255, 180, 0));
-        btnGuardar.setForeground(Color.WHITE);
+        btnGuardar.setFont(new Font("SansSerif", Font.BOLD, 17));
+        btnGuardar.setForeground(COLOR_DORADO);
+        btnGuardar.setBackground(Color.WHITE);
+        btnGuardar.setPreferredSize(new Dimension(160, 45)); 
         panelInferior.add(btnGuardar);
 
         tarjetaBlanca.add(panelInferior, BorderLayout.SOUTH);
@@ -132,5 +137,4 @@ public class PanelModificarCita extends JPanel {
     public JButton getBtnCerrarSesion() { return btnCerrarSesion; }
     public JButton getBtnGuardar() { return btnGuardar; }
     public JButton getBtnImagen() { return btnImagen; }
-    public JLabel getLblNombreImagen() { return lblNombreImagen; }
 }

@@ -40,20 +40,28 @@ public class VistaPdV extends JPanel {
     private JButton facturar, btnReiniciar;
 
     public VistaPdV() {
-        setLayout(new BorderLayout());
-        setOpaque(false);
-        VistaNexus();
+        setLayout(new BorderLayout()); //Aqui definimosel layout del panel principal
+        setOpaque(false);// setOpaque es para que se elimine el fondo que viene por dfecto y se vea la imagen
+        VistaNexus(); //Aqui se llama al metodo que construye toooda la interfaz
     }
 
     public JPanel VistaNexus() {
-        this.setLayout(new BorderLayout());
+        this.setLayout(new BorderLayout());  //aqui volvemos a "re afirmar" el layout principal
+        
+        //Panel principal donde se va almacenar toda la interfaz
         principal = new JPanel();
+        // setOpaque es para que no se va el fondo predeterminado y asi que se pueda ver la imagen asignada en 
+        //la vista principal operario
         principal.setOpaque(false);
-        principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
-        principal.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+        
+        principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS)); // Con esto se organizan todos los componentes en la columna
+        principal.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40)); //Aqui se editan los margenes internos
 
+        //Siguen todos los titulos y subtitulos
         TituloPrincipal = new JLabel("Punto de Venta");
+        //Aqui se cambia el color del texto con Foreground
         TituloPrincipal.setForeground(Color.WHITE);
+        //
         TituloPrincipal.setFont(new Font("SansSerif", Font.BOLD, 35));
         TituloPrincipal.setAlignmentX(CENTER_ALIGNMENT);
 
@@ -63,6 +71,7 @@ public class VistaPdV extends JPanel {
         estado.setAlignmentX(CENTER_ALIGNMENT);
 
         seccion = new JLabel("Productos / Servicios");
+        seccion.setForeground(Color.WHITE);
         seccion.setFont(new Font("SansSerif", Font.BOLD, 26));
         seccion.setAlignmentX(CENTER_ALIGNMENT);
 
