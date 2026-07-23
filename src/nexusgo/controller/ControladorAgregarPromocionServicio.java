@@ -18,12 +18,13 @@ import nexusgo.model.PromocionDao;
 import nexusgo.model.ServicioDao;
 import nexusgo.model.Servicios;
 import nexusgo.view.VistaAgregarPromocionServicio;
+
 /**
  *
  * @author USUARIO
  */
 public class ControladorAgregarPromocionServicio implements ActionListener {
-    
+
     private final VistaAgregarPromocionServicio vista;
     private final PromocionDao promocionDao;
     private final ServicioDao servicioDao;
@@ -36,10 +37,10 @@ public class ControladorAgregarPromocionServicio implements ActionListener {
     }
 
     // Constructor de 4 parámetros (incluye ControladorPrincipalAdmiPeluqueria)
-    public ControladorAgregarPromocionServicio(VistaAgregarPromocionServicio vista, 
-                                                PromocionDao promocionDao, 
-                                                ServicioDao servicioDao, 
-                                                ControladorPrincipalAdmiPeluqueria controladorPrincipal) {
+    public ControladorAgregarPromocionServicio(VistaAgregarPromocionServicio vista,
+            PromocionDao promocionDao,
+            ServicioDao servicioDao,
+            ControladorPrincipalAdmiPeluqueria controladorPrincipal) {
         this.vista = vista;
         this.promocionDao = promocionDao;
         this.servicioDao = servicioDao;
@@ -251,5 +252,5 @@ public class ControladorAgregarPromocionServicio implements ActionListener {
                 mensajeContexto + "\nDetalle: " + ex.getMessage(),
                 "Error de Sistema", JOptionPane.ERROR_MESSAGE);
     }
-    
+
 }
