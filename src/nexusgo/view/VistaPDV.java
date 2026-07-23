@@ -35,7 +35,7 @@ import nexusgo.model.DetalleCarrito;
  */
 public class VistaPdV extends JPanel {
 
-    private JPanel principal, panelproductos, panelBusqueda;
+    private JPanel principal, panelproductos, panelServicios, panelCombos, panelBusqueda;
     private JLabel TituloPrincipal, estado, seccion;
     private JButton facturar, btnReiniciar;
 
@@ -98,7 +98,25 @@ public class VistaPdV extends JPanel {
         panelproductos.setOpaque(false);
         panelproductos.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JScrollPane scroll = new JScrollPane(panelproductos);
+        panelServicios = new JPanel(new GridLayout(0, 4, 20, 20));
+        panelServicios.setOpaque(false);
+        panelServicios.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        panelCombos = new JPanel(new GridLayout(0, 4, 20, 20));
+        panelCombos.setOpaque(false);
+        panelCombos.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JPanel contenedorCatalogo = new JPanel();
+        contenedorCatalogo.setOpaque(false);
+        contenedorCatalogo.setLayout(new BoxLayout(contenedorCatalogo, BoxLayout.Y_AXIS));
+        contenedorCatalogo.add(crearEncabezadoSeccion("Productos"));
+        contenedorCatalogo.add(panelproductos);
+        contenedorCatalogo.add(crearEncabezadoSeccion("Servicios"));
+        contenedorCatalogo.add(panelServicios);
+        contenedorCatalogo.add(crearEncabezadoSeccion("Combos y Promociones"));
+        contenedorCatalogo.add(panelCombos);
+
+        JScrollPane scroll = new JScrollPane(contenedorCatalogo);
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
@@ -117,7 +135,15 @@ public class VistaPdV extends JPanel {
         return this;
     }
 
-    // Método que crea y devuelve la tarjeta junto con sus componentes accesibles
+    private JLabel crearEncabezadoSeccion(String titulo) {
+        JLabel lbl = new JLabel(titulo);
+        lbl.setForeground(Color.WHITE);
+        lbl.setFont(new Font("SansSerif", Font.BOLD, 20));
+        lbl.setAlignmentX(LEFT_ALIGNMENT);
+        lbl.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 0));
+        return lbl;
+    }
+
     public TarjetaProductoComponentes agregarTarjetaComponentes(String nombre, String precio, int stockActual, String imagenArchivo) {
         JPanel tarjeta = new JPanel();
         tarjeta.setLayout(new BoxLayout(tarjeta, BoxLayout.Y_AXIS));
@@ -125,9 +151,44 @@ public class VistaPdV extends JPanel {
         tarjeta.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         tarjeta.setPreferredSize(new Dimension(220, 320));
 
-        JLabel lblImagen = new JLabel(new ImageIcon(imagenArchivo));
+        JLabel lblImagen = new JLabel();
         lblImagen.setPreferredSize(new Dimension(200, 180));
         lblImagen.setAlignmentX(CENTER_ALIGNMENT);
+        lblImagen.setHorizontalAlignment(JLabel.CENTER);
+
+        String nombreArchivoImg = (imagenArchivo != null && !imagenArchivo.trim().isEmpty())
+                ? new java.io.File(imagenArchivo.trim()).getName() : "default.jpg";
+
+        ImageIcon iconoProducto = null;
+
+        //Buscar primero en la carpeta "img/" en disco (donde quedan las imágenes subidas desde el panel de inventario).
+        java.io.File archivoEnDisco = new java.io.File("img", nombreArchivoImg);
+        if (archivoEnDisco.exists()) {
+            iconoProducto = new ImageIcon(archivoEnDisco.getPath());
+        }
+
+        // Si no está en disco, probar como recurso interno(osea la carpeta).
+        if (iconoProducto == null || iconoProducto.getIconWidth() <= 0) {
+            java.net.URL imgURL = getClass().getResource("/nexusgo/img/" + nombreArchivoImg);
+            if (imgURL != null) {
+                iconoProducto = new ImageIcon(imgURL);
+            }
+        }
+
+        //  Y SI YA NADA FUNCIONA, usar la imagen por defecto.
+        if (iconoProducto == null || iconoProducto.getIconWidth() <= 0) {
+            java.net.URL defaultURL = getClass().getResource("/nexusgo/img/default.jpg");
+            iconoProducto = (defaultURL != null) ? new ImageIcon(defaultURL) : null;
+        }
+
+        if (iconoProducto != null && iconoProducto.getIconWidth() > 0) {
+            java.awt.Image imgEscalada = iconoProducto.getImage().getScaledInstance(200, 180, java.awt.Image.SCALE_SMOOTH);
+            lblImagen.setIcon(new ImageIcon(imgEscalada));
+        } else {
+            lblImagen.setText("[Sin Foto]");
+            lblImagen.setFont(new Font("SansSerif", Font.ITALIC, 11));
+            lblImagen.setForeground(Color.GRAY);
+        }
 
         JLabel lblTitulo = new JLabel(nombre);
         lblTitulo.setFont(new Font("SansSerif", Font.PLAIN, 13));
@@ -207,5 +268,92 @@ public class VistaPdV extends JPanel {
 
     public void agregarTarjeta(String nombre, String precio, int stockActual, String imagenArchivo) {
         agregarTarjetaComponentes(nombre, precio, stockActual, imagenArchivo);
+    }
+
+    // --- Tarjetas para Servicios y Combos ---
+    // Todavia no se pueden vender aun me falta crear las tablas de detalle de factura
+    public void agregarTarjetaServicio(String nombre, String precio, String imagenArchivo) {
+        agregarTarjetaNoDisponible(panelServicios, nombre, precio, imagenArchivo, "Servicio");
+    }
+
+    public void agregarTarjetaCombo(String nombre, String precio, String imagenArchivo) {
+        agregarTarjetaNoDisponible(panelCombos, nombre, precio, imagenArchivo, "Combo");
+    }
+
+    private void agregarTarjetaNoDisponible(JPanel panelDestino, String nombre, String precio, String imagenArchivo, String tipo) {
+        JPanel tarjeta = new JPanel();
+        tarjeta.setLayout(new BoxLayout(tarjeta, BoxLayout.Y_AXIS));
+        tarjeta.setBackground(Color.WHITE);
+        tarjeta.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        tarjeta.setPreferredSize(new Dimension(220, 320));
+
+        JLabel lblImagen = new JLabel();
+        lblImagen.setPreferredSize(new Dimension(200, 180));
+        lblImagen.setAlignmentX(CENTER_ALIGNMENT);
+        lblImagen.setHorizontalAlignment(JLabel.CENTER);
+
+        String nombreArchivoImg = (imagenArchivo != null && !imagenArchivo.trim().isEmpty())
+                ? new java.io.File(imagenArchivo.trim()).getName() : "default.jpg";
+
+        ImageIcon iconoItem = null;
+        java.io.File archivoEnDisco = new java.io.File("img", nombreArchivoImg);
+        if (archivoEnDisco.exists()) {
+            iconoItem = new ImageIcon(archivoEnDisco.getPath());
+        }
+        if (iconoItem == null || iconoItem.getIconWidth() <= 0) {
+            java.net.URL imgURL = getClass().getResource("/nexusgo/img/" + nombreArchivoImg);
+            if (imgURL != null) {
+                iconoItem = new ImageIcon(imgURL);
+            }
+        }
+        if (iconoItem == null || iconoItem.getIconWidth() <= 0) {
+            java.net.URL defaultURL = getClass().getResource("/nexusgo/img/default.jpg");
+            iconoItem = (defaultURL != null) ? new ImageIcon(defaultURL) : null;
+        }
+        if (iconoItem != null && iconoItem.getIconWidth() > 0) {
+            java.awt.Image imgEscalada = iconoItem.getImage().getScaledInstance(200, 180, java.awt.Image.SCALE_SMOOTH);
+            lblImagen.setIcon(new ImageIcon(imgEscalada));
+        } else {
+            lblImagen.setText("[Sin Foto]");
+            lblImagen.setFont(new Font("SansSerif", Font.ITALIC, 11));
+            lblImagen.setForeground(Color.GRAY);
+        }
+
+        JLabel lblEtiquetaTipo = new JLabel(tipo.toUpperCase());
+        lblEtiquetaTipo.setFont(new Font("SansSerif", Font.BOLD, 10));
+        lblEtiquetaTipo.setForeground(new Color(180, 140, 40));
+        lblEtiquetaTipo.setBorder(BorderFactory.createEmptyBorder(6, 8, 0, 8));
+        lblEtiquetaTipo.setAlignmentX(LEFT_ALIGNMENT);
+
+        JLabel lblTitulo = new JLabel(nombre);
+        lblTitulo.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        lblTitulo.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
+        lblTitulo.setAlignmentX(LEFT_ALIGNMENT);
+
+        JLabel lblPrecio = new JLabel(precio);
+        lblPrecio.setFont(new Font("SansSerif", Font.BOLD, 15));
+        lblPrecio.setBorder(BorderFactory.createEmptyBorder(0, 8, 8, 8));
+        lblPrecio.setAlignmentX(LEFT_ALIGNMENT);
+
+        JButton btnNoDisponible = new JButton("Próximamente");
+        btnNoDisponible.setEnabled(false);
+        btnNoDisponible.setFont(new Font("SansSerif", Font.BOLD, 12));
+        btnNoDisponible.setBackground(new Color(230, 230, 230));
+        btnNoDisponible.setForeground(Color.GRAY);
+        btnNoDisponible.setFocusPainted(false);
+        btnNoDisponible.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
+        btnNoDisponible.setAlignmentX(LEFT_ALIGNMENT);
+        btnNoDisponible.setToolTipText("La venta de " + tipo.toLowerCase() + "s estará disponible próximamente");
+
+        tarjeta.add(lblImagen);
+        tarjeta.add(lblEtiquetaTipo);
+        tarjeta.add(lblTitulo);
+        tarjeta.add(lblPrecio);
+        tarjeta.add(Box.createVerticalStrut(5));
+        tarjeta.add(btnNoDisponible);
+
+        panelDestino.add(tarjeta);
+        panelDestino.revalidate();
+        panelDestino.repaint();
     }
 }
