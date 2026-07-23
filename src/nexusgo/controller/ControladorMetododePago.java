@@ -148,7 +148,14 @@ public class ControladorMetododePago {
         }
 
         if (this.vistaEfectivo.getBtnConfirmarPago() != null) {
-            this.vistaEfectivo.getBtnConfirmarPago().addActionListener(e -> finalizarVenta("Efectivo"));
+            this.vistaEfectivo.getBtnConfirmarPago().addActionListener(e -> {
+                if (!cambioValidado) {
+                    JOptionPane.showMessageDialog(vistaEfectivo,"Debe ingresar el dinero recibido y presionar \"Calcular\" antes de confirmar el pago.",
+                            "Falta Validar Dinero", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                finalizarVenta("Efectivo");
+            });
         }
     }
 
@@ -390,5 +397,6 @@ public class ControladorMetododePago {
             vistaEfectivo.getTxtMonto().setText("");
         }
         vistaEfectivo.setCambioMonto(0);
+        cambioValidado = false;
     }
 }
