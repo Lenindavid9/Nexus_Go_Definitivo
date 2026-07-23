@@ -4,7 +4,6 @@
  */
 package nexusgo.view;
 
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -114,8 +113,8 @@ public class PanelModificarCita extends JPanel {
 
         btnImagen = new JButton("Imagen producto/servicio");
         panelInferior.add(btnImagen);
-
         lblNombreImagen = new JLabel("producto/servicio.png");
+
         lblNombreImagen.setForeground(Color.GRAY);
         panelInferior.add(lblNombreImagen);
 
