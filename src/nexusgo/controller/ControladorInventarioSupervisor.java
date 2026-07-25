@@ -5,6 +5,7 @@
 //
 package nexusgo.controller;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -329,7 +330,7 @@ public class ControladorInventarioSupervisor implements ActionListener {
     private void cambiarPanelCentral(JPanel panelNuevo) {
         try {
             vistaPrincipal.getContenidoCentralDinamico().removeAll();
-            vistaPrincipal.getContenidoCentralDinamico().add(panelNuevo, java.awt.BorderLayout.CENTER);
+            vistaPrincipal.getContenidoCentralDinamico().add(panelNuevo, BorderLayout.CENTER);
             vistaPrincipal.getContenidoCentralDinamico().revalidate();
             vistaPrincipal.getContenidoCentralDinamico().repaint();
         } catch (Exception e) {

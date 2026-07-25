@@ -14,6 +14,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -50,10 +52,9 @@ public class ControladorInventarioOperario implements ActionListener {
     private TableRowSorter<DefaultTableModel> sorterProductos;
     private TableRowSorter<DefaultTableModel> sorterHerramientas;
 
-    /**
-     * Constructor del controlador. Inicializa componentes, carga registros desde base de datos
-     * y registra los escuchadores de eventos.
-     */
+    /*Constructor del controlador. Inicializa componentes, carga registros desde base de datos
+    y registra los escuchadores de eventos.*/
+    
     public ControladorInventarioOperario(VistaOperarioInventario panelInventario, Usuario usuarioLogueado, JPanel contenedorCentral) {
         this.panelInventario = panelInventario;
         this.usuarioLogueado = usuarioLogueado;
@@ -86,10 +87,8 @@ public class ControladorInventarioOperario implements ActionListener {
         }
     }
 
-    /**
-     * Registra los escuchadores de eventos (ActionListener, MouseListener, KeyListener) 
-     * en las vistas y componentes correspondientes.
-     */
+    /*Registra los escuchadores de eventos (ActionListener, MouseListener, KeyListener) 
+    en las vistas y componentes correspondientes.*/
     private void inicializarListeners() {
         // Asignación de ActionListener a los botones principales de la vista
         if (panelInventario.btnAgregarProducto != null) {
@@ -297,6 +296,14 @@ public class ControladorInventarioOperario implements ActionListener {
      * Consulta la base de datos a través de ProductoDao, construye el modelo no editable,
      * asigna el TableRowSorter y puebla la JTable de productos.
      */
+    // Formatea el precio para la tabla: sin decimales, con punto de miles (ej: 28000.0 -> 28.000)
+    private String formatearPrecioTabla(double valor) {
+        DecimalFormatSymbols simbolos = new DecimalFormatSymbols();
+        simbolos.setGroupingSeparator('.');
+        DecimalFormat formato = new DecimalFormat("#,###", simbolos);
+        return formato.format(valor);
+    }
+
     public void listarProductosEnTabla() {
         try {
             DefaultTableModel modeloBlindado = new DefaultTableModel(new Object[]{"ID", "Nombre", "Precio Compra", "Stock Actual", "Stock Mínimo"}, 0) {
@@ -318,7 +325,7 @@ public class ControladorInventarioOperario implements ActionListener {
 
             if (lista != null) {
                 for (Producto p : lista) {
-                    modeloBlindado.addRow(new Object[]{p.getIdProducto(), p.getNombreProducto(), p.getPrecioCompra(), p.getStockActual(), p.getStockMinimo()});
+                    modeloBlindado.addRow(new Object[]{p.getIdProducto(), p.getNombreProducto(), formatearPrecioTabla(p.getPrecioCompra()), p.getStockActual(), p.getStockMinimo()});
                 }
             }
             // Re-aplica el filtro si ya existía texto escrito previamente en el campo de texto

@@ -44,7 +44,7 @@ public class VistaAgregarProducto extends JPanel {
         JPanel panelHeader = new JPanel(new BorderLayout());
         panelHeader.setOpaque(false);
 
-        lblTitulo = new JLabel("Agregar producto"); // valor inicial por defecto
+        lblTitulo = new JLabel("Agregar producto");
         lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 26));
         lblTitulo.setForeground(Color.BLACK);
 
@@ -64,7 +64,7 @@ public class VistaAgregarProducto extends JPanel {
         panelCampos.setLayout(new BoxLayout(panelCampos, BoxLayout.Y_AXIS));
         panelCampos.setBorder(new EmptyBorder(15, 0, 15, 0));
 
-        // Estilo común para inputs
+        // Estilo para inputs
         Font fuenteLabels = new Font("SansSerif", Font.BOLD, 18);
         Color colorTextoLabels = Color.BLACK;
 
@@ -93,8 +93,8 @@ public class VistaAgregarProducto extends JPanel {
         panelCampos.add(txtCantidad);
         panelCampos.add(Box.createVerticalStrut(12));
 
-        // Precio
-        panelCampos.add(crearLabel("Precio", fuenteLabels, colorTextoLabels));
+        // Precios
+        panelCampos.add(crearLabel("Precio de Compra", fuenteLabels, colorTextoLabels));
         txtPrecio = crearTextField();
         panelCampos.add(txtPrecio);
         panelCampos.add(Box.createVerticalStrut(12));
@@ -105,7 +105,7 @@ public class VistaAgregarProducto extends JPanel {
         panelCampos.add(Box.createVerticalStrut(12));
 
         // Proveedor
-        panelCampos.add(crearLabel("proveedor", fuenteLabels, colorTextoLabels));
+        panelCampos.add(crearLabel("Proveedor", fuenteLabels, colorTextoLabels));
         txtProveedor = crearTextField();
         panelCampos.add(txtProveedor);
         panelCampos.add(Box.createVerticalStrut(12));
@@ -116,7 +116,7 @@ public class VistaAgregarProducto extends JPanel {
         panelCampos.add(txtStockMinimo);
         panelCampos.add(Box.createVerticalStrut(15));
 
-        // --- SUBIR IMAGEN ---
+        // ---------- SUBIR IMAGEN ----------
         JPanel panelImagen = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         panelImagen.setBackground(Color.WHITE);
 
@@ -145,7 +145,7 @@ public class VistaAgregarProducto extends JPanel {
         panelBotonAbajo.setBorder(new EmptyBorder(10, 0, 0, 0));
 
         btnEditar = new JButton("Editar");
-        btnEditar.setBackground(COLOR_DORADO); // Amarillo de tu paleta
+        btnEditar.setBackground(COLOR_DORADO);  
         btnEditar.setForeground(Color.WHITE);
         btnEditar.setFont(new Font("SansSerif", Font.BOLD, 18));
         btnEditar.setFocusPainted(false);

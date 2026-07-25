@@ -12,13 +12,10 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -26,8 +23,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
-import nexusgo.model.DetalleCarrito;
 
 /**
  *
@@ -145,6 +140,19 @@ public class VistaPdV extends JPanel {
     }
 
     public TarjetaProductoComponentes agregarTarjetaComponentes(String nombre, String precio, int stockActual, String imagenArchivo) {
+        return crearTarjetaConAccion(panelproductos, nombre, precio, Math.max(1, stockActual), imagenArchivo);
+    }
+
+    // Servicios y combos: sin límite real de stock, se permite hasta 99 por ítem.
+    public TarjetaProductoComponentes agregarTarjetaServicio(String nombre, String precio, String imagenArchivo) {
+        return crearTarjetaConAccion(panelServicios, nombre, precio, 99, imagenArchivo);
+    }
+
+    public TarjetaProductoComponentes agregarTarjetaCombo(String nombre, String precio, String imagenArchivo) {
+        return crearTarjetaConAccion(panelCombos, nombre, precio, 99, imagenArchivo);
+    }
+
+    private TarjetaProductoComponentes crearTarjetaConAccion(JPanel panelDestino, String nombre, String precio, int cantidadMaxima, String imagenArchivo) {
         JPanel tarjeta = new JPanel();
         tarjeta.setLayout(new BoxLayout(tarjeta, BoxLayout.Y_AXIS));
         tarjeta.setBackground(Color.WHITE);
@@ -159,30 +167,23 @@ public class VistaPdV extends JPanel {
         String nombreArchivoImg = (imagenArchivo != null && !imagenArchivo.trim().isEmpty())
                 ? new java.io.File(imagenArchivo.trim()).getName() : "default.jpg";
 
-        ImageIcon iconoProducto = null;
-
-        //Buscar primero en la carpeta "img/" en disco (donde quedan las imágenes subidas desde el panel de inventario).
+        ImageIcon iconoItem = null;
         java.io.File archivoEnDisco = new java.io.File("img", nombreArchivoImg);
         if (archivoEnDisco.exists()) {
-            iconoProducto = new ImageIcon(archivoEnDisco.getPath());
+            iconoItem = new ImageIcon(archivoEnDisco.getPath());
         }
-
-        // Si no está en disco, probar como recurso interno(osea la carpeta).
-        if (iconoProducto == null || iconoProducto.getIconWidth() <= 0) {
+        if (iconoItem == null || iconoItem.getIconWidth() <= 0) {
             java.net.URL imgURL = getClass().getResource("/nexusgo/img/" + nombreArchivoImg);
             if (imgURL != null) {
-                iconoProducto = new ImageIcon(imgURL);
+                iconoItem = new ImageIcon(imgURL);
             }
         }
-
-        //  Y SI YA NADA FUNCIONA, usar la imagen por defecto.
-        if (iconoProducto == null || iconoProducto.getIconWidth() <= 0) {
+        if (iconoItem == null || iconoItem.getIconWidth() <= 0) {
             java.net.URL defaultURL = getClass().getResource("/nexusgo/img/default.jpg");
-            iconoProducto = (defaultURL != null) ? new ImageIcon(defaultURL) : null;
+            iconoItem = (defaultURL != null) ? new ImageIcon(defaultURL) : null;
         }
-
-        if (iconoProducto != null && iconoProducto.getIconWidth() > 0) {
-            java.awt.Image imgEscalada = iconoProducto.getImage().getScaledInstance(200, 180, java.awt.Image.SCALE_SMOOTH);
+        if (iconoItem != null && iconoItem.getIconWidth() > 0) {
+            java.awt.Image imgEscalada = iconoItem.getImage().getScaledInstance(200, 180, java.awt.Image.SCALE_SMOOTH);
             lblImagen.setIcon(new ImageIcon(imgEscalada));
         } else {
             lblImagen.setText("[Sin Foto]");
@@ -200,26 +201,23 @@ public class VistaPdV extends JPanel {
         lblPrecio.setBorder(BorderFactory.createEmptyBorder(0, 8, 8, 8));
         lblPrecio.setAlignmentX(LEFT_ALIGNMENT);
 
-        // Panel de acciones (Spinner + Botón Suma)
         JPanel acciones = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 5));
         acciones.setOpaque(false);
         acciones.setAlignmentX(LEFT_ALIGNMENT);
 
-        JSpinner spinnerCantidad = new JSpinner(new SpinnerNumberModel(1, 1, Math.max(1, stockActual), 1));
+        JSpinner spinnerCantidad = new JSpinner(new SpinnerNumberModel(1, 1, Math.max(1, cantidadMaxima), 1));
         spinnerCantidad.setPreferredSize(new Dimension(50, 30));
 
-        // Botón con el símbolo '+' para agregar al carrito
         JButton btnAgregar = new JButton("+");
         btnAgregar.setPreferredSize(new Dimension(40, 30));
         btnAgregar.setFont(new Font("SansSerif", Font.BOLD, 18));
-        btnAgregar.setBackground(new Color(245, 238, 213)); // Mismo estilo cálido del sistema
+        btnAgregar.setBackground(new Color(245, 238, 213));
         btnAgregar.setForeground(Color.DARK_GRAY);
         btnAgregar.setFocusPainted(false);
         btnAgregar.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
         btnAgregar.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnAgregar.setToolTipText("Agregar al carrito");
 
-        // Primero va el Spinner y luego el botón de suma (+)
         acciones.add(spinnerCantidad);
         acciones.add(btnAgregar);
 
@@ -228,9 +226,9 @@ public class VistaPdV extends JPanel {
         tarjeta.add(lblPrecio);
         tarjeta.add(acciones);
 
-        panelproductos.add(tarjeta);
-        panelproductos.revalidate();
-        panelproductos.repaint();
+        panelDestino.add(tarjeta);
+        panelDestino.revalidate();
+        panelDestino.repaint();
 
         return new TarjetaProductoComponentes(btnAgregar, spinnerCantidad);
     }
@@ -270,90 +268,13 @@ public class VistaPdV extends JPanel {
         agregarTarjetaComponentes(nombre, precio, stockActual, imagenArchivo);
     }
 
-    // --- Tarjetas para Servicios y Combos ---
-    // Todavia no se pueden vender aun me falta crear las tablas de detalle de factura
-    public void agregarTarjetaServicio(String nombre, String precio, String imagenArchivo) {
-        agregarTarjetaNoDisponible(panelServicios, nombre, precio, imagenArchivo, "Servicio");
-    }
-
-    public void agregarTarjetaCombo(String nombre, String precio, String imagenArchivo) {
-        agregarTarjetaNoDisponible(panelCombos, nombre, precio, imagenArchivo, "Combo");
-    }
-
-    private void agregarTarjetaNoDisponible(JPanel panelDestino, String nombre, String precio, String imagenArchivo, String tipo) {
-        JPanel tarjeta = new JPanel();
-        tarjeta.setLayout(new BoxLayout(tarjeta, BoxLayout.Y_AXIS));
-        tarjeta.setBackground(Color.WHITE);
-        tarjeta.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-        tarjeta.setPreferredSize(new Dimension(220, 320));
-
-        JLabel lblImagen = new JLabel();
-        lblImagen.setPreferredSize(new Dimension(200, 180));
-        lblImagen.setAlignmentX(CENTER_ALIGNMENT);
-        lblImagen.setHorizontalAlignment(JLabel.CENTER);
-
-        String nombreArchivoImg = (imagenArchivo != null && !imagenArchivo.trim().isEmpty())
-                ? new java.io.File(imagenArchivo.trim()).getName() : "default.jpg";
-
-        ImageIcon iconoItem = null;
-        java.io.File archivoEnDisco = new java.io.File("img", nombreArchivoImg);
-        if (archivoEnDisco.exists()) {
-            iconoItem = new ImageIcon(archivoEnDisco.getPath());
-        }
-        if (iconoItem == null || iconoItem.getIconWidth() <= 0) {
-            java.net.URL imgURL = getClass().getResource("/nexusgo/img/" + nombreArchivoImg);
-            if (imgURL != null) {
-                iconoItem = new ImageIcon(imgURL);
-            }
-        }
-        if (iconoItem == null || iconoItem.getIconWidth() <= 0) {
-            java.net.URL defaultURL = getClass().getResource("/nexusgo/img/default.jpg");
-            iconoItem = (defaultURL != null) ? new ImageIcon(defaultURL) : null;
-        }
-        if (iconoItem != null && iconoItem.getIconWidth() > 0) {
-            java.awt.Image imgEscalada = iconoItem.getImage().getScaledInstance(200, 180, java.awt.Image.SCALE_SMOOTH);
-            lblImagen.setIcon(new ImageIcon(imgEscalada));
-        } else {
-            lblImagen.setText("[Sin Foto]");
-            lblImagen.setFont(new Font("SansSerif", Font.ITALIC, 11));
-            lblImagen.setForeground(Color.GRAY);
-        }
-
-        JLabel lblEtiquetaTipo = new JLabel(tipo.toUpperCase());
-        lblEtiquetaTipo.setFont(new Font("SansSerif", Font.BOLD, 10));
-        lblEtiquetaTipo.setForeground(new Color(180, 140, 40));
-        lblEtiquetaTipo.setBorder(BorderFactory.createEmptyBorder(6, 8, 0, 8));
-        lblEtiquetaTipo.setAlignmentX(LEFT_ALIGNMENT);
-
-        JLabel lblTitulo = new JLabel(nombre);
-        lblTitulo.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        lblTitulo.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
-        lblTitulo.setAlignmentX(LEFT_ALIGNMENT);
-
-        JLabel lblPrecio = new JLabel(precio);
-        lblPrecio.setFont(new Font("SansSerif", Font.BOLD, 15));
-        lblPrecio.setBorder(BorderFactory.createEmptyBorder(0, 8, 8, 8));
-        lblPrecio.setAlignmentX(LEFT_ALIGNMENT);
-
-        JButton btnNoDisponible = new JButton("Próximamente");
-        btnNoDisponible.setEnabled(false);
-        btnNoDisponible.setFont(new Font("SansSerif", Font.BOLD, 12));
-        btnNoDisponible.setBackground(new Color(230, 230, 230));
-        btnNoDisponible.setForeground(Color.GRAY);
-        btnNoDisponible.setFocusPainted(false);
-        btnNoDisponible.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
-        btnNoDisponible.setAlignmentX(LEFT_ALIGNMENT);
-        btnNoDisponible.setToolTipText("La venta de " + tipo.toLowerCase() + "s estará disponible próximamente");
-
-        tarjeta.add(lblImagen);
-        tarjeta.add(lblEtiquetaTipo);
-        tarjeta.add(lblTitulo);
-        tarjeta.add(lblPrecio);
-        tarjeta.add(Box.createVerticalStrut(5));
-        tarjeta.add(btnNoDisponible);
-
-        panelDestino.add(tarjeta);
-        panelDestino.revalidate();
-        panelDestino.repaint();
-    }
+//    // --- Tarjetas para Servicios y Combos ---
+//    // Todavia no se pueden vender aun me falta crear las tablas de detalle de factura
+//    public void agregarTarjetaServicio(String nombre, String precio, String imagenArchivo) {
+//        agregarTarjetaNoDisponible(panelServicios, nombre, precio, imagenArchivo, "Servicio");
+//    }
+//
+//    public void agregarTarjetaCombo(String nombre, String precio, String imagenArchivo) {
+//        agregarTarjetaNoDisponible(panelCombos, nombre, precio, imagenArchivo, "Combo");
+//    }
 }
