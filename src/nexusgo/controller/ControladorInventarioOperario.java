@@ -50,10 +50,9 @@ public class ControladorInventarioOperario implements ActionListener {
     private TableRowSorter<DefaultTableModel> sorterProductos;
     private TableRowSorter<DefaultTableModel> sorterHerramientas;
 
-    /**
-     * Constructor del controlador. Inicializa componentes, carga registros desde base de datos
-     * y registra los escuchadores de eventos.
-     */
+    /*Constructor del controlador. Inicializa componentes, carga registros desde base de datos
+    y registra los escuchadores de eventos.*/
+    
     public ControladorInventarioOperario(VistaOperarioInventario panelInventario, Usuario usuarioLogueado, JPanel contenedorCentral) {
         this.panelInventario = panelInventario;
         this.usuarioLogueado = usuarioLogueado;
@@ -86,10 +85,8 @@ public class ControladorInventarioOperario implements ActionListener {
         }
     }
 
-    /**
-     * Registra los escuchadores de eventos (ActionListener, MouseListener, KeyListener) 
-     * en las vistas y componentes correspondientes.
-     */
+    /*Registra los escuchadores de eventos (ActionListener, MouseListener, KeyListener) 
+    en las vistas y componentes correspondientes.*/
     private void inicializarListeners() {
         // Asignación de ActionListener a los botones principales de la vista
         if (panelInventario.btnAgregarProducto != null) {

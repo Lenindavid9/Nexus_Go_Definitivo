@@ -7,6 +7,7 @@ package nexusgo.controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import static java.lang.Double.parseDouble;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -124,7 +125,7 @@ public class ControladorAgregarPromocionProducto implements ActionListener {
 
             double precioPromocional;
             try {
-                precioPromocional = Double.parseDouble(strPrecio.replace(",", "."));
+                precioPromocional = parseDouble(strPrecio.replace(",", "."));
             } catch (NumberFormatException ex) {
                 throw new IllegalArgumentException("El valor ingresado para el precio debe ser estrictamente numérico.");
             }

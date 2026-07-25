@@ -7,6 +7,7 @@ package nexusgo.controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import static java.lang.Double.parseDouble;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -207,13 +208,15 @@ public class ControladorAgregarPromocionCombo implements ActionListener {
             double precioCombo;
             try {
                 precioStr = precioStr.replace(",", ".");
-                precioCombo = Double.parseDouble(precioStr);
+                precioCombo = parseDouble(precioStr);
             } catch (NumberFormatException nfe) {
                 throw new IllegalArgumentException("El precio debe ser un número válido.");
             }
 
             if (precioCombo <= 0 || precioCombo > 9999999.99) {
-                throw new IllegalArgumentException("El precio debe ser mayor a $0 y no superar $9,999,999.99.");
+                JOptionPane.showMessageDialog(vista, "El precio debe ser mayor a $0 y no superar $9,999,999.99.",
+                        "Validación de Datos", JOptionPane.WARNING_MESSAGE);
+                return;
             }
 
             // 5. Crear objeto PromocionCombo con los datos recabados

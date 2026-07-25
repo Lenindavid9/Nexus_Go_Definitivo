@@ -164,11 +164,10 @@ public class ControladorPdV implements ActionListener {
             }
         }
     }
-
-    /**
-     * Acumula la cantidad seleccionada en el producto existente dentro del
-     * carrito, o agrega una nueva línea si no había sido seleccionado antes.
-     */
+    /* Agrega o acumula un ítem en el carrito. Sirve para productos (con límite
+    real de stock) y también para servicios y combos (sin límite de stock,
+    pasando stockDisponible = -1). */
+    
     private boolean agregarOActualizarItem(int id, String tipo, String nombre, int cantidad, double precioUnitario, int stockDisponible) {
         boolean itemExiste = false;
         int cantidadYaEnCarrito = 0;

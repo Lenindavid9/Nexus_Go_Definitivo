@@ -8,10 +8,14 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import static java.lang.Double.parseDouble;
+import static java.lang.Integer.parseInt;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -104,6 +108,14 @@ public class ControladorAgregarProducto implements ActionListener {
         }
     }
 
+    // Da formato al precio con punto de miles cuando supera las 3 cifras (ejp: 22000 -> 22.000)
+    private String formatearPrecio(double valor) {
+        DecimalFormatSymbols simbolos = new DecimalFormatSymbols();
+        simbolos.setGroupingSeparator('.');
+        DecimalFormat formato = new DecimalFormat("#,###", simbolos);
+        return formato.format(valor);
+    }
+
     private void cargarDatosProducto(int id) {
         Producto p = productoDao.buscarPorId(id);
         if (p != null) {
@@ -111,8 +123,8 @@ public class ControladorAgregarProducto implements ActionListener {
             panelFormulario.txtDescripcion.setText(p.getDescripcion() != null ? p.getDescripcion() : "");
             panelFormulario.txtCantidad.setText(String.valueOf(p.getStockActual()));
             panelFormulario.txtStockMinimo.setText(String.valueOf(p.getStockMinimo()));
-            panelFormulario.txtPrecio.setText(String.valueOf(p.getPrecioCompra()));
-            panelFormulario.txtPrecioVenta.setText(String.valueOf(p.getPrecioVenta()));
+            panelFormulario.txtPrecio.setText(formatearPrecio(p.getPrecioCompra()));
+            panelFormulario.txtPrecioVenta.setText(formatearPrecio(p.getPrecioVenta()));
             panelFormulario.txtProveedor.setText(p.getProveedor() != null ? p.getProveedor() : "");
             panelFormulario.lblNombreImagen.setText(p.getUrlImagen() != null ? p.getUrlImagen() : "sin_imagen.jpg");
         }
@@ -122,16 +134,31 @@ public class ControladorAgregarProducto implements ActionListener {
         try {
             Producto nuevoProducto = extraermeObjetoProductoFormulario();
 
+            if (nuevoProducto.getStockActual() < 0 || nuevoProducto.getStockMinimo() < 0 || nuevoProducto.getPrecioCompra() < 0 || nuevoProducto.getPrecioVenta() < 0) {
+                JOptionPane.showMessageDialog(panelFormulario, "Ningún valor puede ser negativo.", 
+                        "Error de valores negativos", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            if (nuevoProducto.getPrecioCompra() < 100 || nuevoProducto.getPrecioVenta() < 100) {
+                JOptionPane.showMessageDialog(panelFormulario, "El precio debe tener como mínimo 3 dígitos (mínimo 100 pesos).", 
+                        "Error de valores", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
             if (productoDao.agregar(nuevoProducto) > 0) {
-                JOptionPane.showMessageDialog(panelFormulario, "¡Insumo registrado con éxito!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(panelFormulario, "¡Insumo registrado con éxito!", 
+                        "Éxito de actualizacion", JOptionPane.INFORMATION_MESSAGE);
                 volverAlPanelPrincipal();
             } else {
-                JOptionPane.showMessageDialog(panelFormulario, "No se pudo registrar el producto en la base de datos.", "Error SQL", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(panelFormulario, "No se pudo registrar el producto en la base de datos.", 
+                        "Error SQL", JOptionPane.ERROR_MESSAGE);
             }
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(panelFormulario, "Por favor revisa los números/precios ingresados.", "Error de Formato", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(panelFormulario, "Por favor revisa los campos números y precios ingresados, verifique que no tenga ningun caracter que no sea un numero.", 
+                    "Error de Formato", JOptionPane.WARNING_MESSAGE);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(panelFormulario, "Campos inválidos: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(panelFormulario, "Campos inválidos: " + ex.getMessage(), 
+                    "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -140,16 +167,32 @@ public class ControladorAgregarProducto implements ActionListener {
             Producto p = extraermeObjetoProductoFormulario();
             p.setIdProducto(idSeleccionado);
 
+            if (p.getStockActual() < 0 || p.getStockMinimo() < 0 || p.getPrecioCompra() < 0 || p.getPrecioVenta() < 0) {
+                JOptionPane.showMessageDialog(panelFormulario, "Ningún valor puede ser negativo.",
+                        "Error de valores negativos", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            if (p.getPrecioCompra() < 99 || p.getPrecioVenta() < 99) {
+                JOptionPane.showMessageDialog(panelFormulario, "El precio debe tener como mínimo 3 dígitos (mínimo 100 pesos).", 
+                        "Error de valores", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
             if (productoDao.editar(p) > 0) {
-                JOptionPane.showMessageDialog(panelFormulario, "¡Insumo modificado correctamente!", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(panelFormulario, "¡Insumo modificado correctamente!", 
+                        "Éxito de actualizacion", JOptionPane.INFORMATION_MESSAGE);
                 volverAlPanelPrincipal();
             } else {
-                JOptionPane.showMessageDialog(panelFormulario, "No se pudo actualizar el producto en la base de datos.", "Error SQL", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(panelFormulario, "No se pudo actualizar el producto en la base de datos.", 
+                        "Error SQL", JOptionPane.ERROR_MESSAGE);
             }
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(panelFormulario, "Por favor revisa los números/precios ingresados.", "Error de Formato", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(panelFormulario, "Por favor revisa los campos números y precios ingresados, verifique que no tenga ningun caracter que no sea un numero.", 
+                    "Error de Formato", JOptionPane.WARNING_MESSAGE);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(panelFormulario, "Error al editar: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(panelFormulario, "Error al editar: " + ex.getMessage(), 
+                    "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -161,15 +204,16 @@ public class ControladorAgregarProducto implements ActionListener {
         p.setStockActual(Integer.parseInt(panelFormulario.txtCantidad.getText().trim()));
         
         String stockMinTexto = panelFormulario.txtStockMinimo.getText().trim();
-        p.setStockMinimo(stockMinTexto.isEmpty() ? 0 : Integer.parseInt(stockMinTexto));
+        p.setStockMinimo(stockMinTexto.isEmpty() ? 0 : parseInt(stockMinTexto));
 
-        // Limpieza de moneda (soporta formato $1.000,00 o $1000.00)
-        String precioLimpio = panelFormulario.txtPrecio.getText().replaceAll("[^0-9,.]", "").replace(",", ".").trim();
-        double precioCompra = Double.parseDouble(precioLimpio);
+        /* se le hace limpieza a el precio con el punto, es el separador de miles ( el cual se elimina) y la
+        coma si aparece, que es el separador decimal (se convierte a punto despues ).*/
+        String precioLimpio = panelFormulario.txtPrecio.getText().replaceAll("[^0-9,]", "").replace(",", ".").trim();
+        double precioCompra = precioLimpio.isEmpty() ? 0 : parseDouble(precioLimpio);
         p.setPrecioCompra(precioCompra);
 
-        String precioVentaLimpio = panelFormulario.txtPrecioVenta.getText().replaceAll("[^0-9,.]", "").replace(",", ".").trim();
-        double precioVenta = precioVentaLimpio.isEmpty() ? precioCompra : Double.parseDouble(precioVentaLimpio);
+        String precioVentaLimpio = panelFormulario.txtPrecioVenta.getText().replaceAll("[^0-9,]", "").replace(",", ".").trim();
+        double precioVenta = precioVentaLimpio.isEmpty() ? precioCompra : parseDouble(precioVentaLimpio);
         p.setPrecioVenta(precioVenta);
 
         p.setProveedor(panelFormulario.txtProveedor.getText().trim());
@@ -202,7 +246,8 @@ public class ControladorAgregarProducto implements ActionListener {
                 panelFormulario.lblNombreImagen.setText(nombreLimpio);
 
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(panelFormulario, "Error de transferencia de archivo: " + ex.getMessage(), "Error de Imagen", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(panelFormulario, "Error de transferencia de archivo: " + ex.getMessage(), 
+                        "Error de Imagen", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
