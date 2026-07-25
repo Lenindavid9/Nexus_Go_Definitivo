@@ -9,7 +9,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.sql.Date;
 import java.util.List;
+import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  *
@@ -19,8 +24,9 @@ public class CitaDao {
 
     Conexion conexion = new Conexion();
 
+
     /**
-     * Inserta la cita directamente en la BD nexus_go_prueba
+     * Inserta la cita directamente en la BD
      */
     public boolean agendarCita(Cita cita) {
         String sql = "INSERT INTO citas (id_cliente, id_profesional, id_servicio, fecha_hora_programada, estado) "
@@ -43,7 +49,7 @@ public class CitaDao {
     }
 
     /**
-     * Valida que no haya colisión de horarios
+     * Valida si la fecha y hora exacta ya están ocupadas
      */
     public boolean existeCitaEnHorario(String fechaHora) {
         String sql = "SELECT COUNT(*) FROM citas WHERE fecha_hora_programada = ? AND estado != 'CANCELADA'";
@@ -63,8 +69,34 @@ public class CitaDao {
     }
 
     /**
-     * Busca la ID del servicio seleccionado
+     * Obtiene las fechas (LocalDate) que ya tienen citas agendadas 
+     * para pintarlas de rosa en LGoodDatePicker.
      */
+    public List<LocalDate> obtenerFechasOcupadas() {
+        List<LocalDate> fechas = new ArrayList<>();
+        String sql = "SELECT DISTINCT fecha_hora_programada FROM citas WHERE estado != 'CANCELADA'";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        try (Connection con = conexion.getConection(); 
+             PreparedStatement ps = con.prepareStatement(sql); 
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                String strFechaHora = rs.getString("fecha_hora_programada");
+                if (strFechaHora != null && !strFechaHora.isEmpty()) {
+                    // Si el String viene completo con hora, tomamos solo la fecha
+                    LocalDate fecha = LocalDateTime.parse(strFechaHora, formatter).toLocalDate();
+                    if (!fechas.contains(fecha)) {
+                        fechas.add(fecha);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error al obtener fechas ocupadas: " + e.getMessage());
+        }
+        return fechas;
+    }
+
     public int obtenerIdServicioPorNombre(String nombreServicio) {
         String sql = "SELECT id_servicio FROM servicios WHERE nombre_servicio = ?";
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -78,12 +110,9 @@ public class CitaDao {
         } catch (SQLException e) {
             System.err.println("Error al obtener ID de servicio: " + e.getMessage());
         }
-        return 1; // ID de respaldo por si no coincide exactamente el string
+        return 1;
     }
 
-    /**
-     * Obtiene profesional disponible (Rol 5 = Peluquero/Profesional)
-     */
     public int obtenerIdProfesionalPorDefecto() {
         String sql = "SELECT id_usuario FROM usuarios WHERE id_rol = 5 LIMIT 1";
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
@@ -94,7 +123,7 @@ public class CitaDao {
         } catch (SQLException e) {
             System.err.println("Error al buscar profesional: " + e.getMessage());
         }
-        return 5; // Respaldo
+        return 5;
     }
 
     public List<String> obtenerListaServicios() {
@@ -113,26 +142,25 @@ public class CitaDao {
 
         return listaServicios;
     }
-    
+
     public String obtenerCorreoPorUsuarioId(int idUsuario) {
         String correo = null;
         String sql = "SELECT correo FROM usuarios WHERE id_usuario = ?";
-        
-        // Asegúrate de reemplazar 'Conexion.getConnection()' con tu clase o método de conexión a la BD
-        try (java.sql.Connection con = conexion.getConection();
-             java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
-            
+
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setInt(1, idUsuario);
-            try (java.sql.ResultSet rs = ps.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     correo = rs.getString("correo");
                 }
             }
         } catch (Exception e) {
             System.err.println("Error al obtener el correo del usuario: " + e.getMessage());
-            e.printStackTrace();
         }
-        
+
         return correo;
     }
+    
+    
 }

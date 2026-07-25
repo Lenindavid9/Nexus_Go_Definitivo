@@ -4,7 +4,14 @@
  */
 package nexusgo.view;
 
- import com.toedter.calendar.JDateChooser;
+import com.github.lgooddatepicker.components.DatePicker;
+import com.github.lgooddatepicker.components.DatePickerSettings;
+import com.github.lgooddatepicker.components.TimePicker;
+import com.github.lgooddatepicker.components.TimePickerSettings;
+import com.github.lgooddatepicker.optionalusertools.DateHighlightPolicy;
+import com.github.lgooddatepicker.optionalusertools.DateVetoPolicy;
+import com.github.lgooddatepicker.zinternaltools.HighlightInformation;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -16,46 +23,62 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.RenderingHints;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.SpinnerDateModel;
 import javax.swing.border.TitledBorder;
-
 /**
  *
  * @author HOME
  */
 public class VistaReservarCitas extends JPanel {
 
-    public JComboBox<String> comboServicios;
-    public JDateChooser dateChooserFecha;
-    public JSpinner spinnerHora;
-    public JTextArea txtObservaciones;
+   
+    public JComboBox<String> comboServicios; 
     
-    public JButton btnAgendar; // Botón "Reservar cita"
-  
+    // Componentes de la librería LGoodDatePicker para manejar fechas y horas
+    public DatePicker datePickerFecha; // Selector de la fecha (el calendario)
+    public TimePicker timePickerHora;  // Selector de la hora
+    private DatePickerSettings configCalendario; // Guarda las reglas visuales del calendario
+    
+    public JTextArea txtObservaciones; // Área de texto para notas adicionales del cliente
+    public JButton btnAgendar; // Botón principal para procesar la reserva
+    public JTextField txtFechaHora; // Campo invisible de apoyo para compatibilidad con el controlador
 
-    // Compatibilidad con el controlador
-    public JTextField txtFechaHora; 
+    /* 
+     * Lista que guardará las fechas que ya están ocupadas.
+     * Esta lista se llena desde la base de datos cuando el controlador lo ordena.
+     */
+    private List<LocalDate> fechasOcupadas;
 
+    // --- PALETA DE COLORES ---
     private final Color COLOR_DORADO_BOTON = new Color(250, 218, 94);
     private final Color COLOR_TEXTO_BOTON = new Color(139, 101, 8);
     private final Color COLOR_TEXTO_TITULO = new Color(40, 40, 40);
+    private final Color COLOR_DIA_OCUPADO = new Color(255, 182, 193); // Un rosa pastel suave
 
+    /**
+     * CONSTRUCTOR DE LA VISTA
+     * Aquí se "dibuja" y se acomoda todo en la pantalla al momento de iniciar el panel.
+     */
     public VistaReservarCitas() {
-        setOpaque(false);
-        setLayout(new GridBagLayout()); // Centra la tarjeta blanca
+        fechasOcupadas = new ArrayList<>();
+        setOpaque(false); // Hacemos el fondo transparente para que se vea el fondo de la app principal
+        setLayout(new GridBagLayout()); // Usamos GridBagLayout para centrar nuestra tarjeta en la pantalla
 
-        // 1. Tarjeta Blanca Flotante
+        /* 
+         * 1. CREACIÓN DE LA TARJETA BLANCA (CONTENEDOR PRINCIPAL)
+         * */
         JPanel tarjetaBlanca = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -70,30 +93,37 @@ public class VistaReservarCitas extends JPanel {
         tarjetaBlanca.setLayout(new GridBagLayout());
         tarjetaBlanca.setBorder(BorderFactory.createEmptyBorder(25, 35, 25, 35));
 
+        /* 
+         * 2. REGLAS DE POSICIONAMIENTO (GridBagConstraints)
+         * */
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 0, 6, 0);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridx = 0;
-        gbc.weightx = 1.0;
+        gbc.insets = new Insets(6, 0, 6, 0); // Espacio entre cada fila
+        gbc.fill = GridBagConstraints.HORIZONTAL; // Los componentes se estirarán a lo ancho
+        gbc.gridx = 0; // Todo irá en la columna 0
+        gbc.weightx = 1.0; // Ocupar todo el ancho disponible
 
-        // --- TÍTULO Y SUBTÍTULO ---
+        /*
+         * 3. TÍTULO Y SUBTÍTULO
+         **/
         JLabel lblTitulo = new JLabel("Reservar cita");
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblTitulo.setForeground(COLOR_TEXTO_TITULO);
-        gbc.gridy = 0;
+        gbc.gridy = 0; // Fila 0
         tarjetaBlanca.add(lblTitulo, gbc);
 
         JLabel lblSubtitulo = new JLabel("<html>Complete los datos para consultar horarios disponibles y<br>reservar tu cita en tiempo real.</html>");
         lblSubtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblSubtitulo.setForeground(Color.GRAY);
-        gbc.gridy = 1;
+        gbc.gridy = 1; // Fila 1
         tarjetaBlanca.add(lblSubtitulo, gbc);
 
-        // --- SELECCIÓN DE SERVICIO ---
-        JLabel lblServicio = new JLabel("Seleccione el tipo de servicio");
+        /* 
+         * 4. SELECCIÓN DE PROFESIONAL / SERVICIO
+         *  */
+        JLabel lblServicio = new JLabel("Seleccione el profesional / servicio");
         lblServicio.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblServicio.setForeground(Color.DARK_GRAY);
-        gbc.gridy = 2;
+        gbc.gridy = 2; // Fila 2
         gbc.insets = new Insets(10, 0, 2, 0);
         tarjetaBlanca.add(lblServicio, gbc);
 
@@ -101,43 +131,73 @@ public class VistaReservarCitas extends JPanel {
         comboServicios.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         comboServicios.setBackground(Color.WHITE);
         comboServicios.setPreferredSize(new Dimension(350, 38));
-        gbc.gridy = 3;
+        gbc.gridy = 3; // Fila 3
         gbc.insets = new Insets(2, 0, 8, 0);
         tarjetaBlanca.add(comboServicios, gbc);
 
-        // --- FECHA Y HORA (JCalendar + JSpinner) ---
-        JPanel panelFechaHora = new JPanel(new BorderLayout(10, 0));
+        /* 
+         * 5. CONFIGURACIÓN DEL CALENDARIO Y RELOJ (LGoodDatePicker)
+         *  */
+        JPanel panelFechaHora = new JPanel(new BorderLayout(10, 0)); 
         panelFechaHora.setOpaque(false);
 
-        // JDateChooser
-        dateChooserFecha = new JDateChooser(new Date());
-        dateChooserFecha.setDateFormatString("yyyy-MM-dd");
-        dateChooserFecha.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        dateChooserFecha.setBackground(Color.WHITE);
-        dateChooserFecha.setPreferredSize(new Dimension(220, 38));
+        // --- A. Reglas del Calendario ---
+        configCalendario = new DatePickerSettings();
 
-        // JSpinner para la hora
-        SpinnerDateModel timeModel = new SpinnerDateModel();
-        spinnerHora = new JSpinner(timeModel);
-        JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(spinnerHora, "HH:mm");
-        spinnerHora.setEditor(timeEditor);
-        spinnerHora.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        spinnerHora.setPreferredSize(new Dimension(100, 38));
+        // 1. Instanciamos PRIMERO el DatePicker para evitar la excepción java.lang.RuntimeException
+        datePickerFecha = new DatePicker(configCalendario);
+        datePickerFecha.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        datePickerFecha.setPreferredSize(new Dimension(220, 38));
+        datePickerFecha.setDateToToday(); // Iniciar siempre marcando el día de hoy
 
-        panelFechaHora.add(dateChooserFecha, BorderLayout.CENTER);
-        panelFechaHora.add(spinnerHora, BorderLayout.EAST);
+        // 2. AHORA SÍ aplicamos las políticas al DatePicker ya construido
+        configCalendario.setVetoPolicy(new DateVetoPolicy() {
+            @Override
+            public boolean isDateAllowed(LocalDate date) {
+                // Si la fecha es anterior a hoy, NO la permite (devuelve false)
+                return !date.isBefore(LocalDate.now());
+            }
+        });
+
+        configCalendario.setHighlightPolicy(new DateHighlightPolicy() {
+            @Override
+            public HighlightInformation getHighlightInformationOrNull(LocalDate date) {
+                // Comprueba si la fecha actual está en nuestra lista de "fechasOcupadas"
+                if (fechasOcupadas.contains(date)) {
+                    // Si está ocupada, la pinta de color Rosa pastel
+                    return new HighlightInformation(COLOR_DIA_OCUPADO, Color.BLACK, "Día con citas programadas");
+                }
+                return null; 
+            }
+        });
+
+        // --- B. Reglas de la Hora ---
+        TimePickerSettings timeSettings = new TimePickerSettings();
+        timeSettings.setFormatForDisplayTime("HH:mm"); // Formato 24hrs
+        timeSettings.setFormatForMenuTimes("HH:mm");
+        timeSettings.generatePotentialMenuTimes(TimePickerSettings.TimeIncrement.ThirtyMinutes, null, null);
+        
+        timePickerHora = new TimePicker(timeSettings);
+        timePickerHora.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        timePickerHora.setPreferredSize(new Dimension(100, 38));
+
+        // Agregamos ambos selectores al panel contenedor
+        panelFechaHora.add(datePickerFecha, BorderLayout.CENTER);
+        panelFechaHora.add(timePickerHora, BorderLayout.EAST);
 
         panelFechaHora.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(180, 180, 180)),
-                "Fecha y Hora de la cita", TitledBorder.LEFT, TitledBorder.TOP,
+                "Fecha y Hora de la cita (días rosas están ocupados)", TitledBorder.LEFT, TitledBorder.TOP,
                 new Font("Segoe UI", Font.PLAIN, 11), Color.DARK_GRAY
         ));
 
-        gbc.gridy = 4;
+        gbc.gridy = 4; // Fila 4
         gbc.insets = new Insets(4, 0, 8, 0);
         tarjetaBlanca.add(panelFechaHora, gbc);
 
-        // --- OBSERVACIONES CON SCROLL ---
+        /* 
+         * 6. CAMPO DE OBSERVACIONES
+         *  */
         txtObservaciones = new JTextArea(3, 20);
         txtObservaciones.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         txtObservaciones.setLineWrap(true);
@@ -152,10 +212,12 @@ public class VistaReservarCitas extends JPanel {
                 new Font("Segoe UI", Font.PLAIN, 11), Color.DARK_GRAY
         ));
 
-        gbc.gridy = 5;
+        gbc.gridy = 5; // Fila 5
         tarjetaBlanca.add(scrollObs, gbc);
 
-        // --- BOTÓN AGENDAR ---
+        /* 
+         * 7. BOTÓN DE AGENDAR
+         * */
         btnAgendar = new JButton("Reservar cita") {
             @Override
             protected void paintComponent(Graphics g) {
@@ -174,30 +236,58 @@ public class VistaReservarCitas extends JPanel {
         btnAgendar.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnAgendar.setPreferredSize(new Dimension(200, 42));
 
-        gbc.gridy = 6;
+        gbc.gridy = 6; // Fila 6
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.CENTER;
         gbc.insets = new Insets(15, 0, 5, 0);
         tarjetaBlanca.add(btnAgendar, gbc);
 
-        // Instancias auxiliares de respaldo
-       
+        // Inicializar campo invisible
         txtFechaHora = new JTextField();
 
+        // Finalmente, agregamos nuestra tarjeta blanca con todo su contenido al JPanel principal
         add(tarjetaBlanca);
     }
 
-    public String getFechaHoraFormateada() {
-        Date fecha = dateChooserFecha.getDate();
-        Date hora = (Date) spinnerHora.getValue();
+    /* 
+     * MÉTODOS DE APOYO (Lógica de la vista)
+     *  */
 
-        if (fecha == null) {
-            return "";
+    /**
+     * Este método recibe una lista de fechas (desde el controlador) que pertenecen a los días
+     * en los que el peluquero ya tiene citas, y actualiza el calendario visualmente.
+     * 
+     * @param nuevasFechas Lista de fechas que se deben pintar de rosa.
+     */
+    public void marcarDiasOcupados(List<LocalDate> nuevasFechas) {
+        this.fechasOcupadas = nuevasFechas;
+        // Re-aplica la política para refrescar visualmente el calendario
+        if (datePickerFecha != null && configCalendario != null) {
+            datePickerFecha.getSettings().setHighlightPolicy(configCalendario.getHighlightPolicy());
+        }
+    }
+
+    /**
+     * Une la fecha del DatePicker y la hora del TimePicker en un solo texto (String).
+     * Ideal para guardar directo en la Base de Datos.
+     * 
+     * @return Texto con formato "yyyy-MM-dd HH:mm:ss" (Ej: "2026-10-15 14:30:00")
+     */
+    public String getFechaHoraFormateada() {
+        LocalDate fecha = datePickerFecha.getDate();
+        LocalTime hora = timePickerHora.getTime();
+
+        if (fecha == null || hora == null) {
+            return ""; 
         }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+        String fechaFormateada = fecha.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String horaFormateada = hora.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
 
-        return dateFormat.format(fecha) + " " + timeFormat.format(hora);
+        String resultado = fechaFormateada + " " + horaFormateada;
+        
+        txtFechaHora.setText(resultado);
+        
+        return resultado;
     }
 }
