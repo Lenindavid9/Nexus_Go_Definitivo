@@ -13,8 +13,7 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Properties;
 import javax.swing.JOptionPane;
@@ -29,11 +28,12 @@ import nexusgo.view.VistaPrincipalCliente;
  */
 public class ControladorReservarCita implements ActionListener {
     
-   private final VistaReservarCitas panelReserva;
+  private final VistaReservarCitas panelReserva;
     private final VistaPrincipalCliente vistaPrincipal;
     private final int idUsuarioLogueado;
     private final CitaDao citaDao;
 
+    // Constructor del controlador
     public ControladorReservarCita(VistaReservarCitas panelReserva, VistaPrincipalCliente vistaPrincipal, int idUsuarioLogueado) {
         this.panelReserva = panelReserva;
         this.vistaPrincipal = vistaPrincipal;
@@ -42,6 +42,7 @@ public class ControladorReservarCita implements ActionListener {
 
         inicializarEventos();
         cargarServicios();
+        cargarFechasOcupadas();
     }
 
     private void inicializarEventos() {
@@ -53,116 +54,98 @@ public class ControladorReservarCita implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == panelReserva.btnAgendar) {
-            System.out.println("-> Clic detectado en ControladorReservarCita!"); 
             procesarReserva();
         }
     }
 
     private void procesarReserva() {
-        // 1. Validar Selección de Servicio
-        if (panelReserva.comboServicios.getSelectedIndex() <= 0) {
-            JOptionPane.showMessageDialog(panelReserva,
-                    "Por favor, seleccione un tipo de servicio.",
-                    "Campo Requerido", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        // 2. Validar Selección del DateChooser
-        Date fechaSeleccionada = panelReserva.dateChooserFecha.getDate();
-        if (fechaSeleccionada == null) {
-            JOptionPane.showMessageDialog(panelReserva,
-                    "Por favor, seleccione una fecha válida.",
-                    "Fecha Requerida", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        // 3. Validar Cadena de Fecha y Hora Formateada
-        String fechaHora = panelReserva.getFechaHoraFormateada();
-        if (fechaHora == null || fechaHora.trim().isEmpty()) {
-            JOptionPane.showMessageDialog(panelReserva,
-                    "Por favor, seleccione una fecha y hora válidas.",
-                    "Fecha Requerida", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        // 4. Validar Fecha: BLOQUEAR HOY Y FECHAS PASADAS (Solo permite desde mañana)
-        Calendar calSeleccionada = Calendar.getInstance();
-        calSeleccionada.setTime(fechaSeleccionada);
-        calSeleccionada.set(Calendar.HOUR_OF_DAY, 0);
-        calSeleccionada.set(Calendar.MINUTE, 0);
-        calSeleccionada.set(Calendar.SECOND, 0);
-        calSeleccionada.set(Calendar.MILLISECOND, 0);
-
-        Calendar calHoy = Calendar.getInstance();
-        calHoy.set(Calendar.HOUR_OF_DAY, 0);
-        calHoy.set(Calendar.MINUTE, 0);
-        calHoy.set(Calendar.SECOND, 0);
-        calHoy.set(Calendar.MILLISECOND, 0);
-
-        // compareTo <= 0 bloquea exactamente la fecha de HOY y días anteriores
-        if (calSeleccionada.compareTo(calHoy) <= 0) {
-            JOptionPane.showMessageDialog(panelReserva,
-                    "No se pueden agendar citas para el día de hoy ni para fechas pasadas.\n"
-                    + "Por favor, seleccione una fecha a partir de mañana.",
-                    "Fecha No Válida", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        // 5. Verificar disponibilidad en la base de datos
-        if (citaDao.existeCitaEnHorario(fechaHora)) {
-            JOptionPane.showMessageDialog(panelReserva,
-                    "El horario seleccionado (" + fechaHora + ") ya se encuentra ocupado.\n"
-                    + "Por favor, elige otra hora.",
-                    "Horario No Disponible", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        // 6. Mapear datos necesarios
-        String servicioNombre = (String) panelReserva.comboServicios.getSelectedItem();
-        int idServicio = citaDao.obtenerIdServicioPorNombre(servicioNombre);
-        if (idServicio == -1) {
-            idServicio = 1; // Respaldo por defecto
-        }
-
-        int idProfesional = citaDao.obtenerIdProfesionalPorDefecto();
-
-        // 7. Instanciar objeto Cita
-        Cita nuevaCita = new Cita(this.idUsuarioLogueado, idProfesional, idServicio, fechaHora);
-
-        // 8. Guardar en la base de datos
-        if (citaDao.agendarCita(nuevaCita)) {
-
-            // Buscar correo del usuario para notificación
-            String correoCliente = citaDao.obtenerCorreoPorUsuarioId(this.idUsuarioLogueado);
-
-            if (correoCliente != null && !correoCliente.trim().isEmpty()) {
-                // Se envía en un hilo separado para no congelar la UI de Swing
-                new Thread(() -> {
-                    enviarCorreoConfirmacion(correoCliente, servicioNombre, fechaHora);
-                }).start();
+        try {
+            // 1. Validar Servicio
+            if (panelReserva.comboServicios.getSelectedIndex() <= 0) {
+                JOptionPane.showMessageDialog(panelReserva,
+                        "Por favor, seleccione un tipo de servicio.",
+                        "Campo Requerido", JOptionPane.WARNING_MESSAGE);
+                return;
             }
 
-            JOptionPane.showMessageDialog(panelReserva,
-                    "¡Cita agendada con éxito!\n\n"
-                    + "Servicio: " + servicioNombre + "\n"
-                    + "Fecha y Hora: " + fechaHora + "\n\n"
-                    + "Se ha enviado un correo de confirmación.",
-                    "Reserva Exitosa", JOptionPane.INFORMATION_MESSAGE);
+            // 2. Validar Fecha (LGoodDatePicker)
+            LocalDate fechaSeleccionada = panelReserva.datePickerFecha.getDate();
+            if (fechaSeleccionada == null) {
+                JOptionPane.showMessageDialog(panelReserva,
+                        "Por favor, seleccione una fecha válida.",
+                        "Fecha Requerida", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
-            limpiarFormulario();
-        } else {
+            // 3. Validar que sea a partir de mañana
+            LocalDate manana = LocalDate.now().plusDays(1);
+            if (fechaSeleccionada.isBefore(manana)) {
+                JOptionPane.showMessageDialog(panelReserva,
+                        "No se pueden agendar citas para hoy ni fechas pasadas.\nPor favor, seleccione una fecha a partir de mañana.",
+                        "Fecha No Válida", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // 4. Validar Fecha y Hora completa
+            String fechaHora = panelReserva.getFechaHoraFormateada(); // Asegúrate de tener este método en tu vista
+            if (fechaHora == null || fechaHora.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(panelReserva,
+                        "Por favor, asegúrese de seleccionar tanto la fecha como la hora.",
+                        "Datos incompletos", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // 5. ESCUDO DE SEGURIDAD: Verificar si está ocupado
+            if (citaDao.existeCitaEnHorario(fechaHora)) {
+                JOptionPane.showMessageDialog(panelReserva,
+                        "El horario seleccionado (" + fechaHora + ") ya se encuentra ocupado.\nPor favor, elige otra hora u otro día.",
+                        "Horario No Disponible", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // 6. Preparar datos para la BD
+            String servicioNombre = (String) panelReserva.comboServicios.getSelectedItem();
+            int idServicio = citaDao.obtenerIdServicioPorNombre(servicioNombre);
+            if (idServicio == -1) idServicio = 1; 
+
+            int idProfesional = citaDao.obtenerIdProfesionalPorDefecto();
+
+            // 7. Instanciar Modelo
+            Cita nuevaCita = new Cita(this.idUsuarioLogueado, idProfesional, idServicio, fechaHora);
+
+            // 8. Guardar y Notificar
+            if (citaDao.agendarCita(nuevaCita)) {
+                String correoCliente = citaDao.obtenerCorreoPorUsuarioId(this.idUsuarioLogueado);
+
+                if (correoCliente != null && !correoCliente.trim().isEmpty()) {
+                    // Hilo secundario para que la UI no se trabe mientras envía el correo
+                    new Thread(() -> {
+                        enviarCorreoConfirmacion(correoCliente, servicioNombre, fechaHora);
+                    }).start();
+                }
+
+                JOptionPane.showMessageDialog(panelReserva,
+                        "¡Cita agendada con éxito!\n\nServicio: " + servicioNombre + "\nFecha y Hora: " + fechaHora + "\n\nSe ha enviado un correo de confirmación.",
+                        "Reserva Exitosa", JOptionPane.INFORMATION_MESSAGE);
+
+                limpiarFormulario();
+            } else {
+                JOptionPane.showMessageDialog(panelReserva,
+                        "No se pudo guardar la cita. Verifica tu conexión a la base de datos.",
+                        "Error de Registro", JOptionPane.ERROR_MESSAGE);
+            }
+
+        } catch (Exception ex) {
             JOptionPane.showMessageDialog(panelReserva,
-                    "Ocurrió un error al guardar la cita en la base de datos.",
-                    "Error de Registro", JOptionPane.ERROR_MESSAGE);
+                    "Ocurrió un error inesperado al procesar la reserva:\n" + ex.getMessage(),
+                    "Error del Sistema", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         }
     }
 
-    /**
-     * Método interno para enviar el correo de confirmación de cita por SMTP
-     */
     private boolean enviarCorreoConfirmacion(String destinatario, String servicio, String fechaHora) {
         final String miCorreoRemitente = "liliannysbaptistap@gmail.com";
-        final String miClaveDeCorreo = "rksu umvz hnom irzf";
+        final String miClaveDeCorreo = "rksu umvz hnom irzf"; 
 
         Properties propiedades = new Properties();
         propiedades.put("mail.smtp.auth", "true");
@@ -181,9 +164,8 @@ public class ControladorReservarCita implements ActionListener {
             Message mensaje = new MimeMessage(sesionMail);
             mensaje.setFrom(new InternetAddress(miCorreoRemitente, "NexusGO Reservas 🚀"));
             mensaje.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatario));
-            mensaje.setSubject("✨ ¡Tu reserva en NexusGO ha sido confirmada!✨");
+            mensaje.setSubject("✨ ¡Tu reserva en NexusGO ha sido confirmada! ✨");
 
-            // Mensaje estilizado con emojis y agradecimiento
             String cuerpoTexto = "¡Hola! 👋\n\n"
                     + "🎉 ¡Buenas noticias! Tu cita ha sido agendada con éxito en NexusGO.\n\n"
                     + "📍 === DETALLES DE TU RESERVA ===\n"
@@ -191,40 +173,56 @@ public class ControladorReservarCita implements ActionListener {
                     + "📅 Fecha y Hora: " + fechaHora + "\n\n"
                     + "💡 Recuerda llegar con unos minutos de anticipación.\n\n"
                     + "✨ ¡Muchas gracias por confiar en nosotros! Nos alegra mucho atenderte.\n\n"
-                    + "Atentamente,\n"
-                    + "El equipo de NexusGO 🚀";
+                    + "Atentamente,\nEl equipo de NexusGO 🚀";
 
             mensaje.setText(cuerpoTexto);
-
             Transport.send(mensaje);
             return true;
 
         } catch (Exception e) {
-            System.err.println("Error al enviar el correo de confirmación de cita: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Error al enviar el correo: " + e.getMessage());
             return false;
         }
     }
 
     private void limpiarFormulario() {
-        panelReserva.comboServicios.setSelectedIndex(0);
-        panelReserva.txtObservaciones.setText("");
-        
-        // Dejar el DateChooser apuntando a mañana tras limpiar
-        Calendar manana = Calendar.getInstance();
-        manana.add(Calendar.DAY_OF_MONTH, 1);
-        panelReserva.dateChooserFecha.setDate(manana.getTime());
+        try {
+            panelReserva.comboServicios.setSelectedIndex(0);
+            if (panelReserva.txtObservaciones != null) panelReserva.txtObservaciones.setText("");
+            
+            panelReserva.datePickerFecha.setDate(LocalDate.now().plusDays(1));
+            panelReserva.timePickerHora.clear();
+            
+            cargarFechasOcupadas(); 
+        } catch (Exception e) {
+            System.err.println("Error al limpiar el formulario: " + e.getMessage());
+        }
     }
 
     private void cargarServicios() {
-        panelReserva.comboServicios.removeAllItems();
-        panelReserva.comboServicios.addItem("-- Seleccione un servicio --");
+        try {
+            panelReserva.comboServicios.removeAllItems();
+            panelReserva.comboServicios.addItem("-- Seleccione un servicio --");
 
-        List<String> servicios = citaDao.obtenerListaServicios();
-
-        if (servicios != null) {
-            for (String servicio : servicios) {
-                panelReserva.comboServicios.addItem(servicio);
+            List<String> servicios = citaDao.obtenerListaServicios();
+            if (servicios != null) {
+                for (String servicio : servicios) {
+                    panelReserva.comboServicios.addItem(servicio);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error al cargar los servicios: " + e.getMessage());
+        }
+    }
+    
+    private void cargarFechasOcupadas() {
+        if (panelReserva != null) {
+            try {
+                List<LocalDate> fechas = citaDao.obtenerFechasOcupadas();
+                // Asegúrate de que este método exista en tu VistaReservarCitas
+                panelReserva.marcarDiasOcupados(fechas);
+            } catch (Exception e) {
+                System.err.println("Error al cargar fechas ocupadas: " + e.getMessage());
             }
         }
     }
