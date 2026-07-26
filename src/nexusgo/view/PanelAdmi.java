@@ -75,7 +75,7 @@ public class PanelAdmi extends JFrame {
         bPromociones.setFocusPainted(false);
         bPromociones.setOpaque(false);
 
-        btnReporte = new JButton(new ImageIcon("src/nexusgo/img/aggProm.png"));
+        btnReporte = new JButton(new ImageIcon("src/nexusgo/img/grafica.png"));
         btnReporte.setContentAreaFilled(false);
         btnReporte.setBorderPainted(false);
         btnReporte.setFocusPainted(false);

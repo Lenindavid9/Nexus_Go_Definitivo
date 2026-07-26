@@ -59,6 +59,7 @@ public class VistaProductoDetalles extends JPanel {
         JPanel panelImagenContenedor = new JPanel(new GridBagLayout());
         panelImagenContenedor.setPreferredSize(new Dimension(420, 480));
         panelImagenContenedor.setOpaque(false); // Tono morado similar al diseño
+        panelImagenContenedor.setBackground(Color.red);
 
         lblImagenGrande = new JLabel();
         panelImagenContenedor.add(lblImagenGrande);

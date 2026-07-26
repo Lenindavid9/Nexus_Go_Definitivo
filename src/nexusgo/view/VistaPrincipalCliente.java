@@ -32,21 +32,13 @@ import javax.swing.border.EmptyBorder;
  */
 public class VistaPrincipalCliente extends JFrame {
 
-    private JLabel fondoMarmol;
-    private JPanel panelFlotanteBlanco;
-    private JPanel contenidoCentralDinamico;
-
-    // Grids independientes para cada catálogo
-    private JPanel panelGridProductos;
-    private JPanel panelGridPromociones;
-    private JPanel panelGridCombos;      // SECCIÓN DEDICADA PARA COMBOS
-    private JPanel panelGridServicios;
+    private JLabel fondoMarmol, lblBienvenida;
+    private JPanel panelFlotanteBlanco, contenidoCentralDinamico, panelGridProductos, panelGridPromociones, panelGridCombos, panelGridServicios;
     private JScrollPane scrollContenido;
 
-    public JButton btnReservarCita;
-    public JButton btnCerrarSesion;
-    public JButton btnHistorial;
-    public JLabel lblBienvenida;
+    public JButton btnReservarCita, btnCerrarSesion, btnHistorial;
+    
+    //dos  public ???
     public VistaBarraLateral sidebar;
 
     public VistaPrincipalCliente() {

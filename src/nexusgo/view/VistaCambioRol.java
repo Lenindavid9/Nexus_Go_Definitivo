@@ -59,6 +59,7 @@ public class VistaCambioRol extends JPanel {
 
         // 2. Configurar la JTable
         tabla = new JTable(modelo);
+        tabla.getTableHeader().setResizingAllowed(false);
         tabla.setRowHeight(40);
         tabla.setSelectionBackground(Color.decode("#EFB810"));
 
@@ -100,3 +101,5 @@ public class VistaCambioRol extends JPanel {
         return tabla;
     }
 }
+
+
