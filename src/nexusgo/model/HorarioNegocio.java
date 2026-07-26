@@ -16,9 +16,7 @@ import java.util.List;
  */
 public class HorarioNegocio {
     
-  
- 
-    public static class RangoOcupado {
+  public static class RangoOcupado {
         public final LocalTime inicio;
         public final LocalTime fin;
 
@@ -30,11 +28,10 @@ public class HorarioNegocio {
 
     /**
      * Clase DTO para representar un slot individual en la grilla de la UI.
-     * Se retiró 'final' de 'disponible' para permitir filtrados según la hora actual.
      */
     public static class SlotDisponibilidad {
         public LocalTime hora;
-        public boolean disponible; // Sin 'final' para modificar su estado en ejecución
+        public boolean disponible;
 
         public SlotDisponibilidad(LocalTime hora, boolean disponible) {
             this.hora = hora;
@@ -58,6 +55,7 @@ public class HorarioNegocio {
     public static List<SlotDisponibilidad> generarSlotsDelDia(LocalDate fecha, int duracionMinutos, List<RangoOcupado> rangosOcupados) {
         List<SlotDisponibilidad> slots = new ArrayList<>();
 
+        // CORRECCIÓN CRÍTICA 1: Evita bucle infinito si duracionMinutos es <= 0 o la fecha es nula
         if (fecha == null || duracionMinutos <= 0) {
             return slots;
         }
@@ -68,7 +66,7 @@ public class HorarioNegocio {
 
         LocalTime actual = horaApertura;
 
-        // Generar intervalos basados en la duración del servicio seleccionado
+        // CORRECCIÓN CRÍTICA 2: Avance forzado garantizado en cada iteración
         while (actual.plusMinutes(duracionMinutos).isBefore(horaCierre) || actual.plusMinutes(duracionMinutos).equals(horaCierre)) {
             LocalTime inicioSlot = actual;
             LocalTime finSlot = actual.plusMinutes(duracionMinutos);
@@ -77,20 +75,24 @@ public class HorarioNegocio {
 
             if (rangosOcupados != null) {
                 for (RangoOcupado rango : rangosOcupados) {
-                    // Verificación de traslape de rangos
-                    if (inicioSlot.isBefore(rango.fin) && finSlot.isAfter(rango.inicio)) {
-                        ocupado = true;
-                        break;
+                    if (rango != null && rango.inicio != null && rango.fin != null) {
+                        // Verificación de traslape de rangos
+                        if (inicioSlot.isBefore(rango.fin) && finSlot.isAfter(rango.inicio)) {
+                            ocupado = true;
+                            break;
+                        }
                     }
                 }
             }
 
             slots.add(new SlotDisponibilidad(inicioSlot, !ocupado));
             
-            // Avanzar al siguiente slot
+            // Avanzar al siguiente slot usando la duración
             actual = actual.plusMinutes(duracionMinutos);
         }
 
         return slots;
     }
+    
+    
 }

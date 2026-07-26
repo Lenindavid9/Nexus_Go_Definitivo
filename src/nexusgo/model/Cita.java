@@ -22,17 +22,19 @@ public class Cita {
     private String estado;
     private Date fechaCita;
     private Time horaCita;
+    private String nombreCliente;
+    private String nombreServicio;
 
     public Cita() {
         this.estado = "PENDIENTE";
     }
 
     public Cita(int idCliente, int idProfesional, int idServicio, String fechaHoraProgramada) {
+        this();
         this.idCliente = idCliente;
         this.idProfesional = idProfesional;
         this.idServicio = idServicio;
         this.fechaHoraProgramada = fechaHoraProgramada;
-        this.estado = "PENDIENTE";
     }
 
     // Getters y Setters
@@ -98,5 +100,21 @@ public class Cita {
 
     public void setHoraCita(Time horaCita) {
         this.horaCita = horaCita;
+    }
+
+    public String getNombreCliente() {
+        return nombreCliente;
+    }
+
+    public void setNombreCliente(String nombreCliente) {
+        this.nombreCliente = nombreCliente;
+    }
+
+    public String getNombreServicio() {
+        return nombreServicio;
+    }
+
+    public void setNombreServicio(String nombreServicio) {
+        this.nombreServicio = nombreServicio;
     }
 }

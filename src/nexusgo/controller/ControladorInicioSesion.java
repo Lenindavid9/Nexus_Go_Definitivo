@@ -352,11 +352,11 @@ public class ControladorInicioSesion implements ActionListener {
                     /*Si el usuario no es Peluquero, se verifica si pertenece al rol de Cliente.*/
                 } else if (rolReal.equalsIgnoreCase("Cliente")) {
 
-                    // Se llama la ventana principal correspondiente al Cliente.
+                   // Se llama la ventana principal correspondiente al Cliente.
                     VistaPrincipalCliente vistaCliente = new VistaPrincipalCliente(nombreReal, rolReal);
 
                     //Se llama el controlador encargado de gestionar las acciones del Cliente
-                    ControladorPrincipalCliente controladorCliente = new ControladorPrincipalCliente(vistaCliente);
+                    ControladorPrincipalCliente controladorCliente = new ControladorPrincipalCliente(vistaCliente, usuarioLogueado.getIdUsuario());
 
                     // Se muestra la ventana principal del Cliente.
                     vistaCliente.setVisible(true);
