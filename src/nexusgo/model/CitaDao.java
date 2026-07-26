@@ -15,6 +15,8 @@ import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.sql.Timestamp;
+import java.time.LocalTime;
 
 /**
  *
@@ -24,7 +26,6 @@ public class CitaDao {
 
     Conexion conexion = new Conexion();
 
-
     /**
      * Inserta la cita directamente en la BD
      */
@@ -33,7 +34,6 @@ public class CitaDao {
                 + "VALUES (?, ?, ?, ?, ?)";
 
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setInt(1, cita.getIdCliente());
             ps.setInt(2, cita.getIdProfesional());
             ps.setInt(3, cita.getIdServicio());
@@ -41,7 +41,6 @@ public class CitaDao {
             ps.setString(5, cita.getEstado());
 
             return ps.executeUpdate() > 0;
-
         } catch (SQLException e) {
             System.err.println("Error al agendar cita: " + e.getMessage());
             return false;
@@ -55,7 +54,6 @@ public class CitaDao {
         String sql = "SELECT COUNT(*) FROM citas WHERE fecha_hora_programada = ? AND estado != 'CANCELADA'";
 
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setString(1, fechaHora);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -69,98 +67,118 @@ public class CitaDao {
     }
 
     /**
-     * Obtiene las fechas (LocalDate) que ya tienen citas agendadas 
-     * para pintarlas de rosa en LGoodDatePicker.
+     * Obtiene los rangos ocupados del profesional usando DATE()
      */
-    public List<LocalDate> obtenerFechasOcupadas() {
-        List<LocalDate> fechas = new ArrayList<>();
-        String sql = "SELECT DISTINCT fecha_hora_programada FROM citas WHERE estado != 'CANCELADA'";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    public List<HorarioNegocio.RangoOcupado> obtenerRangosOcupados(int idProfesional, LocalDate fecha) {
+        List<HorarioNegocio.RangoOcupado> rangos = new ArrayList<>();
+
+        // Se usa DATE() para comparar directamente la fecha sin depender de LIKE con Strings
+        String sql = "SELECT c.fecha_hora_programada, s.duracion_minutos "
+                + "FROM citas c "
+                + "INNER JOIN servicios s ON c.id_servicio = s.id_servicio " // Ajustado a id_servicio si aplica
+                + "WHERE c.id_profesional = ? AND DATE(c.fecha_hora_programada) = ? AND c.estado != 'CANCELADA'";
+
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idProfesional);
+            ps.setDate(2, Date.valueOf(fecha));
+
+            try (ResultSet rs = ps.executeQuery()) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                while (rs.next()) {
+                    String fechaHoraBD = rs.getString("fecha_hora_programada");
+                    int duracion = rs.getInt("duracion_minutos");
+
+                    LocalDateTime inicio = LocalDateTime.parse(fechaHoraBD, formatter);
+                    LocalTime horaInicio = inicio.toLocalTime();
+                    LocalTime horaFin = horaInicio.plusMinutes(duracion);
+
+                    rangos.add(new HorarioNegocio.RangoOcupado(horaInicio, horaFin));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener rangos ocupados: " + e.getMessage());
+        }
+        return rangos;
+    }
+
+    /**
+     * Obtiene todos los nombres de los servicios disponibles.
+     */
+    public List<String> obtenerListaServicios() {
+        List<String> lista = new ArrayList<>();
+        String sql = "SELECT nombre_servicio FROM servicios WHERE activo = 1";
 
         try (Connection con = conexion.getConection(); 
              PreparedStatement ps = con.prepareStatement(sql); 
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                String strFechaHora = rs.getString("fecha_hora_programada");
-                if (strFechaHora != null && !strFechaHora.isEmpty()) {
-                    // Si el String viene completo con hora, tomamos solo la fecha
-                    LocalDate fecha = LocalDateTime.parse(strFechaHora, formatter).toLocalDate();
-                    if (!fechas.contains(fecha)) {
-                        fechas.add(fecha);
-                    }
-                }
+                lista.add(rs.getString("nombre_servicio"));
             }
-        } catch (Exception e) {
-            System.err.println("Error al obtener fechas ocupadas: " + e.getMessage());
+        } catch (SQLException e) {
+            System.err.println("Error obteniendo servicios: " + e.getMessage());
         }
-        return fechas;
+        return lista;
     }
 
-    public int obtenerIdServicioPorNombre(String nombreServicio) {
+    /**
+     * Obtiene el ID del servicio a partir del nombre (Corregido a nombre_servicio).
+     */
+    public int obtenerIdServicioPorNombre(String nombre) {
         String sql = "SELECT id_servicio FROM servicios WHERE nombre_servicio = ?";
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setString(1, nombreServicio);
+            ps.setString(1, nombre);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("id_servicio");
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error al obtener ID de servicio: " + e.getMessage());
+            System.err.println("Error obteniendo id de servicio: " + e.getMessage());
         }
+        return -1;
+    }
+
+    /**
+     * Obtiene la duración en minutos de un servicio (Corregido a nombre_servicio).
+     */
+    public int obtenerDuracionServicioPorNombre(String nombre) {
+        String sql = "SELECT duracion_minutos FROM servicios WHERE nombre_servicio = ?";
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, nombre);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("duracion_minutos");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error obteniendo duración de servicio: " + e.getMessage());
+        }
+        return 30; // Valor por defecto
+    }
+
+    /**
+     * Obtiene el ID del profesional asignado por defecto.
+     */
+    public int obtenerIdProfesionalPorDefecto() {
         return 1;
     }
 
-    public int obtenerIdProfesionalPorDefecto() {
-        String sql = "SELECT id_usuario FROM usuarios WHERE id_rol = 5 LIMIT 1";
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
-
-            if (rs.next()) {
-                return rs.getInt("id_usuario");
-            }
-        } catch (SQLException e) {
-            System.err.println("Error al buscar profesional: " + e.getMessage());
-        }
-        return 5;
-    }
-
-    public List<String> obtenerListaServicios() {
-        List<String> listaServicios = new ArrayList<>();
-        String sql = "SELECT nombre_servicio FROM servicios";
-
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                listaServicios.add(rs.getString("nombre_servicio"));
-            }
-
-        } catch (SQLException e) {
-            System.err.println("Error al obtener lista de servicios: " + e.getMessage());
-        }
-
-        return listaServicios;
-    }
-
+    /**
+     * Obtiene el correo electrónico de un usuario por su ID.
+     */
     public String obtenerCorreoPorUsuarioId(int idUsuario) {
-        String correo = null;
-        String sql = "SELECT correo FROM usuarios WHERE id_usuario = ?";
-
+        String sql = "SELECT correo FROM usuarios WHERE id = ?";
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
-
             ps.setInt(1, idUsuario);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    correo = rs.getString("correo");
+                    return rs.getString("correo");
                 }
             }
-        } catch (Exception e) {
-            System.err.println("Error al obtener el correo del usuario: " + e.getMessage());
+        } catch (SQLException e) {
+            System.err.println("Error obteniendo correo: " + e.getMessage());
         }
-
-        return correo;
+        return null;
     }
-    
-    
 }
