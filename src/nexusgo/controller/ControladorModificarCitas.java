@@ -99,7 +99,7 @@ public class ControladorModificarCitas {
     private void gestionarSeleccionCita(String infoCita, int fila, int columna, LocalDate fechaCelda) {
         try {
             if (infoCita.contains("[PENDIENTE]")) {
-                procesarCitaPendiente(infoCita, fechaCelda);
+                procesarCitaPendiente(infoCita, fila, fechaCelda);
             } else {
                 abrirVentanaModificacion(infoCita, fila, columna, fechaCelda);
             }
@@ -108,7 +108,8 @@ public class ControladorModificarCitas {
         }
     }
 
-    private void procesarCitaPendiente(String infoCita, LocalDate fechaCelda) {
+    private void procesarCitaPendiente(String infoCita, int fila, LocalDate fechaCelda) {
+        final String prefijoFechaHora = fechaCelda.toString() + " " + String.format("%02d", fila + 6);
         String[] opciones = {"Aceptar Cita", "Rechazar Cita", "Cancelar"};
 
         int seleccion = JOptionPane.showOptionDialog(
@@ -129,8 +130,8 @@ public class ControladorModificarCitas {
 
                 @Override
                 protected Boolean doInBackground() throws Exception {
-                    // Reconstruir la fecha-hora aproximada según la vista para localizar la cita activa
-                    String strFechaHora = fechaCelda.toString();
+                    // Reconstruir la fecha-hora exacta de la celda clickeada para localizar la cita activa
+                    String strFechaHora = prefijoFechaHora;
 
                     // Obtener objeto cita o ID correspondiente
                     Cita citaActual = citaDao.obtenerCitaPorDetalles(idPeluqueroLogueado, strFechaHora);
@@ -175,7 +176,7 @@ public class ControladorModificarCitas {
                 SwingWorker<Boolean, Void> workerRechazar = new SwingWorker<>() {
                     @Override
                     protected Boolean doInBackground() throws Exception {
-                        String strFechaHora = fechaCelda.toString();
+                        String strFechaHora = prefijoFechaHora;
                         Cita citaActual = citaDao.obtenerCitaPorDetalles(idPeluqueroLogueado, strFechaHora);
                         if (citaActual != null) {
                             return citaDao.actualizarEstadoCita(citaActual.getIdCita(), "CANCELADA");
@@ -241,7 +242,10 @@ public class ControladorModificarCitas {
 
                             @Override
                             protected Boolean doInBackground() throws Exception {
-                                String strFechaHoraOrigen = fechaCelda.toString();
+                                // Igual que con las citas pendientes: se reconstruye la hora exacta
+                                // de la celda clickeada (fila = hora - 6) para no confundir esta cita
+                                // con otra del mismo profesional el mismo día.
+                                String strFechaHoraOrigen = fechaCelda.toString() + " " + String.format("%02d", fila + 6);
                                 Cita citaActual = citaDao.obtenerCitaPorDetalles(idPeluqueroLogueado, strFechaHoraOrigen);
 
                                 if (citaActual != null) {

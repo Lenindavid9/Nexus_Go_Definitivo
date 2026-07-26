@@ -157,7 +157,7 @@ public class CitaDao {
      * Obtiene el ID del profesional asignado por defecto.
      */
     public int obtenerIdProfesionalPorDefecto() {
-        return 1;
+        return 5;
     }
 
     /**
@@ -167,8 +167,7 @@ public class CitaDao {
         String correo = null;
         String sql = "SELECT correo FROM usuarios WHERE id_usuario = ?";
 
-        try (Connection con = conexion.getConection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idUsuario);
 
@@ -212,24 +211,21 @@ public class CitaDao {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    Cita c = new Cita();
-                    c.setIdCita(rs.getInt("id_cita"));
-                    c.setIdCliente(rs.getInt("id_cliente"));
-                    c.setIdProfesional(rs.getInt("id_profesional"));
-                    c.setIdServicio(rs.getInt("id_servicio"));
-                    c.setFechaHoraProgramada(rs.getString("fecha_hora_programada"));
-                    c.setEstado(rs.getString("estado"));
-
-                    c.setNombreCliente(rs.getString("cliente_nombre"));
-                    c.setNombreServicio(rs.getString("nombre_servicio"));
-
-                    lista.add(c);
+                    Cita cita = new Cita();
+                    cita.setIdCita(rs.getInt("id_cita"));
+                    cita.setIdCliente(rs.getInt("id_cliente"));
+                    cita.setIdProfesional(rs.getInt("id_profesional"));
+                    cita.setIdServicio(rs.getInt("id_servicio"));
+                    cita.setFechaHoraProgramada(rs.getString("fecha_hora_programada"));
+                    cita.setEstado(rs.getString("estado"));
+                    cita.setNombreCliente(rs.getString("cliente_nombre"));
+                    cita.setNombreServicio(rs.getString("nombre_servicio"));
+                    lista.add(cita);
                 }
             }
         } catch (SQLException e) {
             System.err.println("Error al consultar citas de la semana: " + e.getMessage());
         }
-
         return lista;
     }
 
@@ -255,8 +251,7 @@ public class CitaDao {
     public boolean actualizarEstadoCita(int idCita, String nuevoEstado) {
         String sql = "UPDATE citas SET estado = ? WHERE id_cita = ?";
 
-        try (Connection con = conexion.getConection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, nuevoEstado);
             ps.setInt(2, idCita);
@@ -270,16 +265,14 @@ public class CitaDao {
         }
     }
 
-  
-    
-
     /**
-     * Obtiene una cita específica filtrando por el profesional y la fecha aproximada.
+     * Obtiene una cita específica filtrando por el profesional y la fecha
+     * aproximada.
      */
     public Cita obtenerCitaPorDetalles(int idProfesional, String fechaHora) {
         Cita cita = null;
         String sql = "SELECT id_cita, id_cliente, id_profesional, id_servicio, fecha_hora_programada, estado "
-                   + "FROM citas WHERE id_profesional = ? AND fecha_hora_programada LIKE ? LIMIT 1";
+                + "FROM citas WHERE id_profesional = ? AND fecha_hora_programada LIKE ? LIMIT 1";
 
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, idProfesional);
@@ -303,7 +296,8 @@ public class CitaDao {
     }
 
     /**
-     * Actualiza el estado de la cita buscando directamente por peluquero y fecha/hora (método de respaldo).
+     * Actualiza el estado de la cita buscando directamente por peluquero y
+     * fecha/hora (método de respaldo).
      */
     public boolean actualizarEstadoCitaPorHorario(int idProfesional, String fechaHora, String nuevoEstado) {
         String sql = "UPDATE citas SET estado = ? WHERE id_profesional = ? AND fecha_hora_programada LIKE ?";
@@ -321,7 +315,8 @@ public class CitaDao {
     }
 
     /**
-     * Reagenda una cita cambiando su fecha y hora programada en la base de datos.
+     * Reagenda una cita cambiando su fecha y hora programada en la base de
+     * datos.
      */
     public boolean reagendarCita(int idCita, String nuevaFechaHora) {
         String sql = "UPDATE citas SET fecha_hora_programada = ? WHERE id_cita = ?";
