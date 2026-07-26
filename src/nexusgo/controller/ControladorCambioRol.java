@@ -12,8 +12,7 @@ import nexusgo.model.Usuario;
 import nexusgo.model.UsuarioDao;
 import nexusgo.view.VistaCambioRol;
 
-/*
-TableModelListener es una interfaz de Java Swing que se utiliza para "escuchar" o detectar cualquier cambio en los 
+/*TableModelListener es una interfaz de Java Swing que se utiliza para "escuchar" o detectar cualquier cambio en los 
 datos de un modelo de tabla (TableModel). Permite que tu aplicación reaccione automáticamente (por ejemplo, recalculando totales
 o guardando cambios) cuando un usuario edita, agrega o elimina una celda en un JTable
 */
@@ -31,19 +30,32 @@ public class ControladorCambioRol implements TableModelListener{
         this.vista = vista;
         this.usuarioDAO = new UsuarioDao();
 
-        // 1. Escuchar eventos de modificación en la tabla
+        // Se verifica que la tabla tenga un modelo de datos
         if (this.vista.getModelo() != null) {
+            
+            /* Se registra este controlador como un TableModelListener.
+            Esto permite detectar automáticamente cualquier cambio
+            que ocurra en los datos de la tabla, como modificaciones,
+            actualizaciones realizadas por el usuario*/
             this.vista.getModelo().addTableModelListener(this);
         }
-
-        // 2. Poblar la tabla de inmediato al iniciar
+        //despues de configurado el listener de la tabla, se cargan los usuarios registrados desde la base de datos
         cargarUsuarios();
     }
-
+    
+    /*Este método se encarga de consultar todos los usuarios
+    registrados en la base de datos y mostrarlos en la tabla.*/
     public final void cargarUsuarios() {
+        
+        //Esto evita que el listener de la tabla reaccione a cada
+        // fila agregada durante el proceso de carga.
         cargando = true; // Pausa el listener para que no salte durante el llenado
 
+        /*Se utiliza un bloque try para controlar cualquier error
+        que pueda producirse durante el llenado de la tabla.*/
         try {
+            
+            //Se eliminan todas las filas en la tabla para evitar que los registros se dupliquen cada vez
             vista.getModelo().setRowCount(0); // Limpia datos previos
 
             List<Usuario> lista = usuarioDAO.listarUsuarios();
