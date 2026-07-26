@@ -108,9 +108,7 @@ public class CitaDao {
         List<String> lista = new ArrayList<>();
         String sql = "SELECT nombre_servicio FROM servicios WHERE activo = 1";
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql); 
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 lista.add(rs.getString("nombre_servicio"));
@@ -122,7 +120,8 @@ public class CitaDao {
     }
 
     /**
-     * Obtiene el ID del servicio a partir del nombre (Corregido a nombre_servicio).
+     * Obtiene el ID del servicio a partir del nombre (Corregido a
+     * nombre_servicio).
      */
     public int obtenerIdServicioPorNombre(String nombre) {
         String sql = "SELECT id_servicio FROM servicios WHERE nombre_servicio = ?";
@@ -140,7 +139,8 @@ public class CitaDao {
     }
 
     /**
-     * Obtiene la duración en minutos de un servicio (Corregido a nombre_servicio).
+     * Obtiene la duración en minutos de un servicio (Corregido a
+     * nombre_servicio).
      */
     public int obtenerDuracionServicioPorNombre(String nombre) {
         String sql = "SELECT duracion_minutos FROM servicios WHERE nombre_servicio = ?";
@@ -168,17 +168,23 @@ public class CitaDao {
      * Obtiene el correo electrónico de un usuario por su ID.
      */
     public String obtenerCorreoPorUsuarioId(int idUsuario) {
-        String sql = "SELECT correo FROM usuarios WHERE id = ?";
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, idUsuario);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("correo");
-                }
+    String correo = null;
+    String sql = "SELECT correo FROM usuarios WHERE id_usuario = ?";
+
+    try (Connection con = conexion.getConection(); // Ajusta según tu clase de conexión
+         PreparedStatement ps = con.prepareStatement(sql)) {
+
+        ps.setInt(1, idUsuario); // Aquí asignamos el ID del cliente actual
+
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                correo = rs.getString("correo");
             }
-        } catch (SQLException e) {
-            System.err.println("Error obteniendo correo: " + e.getMessage());
         }
-        return null;
+    } catch (SQLException e) {
+        System.err.println("Error al consultar el correo del usuario: " + e.getMessage());
     }
+
+    return correo;
+}
 }
