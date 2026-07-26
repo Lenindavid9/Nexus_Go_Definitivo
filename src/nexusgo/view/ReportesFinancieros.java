@@ -6,6 +6,7 @@ package nexusgo.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import static java.awt.Component.LEFT_ALIGNMENT;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -32,32 +33,18 @@ import org.jfree.data.category.DefaultCategoryDataset;
  * @author INGRID
  */
 public class ReportesFinancieros extends JPanel {
-    
-    private JPanel principal;
-    private JButton btnInicio, btnCerrar, btnHistorialMH, btnProcesar;
+
+    private JPanel principal, panelGrafica;
+    private JButton btnProcesar;
     private JComboBox<String> comboMes, comboAnio;
     private JTable tablaReporte;
     private DefaultTableModel modeloTabla;
 
-    private final Color COLOR_CAFE_OSCURO = new Color(62, 58, 46);
     private final Color COLOR_DORADO = new Color(223, 205, 141);
 
     public JPanel VistaRF() {
         this.setLayout(new BorderLayout());
         this.setBackground(Color.white);
-        
-        btnCerrar = new JButton("Cerrar Sesion");
-        btnCerrar.setFont(new Font("SansSerif", Font.BOLD, 15));
-        btnCerrar.setForeground(Color.WHITE);
-        btnCerrar.setContentAreaFilled(false);
-        btnCerrar.setBorderPainted(false);
-        
-
-        btnInicio = new JButton("Inicio");
-        btnHistorialMH = new JButton("Historial Mantenimiento Herramientas");
-
-        BotonMenu(btnInicio);
-        BotonMenu(btnHistorialMH);
 
         principal = new JPanel();
         principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
@@ -72,7 +59,7 @@ public class ReportesFinancieros extends JPanel {
         int mesActual = fechaActual.getMonthValue();
 
         comboAnio = new JComboBox<>();
-        for (int i = anioActual; i <= anioActual + 5; i++) {
+        for (int i = anioActual - 10; i <= anioActual + 5; i++) {
             comboAnio.addItem(String.valueOf(i));
         }
 
@@ -83,11 +70,32 @@ public class ReportesFinancieros extends JPanel {
         };
 
         comboMes = new JComboBox<>();
-        for (int i = mesActual - 1; i < meses.length; i++) {
-            comboMes.addItem(meses[i]);
+        for (String mes : meses) {
+            comboMes.addItem(mes);
         }
 
         btnProcesar = new JButton("Procesar Reporte");
+        // Después de filtros.add(btnProcesar);
+        btnProcesar.addActionListener(e -> {
+            String mesSeleccionado = (String) comboMes.getSelectedItem();
+            String anioSeleccionado = (String) comboAnio.getSelectedItem();
+
+            // Ejemplo de datos según mes/año
+            if (mesSeleccionado.equals("Enero") && anioSeleccionado.equals("2026")) {
+                modeloTabla.setValueAt(1500, 0, 0);
+                modeloTabla.setValueAt(300, 0, 1);
+                modeloTabla.setValueAt(1200, 0, 2);
+                modeloTabla.setValueAt("Tratamiento Capilar", 0, 3);
+            } else {
+                modeloTabla.setValueAt(800, 0, 0);
+                modeloTabla.setValueAt(100, 0, 1);
+                modeloTabla.setValueAt(700, 0, 2);
+                modeloTabla.setValueAt("Corte Básico", 0, 3);
+            }
+
+         
+    actualizarGrafica();
+        });
 
         filtros.add(new JLabel("Mes:"));
         filtros.add(comboMes);
@@ -107,7 +115,7 @@ public class ReportesFinancieros extends JPanel {
         modeloTabla = new DefaultTableModel(columnas, 1) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; 
+                return false;
             }
         };
 
@@ -129,30 +137,17 @@ public class ReportesFinancieros extends JPanel {
         principal.add(Box.createVerticalStrut(20));
         principal.add(scrollTabla);
         principal.add(Box.createVerticalStrut(20));
-        principal.add(crearGrafica());
+
+        panelGrafica = new JPanel();
+        panelGrafica.setLayout(new BoxLayout(panelGrafica, BoxLayout.Y_AXIS));
+        panelGrafica.setBackground(Color.white);
+        principal.add(panelGrafica);
+
+        actualizarGrafica();
         this.add(principal, BorderLayout.CENTER);
 
         return this;
-    }
 
-    private void BotonMenu(JButton boton) {
-        boton.setFont(new Font("SansSerif", Font.BOLD, 16));
-        boton.setContentAreaFilled(false);
-        boton.setBorderPainted(false);
-        boton.setHorizontalAlignment(SwingConstants.LEFT);
-        boton.setAlignmentX(LEFT_ALIGNMENT);
-    }
-    
-    public JButton getBtnInicio() {
-        return btnInicio;
-    }
-
-    public JButton getBtnCerrar() {
-        return btnCerrar;
-    }
-
-    public JButton getBtnHistorialMH() {
-        return btnHistorialMH;
     }
 
     public JButton getBtnProcesar() {
@@ -174,29 +169,45 @@ public class ReportesFinancieros extends JPanel {
     public DefaultTableModel getModeloTabla() {
         return modeloTabla;
     }
-  private ChartPanel crearGrafica() {
-    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
-    Object val0 = modeloTabla.getValueAt(0, 0);
-    Object val1 = modeloTabla.getValueAt(0, 1);
-    Object val2 = modeloTabla.getValueAt(0, 2);
+    private ChartPanel crearGrafica() {
+        Object val0 = modeloTabla.getValueAt(0, 0);
+        Object val1 = modeloTabla.getValueAt(0, 1);
+        Object val2 = modeloTabla.getValueAt(0, 2);
 
-    double servicios = val0 != null ? Double.parseDouble(val0.toString()) : 0;
-    double promociones = val1 != null ? Double.parseDouble(val1.toString()) : 0;
-    double total = val2 != null ? Double.parseDouble(val2.toString()) : 0;
+        double servicios = val0 != null ? Double.parseDouble(val0.toString()) : 0;
+        double promociones = val1 != null ? Double.parseDouble(val1.toString()) : 0;
+        double total = val2 != null ? Double.parseDouble(val2.toString()) : 0;
 
-    dataset.addValue(servicios, "Ingresos", "Servicios/Productos");
-    dataset.addValue(promociones, "Ingresos", "Promociones/Descuentos");
-    dataset.addValue(total, "Ingresos", "Total Neto");
+        if (servicios == 0 && promociones == 0 && total == 0) {
+            return null;
+        }
 
-    JFreeChart chart = ChartFactory.createBarChart(
-            "Reporte Financiero", "Categoría", "Valor", dataset
-    );
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        dataset.addValue(servicios, "Ingresos", "Servicios/Productos");
+        dataset.addValue(promociones, "Ingresos", "Promociones/Descuentos");
+        dataset.addValue(total, "Ingresos", "Total Neto");
 
-    ChartPanel chartPanel = new ChartPanel(chart);
-    chartPanel.setPreferredSize(new Dimension(600, 400));
-    return chartPanel;
-}
-  
-  
+        JFreeChart chart = ChartFactory.createBarChart(
+                "Reporte Financiero", "Categoría", "Valor", dataset
+        );
+
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new Dimension(600, 400));
+        return chartPanel;
+    }
+
+    public void actualizarGrafica() {
+        panelGrafica.removeAll();
+
+        ChartPanel nuevaGrafica = crearGrafica();
+        if (nuevaGrafica != null) {
+            panelGrafica.add(Box.createVerticalStrut(20));
+            panelGrafica.add(nuevaGrafica);
+        }
+
+        panelGrafica.revalidate();
+        panelGrafica.repaint();
+    }
+
 }
