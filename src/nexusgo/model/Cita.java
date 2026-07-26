@@ -22,6 +22,24 @@ public class Cita {
     private String estado;
     private Date fechaCita;
     private Time horaCita;
+    private String nombreCliente;
+    private String nombreServicio;
+
+    public String getNombreCliente() {
+        return nombreCliente;
+    }
+
+    public void setNombreCliente(String nombreCliente) {
+        this.nombreCliente = nombreCliente;
+    }
+
+    public String getNombreServicio() {
+        return nombreServicio;
+    }
+
+    public void setNombreServicio(String nombreServicio) {
+        this.nombreServicio = nombreServicio;
+    }
 
     public Cita() {
         this.estado = "PENDIENTE";

@@ -38,7 +38,7 @@ public class ControladorReservarCita implements ActionListener {
     private final VistaPrincipalCliente vistaPrincipal;
     private final int idUsuarioLogueado;
     private final CitaDao citaDao;
-    private boolean cargandoServicios = false; 
+    private boolean cargandoServicios = false;
 
     public ControladorReservarCita(VistaReservarCitas panelReserva, VistaPrincipalCliente vistaPrincipal, int idUsuarioLogueado) {
         this.panelReserva = panelReserva;

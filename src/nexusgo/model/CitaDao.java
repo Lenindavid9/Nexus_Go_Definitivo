@@ -26,8 +26,7 @@ public class CitaDao {
 
     Conexion conexion = new Conexion();
 
-    /**
-     * Inserta la cita directamente en la BD
+    /* Inserta la cita directamente en la BD
      */
     public boolean agendarCita(Cita cita) {
         String sql = "INSERT INTO citas (id_cliente, id_profesional, id_servicio, fecha_hora_programada, estado) "
@@ -72,10 +71,9 @@ public class CitaDao {
     public List<HorarioNegocio.RangoOcupado> obtenerRangosOcupados(int idProfesional, LocalDate fecha) {
         List<HorarioNegocio.RangoOcupado> rangos = new ArrayList<>();
 
-        // Se usa DATE() para comparar directamente la fecha sin depender de LIKE con Strings
         String sql = "SELECT c.fecha_hora_programada, s.duracion_minutos "
                 + "FROM citas c "
-                + "INNER JOIN servicios s ON c.id_servicio = s.id_servicio " // Ajustado a id_servicio si aplica
+                + "INNER JOIN servicios s ON c.id_servicio = s.id_servicio "
                 + "WHERE c.id_profesional = ? AND DATE(c.fecha_hora_programada) = ? AND c.estado != 'CANCELADA'";
 
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -120,8 +118,7 @@ public class CitaDao {
     }
 
     /**
-     * Obtiene el ID del servicio a partir del nombre (Corregido a
-     * nombre_servicio).
+     * Obtiene el ID del servicio a partir del nombre.
      */
     public int obtenerIdServicioPorNombre(String nombre) {
         String sql = "SELECT id_servicio FROM servicios WHERE nombre_servicio = ?";
@@ -139,8 +136,7 @@ public class CitaDao {
     }
 
     /**
-     * Obtiene la duración en minutos de un servicio (Corregido a
-     * nombre_servicio).
+     * Obtiene la duración en minutos de un servicio.
      */
     public int obtenerDuracionServicioPorNombre(String nombre) {
         String sql = "SELECT duracion_minutos FROM servicios WHERE nombre_servicio = ?";
@@ -168,23 +164,176 @@ public class CitaDao {
      * Obtiene el correo electrónico de un usuario por su ID.
      */
     public String obtenerCorreoPorUsuarioId(int idUsuario) {
-    String correo = null;
-    String sql = "SELECT correo FROM usuarios WHERE id_usuario = ?";
+        String correo = null;
+        String sql = "SELECT correo FROM usuarios WHERE id_usuario = ?";
 
-    try (Connection con = conexion.getConection(); // Ajusta según tu clase de conexión
-         PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
 
-        ps.setInt(1, idUsuario); // Aquí asignamos el ID del cliente actual
+            ps.setInt(1, idUsuario);
 
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                correo = rs.getString("correo");
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    correo = rs.getString("correo");
+                }
             }
+        } catch (SQLException e) {
+            System.err.println("Error al consultar el correo del usuario: " + e.getMessage());
         }
-    } catch (SQLException e) {
-        System.err.println("Error al consultar el correo del usuario: " + e.getMessage());
+
+        return correo;
     }
 
-    return correo;
-}
+    public List<Cita> obtenerCitasSemanaPorProfesional(int idProfesional, String fechaInicio, String fechaFin) {
+        List<Cita> lista = new ArrayList<>();
+
+        String sql = "SELECT c.id_cita, "
+                + "       c.id_cliente, "
+                + "       c.id_profesional, "
+                + "       c.id_servicio, "
+                + "       c.fecha_hora_programada, "
+                + "       c.estado, "
+                + "       CONCAT(u.nombre, ' ', u.apellido) AS cliente_nombre, "
+                + "       s.nombre_servicio "
+                + "FROM citas c "
+                + "INNER JOIN usuarios u ON c.id_cliente = u.id_usuario "
+                + "INNER JOIN servicios s ON c.id_servicio = s.id_servicio "
+                + "WHERE c.id_profesional = ? "
+                + "  AND c.fecha_hora_programada >= ? "
+                + "  AND c.fecha_hora_programada <= ? "
+                + "  AND c.estado != 'CANCELADA' "
+                + "ORDER BY c.fecha_hora_programada ASC";
+
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idProfesional);
+            ps.setString(2, fechaInicio + " 00:00:00");
+            ps.setString(3, fechaFin + " 23:59:59");
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Cita c = new Cita();
+                    c.setIdCita(rs.getInt("id_cita"));
+                    c.setIdCliente(rs.getInt("id_cliente"));
+                    c.setIdProfesional(rs.getInt("id_profesional"));
+                    c.setIdServicio(rs.getInt("id_servicio"));
+                    c.setFechaHoraProgramada(rs.getString("fecha_hora_programada"));
+                    c.setEstado(rs.getString("estado"));
+
+                    c.setNombreCliente(rs.getString("cliente_nombre"));
+                    c.setNombreServicio(rs.getString("nombre_servicio"));
+
+                    lista.add(c);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al consultar citas de la semana: " + e.getMessage());
+        }
+
+        return lista;
+    }
+
+    public boolean existeCitaEnHorario(int idProfesional, String fechaHora) {
+        String sql = "SELECT COUNT(*) FROM citas WHERE id_profesional = ? AND fecha_hora_programada = ? AND estado != 'CANCELADA'";
+
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idProfesional);
+            ps.setString(2, fechaHora);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al validar existencia de cita: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean actualizarEstadoCita(int idCita, String nuevoEstado) {
+        String sql = "UPDATE citas SET estado = ? WHERE id_cita = ?";
+
+        try (Connection con = conexion.getConection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, nuevoEstado);
+            ps.setInt(2, idCita);
+
+            int filasAfectadas = ps.executeUpdate();
+            return filasAfectadas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar el estado de la cita ID " + idCita + ": " + e.getMessage());
+            return false;
+        }
+    }
+
+  
+    
+
+    /**
+     * Obtiene una cita específica filtrando por el profesional y la fecha aproximada.
+     */
+    public Cita obtenerCitaPorDetalles(int idProfesional, String fechaHora) {
+        Cita cita = null;
+        String sql = "SELECT id_cita, id_cliente, id_profesional, id_servicio, fecha_hora_programada, estado "
+                   + "FROM citas WHERE id_profesional = ? AND fecha_hora_programada LIKE ? LIMIT 1";
+
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idProfesional);
+            ps.setString(2, fechaHora + "%"); // Permite buscar por coincidencia de día si viene YYYY-MM-DD
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    cita = new Cita();
+                    cita.setIdCita(rs.getInt("id_cita"));
+                    cita.setIdCliente(rs.getInt("id_cliente"));
+                    cita.setIdProfesional(rs.getInt("id_profesional"));
+                    cita.setIdServicio(rs.getInt("id_servicio"));
+                    cita.setFechaHoraProgramada(rs.getString("fecha_hora_programada"));
+                    cita.setEstado(rs.getString("estado"));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener cita por detalles: " + e.getMessage());
+        }
+        return cita;
+    }
+
+    /**
+     * Actualiza el estado de la cita buscando directamente por peluquero y fecha/hora (método de respaldo).
+     */
+    public boolean actualizarEstadoCitaPorHorario(int idProfesional, String fechaHora, String nuevoEstado) {
+        String sql = "UPDATE citas SET estado = ? WHERE id_profesional = ? AND fecha_hora_programada LIKE ?";
+
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, nuevoEstado);
+            ps.setInt(2, idProfesional);
+            ps.setString(3, fechaHora + "%");
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar estado por horario: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Reagenda una cita cambiando su fecha y hora programada en la base de datos.
+     */
+    public boolean reagendarCita(int idCita, String nuevaFechaHora) {
+        String sql = "UPDATE citas SET fecha_hora_programada = ? WHERE id_cita = ?";
+
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, nuevaFechaHora);
+            ps.setInt(2, idCita);
+
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error al reagendar cita ID " + idCita + ": " + e.getMessage());
+            return false;
+        }
+    }
 }
