@@ -101,6 +101,7 @@ public class VistaReservarCitas extends JPanel {
         lblTitulo.setForeground(COLOR_TEXTO_TITULO);
         gbc.gridy = 0;
         tarjetaBlanca.add(lblTitulo, gbc);
+        
 
         JLabel lblSubtitulo = new JLabel("<html>Complete los datos para consultar horarios disponibles y<br>reservar tu cita en tiempo real.</html>");
         lblSubtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 12));

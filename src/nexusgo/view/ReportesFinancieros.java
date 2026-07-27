@@ -6,11 +6,8 @@ package nexusgo.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import static java.awt.Component.LEFT_ALIGNMENT;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.time.LocalDate;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -21,8 +18,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
+import nexusgo.model.ReporteDao;
+import nexusgo.model.ReporteFinanciero;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -77,25 +75,24 @@ public class ReportesFinancieros extends JPanel {
         btnProcesar = new JButton("Procesar Reporte");
         // Después de filtros.add(btnProcesar);
         btnProcesar.addActionListener(e -> {
-            String mesSeleccionado = (String) comboMes.getSelectedItem();
-            String anioSeleccionado = (String) comboAnio.getSelectedItem();
+    String mesSeleccionado = (String) comboMes.getSelectedItem();
+    String anioSeleccionado = (String) comboAnio.getSelectedItem();
 
-            // Ejemplo de datos según mes/año
-            if (mesSeleccionado.equals("Enero") && anioSeleccionado.equals("2026")) {
-                modeloTabla.setValueAt(1500, 0, 0);
-                modeloTabla.setValueAt(300, 0, 1);
-                modeloTabla.setValueAt(1200, 0, 2);
-                modeloTabla.setValueAt("Tratamiento Capilar", 0, 3);
-            } else {
-                modeloTabla.setValueAt(800, 0, 0);
-                modeloTabla.setValueAt(100, 0, 1);
-                modeloTabla.setValueAt(700, 0, 2);
-                modeloTabla.setValueAt("Corte Básico", 0, 3);
-            }
+    int mesNum = obtenerNumeroMes(mesSeleccionado);
+    int anioNum = Integer.parseInt(anioSeleccionado);
 
-         
+    ReporteDao dao = new ReporteDao();
+    ReporteFinanciero reporte = dao.obtenerReporte(mesNum, anioNum);
+
+    modeloTabla.setValueAt(reporte.getSumaServicios(), 0, 0);
+    modeloTabla.setValueAt(reporte.getSumaPromociones(), 0, 1);
+    modeloTabla.setValueAt(reporte.getTotalNeto(), 0, 2);
+    modeloTabla.setValueAt(reporte.getServicioMes(), 0, 3);
+
     actualizarGrafica();
-        });
+});
+
+
 
         filtros.add(new JLabel("Mes:"));
         filtros.add(comboMes);
@@ -120,11 +117,6 @@ public class ReportesFinancieros extends JPanel {
         };
 
         tablaReporte = new JTable(modeloTabla);
-
-        modeloTabla.setValueAt(1000, 0, 0); // Servicios/Productos
-        modeloTabla.setValueAt(200, 0, 1);  // Promociones/Descuentos
-        modeloTabla.setValueAt(800, 0, 2);  // Total Neto
-        modeloTabla.setValueAt("Corte de Cabello", 0, 3); // Servicio del Mes
 
         tablaReporte.getTableHeader().setReorderingAllowed(false);
         tablaReporte.getTableHeader().setResizingAllowed(false);
@@ -169,6 +161,8 @@ public class ReportesFinancieros extends JPanel {
     public DefaultTableModel getModeloTabla() {
         return modeloTabla;
     }
+    
+    
 
     private ChartPanel crearGrafica() {
         Object val0 = modeloTabla.getValueAt(0, 0);
@@ -209,5 +203,24 @@ public class ReportesFinancieros extends JPanel {
         panelGrafica.revalidate();
         panelGrafica.repaint();
     }
+    
+    private int obtenerNumeroMes(String mes) {
+    switch (mes) {
+        case "Enero": return 1;
+        case "Febrero": return 2;
+        case "Marzo": return 3;
+        case "Abril": return 4;
+        case "Mayo": return 5;
+        case "Junio": return 6;
+        case "Julio": return 7;
+        case "Agosto": return 8;
+        case "Septiembre": return 9;
+        case "Octubre": return 10;
+        case "Noviembre": return 11;
+        case "Diciembre": return 12;
+        default: return 0;
+    }
+}
+
 
 }

@@ -24,8 +24,8 @@ import javax.swing.border.EmptyBorder;
 public class VistaPrincipalSupervisor extends JFrame {
 
     private JLabel fondo;
-    private JPanel panelContenedorFlotante, contenidoCentralDinamico, panelSuperiorDerecho, panelDerechoCompleto;
-    private JScrollPane scrollContenido;
+    private JPanel panelContenedor, panelDerechoCompleto, panelSuperiorDerecho, contenidoCentralDinamico; // El panel donde cargas tus vistas
+    public JScrollPane scrollContenido;
 
     // Componentes modulares reutilizados
     public VistaBarraLateral sidebar;
@@ -39,27 +39,26 @@ public class VistaPrincipalSupervisor extends JFrame {
     public VistaPrincipalSupervisor(String nombreUsuario, String rolUsuario) {
         super("Nexus GO - Panel de Supervisor");
 
-        // Configuración básica para pantalla completa
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
-        setMinimumSize(new Dimension(1024, 600));
-
         // 1. Fondo principal
         this.fondo = new JLabel(new ImageIcon("src/nexusgo/img/fondoprincipal.jpg"));
-        this.fondo.setLayout(new GridBagLayout());
+        this.fondo.setLayout(new BorderLayout());
         this.setContentPane(fondo);
 
-        // 2. Contenedor flotante dinámico
-        panelContenedorFlotante = new JPanel(new BorderLayout());
-        panelContenedorFlotante.setOpaque(false);
+        // 2. Contenedor Principal
+        panelContenedor = new JPanel(new BorderLayout());
+        panelContenedor.setOpaque(false);
+        fondo.add(panelContenedor, BorderLayout.CENTER);
 
         // 3. BARRA LATERAL (West)
         sidebar = new VistaBarraLateral();
-        sidebar.setPreferredSize(new Dimension(180, Integer.MAX_VALUE));
-        sidebar.setMinimumSize(new Dimension(180, 0));
+        sidebar.setPreferredSize(new Dimension(200, 550));
         sidebar.setBackground(Color.WHITE);
-        sidebar.setBorder(new EmptyBorder(20, 10, 20, 10));
 
+        // Visibilidad de opciones del menú
+        sidebar.bCasa.setVisible(true);        // Inicio
+        sidebar.bInventario.setVisible(false); // Oculto para supervisor
+        sidebar.misCitas.setVisible(true); 
+        
         btnCaja = new JButton(new ImageIcon("src/nexusgo/img/caja.png"));
         btnCaja.setBorderPainted(false);
         btnCaja.setContentAreaFilled(false);
@@ -67,10 +66,7 @@ public class VistaPrincipalSupervisor extends JFrame {
         btnCaja.setOpaque(false);
         sidebar.add(btnCaja);
 
-        // Visibilidad de opciones del menú
-        sidebar.bCasa.setVisible(true);        // Inicio
-        sidebar.bInventario.setVisible(false); // Oculto para supervisor
-        sidebar.misCitas.setVisible(true);     // Gestión de Citas
+        panelContenedor.add(sidebar, BorderLayout.WEST);
 
         // 4. PANEL DERECHO COMPLETO
         panelDerechoCompleto = new JPanel(new BorderLayout());
@@ -88,6 +84,8 @@ public class VistaPrincipalSupervisor extends JFrame {
 
         panelSuperiorDerecho.add(btnCerrarSesion);
 
+        panelDerechoCompleto.add(panelSuperiorDerecho, BorderLayout.NORTH);
+
         // 5. PANEL CENTRAL DINÁMICO
         contenidoCentralDinamico = new JPanel(new BorderLayout());
         contenidoCentralDinamico.setOpaque(false);
@@ -95,33 +93,24 @@ public class VistaPrincipalSupervisor extends JFrame {
 
         // Instanciación del Panel de Bienvenida con los datos del usuario
         panelBienvenida = new PanelBienvenida(nombreUsuario, rolUsuario);
-        panelBienvenida.setMaximumSize(new Dimension(Short.MAX_VALUE, 400));
         panelBienvenida.setOpaque(false);
-
-        // AHORA SÍ: Llamamos a restaurar la vista inicial con todos los componentes listos
-        restaurarVistaInicial();
+        contenidoCentralDinamico.add(panelBienvenida, BorderLayout.CENTER);
 
         // Scroll central
         scrollContenido = new JScrollPane(contenidoCentralDinamico);
         scrollContenido.setOpaque(false);
         scrollContenido.getViewport().setOpaque(false);
         scrollContenido.setBorder(null);
-        scrollContenido.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollContenido.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollContenido.getVerticalScrollBar().setUnitIncrement(16);
 
         // 6. ENSAMBLAJE DE LA COLUMNA DERECHA
-        panelDerechoCompleto.add(panelSuperiorDerecho, BorderLayout.NORTH);
-        panelDerechoCompleto.add(scrollContenido, BorderLayout.CENTER);
+       panelDerechoCompleto.add(scrollContenido, BorderLayout.CENTER);
+        panelContenedor.add(panelDerechoCompleto, BorderLayout.CENTER);
 
-        // 7. ENSAMBLAJE FINAL DE LA VENTANA
-        panelContenedorFlotante.add(sidebar, BorderLayout.WEST);
-        panelContenedorFlotante.add(panelDerechoCompleto, BorderLayout.CENTER);
-
-        this.getContentPane().setLayout(new BorderLayout());
-        this.getContentPane().add(panelContenedorFlotante, BorderLayout.CENTER);
-
+        setSize(1100, 680);
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
     }
 
     /**
