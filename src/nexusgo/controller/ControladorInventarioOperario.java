@@ -217,7 +217,8 @@ public class ControladorInventarioOperario implements ActionListener {
             } else {
                 idSeleccionado = (int) panelInventario.tablaHerramientas.getModel().getValueAt(fila, 0);
                 String nombreHerramienta = panelInventario.tablaHerramientas.getModel().getValueAt(fila, 1).toString();
-                ControladorAgregarHerramienta controlAggHerra = new ControladorAgregarHerramienta(panelFormularioHerramienta, contenedorCentral, panelInventario, idSeleccionado, nombreHerramienta, this::listarHerramientasEnTabla);
+                String estadoActualHerramienta = panelInventario.tablaHerramientas.getModel().getValueAt(fila, 2).toString();
+                ControladorAgregarHerramienta controlAggHerra = new ControladorAgregarHerramienta(panelFormularioHerramienta, contenedorCentral, panelInventario, idSeleccionado, nombreHerramienta, estadoActualHerramienta, this::listarHerramientasEnTabla);
                 cambiarPanelCentral(this.panelFormularioHerramienta);
             }
 

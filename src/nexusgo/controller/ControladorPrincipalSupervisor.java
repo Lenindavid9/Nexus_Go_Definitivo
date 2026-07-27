@@ -204,10 +204,10 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             String detalleNotas = "Ejecutado: " + descripcionTrabajo + " | Horas: " + horas + "h | Obs: "
                     + observaciones + " | Antes: " + nombreAntes + " | Desp: " + nombreDespues;
 
-            // 1. Guardar el registro de mantenimiento realizado
+            // Guardar el registro de mantenimiento realizado
             Mantenimiento mEjecutado = new Mantenimiento(
                     herramientaElegida.getIdHerramienta(),
-                    "Mantenimiento Realizado Inmediato",
+                    "CORRECTIVO",
                     new Date(),
                     detalleNotas,
                     usuarioLogueado.getIdUsuario()
@@ -216,8 +216,8 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             boolean guardado = mantenimientoDao.registrarProgramacion(mEjecutado);
 
             if (guardado) {
-                // 2. Cambiar el estado de la herramienta en la BD (ej. "Ocupado" o "En Mantenimiento")
-                String nuevoEstado = "Ocupado"; 
+                // Al terminar el mantenimiento, la herramienta vuelve a estar disponible en buen estado
+                String nuevoEstado = "EXCELENTE"; 
                 boolean estadoActualizado = herramientaDao.actualizarEstado(herramientaElegida.getIdHerramienta(), nuevoEstado);
 
                 String msgEstado = estadoActualizado 
@@ -460,6 +460,9 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             boolean guardadoExitoso = mantenimientoDao.registrarProgramacion(nuevoMantenimiento);
 
             if (guardadoExitoso) {
+                // Al programar un mantenimiento, la herramienta pasa a "REQUIERE_MANTENIMIENTO"
+                herramientaDao.actualizarEstado(idHerramientaSeleccionada, "REQUIERE_MANTENIMIENTO");
+
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                 JOptionPane.showMessageDialog(panelProgramarMantenimiento,
                         "¡Mantenimiento agendado exitosamente!\n\n"
@@ -467,7 +470,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                         + "Tipo: " + tipoMantenimiento + "\n"
                         + "Fecha Programada: " + sdf.format(fechaFinalProgramada) + "\n"
                         + "Adjunto: " + nombreImagen,
-                        "NEXUS GO - Éxito", JOptionPane.INFORMATION_MESSAGE);
+                        "NEXUS GO - Mantenimiento de Herramiento", JOptionPane.INFORMATION_MESSAGE);
 
                 limpiarCamposProgramacion();
                 cambiarPanelCentral(this.panelInventario);

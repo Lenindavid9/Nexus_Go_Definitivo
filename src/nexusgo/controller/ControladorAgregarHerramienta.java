@@ -18,7 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import nexusgo.model.HerramientaDao;
 import nexusgo.model.Herramientas;
-import nexusgo.view.VistaAgregarHerramienta;;
+import nexusgo.view.VistaAgregarHerramienta;
 
 /**
  *
@@ -32,7 +32,8 @@ public class ControladorAgregarHerramienta implements ActionListener {
     private final HerramientaDao herramientaDao;
 
     private int idSeleccionado = -1;
-    private final Runnable alVolverCallback; // Callback para refrescar la tabla al regresar
+    private String estadoActual = "EXCELENTE";
+    private final Runnable alVolverCallback;
 
     // Constructor para REGISTRAR una nueva herramienta
     public ControladorAgregarHerramienta(VistaAgregarHerramienta panelFormularioHerramienta, JPanel contenedorCentral, JPanel panelInventarioPadre, Runnable alVolverCallback) {
@@ -49,15 +50,15 @@ public class ControladorAgregarHerramienta implements ActionListener {
     }
 
     // Constructor para EDITAR una herramienta existente
-    public ControladorAgregarHerramienta(VistaAgregarHerramienta panelFormularioHerramienta, JPanel contenedorCentral, JPanel panelInventarioPadre, int idHerramienta, String nombreHerramienta, Runnable alVolverCallback) {
+    public ControladorAgregarHerramienta(VistaAgregarHerramienta panelFormularioHerramienta, JPanel contenedorCentral, JPanel panelInventarioPadre, int idHerramienta, String nombreHerramienta, String estadoActual, Runnable alVolverCallback) {
         this.panelFormularioHerramienta = panelFormularioHerramienta;
         this.contenedorCentral = contenedorCentral;
         this.panelInventarioPadre = panelInventarioPadre;
         this.idSeleccionado = idHerramienta;
+        this.estadoActual = (estadoActual != null && !estadoActual.isBlank()) ? estadoActual : "EXCELENTE";
         this.alVolverCallback = alVolverCallback;
         this.herramientaDao = new HerramientaDao();
 
-        // Cargar datos a editar
         this.panelFormularioHerramienta.txtIdHerramienta.setText(String.valueOf(idHerramienta));
         this.panelFormularioHerramienta.txtIdHerramienta.setEditable(false);
         this.panelFormularioHerramienta.txtNombre.setText(nombreHerramienta);
@@ -116,7 +117,7 @@ public class ControladorAgregarHerramienta implements ActionListener {
             Herramientas h = new Herramientas();
             h.setIdHerramienta(idSeleccionado);
             h.setNombreHerramienta(panelFormularioHerramienta.txtNombre.getText().trim());
-            h.setEstadoActual("EXCELENTE");
+            h.setEstadoActual(estadoActual);
 
             if (herramientaDao.editar(h) > 0) {
                 JOptionPane.showMessageDialog(panelFormularioHerramienta, "¡Herramienta modificada correctamente!");
