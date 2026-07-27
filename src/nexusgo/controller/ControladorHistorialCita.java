@@ -5,7 +5,6 @@
 package nexusgo.controller;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -19,7 +18,7 @@ import nexusgo.view.VistaPrincipalCliente;
  *
  * @author HOME
  */
-public class ControladorHistorialCita implements ActionListener {
+public class ControladorHistorialCita{
 
     private final VistaHistorialCita vistaHistorial;
     private final VistaPrincipalCliente vistaPrincipal;
@@ -31,8 +30,6 @@ public class ControladorHistorialCita implements ActionListener {
         this.vistaPrincipal = vistaPrincipal;
         this.idClienteLogueado = idClienteLogueado;
         this.usuarioDao = new UsuarioDao();
-
-        this.vistaHistorial.btnVolver.addActionListener(this);
         cargarHistorial();
     }
 
@@ -66,14 +63,5 @@ public class ControladorHistorialCita implements ActionListener {
         }
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == vistaHistorial.btnVolver) {
-            JPanel contenedorCentral = vistaPrincipal.getContenidoCentralDinamico();
-            contenedorCentral.removeAll();
-            contenedorCentral.revalidate();
-            contenedorCentral.repaint();
-        }
-    }
     
 }

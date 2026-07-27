@@ -7,8 +7,6 @@ import java.awt.Graphics;
 import java.awt.Image;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -34,12 +32,7 @@ public class VistaCambioRol extends JPanel {
 
     public VistaCambioRol() {
         // Cargar imagen de fondo opcional
-        try {
-            ImageIcon icon = new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg");
-            this.imagenFondo = icon.getImage();
-        } catch (Exception e) {
-            this.imagenFondo = null;
-        }
+        this.setOpaque(false); 
 
         setLayout(new BorderLayout(20, 20));
 
@@ -59,9 +52,11 @@ public class VistaCambioRol extends JPanel {
 
         // 2. Configurar la JTable
         tabla = new JTable(modelo);
-        tabla.getTableHeader().setResizingAllowed(false);
         tabla.setRowHeight(40);
         tabla.setSelectionBackground(Color.decode("#EFB810"));
+        tabla.getTableHeader().setReorderingAllowed(false);
+        tabla.getTableHeader().setResizingAllowed(false);
+        
 
         // Asignar el JComboBox editable a la columna ROL (Columna 3)
         JComboBox<String> comboRol = new JComboBox<>(tiposDeRol);

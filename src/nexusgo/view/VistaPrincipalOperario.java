@@ -6,17 +6,14 @@ package nexusgo.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridBagLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import nexusgo.model.Usuario;
 
 /**
  *
@@ -25,7 +22,8 @@ import nexusgo.model.Usuario;
 public class VistaPrincipalOperario extends JFrame {
 
     public VistaBarraLateral sidebar;
-    public JPanel contenido, panelSuperiorDerecho, panelDerechoCompleto;
+    public JPanel contenido, panelSuperiorDerecho, panelDerechoCompleto,panelContenedor;
+    public JLabel fondo;
     public JButton btnCerrarSesion;
 
     private final Color COLOR_DORADO = new Color(184, 134, 11);
@@ -34,23 +32,23 @@ public class VistaPrincipalOperario extends JFrame {
         super("Sistema NexusGO - Panel de Gestión");
 
         // 1. Fondo con imagen
-        JLabel fondo = new JLabel(new ImageIcon("src/nexusgo/img/fondoprincipal.jpg"));
+        fondo = new JLabel(new ImageIcon("src/nexusgo/img/fondoprincipal.jpg"));
         fondo.setLayout(new BorderLayout());
         setContentPane(fondo);
 
         // 2. Contenedor principal
-        JPanel panelContenedor = new JPanel(new BorderLayout());
+        panelContenedor = new JPanel(new BorderLayout());
         panelContenedor.setOpaque(false);
 
         // 3. Sidebar a la izquierda (ocupa toda la altura)
         sidebar = new VistaBarraLateral();
-        sidebar.setPreferredSize(new Dimension(200, Integer.MAX_VALUE));
+        sidebar.setPreferredSize(new Dimension(200, 550));
         sidebar.setBackground(Color.WHITE);
         panelContenedor.add(sidebar, BorderLayout.WEST);
 
         // 4. Panel derecho completo
         panelDerechoCompleto = new JPanel(new BorderLayout());
-           panelDerechoCompleto.setOpaque(false);
+        panelDerechoCompleto.setOpaque(false);
 
         // Barra superior derecha con botón
         panelSuperiorDerecho = new JPanel(new FlowLayout(FlowLayout.RIGHT, 30, 20));

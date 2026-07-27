@@ -32,14 +32,14 @@ import javax.swing.border.EmptyBorder;
  */
 public class VistaPrincipalCliente extends JFrame {
 
-    private JLabel fondoMarmol, lblBienvenida;
-    private JPanel panelFlotanteBlanco, contenidoCentralDinamico, panelGridProductos, panelGridPromociones, panelGridCombos, panelGridServicios;
+    private JLabel fondo, lblBienvenida;
+    private JPanel contenidoCentralDinamico, panelGridProductos, 
+            panelGridPromociones, panelGridCombos, panelGridServicios, contenedorEstructural;
     private JScrollPane scrollContenido;
-
     public JButton btnReservarCita, btnCerrarSesion, btnHistorial;
-    
-    //dos  public ???
     public VistaBarraLateral sidebar;
+    
+    private final Color COLOR_DORADO = new Color(184, 134, 11);
 
     public VistaPrincipalCliente() {
         this("Cliente", "Cliente");
@@ -48,67 +48,58 @@ public class VistaPrincipalCliente extends JFrame {
     public VistaPrincipalCliente(String nombreUsuario, String rolUsuario) {
         super("Nexus GO - Cliente");
 
-        this.fondoMarmol = new JLabel(new ImageIcon("src/nexusgo/img/fondoprincipal.jpg"));
-        this.fondoMarmol.setLayout(new BorderLayout());
-        this.setContentPane(fondoMarmol);
-
-        JPanel contenedorEstructural = new JPanel(new BorderLayout(15, 0));
-        contenedorEstructural.setPreferredSize(new Dimension(980, 650));
+        // 1. Fondo con imagen
+        fondo = new JLabel(new ImageIcon("src/nexusgo/img/fondoprincipal.jpg"));
+        fondo.setLayout(new BorderLayout());
+        setContentPane(fondo);
+        
+        contenedorEstructural = new JPanel(new BorderLayout());
         contenedorEstructural.setOpaque(false);
 
         sidebar = new VistaBarraLateral();
-        sidebar.setPreferredSize(new Dimension(80, 650));
+        sidebar.setPreferredSize(new Dimension(200, 550));
         sidebar.setBackground(Color.WHITE);
-        if (sidebar.bInventario != null) {
-            sidebar.bInventario.setVisible(false);
-        }
-        if (sidebar.misCitas != null) {
-            sidebar.misCitas.setVisible(true);
-        }
-
-        panelFlotanteBlanco = new JPanel(new BorderLayout());
-        panelFlotanteBlanco.setOpaque(false);
-        panelFlotanteBlanco.setBorder(new EmptyBorder(15, 20, 15, 20));
+        sidebar.bInventario.setVisible(false);
 
         contenidoCentralDinamico = new JPanel();
         contenidoCentralDinamico.setLayout(new BoxLayout(contenidoCentralDinamico, BoxLayout.Y_AXIS));
-        contenidoCentralDinamico.setBackground(Color.WHITE);
         contenidoCentralDinamico.setOpaque(false);
 
-        lblBienvenida = new JLabel("Hola, " + nombreUsuario + " | Bienvenido a Nexus GO", SwingConstants.CENTER);
-        lblBienvenida.setFont(new Font("Segoe UI", Font.BOLD, 17));
-        lblBienvenida.setForeground(Color.BLACK);
+        lblBienvenida = new JLabel("Hola, " + nombreUsuario + " | Bienvenid@ a Nexus GO", SwingConstants.CENTER);
+        lblBienvenida.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        lblBienvenida.setForeground(Color.WHITE);
+        
 
         btnCerrarSesion = new JButton("cerrar sesión");
-        btnCerrarSesion.setBackground(new Color(255, 220, 90));
-        btnCerrarSesion.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        btnCerrarSesion.setFocusPainted(false);
-        btnCerrarSesion.setBorderPainted(false);
-        btnCerrarSesion.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnCerrarSesion.setPreferredSize(new Dimension(110, 28));
+        btnCerrarSesion.setBackground(Color.white);
+        btnCerrarSesion.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        btnCerrarSesion.setForeground(COLOR_DORADO);
+        btnCerrarSesion.setPreferredSize(new Dimension(190, 50));
 
-        btnReservarCita = new JButton("Reservar cita");
-        btnReservarCita.setBackground(new Color(255, 220, 90));
-        btnReservarCita.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnReservarCita.setAlignmentX(CENTER_ALIGNMENT);
-        btnReservarCita.setFocusPainted(false);
+        btnReservarCita = new JButton(new ImageIcon("src/nexusgo/img/citas.png"));
+        btnReservarCita.setOpaque(false);
         btnReservarCita.setBorderPainted(false);
+        btnReservarCita.setContentAreaFilled(false);
+        btnReservarCita.setFocusPainted(false);
         btnReservarCita.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnReservarCita.setMaximumSize(new Dimension(150, 32));
+        btnReservarCita.setAlignmentX(CENTER_ALIGNMENT);
+
+        sidebar.add(Box.createVerticalStrut(10)); // Espacio vertical
+        sidebar.add(btnReservarCita);
 
         btnHistorial = new JButton("Historial");
 
         restaurarComponentesTienda();
 
         scrollContenido = new JScrollPane(contenidoCentralDinamico);
-        scrollContenido.setBackground(Color.WHITE);
-        scrollContenido.getViewport().setBackground(Color.WHITE);
-        scrollContenido.setBorder(null);
-
-        panelFlotanteBlanco.add(scrollContenido, BorderLayout.CENTER);
+        scrollContenido.setOpaque(false);
+        scrollContenido.getViewport().setOpaque(false);
+        scrollContenido.setBorder(new EmptyBorder(15,20,15,20));
 
         contenedorEstructural.add(sidebar, BorderLayout.WEST);
-        contenedorEstructural.add(panelFlotanteBlanco, BorderLayout.CENTER);
+        contenedorEstructural.add(scrollContenido, BorderLayout.CENTER);
+        fondo.add(contenedorEstructural, BorderLayout.CENTER);
+        
 
         this.add(contenedorEstructural);
         this.setSize(1040, 720);
@@ -148,8 +139,8 @@ public class VistaPrincipalCliente extends JFrame {
         contenidoCentralDinamico.add(panelGridProductos);
         contenidoCentralDinamico.add(Box.createVerticalStrut(20));
 
-        contenidoCentralDinamico.add(btnReservarCita);
-        contenidoCentralDinamico.add(Box.createVerticalStrut(20));
+////        contenidoCentralDinamico.add(btnReservarCita);
+//        contenidoCentralDinamico.add(Box.createVerticalStrut(20));
 
         // 1. Promociones
         contenidoCentralDinamico.add(panelEtiquetaPromo);
@@ -182,10 +173,11 @@ public class VistaPrincipalCliente extends JFrame {
     private JPanel crearBannerEtiqueta(String titulo) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         panel.setOpaque(false);
+        
         JLabel label = new JLabel(titulo, SwingConstants.CENTER);
-        label.setOpaque(true);
-        label.setBackground(new Color(255, 220, 90));
-        label.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        label.setOpaque(false);
+        label.setForeground(Color.WHITE);
+        label.setFont(new Font("Segoe UI", Font.BOLD, 20));
         label.setPreferredSize(new Dimension(150, 26));
         panel.add(label);
         return panel;
