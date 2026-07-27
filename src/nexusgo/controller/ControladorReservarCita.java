@@ -38,7 +38,7 @@ public class ControladorReservarCita implements ActionListener {
     private final VistaPrincipalCliente vistaPrincipal;
     private final int idUsuarioLogueado;
     private final CitaDao citaDao;
-    private boolean cargandoServicios = false;
+    private boolean cargandoDatos = false;
 
     public ControladorReservarCita(VistaReservarCitas panelReserva, VistaPrincipalCliente vistaPrincipal, int idUsuarioLogueado) {
         this.panelReserva = panelReserva;
@@ -47,7 +47,7 @@ public class ControladorReservarCita implements ActionListener {
         this.citaDao = new CitaDao();
 
         inicializarEventos();
-        cargarServicios();
+        cargarServiciosYProfesionales();
     }
 
     private void inicializarEventos() {
@@ -57,7 +57,7 @@ public class ControladorReservarCita implements ActionListener {
 
         if (this.panelReserva != null && this.panelReserva.datePickerFecha != null) {
             this.panelReserva.datePickerFecha.addDateChangeListener(evento -> {
-                if (!cargandoServicios) {
+                if (!cargandoDatos) {
                     this.panelReserva.limpiarSeleccionHora();
                     actualizarSlotsDisponibles();
                 }
@@ -66,7 +66,17 @@ public class ControladorReservarCita implements ActionListener {
 
         if (this.panelReserva != null && this.panelReserva.comboServicios != null) {
             this.panelReserva.comboServicios.addItemListener(evento -> {
-                if (evento.getStateChange() == ItemEvent.SELECTED && !cargandoServicios) {
+                if (evento.getStateChange() == ItemEvent.SELECTED && !cargandoDatos) {
+                    this.panelReserva.limpiarSeleccionHora();
+                    actualizarSlotsDisponibles();
+                }
+            });
+        }
+
+        // Evento para reaccionar al cambio de profesional en el ComboBox
+        if (this.panelReserva != null && this.panelReserva.comboProfesionales != null) {
+            this.panelReserva.comboProfesionales.addItemListener(evento -> {
+                if (evento.getStateChange() == ItemEvent.SELECTED && !cargandoDatos) {
                     this.panelReserva.limpiarSeleccionHora();
                     actualizarSlotsDisponibles();
                 }
@@ -75,12 +85,17 @@ public class ControladorReservarCita implements ActionListener {
     }
 
     private void actualizarSlotsDisponibles() {
-        if (panelReserva == null || panelReserva.comboServicios == null || panelReserva.datePickerFecha == null) {
+        if (panelReserva == null || panelReserva.comboServicios == null || panelReserva.comboProfesionales == null || panelReserva.datePickerFecha == null) {
             return;
         }
 
         if (panelReserva.comboServicios.getSelectedIndex() <= 0) {
             panelReserva.mostrarSlots(null, "Seleccione un servicio para ver las horas disponibles.");
+            return;
+        }
+
+        if (panelReserva.comboProfesionales.getSelectedIndex() <= 0) {
+            panelReserva.mostrarSlots(null, "Seleccione un profesional para ver las horas disponibles.");
             return;
         }
 
@@ -96,6 +111,7 @@ public class ControladorReservarCita implements ActionListener {
         }
 
         String servicioNombre = (String) panelReserva.comboServicios.getSelectedItem();
+        String profesionalNombre = (String) panelReserva.comboProfesionales.getSelectedItem();
 
         // SwingWorker para ejecutar la consulta SQL y cálculo de slots en segundo plano
         SwingWorker<List<HorarioNegocio.SlotDisponibilidad>, Void> worker = new SwingWorker<>() {
@@ -104,12 +120,13 @@ public class ControladorReservarCita implements ActionListener {
             @Override
             protected List<HorarioNegocio.SlotDisponibilidad> doInBackground() throws Exception {
                 int duracionServicio = citaDao.obtenerDuracionServicioPorNombre(servicioNombre);
-                // Validación de seguridad para evitar divisiones o bucles infinitos
                 if (duracionServicio <= 0) {
                     duracionServicio = 30;
                 }
 
-                int idProfesional = citaDao.obtenerIdProfesionalPorDefecto();
+                // ID obtenido dinámicamente según el profesional seleccionado
+                int idProfesional = citaDao.obtenerIdProfesionalPorNombre(profesionalNombre);
+
                 List<HorarioNegocio.RangoOcupado> rangosOcupados = citaDao.obtenerRangosOcupados(idProfesional, fecha);
                 List<HorarioNegocio.SlotDisponibilidad> slots = HorarioNegocio.generarSlotsDelDia(fecha, duracionServicio, rangosOcupados);
 
@@ -129,7 +146,7 @@ public class ControladorReservarCita implements ActionListener {
 
                 boolean hayDisponibles = slots.stream().anyMatch(s -> s.disponible);
                 if (!hayDisponibles) {
-                    mensajeUi += " — No quedan horas disponibles este día, por favor elige otra fecha.";
+                    mensajeUi += " — No quedan horas disponibles con este profesional. Por favor elige otro o cambia la fecha.";
                 }
 
                 return slots;
@@ -163,6 +180,11 @@ public class ControladorReservarCita implements ActionListener {
                 return;
             }
 
+            if (panelReserva.comboProfesionales.getSelectedIndex() <= 0) {
+                JOptionPane.showMessageDialog(panelReserva, "Por favor, seleccione un profesional.", "Campo Requerido", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
             LocalDate fechaSeleccionada = panelReserva.datePickerFecha.getDate();
             if (fechaSeleccionada == null) {
                 JOptionPane.showMessageDialog(panelReserva, "Por favor, seleccione una fecha válida.", "Fecha Requerida", JOptionPane.WARNING_MESSAGE);
@@ -175,7 +197,7 @@ public class ControladorReservarCita implements ActionListener {
             }
 
             if (panelReserva.getHoraSeleccionada() == null) {
-                JOptionPane.showMessageDialog(panelReserva, "Por favor, seleccione una hora disponible (en verde) en la grilla de horarios.", "Hora Requerida", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(panelReserva, "Por favor, seleccione una hora disponible en la grilla.", "Hora Requerida", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
@@ -186,6 +208,7 @@ public class ControladorReservarCita implements ActionListener {
             }
 
             String servicioNombre = (String) panelReserva.comboServicios.getSelectedItem();
+            String profesionalNombre = (String) panelReserva.comboProfesionales.getSelectedItem();
 
             // SwingWorker para validar y registrar la cita sin congelar la interfaz
             SwingWorker<Boolean, Void> workerReserva = new SwingWorker<>() {
@@ -193,7 +216,9 @@ public class ControladorReservarCita implements ActionListener {
 
                 @Override
                 protected Boolean doInBackground() throws Exception {
-                    if (citaDao.existeCitaEnHorario(fechaHora)) {
+                    int idProfesional = citaDao.obtenerIdProfesionalPorNombre(profesionalNombre);
+
+                    if (citaDao.existeCitaEnHorario(idProfesional, fechaHora)) {
                         choqueHorario = true;
                         return false;
                     }
@@ -203,9 +228,7 @@ public class ControladorReservarCita implements ActionListener {
                         idServicio = 1;
                     }
 
-                    int idProfesional = citaDao.obtenerIdProfesionalPorDefecto();
                     Cita nuevaCita = new Cita(idUsuarioLogueado, idProfesional, idServicio, fechaHora);
-
                     return citaDao.agendarCita(nuevaCita);
                 }
 
@@ -215,7 +238,7 @@ public class ControladorReservarCita implements ActionListener {
                         boolean exito = get();
                         if (choqueHorario) {
                             JOptionPane.showMessageDialog(panelReserva,
-                                    "El horario seleccionado (" + fechaHora + ") acaba de ser ocupado.\nPor favor, elige otra hora u otro día.",
+                                    "El horario seleccionado (" + fechaHora + ") ya fue ocupado para " + profesionalNombre + ".\nPor favor, elige otra hora u otro profesional.",
                                     "Horario No Disponible", JOptionPane.ERROR_MESSAGE);
 
                             panelReserva.limpiarSeleccionHora();
@@ -224,7 +247,7 @@ public class ControladorReservarCita implements ActionListener {
                         }
 
                         if (exito) {
-                            // Enviar correo en un hilo independiente consultando los datos mediante UsuarioDao
+                            // Enviar correo en un hilo independiente
                             new Thread(() -> {
                                 System.out.println("🔍 [Depuración] ID Usuario Logueado recibido: " + idUsuarioLogueado);
 
@@ -235,14 +258,14 @@ public class ControladorReservarCita implements ActionListener {
                                 System.out.println("🔍 [Depuración] Correo recuperado de la BD: " + correoCliente);
 
                                 if (correoCliente != null && !correoCliente.trim().isEmpty()) {
-                                    enviarCorreoConfirmacion(correoCliente, servicioNombre, fechaHora);
+                                    enviarCorreoConfirmacion(correoCliente, servicioNombre, profesionalNombre, fechaHora);
                                 } else {
                                     System.err.println("⚠️ [Advertencia] No se encontró correo electrónico para el ID de usuario: " + idUsuarioLogueado);
                                 }
                             }).start();
 
                             JOptionPane.showMessageDialog(panelReserva,
-                                    "¡Cita agendada con éxito!\n\nServicio: " + servicioNombre + "\nFecha y Hora: " + fechaHora + "\n\nSe ha enviado un correo de confirmación.",
+                                    "¡Cita agendada con éxito!\n\nServicio: " + servicioNombre + "\nProfesional: " + profesionalNombre + "\nFecha y Hora: " + fechaHora + "\n\nSe ha enviado un correo de confirmación.",
                                     "Reserva Exitosa", JOptionPane.INFORMATION_MESSAGE);
 
                             limpiarFormulario();
@@ -264,9 +287,8 @@ public class ControladorReservarCita implements ActionListener {
         }
     }
 
-    private boolean enviarCorreoConfirmacion(String destinatario, String servicio, String fechaHora) {
+    private boolean enviarCorreoConfirmacion(String destinatario, String servicio, String profesional, String fechaHora) {
         final String miCorreoRemitente = "liliannysbaptistap@gmail.com";
-        // REMPLAZAR POR TU CONTRASEÑA DE APLICACIÓN DE GOOGLE (SIN ESPACIOS)
         final String miClaveDeCorreo = "rksuumvzhnomirzf";
 
         Properties propiedades = new Properties();
@@ -285,7 +307,6 @@ public class ControladorReservarCita implements ActionListener {
             }
         });
 
-        // Habilita los logs de SMTP en la consola para diagnóstico
         sesionMail.setDebug(true);
 
         try {
@@ -298,6 +319,7 @@ public class ControladorReservarCita implements ActionListener {
                     + "🎉 ¡Buenas noticias! Tu cita ha sido agendada con éxito en NexusGO.\n\n"
                     + "📍 === DETALLES DE TU RESERVA ===\n"
                     + "🛠️ Servicio: " + servicio + "\n"
+                    + "💈 Profesional: " + profesional + "\n"
                     + "📅 Fecha y Hora: " + fechaHora + "\n\n"
                     + "💡 Recuerda llegar con unos minutos de anticipación.\n\n"
                     + "✨ ¡Muchas gracias por confiar en nosotros! Nos alegra mucho atenderte.\n\n"
@@ -316,8 +338,9 @@ public class ControladorReservarCita implements ActionListener {
 
     private void limpiarFormulario() {
         try {
-            cargandoServicios = true;
+            cargandoDatos = true;
             panelReserva.comboServicios.setSelectedIndex(0);
+            panelReserva.comboProfesionales.setSelectedIndex(0);
             if (panelReserva.txtObservaciones != null) {
                 panelReserva.txtObservaciones.setText("");
             }
@@ -326,35 +349,48 @@ public class ControladorReservarCita implements ActionListener {
         } catch (Exception e) {
             System.err.println("Error al limpiar el formulario: " + e.getMessage());
         } finally {
-            cargandoServicios = false;
+            cargandoDatos = false;
             actualizarSlotsDisponibles();
         }
     }
 
-    private void cargarServicios() {
-        cargandoServicios = true;
-        SwingWorker<List<String>, Void> worker = new SwingWorker<>() {
+    private void cargarServiciosYProfesionales() {
+        cargandoDatos = true;
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            private List<String> servicios;
+            private List<String> profesionales;
+
             @Override
-            protected List<String> doInBackground() throws Exception {
-                return citaDao.obtenerListaServicios();
+            protected Void doInBackground() throws Exception {
+                servicios = citaDao.obtenerListaServicios();
+                profesionales = citaDao.obtenerListaProfesionales();
+                return null;
             }
 
             @Override
             protected void done() {
                 try {
+                    // Carga del ComboBox de Servicios
                     panelReserva.comboServicios.removeAllItems();
                     panelReserva.comboServicios.addItem("-- Seleccione un servicio --");
-
-                    List<String> servicios = get();
                     if (servicios != null) {
                         for (String servicio : servicios) {
                             panelReserva.comboServicios.addItem(servicio);
                         }
                     }
+
+                    // Carga del ComboBox de Profesionales
+                    panelReserva.comboProfesionales.removeAllItems();
+                    panelReserva.comboProfesionales.addItem("-- Seleccione un profesional --");
+                    if (profesionales != null) {
+                        for (String profesional : profesionales) {
+                            panelReserva.comboProfesionales.addItem(profesional);
+                        }
+                    }
                 } catch (Exception e) {
-                    System.err.println("Error al cargar los servicios: " + e.getMessage());
+                    System.err.println("Error al cargar los desplegables: " + e.getMessage());
                 } finally {
-                    cargandoServicios = false;
+                    cargandoDatos = false;
                     actualizarSlotsDisponibles();
                 }
             }

@@ -49,6 +49,7 @@ import nexusgo.model.HorarioNegocio;
 public class VistaReservarCitas extends JPanel {
 
     public JComboBox<String> comboServicios;
+    public JComboBox<String> comboProfesionales; // NUEVO CAMPO
 
     public DatePicker datePickerFecha;
     private DatePickerSettings configCalendario;
@@ -91,7 +92,7 @@ public class VistaReservarCitas extends JPanel {
         tarjetaBlanca.setBorder(BorderFactory.createEmptyBorder(25, 35, 25, 35));
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 0, 6, 0);
+        gbc.insets = new Insets(4, 0, 4, 0);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
         gbc.weightx = 1.0;
@@ -101,7 +102,6 @@ public class VistaReservarCitas extends JPanel {
         lblTitulo.setForeground(COLOR_TEXTO_TITULO);
         gbc.gridy = 0;
         tarjetaBlanca.add(lblTitulo, gbc);
-        
 
         JLabel lblSubtitulo = new JLabel("<html>Complete los datos para consultar horarios disponibles y<br>reservar tu cita en tiempo real.</html>");
         lblSubtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 12));
@@ -109,21 +109,39 @@ public class VistaReservarCitas extends JPanel {
         gbc.gridy = 1;
         tarjetaBlanca.add(lblSubtitulo, gbc);
 
-        JLabel lblServicio = new JLabel("Seleccione el profesional / servicio");
+        // --- SERVICIO ---
+        JLabel lblServicio = new JLabel("Seleccione el servicio");
         lblServicio.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblServicio.setForeground(Color.DARK_GRAY);
         gbc.gridy = 2;
-        gbc.insets = new Insets(10, 0, 2, 0);
+        gbc.insets = new Insets(8, 0, 2, 0);
         tarjetaBlanca.add(lblServicio, gbc);
 
         comboServicios = new JComboBox<>();
         comboServicios.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         comboServicios.setBackground(Color.WHITE);
-        comboServicios.setPreferredSize(new Dimension(350, 38));
+        comboServicios.setPreferredSize(new Dimension(350, 36));
         gbc.gridy = 3;
-        gbc.insets = new Insets(2, 0, 8, 0);
+        gbc.insets = new Insets(2, 0, 6, 0);
         tarjetaBlanca.add(comboServicios, gbc);
 
+        // --- PROFESIONAL / PELUQUERO (NUEVO) ---
+        JLabel lblProfesional = new JLabel("Seleccione el profesional / peluquero");
+        lblProfesional.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblProfesional.setForeground(Color.DARK_GRAY);
+        gbc.gridy = 4;
+        gbc.insets = new Insets(6, 0, 2, 0);
+        tarjetaBlanca.add(lblProfesional, gbc);
+
+        comboProfesionales = new JComboBox<>();
+        comboProfesionales.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        comboProfesionales.setBackground(Color.WHITE);
+        comboProfesionales.setPreferredSize(new Dimension(350, 36));
+        gbc.gridy = 5;
+        gbc.insets = new Insets(2, 0, 6, 0);
+        tarjetaBlanca.add(comboProfesionales, gbc);
+
+        // --- FECHA DE LA CITA ---
         JPanel panelFechaHora = new JPanel(new BorderLayout(10, 0));
         panelFechaHora.setOpaque(false);
 
@@ -132,7 +150,6 @@ public class VistaReservarCitas extends JPanel {
         datePickerFecha.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         datePickerFecha.setPreferredSize(new Dimension(220, 38));
         datePickerFecha.setDateToToday();
-
         configCalendario.setVetoPolicy(date -> !date.isBefore(LocalDate.now()));
 
         panelFechaHora.add(datePickerFecha, BorderLayout.CENTER);
@@ -142,14 +159,15 @@ public class VistaReservarCitas extends JPanel {
                 new Font("Segoe UI", Font.PLAIN, 11), Color.DARK_GRAY
         ));
 
-        gbc.gridy = 4;
-        gbc.insets = new Insets(4, 0, 8, 0);
+        gbc.gridy = 6;
+        gbc.insets = new Insets(4, 0, 6, 0);
         tarjetaBlanca.add(panelFechaHora, gbc);
 
+        // --- SLOTS DE HORARIOS ---
         JPanel contenedorSlots = new JPanel(new BorderLayout(0, 6));
         contenedorSlots.setOpaque(false);
 
-        lblEstadoSlots = new JLabel("Seleccione un servicio y una fecha para ver las horas disponibles.");
+        lblEstadoSlots = new JLabel("Seleccione servicio, profesional y fecha para ver horas disponibles.");
         lblEstadoSlots.setFont(new Font("Segoe UI", Font.ITALIC, 11));
         lblEstadoSlots.setForeground(Color.GRAY);
         contenedorSlots.add(lblEstadoSlots, BorderLayout.NORTH);
@@ -160,7 +178,7 @@ public class VistaReservarCitas extends JPanel {
         JScrollPane scrollSlots = new JScrollPane(panelSlots);
         scrollSlots.setOpaque(false);
         scrollSlots.getViewport().setOpaque(false);
-        scrollSlots.setPreferredSize(new Dimension(350, 140));
+        scrollSlots.setPreferredSize(new Dimension(350, 120));
         scrollSlots.setBorder(BorderFactory.createEmptyBorder());
         scrollSlots.getVerticalScrollBar().setUnitIncrement(16);
         contenedorSlots.add(scrollSlots, BorderLayout.CENTER);
@@ -178,11 +196,12 @@ public class VistaReservarCitas extends JPanel {
                 new Font("Segoe UI", Font.PLAIN, 11), Color.DARK_GRAY
         ));
 
-        gbc.gridy = 5;
-        gbc.insets = new Insets(4, 0, 8, 0);
+        gbc.gridy = 7;
+        gbc.insets = new Insets(4, 0, 6, 0);
         tarjetaBlanca.add(contenedorSlots, gbc);
 
-        txtObservaciones = new JTextArea(3, 20);
+        // --- OBSERVACIONES ---
+        txtObservaciones = new JTextArea(2, 20);
         txtObservaciones.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         txtObservaciones.setLineWrap(true);
         txtObservaciones.setWrapStyleWord(true);
@@ -196,9 +215,10 @@ public class VistaReservarCitas extends JPanel {
                 new Font("Segoe UI", Font.PLAIN, 11), Color.DARK_GRAY
         ));
 
-        gbc.gridy = 6;
+        gbc.gridy = 8;
         tarjetaBlanca.add(scrollObs, gbc);
 
+        // --- BOTÓN AGENDAR ---
         btnAgendar = new JButton("Reservar cita") {
             @Override
             protected void paintComponent(Graphics g) {
@@ -215,12 +235,12 @@ public class VistaReservarCitas extends JPanel {
         btnAgendar.setBorderPainted(false);
         btnAgendar.setFocusPainted(false);
         btnAgendar.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnAgendar.setPreferredSize(new Dimension(200, 42));
+        btnAgendar.setPreferredSize(new Dimension(200, 40));
 
-        gbc.gridy = 7;
+        gbc.gridy = 9;
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.CENTER;
-        gbc.insets = new Insets(15, 0, 5, 0);
+        gbc.insets = new Insets(12, 0, 5, 0);
         tarjetaBlanca.add(btnAgendar, gbc);
 
         txtFechaHora = new JTextField();
