@@ -15,8 +15,8 @@ import java.util.List;
  *
  * @author HOME
  */
-public class CitaDao{
-   
+public class CitaDao {
+
     Conexion conexion = new Conexion();
 
     /**
@@ -24,10 +24,9 @@ public class CitaDao{
      */
     public boolean agendarCita(Cita cita) {
         String sql = "INSERT INTO citas (id_cliente, id_profesional, id_servicio, fecha_hora_programada, estado) "
-                   + "VALUES (?, ?, ?, ?, ?)";
+                + "VALUES (?, ?, ?, ?, ?)";
 
-        try (Connection con = conexion.getConection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, cita.getIdCliente());
             ps.setInt(2, cita.getIdProfesional());
@@ -49,8 +48,7 @@ public class CitaDao{
     public boolean existeCitaEnHorario(String fechaHora) {
         String sql = "SELECT COUNT(*) FROM citas WHERE fecha_hora_programada = ? AND estado != 'CANCELADA'";
 
-        try (Connection con = conexion.getConection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, fechaHora);
             try (ResultSet rs = ps.executeQuery()) {
@@ -69,8 +67,7 @@ public class CitaDao{
      */
     public int obtenerIdServicioPorNombre(String nombreServicio) {
         String sql = "SELECT id_servicio FROM servicios WHERE nombre_servicio = ?";
-        try (Connection con = conexion.getConection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, nombreServicio);
             try (ResultSet rs = ps.executeQuery()) {
@@ -89,9 +86,7 @@ public class CitaDao{
      */
     public int obtenerIdProfesionalPorDefecto() {
         String sql = "SELECT id_usuario FROM usuarios WHERE id_rol = 5 LIMIT 1";
-        try (Connection con = conexion.getConection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             if (rs.next()) {
                 return rs.getInt("id_usuario");
@@ -101,23 +96,54 @@ public class CitaDao{
         }
         return 5; // Respaldo
     }
-    
+
     public List<String> obtenerListaServicios() {
-    List<String> listaServicios = new ArrayList<>();
-    String sql = "SELECT nombre_servicio FROM servicios";
+        List<String> listaServicios = new ArrayList<>();
+        String sql = "SELECT nombre_servicio FROM servicios";
 
-    try (Connection con = conexion.getConection();
-         PreparedStatement ps = con.prepareStatement(sql);
-         ResultSet rs = ps.executeQuery()) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
-        while (rs.next()) {
-            listaServicios.add(rs.getString("nombre_servicio"));
+            while (rs.next()) {
+                listaServicios.add(rs.getString("nombre_servicio"));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al obtener lista de servicios: " + e.getMessage());
         }
 
-    } catch (SQLException e) {
-        System.err.println("Error al obtener lista de servicios: " + e.getMessage());
+        return listaServicios;
     }
 
-    return listaServicios;
-}
+    public List<String> obtenerListaProfesionales() {
+        List<String> listaProfesionales = new ArrayList<>();
+        String sql = "SELECT nombre, apellido FROM usuarios WHERE id_rol = 5";
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                String nombreCompleto = rs.getString("nombre") + " " + rs.getString("apellido");
+                listaProfesionales.add(nombreCompleto);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener lista de profesionales: " + e.getMessage());
+        }
+        return listaProfesionales;
+        
+    }
+
+    /**
+     * Busca el id_usuario del peluquero según su nombre completo
+     */
+    public int obtenerIdProfesionalPorNombre(String nombreCompleto) {
+        String sql = "SELECT id_usuario FROM usuarios WHERE CONCAT(nombre, ' ', apellido) = ? AND id_rol = 5";
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, nombreCompleto);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id_usuario");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener ID de profesional: " + e.getMessage());
+        }
+        return obtenerIdProfesionalPorDefecto(); // Respaldo: si no encuentra, usa el que ya tenías
+    }
 }

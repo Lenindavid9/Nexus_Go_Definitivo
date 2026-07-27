@@ -35,7 +35,8 @@ import javax.swing.border.TitledBorder;
  * @author HOME
  */
 public class VistaReservarCitas extends JPanel {
-
+    
+    public JComboBox<String> comboProfesionales;
     public JComboBox<String> comboServicios;
     public JDateChooser dateChooserFecha;
     public JSpinner spinnerHora;
@@ -104,6 +105,18 @@ public class VistaReservarCitas extends JPanel {
         gbc.gridy = 3;
         gbc.insets = new Insets(2, 0, 8, 0);
         tarjetaBlanca.add(comboServicios, gbc);
+        
+        //seleccion nuevo peluquero
+        JLabel lblProfesional = new JLabel("Seleccione el peluquero");
+        lblProfesional.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblProfesional.setForeground(Color.DARK_GRAY);
+        gbc.gridy = 4; gbc.insets = new Insets(10, 0, 2, 0); 
+        tarjetaBlanca.add(lblProfesional, gbc);
+        comboProfesionales = new JComboBox<>();
+        comboProfesionales.setFont(new Font("Segoe UI", Font.PLAIN, 13)); 
+        comboProfesionales.setBackground(Color.WHITE);
+        comboProfesionales.setPreferredSize(new Dimension(350, 38));
+        gbc.gridy = 5; gbc.insets = new Insets(2, 0, 8, 0);
 
         // --- FECHA Y HORA (JCalendar + JSpinner) ---
         JPanel panelFechaHora = new JPanel(new BorderLayout(10, 0));
