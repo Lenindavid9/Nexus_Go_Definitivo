@@ -253,82 +253,39 @@ public class CitaDao {
 
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setString(1, nuevoEstado);
-            ps.setInt(2, idCita);
+        return listaServicios;
+    }
 
-            int filasAfectadas = ps.executeUpdate();
-            return filasAfectadas > 0;
-
+    public List<String> obtenerListaProfesionales() {
+        List<String> listaProfesionales = new ArrayList<>();
+        String sql = "SELECT nombre, apellido FROM usuarios WHERE id_rol = 5";
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                String nombreCompleto = rs.getString("nombre") + " " + rs.getString("apellido");
+                listaProfesionales.add(nombreCompleto);
+            }
         } catch (SQLException e) {
-            System.err.println("Error al actualizar el estado de la cita ID " + idCita + ": " + e.getMessage());
-            return false;
+            System.err.println("Error al obtener lista de profesionales: " + e.getMessage());
         }
+        return listaProfesionales;
+        
     }
 
     /**
-     * Obtiene una cita específica filtrando por el profesional y la fecha
-     * aproximada.
+     * Busca el id_usuario del peluquero según su nombre completo
      */
-    public Cita obtenerCitaPorDetalles(int idProfesional, String fechaHora) {
-        Cita cita = null;
-        String sql = "SELECT id_cita, id_cliente, id_profesional, id_servicio, fecha_hora_programada, estado "
-                + "FROM citas WHERE id_profesional = ? AND fecha_hora_programada LIKE ? LIMIT 1";
-
+    public int obtenerIdProfesionalPorNombre(String nombreCompleto) {
+        String sql = "SELECT id_usuario FROM usuarios WHERE CONCAT(nombre, ' ', apellido) = ? AND id_rol = 5";
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, idProfesional);
-            ps.setString(2, fechaHora + "%"); // Permite buscar por coincidencia de día si viene YYYY-MM-DD
-
+            ps.setString(1, nombreCompleto);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    cita = new Cita();
-                    cita.setIdCita(rs.getInt("id_cita"));
-                    cita.setIdCliente(rs.getInt("id_cliente"));
-                    cita.setIdProfesional(rs.getInt("id_profesional"));
-                    cita.setIdServicio(rs.getInt("id_servicio"));
-                    cita.setFechaHoraProgramada(rs.getString("fecha_hora_programada"));
-                    cita.setEstado(rs.getString("estado"));
+                    return rs.getInt("id_usuario");
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Error al obtener cita por detalles: " + e.getMessage());
+            System.err.println("Error al obtener ID de profesional: " + e.getMessage());
         }
-        return cita;
-    }
-
-    /**
-     * Actualiza el estado de la cita buscando directamente por peluquero y
-     * fecha/hora (método de respaldo).
-     */
-    public boolean actualizarEstadoCitaPorHorario(int idProfesional, String fechaHora, String nuevoEstado) {
-        String sql = "UPDATE citas SET estado = ? WHERE id_profesional = ? AND fecha_hora_programada LIKE ?";
-
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, nuevoEstado);
-            ps.setInt(2, idProfesional);
-            ps.setString(3, fechaHora + "%");
-
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("Error al actualizar estado por horario: " + e.getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Reagenda una cita cambiando su fecha y hora programada en la base de
-     * datos.
-     */
-    public boolean reagendarCita(int idCita, String nuevaFechaHora) {
-        String sql = "UPDATE citas SET fecha_hora_programada = ? WHERE id_cita = ?";
-
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, nuevaFechaHora);
-            ps.setInt(2, idCita);
-
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("Error al reagendar cita ID " + idCita + ": " + e.getMessage());
-            return false;
-        }
+        return obtenerIdProfesionalPorDefecto(); // Respaldo: si no encuentra, usa el que ya tenías
     }
 }
