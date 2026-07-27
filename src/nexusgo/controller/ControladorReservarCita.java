@@ -361,7 +361,5 @@ public class ControladorReservarCita implements ActionListener {
         };
         worker.execute();
     }
-}
-    
-    
+
 }
