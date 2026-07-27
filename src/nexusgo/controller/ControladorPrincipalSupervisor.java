@@ -11,6 +11,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -160,11 +161,17 @@ public class ControladorPrincipalSupervisor implements ActionListener {
     private void abrirVistaRealizacionMantenimiento() {
         VistaRealizacionMantenimiento panelRealizar = new VistaRealizacionMantenimiento();
 
-        // Cargar lista actualizada de herramientas en el JComboBox
+        // Cargar solo las herramientas que actualmente requieren mantenimiento (osea es el filtro)
         List<Herramientas> listaHerramientas = herramientaDao.listar();
-        panelRealizar.cargarHerramientas(listaHerramientas);
+        List<Herramientas> listaFiltrada = new ArrayList<>();
+        for (Herramientas h : listaHerramientas) {
+            if ("REQUIERE_MANTENIMIENTO".equalsIgnoreCase(h.getEstadoActual())) {
+                listaFiltrada.add(h);
+            }
+        }
+        panelRealizar.cargarHerramientas(listaFiltrada);
 
-        // Preseleccionar la herramienta que se clickeó en la tabla
+        // Preseleccionar la herramienta que se clickeó en la tabla (si está en la lista filtrada)
         if (idHerramientaSeleccionada > 0) {
             panelRealizar.seleccionarHerramientaPorId(idHerramientaSeleccionada);
         }
@@ -221,8 +228,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 boolean estadoActualizado = herramientaDao.actualizarEstado(herramientaElegida.getIdHerramienta(), nuevoEstado);
 
                 String msgEstado = estadoActualizado 
-                        ? "\nEstado de la herramienta actualizado a: '" + nuevoEstado + "'." 
-                        : "\n(No se pudo actualizar el estado de la herramienta).";
+                        ? "\nEstado de la herramienta actualizado a: " + nuevoEstado : "\n(No se pudo actualizar el estado de la herramienta).";
 
                 JOptionPane.showMessageDialog(panelRealizar,
                         "¡Mantenimiento de '" + herramientaElegida.getNombreHerramienta() + "' registrado exitosamente!" + msgEstado,
