@@ -265,12 +265,11 @@ public class ControladorRegistroDeUsuarios implements ActionListener {
             // Se cierra la ventana de registro,
             this.vistaRegistro.dispose();
 
-            // Se crea la vista principal correspondiente al cliente.
-            VistaPrincipalCliente vistaCliente = new VistaPrincipalCliente("", "");//////////POR SOLUCIONAR///////////
+             VistaPrincipalCliente vistaCliente = new VistaPrincipalCliente(nombre, "Cliente");
 
-            // Se llama el controlador encargado de administrar la lógica de la vista del cliente 
-            ControladorPrincipalCliente controlCliete = new ControladorPrincipalCliente(vistaCliente);
-
+            // Se llama el controlador encargado de la vista del cliente 
+            ControladorPrincipalCliente controlCliete = new ControladorPrincipalCliente(vistaCliente, resultado);
+            
             //Se hace visible la ventana principal del cliente
             vistaCliente.setVisible(true);
 

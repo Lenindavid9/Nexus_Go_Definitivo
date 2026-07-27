@@ -25,7 +25,7 @@ public class PanelBienvenida extends JPanel {
         // Configuración del Título
         titulo = new JLabel("Hola " + nombre + " (" + rol + ") a Nexus GO");
         titulo.setForeground(Color.white);
-        titulo.setFont(new Font("Segoe UI", Font.BOLD, 30));
+        titulo.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titulo.setBounds(400, 200, 600, 40);
 
         // Configuración del Mensaje

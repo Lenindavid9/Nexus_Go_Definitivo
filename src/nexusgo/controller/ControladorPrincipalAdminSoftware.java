@@ -13,6 +13,7 @@ import nexusgo.view.VistaPrincipalAdminSoftware;
 import nexusgo.view.PanelBienvenida;
 import nexusgo.view.VistaCambioRol;
 import nexusgo.model.Usuario;
+import nexusgo.view.VistaInicioSesion;
 
 /**
  *
@@ -30,6 +31,7 @@ public class ControladorPrincipalAdminSoftware implements ActionListener {
         // Listeners para la barra lateral
         this.vista.getsidebar().bCasa.addActionListener(this);
         this.vista.getsidebar().bInventario.addActionListener(this);
+        this.vista.getBtnCerrarSesion().addActionListener(this);
 
         cargarInicioPorDefecto();
     }
@@ -41,10 +43,19 @@ public class ControladorPrincipalAdminSoftware implements ActionListener {
             PanelBienvenida bienvenida = new PanelBienvenida(usuarioLogueado.getNombre(), usuarioLogueado.getRol());
             cambiarPanel(bienvenida);
         } 
-        // Clic en CAMBIO DE ROL (Inyecta el JPanel en el centro)
+        // Clic en CAMBIO DE ROL
         else if (e.getSource() == vista.getsidebar().bInventario) {
+            // 1. Instanciar el JPanel de la vista
             VistaCambioRol panelCambioRol = new VistaCambioRol();
-            cambiarPanel(panelCambioRol); // ✅ Enrutamiento correcto para JPanel
+            
+            // 2. ⚡ INSTANCIAR Y CONECTAR EL CONTROLADOR ⚡
+            // Esto ejecuta la carga de usuarios desde la BD en la tabla
+            ControladorCambioRol controladorRol = new ControladorCambioRol(panelCambioRol);
+            
+            // 3. Renderizar en el contenedor central
+            cambiarPanel(panelCambioRol);
+        }else if (e.getSource() == vista.getBtnCerrarSesion()) {
+            ejecutarCerrarSesion();
         }
     }
 
@@ -60,5 +71,24 @@ public class ControladorPrincipalAdminSoftware implements ActionListener {
         contenedorCentral.add(nuevoPanel, BorderLayout.CENTER);
         contenedorCentral.revalidate();
         contenedorCentral.repaint();
+    }
+    
+    private void ejecutarCerrarSesion() {
+        int confirmar = JOptionPane.showConfirmDialog(
+            vista,
+            "¿Desea cerrar sesión en NEXUS GO?",
+            "Cerrar Sesión",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (confirmar == JOptionPane.YES_OPTION) {
+            vista.dispose();
+
+            VistaInicioSesion loginVista = new VistaInicioSesion();
+            new ControladorInicioSesion(loginVista);
+            loginVista.setLocationRelativeTo(null);
+            loginVista.setVisible(true);
+        }
     }
 }

@@ -32,39 +32,42 @@ public class VistaAgregarProducto extends JPanel {
     public JButton btnEditar, btnImagen, btnVolver;
     public JLabel lblNombreImagen;
     public JLabel lblTitulo; // ahora es campo de la clase, accesible desde el controlador
+    private final Color COLOR_DORADO = new Color(184, 134, 11);
+
 
     public VistaAgregarProducto() {
         setLayout(new BorderLayout());
-        setBackground(Color.WHITE);
+        setOpaque(false);
         setBorder(new EmptyBorder(20, 40, 20, 40));
 
         // --- ENCABEZADO ---
         JPanel panelHeader = new JPanel(new BorderLayout());
-        panelHeader.setBackground(Color.WHITE);
+        panelHeader.setOpaque(false);
 
-        lblTitulo = new JLabel("Agregar producto"); // valor inicial por defecto
+        lblTitulo = new JLabel("Agregar producto");
         lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 26));
-        lblTitulo.setForeground(new Color(30, 30, 30));
+        lblTitulo.setForeground(Color.BLACK);
 
         btnVolver = new JButton("< Volver al inicio");
-        btnVolver.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        btnVolver.setForeground(Color.WHITE);
+        btnVolver.setFont(new Font("SansSerif", Font.BOLD, 17));
         btnVolver.setContentAreaFilled(false);
         btnVolver.setBorderPainted(false);
         btnVolver.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        panelHeader.add(lblTitulo, BorderLayout.WEST);
+        panelHeader.add(lblTitulo, BorderLayout.CENTER);
         panelHeader.add(btnVolver, BorderLayout.EAST);
         add(panelHeader, BorderLayout.NORTH);
 
         // --- CUERPO DEL FORMULARIO ---
         JPanel panelCampos = new JPanel();
         panelCampos.setLayout(new BoxLayout(panelCampos, BoxLayout.Y_AXIS));
-        panelCampos.setBackground(Color.WHITE);
         panelCampos.setBorder(new EmptyBorder(15, 0, 15, 0));
 
-        // Estilo común para inputs
-        Font fuenteLabels = new Font("SansSerif", Font.BOLD, 14);
-        Color colorTextoLabels = new Color(60, 60, 60);
+        // Estilo para inputs
+        Font fuenteLabels = new Font("SansSerif", Font.BOLD, 18);
+        Color colorTextoLabels = Color.BLACK;
+
 
         // Nombre
         panelCampos.add(crearLabel("Nombre del producto", fuenteLabels, colorTextoLabels));
@@ -90,8 +93,8 @@ public class VistaAgregarProducto extends JPanel {
         panelCampos.add(txtCantidad);
         panelCampos.add(Box.createVerticalStrut(12));
 
-        // Precio
-        panelCampos.add(crearLabel("Precio", fuenteLabels, colorTextoLabels));
+        // Precios
+        panelCampos.add(crearLabel("Precio de Compra", fuenteLabels, colorTextoLabels));
         txtPrecio = crearTextField();
         panelCampos.add(txtPrecio);
         panelCampos.add(Box.createVerticalStrut(12));
@@ -102,7 +105,7 @@ public class VistaAgregarProducto extends JPanel {
         panelCampos.add(Box.createVerticalStrut(12));
 
         // Proveedor
-        panelCampos.add(crearLabel("proveedor", fuenteLabels, colorTextoLabels));
+        panelCampos.add(crearLabel("Proveedor", fuenteLabels, colorTextoLabels));
         txtProveedor = crearTextField();
         panelCampos.add(txtProveedor);
         panelCampos.add(Box.createVerticalStrut(12));
@@ -113,15 +116,15 @@ public class VistaAgregarProducto extends JPanel {
         panelCampos.add(txtStockMinimo);
         panelCampos.add(Box.createVerticalStrut(15));
 
-        // --- SUBIR IMAGEN ---
+        // ---------- SUBIR IMAGEN ----------
         JPanel panelImagen = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         panelImagen.setBackground(Color.WHITE);
 
         btnImagen = new JButton("Imagen del producto");
         btnImagen.setBackground(Color.WHITE);
-        btnImagen.setForeground(new Color(230, 180, 40));
+        btnImagen.setForeground(COLOR_DORADO);
         btnImagen.setFont(new Font("SansSerif", Font.BOLD, 13));
-        btnImagen.setBorder(BorderFactory.createLineBorder(new Color(230, 180, 40), 1, true));
+        btnImagen.setBorder(BorderFactory.createLineBorder(COLOR_DORADO, 1, true));
         btnImagen.setFocusPainted(false);
         btnImagen.setPreferredSize(new Dimension(160, 32));
         btnImagen.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -142,7 +145,7 @@ public class VistaAgregarProducto extends JPanel {
         panelBotonAbajo.setBorder(new EmptyBorder(10, 0, 0, 0));
 
         btnEditar = new JButton("Editar");
-        btnEditar.setBackground(new Color(254, 222, 79)); // Amarillo de tu paleta
+        btnEditar.setBackground(COLOR_DORADO);  
         btnEditar.setForeground(Color.WHITE);
         btnEditar.setFont(new Font("SansSerif", Font.BOLD, 18));
         btnEditar.setFocusPainted(false);

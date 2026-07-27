@@ -6,186 +6,131 @@ package nexusgo.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import static java.awt.Component.CENTER_ALIGNMENT;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Graphics;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 
 /**
  *
  * @author INGRID
  */
 public class PanelAdmi extends JFrame { 
-
     private JPanel principal;
     private JButton btnCerrar;
-    private JLabel TituloPrincipal, imagen, lblEstado, texto1, texto2, imgJornada, imgVentas, tituloJ, estadoJ, detalleJ, tituloVentas, actividadV, detalleVentas;
-    private JPanel pnlTarjeta, pnlEstado, Jornada, textoJornada, Ventas, textoVentas;
-
-    // Componente Barra Lateral
-    private VistaBarraLateral menuLateral;
+    private JLabel fondo;
+    
+    private VistaBarraLateral sidebar;
     public JButton btnReporte;
 
-    private final Color COLOR_DORADO = new Color(223, 205, 141);
+    // Botones explícitos para la Sidebar
+    public JButton bServicios;
+    public JButton bPromociones;
+
+    private final Color COLOR_DORADO = new Color(184, 134, 11);
 
     public PanelAdmi() {
-        super("Panel de Administración - N E X U S GO");
-        
-        // Imagen de fondo con contenedor principal
-        JLabel fondoConImagen = new JLabel(new ImageIcon("src/nexusgo/img/marmol_mejorado.jpg"));
-        fondoConImagen.setLayout(new BorderLayout());
-        this.setContentPane(fondoConImagen);
+    super("Panel de Administración - N E X U S GO");
+    
+    // 1. Fondo con imagen
+    fondo = new JLabel(new ImageIcon("src/nexusgo/img/fondoprincipal.jpg"));
+    fondo.setLayout(new BorderLayout());
+    this.setContentPane(fondo);
 
-        // --- BARRA LATERAL ---
-        menuLateral = new VistaBarraLateral();
-        menuLateral.setBackground(COLOR_DORADO);
-        menuLateral.setPreferredSize(new Dimension(250, 0));
-        menuLateral.setBorder(BorderFactory.createEmptyBorder(30, 15, 10, 15));
+    // 2. Contenedor principal
+    JPanel panelContenedor = new JPanel(new BorderLayout());
+    panelContenedor.setOpaque(false);
+    fondo.add(panelContenedor, BorderLayout.CENTER);
 
-        // --- PANEL PRINCIPAL (CONTENIDO CENTRAL) ---
-        principal = new JPanel();
-        principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
-        principal.setBackground(Color.WHITE);
-        principal.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+    // 3. Sidebar a la izquierda
+    sidebar = new VistaBarraLateral();
+    sidebar.setBackground(Color.WHITE);
+    sidebar.setPreferredSize(new Dimension(250, 0));
+    sidebar.setBorder(BorderFactory.createEmptyBorder(30, 15, 10, 15));
+    sidebar.bInventario.setVisible(false);
+    sidebar.misCitas.setVisible(false);
 
-        TituloPrincipal = new JLabel("Hola, Administrador de Peluqueria Bienvenid@ a N E X U S GO");
-        TituloPrincipal.setForeground(COLOR_DORADO);
-        TituloPrincipal.setFont(new Font("SansSerif", Font.BOLD, 32));
-        TituloPrincipal.setAlignmentX(CENTER_ALIGNMENT);
+    // Botones en la sidebar
+    bServicios = new JButton(new ImageIcon("src/nexusgo/img/aggServicios.png"));
+    bServicios.setFocusPainted(false);
+    bServicios.setOpaque(false);
+    bServicios.setContentAreaFilled(false);
+    bServicios.setBorderPainted(false);
 
-        pnlTarjeta = new JPanel();
-        pnlTarjeta.setLayout(new BoxLayout(pnlTarjeta, BoxLayout.Y_AXIS));
-        pnlTarjeta.setBackground(Color.WHITE);
-        pnlTarjeta.setPreferredSize(new Dimension(400, 400));
+    bPromociones = new JButton(new ImageIcon("src/nexusgo/img/aggProm.png"));
+    bPromociones.setBorderPainted(false);
+    bPromociones.setContentAreaFilled(false);
+    bPromociones.setFocusPainted(false);
+    bPromociones.setOpaque(false);
 
-        imagen = new JLabel(new ImageIcon("accesorapido.png"));
-        imagen.setAlignmentX(Component.CENTER_ALIGNMENT);
+    btnReporte = new JButton(new ImageIcon("src/nexusgo/img/grafica.png"));
+    btnReporte.setContentAreaFilled(false);
+    btnReporte.setBorderPainted(false);
+    btnReporte.setFocusPainted(false);
+    btnReporte.setOpaque(false);
 
-        texto1 = new JLabel("Gestión de Reportes Financieros");
-        texto1.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        texto1.setAlignmentX(Component.CENTER_ALIGNMENT);
+    sidebar.add(Box.createVerticalStrut(10));
+    sidebar.add(btnReporte);
+    sidebar.add(Box.createVerticalStrut(15));
+    sidebar.add(bServicios);
+    sidebar.add(Box.createVerticalStrut(10));
+    sidebar.add(bPromociones);
 
-        texto2 = new JLabel("Reportes");
-        texto2.setFont(new Font("SansSerif", Font.BOLD, 15));
-        texto2.setAlignmentX(Component.CENTER_ALIGNMENT);
+    panelContenedor.add(sidebar, BorderLayout.WEST);
 
-        pnlTarjeta.add(imagen);
-        pnlTarjeta.add(Box.createVerticalStrut(10));
-        pnlTarjeta.add(texto1);
-        pnlTarjeta.add(texto2);
+    // 4. Panel derecho completo
+    JPanel panelDerechoCompleto = new JPanel(new BorderLayout());
+    panelDerechoCompleto.setOpaque(false);
 
-        lblEstado = new JLabel("Estado del Sistema");
-        lblEstado.setFont(new Font("SansSerif", Font.BOLD, 22));
-        lblEstado.setAlignmentX(Component.CENTER_ALIGNMENT);
+    // Barra superior derecha
+    JPanel panelSuperiorDerecho = new JPanel(new FlowLayout(FlowLayout.RIGHT, 30, 20));
+    panelSuperiorDerecho.setOpaque(false);
 
-        pnlEstado = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 20));
-        pnlEstado.setBackground(Color.WHITE);
+    btnCerrar = new JButton("Cerrar Sesión");
+    btnCerrar.setBackground(Color.white);
+    btnCerrar.setFont(new Font("Segoe UI", Font.BOLD, 20));
+    btnCerrar.setForeground(COLOR_DORADO);
+    btnCerrar.setPreferredSize(new Dimension(190, 50));
 
-        Jornada = new JPanel(new BorderLayout());
-        Jornada.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-        Jornada.setPreferredSize(new Dimension(450, 100));
-        Jornada.setBackground(Color.WHITE);
+    panelSuperiorDerecho.add(btnCerrar);
+    panelDerechoCompleto.add(panelSuperiorDerecho, BorderLayout.NORTH);
 
-        imgJornada = new JLabel(new ImageIcon("jornada.png"));
-        imgJornada.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        Jornada.add(imgJornada, BorderLayout.WEST);
+    // 5. Panel central dinámico
+    JPanel contenido = new JPanel(new BorderLayout());
+    contenido.setOpaque(false);
 
-        textoJornada = new JPanel();
-        textoJornada.setLayout(new BoxLayout(textoJornada, BoxLayout.Y_AXIS));
-        textoJornada.setBackground(Color.WHITE);
-        textoJornada.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 10));
+    principal = new JPanel();
+    principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
+    principal.setOpaque(false);
+    principal.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
-        tituloJ = new JLabel("Jornada");
-        tituloJ.setFont(new Font("SansSerif", Font.BOLD, 16));
+    ReportesFinancieros vistaReportes = new ReportesFinancieros();
+    principal.add(vistaReportes.VistaRF());
 
-        estadoJ = new JLabel("Último estado");
-        estadoJ.setFont(new Font("SansSerif", Font.PLAIN, 12));
+    contenido.add(principal, BorderLayout.CENTER);
+    panelDerechoCompleto.add(contenido, BorderLayout.CENTER);
 
-        detalleJ = new JLabel("Sin cambios recientes. Lista para apertura");
-        detalleJ.setFont(new Font("SansSerif", Font.PLAIN, 12));
+    panelContenedor.add(panelDerechoCompleto, BorderLayout.CENTER);
 
-        textoJornada.add(tituloJ);
-        textoJornada.add(estadoJ);
-        textoJornada.add(detalleJ);
-
-        Jornada.add(textoJornada, BorderLayout.CENTER);
-
-        Ventas = new JPanel(new BorderLayout());
-        Ventas.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-        Ventas.setPreferredSize(new Dimension(450, 100));
-        Ventas.setBackground(Color.WHITE);
-
-        imgVentas = new JLabel(new ImageIcon("ventas.png"));
-        imgVentas.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        Ventas.add(imgVentas, BorderLayout.WEST);
-
-        textoVentas = new JPanel();
-        textoVentas.setLayout(new BoxLayout(textoVentas, BoxLayout.Y_AXIS));
-        textoVentas.setBackground(Color.WHITE);
-        textoVentas.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-
-        tituloVentas = new JLabel("Ventas (Punto de Venta)");
-        tituloVentas.setFont(new Font("SansSerif", Font.BOLD, 16));
-
-        actividadV = new JLabel("Actividad");
-        actividadV.setFont(new Font("SansSerif", Font.PLAIN, 12));
-
-        detalleVentas = new JLabel("Ventas Desactivadas");
-        detalleVentas.setFont(new Font("SansSerif", Font.PLAIN, 12));
-
-        textoVentas.add(tituloVentas);
-        textoVentas.add(actividadV);
-        textoVentas.add(detalleVentas);
-
-        Ventas.add(textoVentas, BorderLayout.CENTER);
-
-        pnlEstado.add(Jornada);
-        pnlEstado.add(Ventas);
-
-        principal.add(TituloPrincipal);
-        principal.add(Box.createVerticalStrut(40));
-        principal.add(pnlTarjeta);
-        principal.add(Box.createVerticalStrut(10));
-        principal.add(lblEstado);
-        principal.add(Box.createVerticalStrut(20));
-        principal.add(pnlEstado);
-
-        this.getContentPane().add(menuLateral, BorderLayout.WEST);
-        this.getContentPane().add(principal, BorderLayout.CENTER);
-
-        // Ajustes finales del marco
-        this.setSize(1250, 780);
-        this.setLocationRelativeTo(null);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    this.setSize(1250, 780);
+    this.setLocationRelativeTo(null);
+    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    setVisible(true);
     }
-
-    // --- GETTERS DE CONTROL ---
+    
     public VistaBarraLateral getMenuLateral() {
-        return menuLateral;
+        return sidebar;
     }
 
     public JButton getBtnCerrar() {
         return btnCerrar;
-    }
-    
-    public JPanel getPnlTarjeta() {
-        return pnlTarjeta;
-    }
-
-    public JPanel getPanelTarjeta() {
-        return pnlTarjeta;
     }
     
     public JButton getBtnReporte() {

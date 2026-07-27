@@ -28,7 +28,6 @@ import javax.swing.table.DefaultTableModel;
 public class VistaHistorialCita extends JPanel {
 
    private JLabel lblTitulo;
-    public JButton btnVolver;
     public JTable tablaCitas;
     private JScrollPane scrollPane;
     private JPanel contenedorBlanco;
@@ -51,14 +50,6 @@ public class VistaHistorialCita extends JPanel {
         contenedorBlanco.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
 
         // Botón Volver
-        JPanel panelVolver = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        panelVolver.setOpaque(false);
-        btnVolver = new JButton("< Volver");
-        btnVolver.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        btnVolver.setContentAreaFilled(false);
-        btnVolver.setBorderPainted(false);
-        panelVolver.add(btnVolver);
-        contenedorBlanco.add(panelVolver, BorderLayout.NORTH);
 
         // 3. TABLA
         String[] columnas = {"Nombre del servicio.", "Horario fecha y hora", "Valor"};

@@ -7,12 +7,14 @@ package nexusgo.view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.RenderingHints;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
+import static javax.swing.Box.createRigidArea;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -41,7 +43,7 @@ public class PanelCitasPeluquero extends JPanel {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setPaint(new java.awt.GradientPaint(0, 0, new Color(255, 230, 100), getWidth(), 0, new Color(255, 180, 0)));
+                g2.setPaint(new GradientPaint(0, 0, new Color(255, 230, 100), getWidth(), 0, new Color(255, 180, 0)));
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
                 g2.dispose();
                 super.paintComponent(g);
@@ -233,7 +235,7 @@ public class PanelCitasPeluquero extends JPanel {
 
         // Guardado e indexación fluida en la cola visual
         panelContenedorSolicitudes.add(tarjeta);
-        panelContenedorSolicitudes.add(javax.swing.Box.createRigidArea(new Dimension(0, 10)));
+        panelContenedorSolicitudes.add(createRigidArea(new Dimension(0, 10)));
         
         panelContenedorSolicitudes.revalidate();
         panelContenedorSolicitudes.repaint();

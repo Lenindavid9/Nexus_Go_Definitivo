@@ -12,13 +12,10 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -26,8 +23,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
-import nexusgo.model.DetalleCarrito;
 
 /**
  *
@@ -35,25 +30,33 @@ import nexusgo.model.DetalleCarrito;
  */
 public class VistaPdV extends JPanel {
 
-    private JPanel principal, panelproductos, panelBusqueda;
+    private JPanel principal, panelproductos, panelServicios, panelCombos, panelBusqueda;
     private JLabel TituloPrincipal, estado, seccion;
     private JButton facturar, btnReiniciar;
 
     public VistaPdV() {
-        setLayout(new BorderLayout());
-        setOpaque(false);
-        VistaNexus();
+        setLayout(new BorderLayout()); //Aqui definimosel layout del panel principal
+        setOpaque(false);// setOpaque es para que se elimine el fondo que viene por dfecto y se vea la imagen
+        VistaNexus(); //Aqui se llama al metodo que construye toooda la interfaz
     }
 
     public JPanel VistaNexus() {
-        this.setLayout(new BorderLayout());
+        this.setLayout(new BorderLayout());  //aqui volvemos a "re afirmar" el layout principal
+        
+        //Panel principal donde se va almacenar toda la interfaz
         principal = new JPanel();
+        // setOpaque es para que no se va el fondo predeterminado y asi que se pueda ver la imagen asignada en 
+        //la vista principal operario
         principal.setOpaque(false);
-        principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
-        principal.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+        
+        principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS)); // Con esto se organizan todos los componentes en la columna
+        principal.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40)); //Aqui se editan los margenes internos
 
+        //Siguen todos los titulos y subtitulos
         TituloPrincipal = new JLabel("Punto de Venta");
+        //Aqui se cambia el color del texto con Foreground
         TituloPrincipal.setForeground(Color.WHITE);
+        //
         TituloPrincipal.setFont(new Font("SansSerif", Font.BOLD, 35));
         TituloPrincipal.setAlignmentX(CENTER_ALIGNMENT);
 
@@ -63,6 +66,7 @@ public class VistaPdV extends JPanel {
         estado.setAlignmentX(CENTER_ALIGNMENT);
 
         seccion = new JLabel("Productos / Servicios");
+        seccion.setForeground(Color.WHITE);
         seccion.setFont(new Font("SansSerif", Font.BOLD, 26));
         seccion.setAlignmentX(CENTER_ALIGNMENT);
 
@@ -89,7 +93,25 @@ public class VistaPdV extends JPanel {
         panelproductos.setOpaque(false);
         panelproductos.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JScrollPane scroll = new JScrollPane(panelproductos);
+        panelServicios = new JPanel(new GridLayout(0, 4, 20, 20));
+        panelServicios.setOpaque(false);
+        panelServicios.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        panelCombos = new JPanel(new GridLayout(0, 4, 20, 20));
+        panelCombos.setOpaque(false);
+        panelCombos.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JPanel contenedorCatalogo = new JPanel();
+        contenedorCatalogo.setOpaque(false);
+        contenedorCatalogo.setLayout(new BoxLayout(contenedorCatalogo, BoxLayout.Y_AXIS));
+        contenedorCatalogo.add(crearEncabezadoSeccion("Productos"));
+        contenedorCatalogo.add(panelproductos);
+        contenedorCatalogo.add(crearEncabezadoSeccion("Servicios"));
+        contenedorCatalogo.add(panelServicios);
+        contenedorCatalogo.add(crearEncabezadoSeccion("Combos y Promociones"));
+        contenedorCatalogo.add(panelCombos);
+
+        JScrollPane scroll = new JScrollPane(contenedorCatalogo);
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
@@ -108,17 +130,66 @@ public class VistaPdV extends JPanel {
         return this;
     }
 
-    // Método que crea y devuelve la tarjeta junto con sus componentes accesibles
+    private JLabel crearEncabezadoSeccion(String titulo) {
+        JLabel lbl = new JLabel(titulo);
+        lbl.setForeground(Color.WHITE);
+        lbl.setFont(new Font("SansSerif", Font.BOLD, 20));
+        lbl.setAlignmentX(LEFT_ALIGNMENT);
+        lbl.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 0));
+        return lbl;
+    }
+
     public TarjetaProductoComponentes agregarTarjetaComponentes(String nombre, String precio, int stockActual, String imagenArchivo) {
+        return crearTarjetaConAccion(panelproductos, nombre, precio, Math.max(1, stockActual), imagenArchivo);
+    }
+
+    // Servicios y combos: sin límite real de stock, se permite hasta 99 por ítem.
+    public TarjetaProductoComponentes agregarTarjetaServicio(String nombre, String precio, String imagenArchivo) {
+        return crearTarjetaConAccion(panelServicios, nombre, precio, 99, imagenArchivo);
+    }
+
+    public TarjetaProductoComponentes agregarTarjetaCombo(String nombre, String precio, String imagenArchivo) {
+        return crearTarjetaConAccion(panelCombos, nombre, precio, 99, imagenArchivo);
+    }
+
+    private TarjetaProductoComponentes crearTarjetaConAccion(JPanel panelDestino, String nombre, String precio, int cantidadMaxima, String imagenArchivo) {
         JPanel tarjeta = new JPanel();
         tarjeta.setLayout(new BoxLayout(tarjeta, BoxLayout.Y_AXIS));
         tarjeta.setBackground(Color.WHITE);
         tarjeta.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         tarjeta.setPreferredSize(new Dimension(220, 320));
 
-        JLabel lblImagen = new JLabel(new ImageIcon(imagenArchivo));
+        JLabel lblImagen = new JLabel();
         lblImagen.setPreferredSize(new Dimension(200, 180));
         lblImagen.setAlignmentX(CENTER_ALIGNMENT);
+        lblImagen.setHorizontalAlignment(JLabel.CENTER);
+
+        String nombreArchivoImg = (imagenArchivo != null && !imagenArchivo.trim().isEmpty())
+                ? new java.io.File(imagenArchivo.trim()).getName() : "default.jpg";
+
+        ImageIcon iconoItem = null;
+        java.io.File archivoEnDisco = new java.io.File("img", nombreArchivoImg);
+        if (archivoEnDisco.exists()) {
+            iconoItem = new ImageIcon(archivoEnDisco.getPath());
+        }
+        if (iconoItem == null || iconoItem.getIconWidth() <= 0) {
+            java.net.URL imgURL = getClass().getResource("/nexusgo/img/" + nombreArchivoImg);
+            if (imgURL != null) {
+                iconoItem = new ImageIcon(imgURL);
+            }
+        }
+        if (iconoItem == null || iconoItem.getIconWidth() <= 0) {
+            java.net.URL defaultURL = getClass().getResource("/nexusgo/img/default.jpg");
+            iconoItem = (defaultURL != null) ? new ImageIcon(defaultURL) : null;
+        }
+        if (iconoItem != null && iconoItem.getIconWidth() > 0) {
+            java.awt.Image imgEscalada = iconoItem.getImage().getScaledInstance(200, 180, java.awt.Image.SCALE_SMOOTH);
+            lblImagen.setIcon(new ImageIcon(imgEscalada));
+        } else {
+            lblImagen.setText("[Sin Foto]");
+            lblImagen.setFont(new Font("SansSerif", Font.ITALIC, 11));
+            lblImagen.setForeground(Color.GRAY);
+        }
 
         JLabel lblTitulo = new JLabel(nombre);
         lblTitulo.setFont(new Font("SansSerif", Font.PLAIN, 13));
@@ -130,26 +201,23 @@ public class VistaPdV extends JPanel {
         lblPrecio.setBorder(BorderFactory.createEmptyBorder(0, 8, 8, 8));
         lblPrecio.setAlignmentX(LEFT_ALIGNMENT);
 
-        // Panel de acciones (Spinner + Botón Suma)
         JPanel acciones = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 5));
         acciones.setOpaque(false);
         acciones.setAlignmentX(LEFT_ALIGNMENT);
 
-        JSpinner spinnerCantidad = new JSpinner(new SpinnerNumberModel(1, 1, Math.max(1, stockActual), 1));
+        JSpinner spinnerCantidad = new JSpinner(new SpinnerNumberModel(1, 1, Math.max(1, cantidadMaxima), 1));
         spinnerCantidad.setPreferredSize(new Dimension(50, 30));
 
-        // Botón con el símbolo '+' para agregar al carrito
         JButton btnAgregar = new JButton("+");
         btnAgregar.setPreferredSize(new Dimension(40, 30));
         btnAgregar.setFont(new Font("SansSerif", Font.BOLD, 18));
-        btnAgregar.setBackground(new Color(245, 238, 213)); // Mismo estilo cálido del sistema
+        btnAgregar.setBackground(new Color(245, 238, 213));
         btnAgregar.setForeground(Color.DARK_GRAY);
         btnAgregar.setFocusPainted(false);
         btnAgregar.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
         btnAgregar.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnAgregar.setToolTipText("Agregar al carrito");
 
-        // Primero va el Spinner y luego el botón de suma (+)
         acciones.add(spinnerCantidad);
         acciones.add(btnAgregar);
 
@@ -158,9 +226,9 @@ public class VistaPdV extends JPanel {
         tarjeta.add(lblPrecio);
         tarjeta.add(acciones);
 
-        panelproductos.add(tarjeta);
-        panelproductos.revalidate();
-        panelproductos.repaint();
+        panelDestino.add(tarjeta);
+        panelDestino.revalidate();
+        panelDestino.repaint();
 
         return new TarjetaProductoComponentes(btnAgregar, spinnerCantidad);
     }
@@ -199,4 +267,14 @@ public class VistaPdV extends JPanel {
     public void agregarTarjeta(String nombre, String precio, int stockActual, String imagenArchivo) {
         agregarTarjetaComponentes(nombre, precio, stockActual, imagenArchivo);
     }
+
+//    // --- Tarjetas para Servicios y Combos ---
+//    // Todavia no se pueden vender aun me falta crear las tablas de detalle de factura
+//    public void agregarTarjetaServicio(String nombre, String precio, String imagenArchivo) {
+//        agregarTarjetaNoDisponible(panelServicios, nombre, precio, imagenArchivo, "Servicio");
+//    }
+//
+//    public void agregarTarjetaCombo(String nombre, String precio, String imagenArchivo) {
+//        agregarTarjetaNoDisponible(panelCombos, nombre, precio, imagenArchivo, "Combo");
+//    }
 }

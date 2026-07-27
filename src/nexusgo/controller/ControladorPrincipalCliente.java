@@ -4,29 +4,31 @@
  */
 package nexusgo.controller;
 
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.List;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
+
 import nexusgo.model.Producto;
 import nexusgo.model.ProductoDao;
+import nexusgo.model.PromocionCombo;
+import nexusgo.model.PromocionComboDao;
+import nexusgo.model.ServicioDao;
+import nexusgo.model.Servicios;
 import nexusgo.model.Usuario;
 import nexusgo.model.UsuarioDao;
 import nexusgo.view.VistaHistorialCita;
 import nexusgo.view.VistaHstorialPagos;
 import nexusgo.view.VistaInicioSesion;
 import nexusgo.view.VistaPrincipalCliente;
-import nexusgo.view.VistaProductoDetalles; // Confirma el nombre de tu clase Vista
+import nexusgo.view.VistaProductoDetalles;
 import nexusgo.view.VistaReservarCitas;
-
 /**
  *
  * @author USUARIO
@@ -36,29 +38,36 @@ import nexusgo.view.VistaReservarCitas;
  */
 public class ControladorPrincipalCliente implements ActionListener, MouseListener {
 
-    private final VistaPrincipalCliente vista;
+   private final VistaPrincipalCliente vista;
     private final ProductoDao productoDAO;
+    private final ServicioDao servicioDAO; 
+    private final PromocionComboDao promocionComboDAO;
+
+    // Listas independientes en memoria
     private List<Producto> listaProductos;
     private List<Producto> listaPromociones;
+    private List<PromocionCombo> listaCombos;
+    private List<Servicios> listaServicios; 
+
     private final int idUsuarioLogueado;
+
+    private ControladorReservarCita controladorReservarCita;
+    private ControladorHistorialCita controladorHistorialCita;
+    private ControladorHistorialPagos controladorHistorialPagos;
+    private ControladorDetallesProducto controladorDetallesProducto;
 
     public ControladorPrincipalCliente(VistaPrincipalCliente vista, int idUsuarioLogueado) {
         this.vista = vista;
         this.idUsuarioLogueado = idUsuarioLogueado;
+        
         this.productoDAO = new ProductoDao();
+        this.servicioDAO = new ServicioDao(); 
+        this.promocionComboDAO = new PromocionComboDao();
 
-        // Enlace de botones de la barra superior
-        if (this.vista.btnHistorial != null) {
-            this.vista.btnHistorial.addActionListener(this); // Mis Citas / Historial
-        }
-        if (this.vista.btnReservarCita != null) {
-            this.vista.btnReservarCita.addActionListener(this); // Exclusivo para Reservar Cita
-        }
-        if (this.vista.btnCerrarSesion != null) {
-            this.vista.btnCerrarSesion.addActionListener(this);
-        }
+        if (this.vista.btnHistorial != null) this.vista.btnHistorial.addActionListener(this);
+        if (this.vista.btnReservarCita != null) this.vista.btnReservarCita.addActionListener(this);
+        if (this.vista.btnCerrarSesion != null) this.vista.btnCerrarSesion.addActionListener(this);
 
-        // Enlace de botones del Sidebar (Únicamente: Casa, Mis Citas y Pagos)
         if (this.vista.sidebar != null) {
             if (this.vista.sidebar.bCasa != null) {
                 this.vista.sidebar.bCasa.addActionListener(e -> restaurarTiendaYCatalogo());
@@ -80,62 +89,111 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
 
     public void cargarCatalogo() {
         try {
+            // 1. Cargar Productos
             this.listaProductos = productoDAO.listar();
 
+            // 2. Cargar Promociones
             try {
                 this.listaPromociones = productoDAO.listarPromociones();
-            } catch (Exception exPromo) {
-                System.err.println("Aviso: No se pudieron listar promociones: " + exPromo.getMessage());
+            } catch (Exception ex) {
                 this.listaPromociones = null;
             }
 
-            this.vista.limpiarGridProductos();
-            this.vista.limpiarGridPromociones();
+            // 3. Cargar Combos
+            try {
+                this.listaCombos = promocionComboDAO.listarCombosActivos();
+            } catch (Exception ex) {
+                this.listaCombos = null;
+            }
 
+            // 4. Cargar Servicios
+            try {
+                this.listaServicios = servicioDAO.listarServiciosActivos();
+            } catch (Exception ex) {
+                this.listaServicios = null;
+            }
+
+            this.vista.restaurarComponentesTienda();
+
+            // Renderizado de Productos
             if (this.listaProductos != null) {
                 for (Producto p : this.listaProductos) {
-                    this.vista.agregarTarjetaProducto(
-                            p.getIdProducto(),
-                            p.getNombreProducto(),
-                            p.getPrecioVenta(),
-                            p.getUrlImagen(),
-                            this
-                    );
+                    this.vista.agregarTarjetaProducto(p.getIdProducto(), p.getNombreProducto(), p.getPrecioVenta(), p.getUrlImagen(), this);
                 }
             }
 
+            // Renderizado de Promociones
             if (this.listaPromociones != null) {
                 for (Producto promo : this.listaPromociones) {
-                    this.vista.agregarTarjetaPromocion(
-                            promo.getIdProducto(),
-                            promo.getNombreProducto(),
-                            promo.getPrecioVenta(),
-                            promo.getUrlImagen(),
-                            this
-                    );
+                    this.vista.agregarTarjetaPromocion(promo.getIdProducto(), promo.getNombreProducto(), promo.getPrecioVenta(), promo.getUrlImagen(), this);
                 }
+            }
+
+            // Renderizado de Combos
+            if (this.listaCombos != null) {
+                for (PromocionCombo combo : this.listaCombos) {
+                    this.vista.agregarTarjetaCombo(combo.getIdPromocion(), combo.getNombreCombo(), combo.getPrecioCombo(), combo.getRutaImagen(), this);
+                }
+            }
+
+            // Renderizado de Servicios
+            if (this.listaServicios != null) {
+                for (Servicios serv : this.listaServicios) {
+                    this.vista.agregarTarjetaServicio(serv.getIdServicio(), serv.getNombreServicio(), serv.getPrecio(), "/nexusgo/img/default.jpg", this);
+                }
+            }
+
+            if (this.vista.getContenidoCentralDinamico() != null) {
+                this.vista.getContenidoCentralDinamico().revalidate();
+                this.vista.getContenidoCentralDinamico().repaint();
             }
 
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(vista,
-                    "Error al conectar con el catálogo de productos: " + ex.getMessage(),
-                    "Error de Sistema",
-                    JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         }
     }
 
-    private Producto buscarProductoPorId(int id) {
-        if (listaProductos != null) {
-            for (Producto prod : listaProductos) {
-                if (prod.getIdProducto() == id) {
-                    return prod;
+    private Producto buscarYAdaptarElemento(String identificadorCompleto) {
+        if (identificadorCompleto == null) return null;
+
+        if (identificadorCompleto.startsWith("PROD_")) {
+            int id = Integer.parseInt(identificadorCompleto.replace("PROD_", ""));
+            if (listaProductos != null) {
+                for (Producto prod : listaProductos) if (prod.getIdProducto() == id) return prod;
+            }
+        } else if (identificadorCompleto.startsWith("PROMO_")) {
+            int id = Integer.parseInt(identificadorCompleto.replace("PROMO_", ""));
+            if (listaPromociones != null) {
+                for (Producto promo : listaPromociones) if (promo.getIdProducto() == id) return promo;
+            }
+        } else if (identificadorCompleto.startsWith("COMBO_")) {
+            int id = Integer.parseInt(identificadorCompleto.replace("COMBO_", ""));
+            if (listaCombos != null) {
+                for (PromocionCombo combo : listaCombos) {
+                    if (combo.getIdPromocion() == id) {
+                        Producto p = new Producto();
+                        p.setIdProducto(combo.getIdPromocion());
+                        p.setNombreProducto(combo.getNombreCombo());
+                        p.setPrecioVenta(combo.getPrecioCombo());
+                        p.setDescripcion(combo.getDescripcion());
+                        p.setUrlImagen(combo.getRutaImagen());
+                        return p;
+                    }
                 }
             }
-        }
-        if (listaPromociones != null) {
-            for (Producto promo : listaPromociones) {
-                if (promo.getIdProducto() == id) {
-                    return promo;
+        } else if (identificadorCompleto.startsWith("SERV_")) {
+            int id = Integer.parseInt(identificadorCompleto.replace("SERV_", ""));
+            if (listaServicios != null) {
+                for (Servicios serv : listaServicios) {
+                    if (serv.getIdServicio() == id) {
+                        Producto p = new Producto();
+                        p.setIdProducto(serv.getIdServicio());
+                        p.setNombreProducto(serv.getNombreServicio());
+                        p.setPrecioVenta(serv.getPrecio());
+                        p.setDescripcion(serv.getDescripcion());
+                        p.setUrlImagen("/nexusgo/img/default.jpg");
+                        return p;
+                    }
                 }
             }
         }
@@ -150,7 +208,6 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
         if (origen instanceof JComponent) {
             JComponent comp = (JComponent) origen;
             idStr = comp.getName();
-
             if (idStr == null && comp.getParent() != null) {
                 idStr = comp.getParent().getName();
             }
@@ -158,12 +215,11 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
 
         if (idStr != null) {
             try {
-                int idProducto = Integer.parseInt(idStr);
-                Producto productoSeleccionado = buscarProductoPorId(idProducto);
+                Producto elementoSeleccionado = buscarYAdaptarElemento(idStr);
 
-                if (productoSeleccionado != null) {
+                if (elementoSeleccionado != null) {
                     VistaProductoDetalles panelDetalle = new VistaProductoDetalles();
-                    new ControladorDetallesProducto(panelDetalle, productoSeleccionado, this);
+                    this.controladorDetallesProducto = new ControladorDetallesProducto(panelDetalle, elementoSeleccionado, this);
 
                     JPanel contenedor = vista.getContenidoCentralDinamico();
                     if (contenedor != null) {
@@ -174,62 +230,48 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
                         hacerScrollArriba(contenedor);
                     }
                 }
-            } catch (NumberFormatException ignored) {
-            }
+            } catch (NumberFormatException ignored) {}
         }
     }
 
-    @Override
-    public void mousePressed(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-    }
+    @Override public void mousePressed(MouseEvent e) {}
+    @Override public void mouseReleased(MouseEvent e) {}
+    @Override public void mouseEntered(MouseEvent e) {}
+    @Override public void mouseExited(MouseEvent e) {}
 
     @Override
     public void actionPerformed(ActionEvent e) {
         Object origen = e.getSource();
 
-        // Botón exclusivo superior
         if (origen == vista.btnReservarCita) {
             abrirVistaReservarCitas();
-        }
-
-        if (origen == vista.btnHistorial) {
+        } else if (origen == vista.btnHistorial) {
             abrirVistaHistorialCitas();
-        }
-
-        if (origen == vista.btnCerrarSesion) {
-            int respuesta = JOptionPane.showConfirmDialog(vista,
-                    "¿Estás seguro de que deseas cerrar tu sesión en Nexus GO?",
-                    "Cerrar Sesión",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE);
-
-            if (respuesta == JOptionPane.YES_OPTION) {
-                vista.dispose();
-                VistaInicioSesion login = new VistaInicioSesion();
-                new ControladorInicioSesion(login);
-                login.setVisible(true);
-            }
+        } else if (origen == vista.btnCerrarSesion) {
+            confirmarCerrarSesion();
         }
     }
 
-    /**
-     * Carga el módulo de Historial de Citas.
-     */
+    private void confirmarCerrarSesion() {
+        int respuesta = JOptionPane.showConfirmDialog(
+                vista,
+                "¿Estás seguro de que deseas cerrar tu sesión en Nexus GO?",
+                "Cerrar Sesión",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (respuesta == JOptionPane.YES_OPTION) {
+            vista.dispose();
+            VistaInicioSesion login = new VistaInicioSesion();
+            new ControladorInicioSesion(login);
+            login.setVisible(true);
+        }
+    }
+
     public void abrirVistaHistorialCitas() {
         VistaHistorialCita panelHistorial = new VistaHistorialCita();
-        new ControladorHistorialCita(panelHistorial, vista, this.idUsuarioLogueado);
+        this.controladorHistorialCita = new ControladorHistorialCita(panelHistorial, vista, this.idUsuarioLogueado);
 
         JPanel contenedor = vista.getContenidoCentralDinamico();
         if (contenedor != null) {
@@ -241,9 +283,6 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
         }
     }
 
-    /**
-     * Carga el módulo de Historial de Pagos / Facturas.
-     */
     public void abrirVistaHistorialPagos() {
         VistaHstorialPagos panelPagos = new VistaHstorialPagos();
 
@@ -255,7 +294,7 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
             usuario.setIdUsuario(this.idUsuarioLogueado);
         }
 
-        new ControladorHistorialPagos(panelPagos, usuario);
+        this.controladorHistorialPagos = new ControladorHistorialPagos(panelPagos, usuario);
 
         JPanel contenedor = vista.getContenidoCentralDinamico();
         if (contenedor != null) {
@@ -267,13 +306,9 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
         }
     }
 
-    /**
-     * Carga el módulo para reservar nuevas citas (Accedido únicamente desde
-     * btnReservarCita).
-     */
     private void abrirVistaReservarCitas() {
         VistaReservarCitas panelReserva = new VistaReservarCitas();
-        new ControladorReservarCita(panelReserva, vista, this.idUsuarioLogueado);
+        this.controladorReservarCita = new ControladorReservarCita(panelReserva, vista, this.idUsuarioLogueado);
 
         JPanel contenedor = vista.getContenidoCentralDinamico();
         if (contenedor != null) {
@@ -285,11 +320,7 @@ public class ControladorPrincipalCliente implements ActionListener, MouseListene
         }
     }
 
-    /**
-     * Regresa a la vista principal / catálogo (Accedido desde el botón Casa).
-     */
     public void restaurarTiendaYCatalogo() {
-        this.vista.restaurarComponentesTienda();
         cargarCatalogo();
     }
 

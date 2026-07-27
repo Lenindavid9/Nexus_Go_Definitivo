@@ -6,83 +6,43 @@ package nexusgo.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import static java.awt.Component.LEFT_ALIGNMENT;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.time.LocalDate;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
+import nexusgo.model.ReporteDao;
+import nexusgo.model.ReporteFinanciero;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.category.DefaultCategoryDataset;
 
 /**
  *
  * @author INGRID
  */
 public class ReportesFinancieros extends JPanel {
-    
-    private JPanel titulo, menu, principal;
-    private JButton btnInicio, btnCerrar, btnHistorialMH, btnProcesar;
-    private JLabel logoyNombre;
-    private JPanel OpcTitulo;
+
+    private JPanel principal, panelGrafica;
+    private JButton btnProcesar;
     private JComboBox<String> comboMes, comboAnio;
     private JTable tablaReporte;
     private DefaultTableModel modeloTabla;
 
-    private final Color COLOR_CAFE_OSCURO = new Color(62, 58, 46);
     private final Color COLOR_DORADO = new Color(223, 205, 141);
 
     public JPanel VistaRF() {
         this.setLayout(new BorderLayout());
         this.setBackground(Color.white);
-
-        titulo = new JPanel(new BorderLayout());
-        titulo.setBackground(COLOR_CAFE_OSCURO);
-        titulo.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-
-        Icon iconLogo = new ImageIcon("logo.png"); 
-        logoyNombre = new JLabel("Reportes Financieros  - N E X U S", iconLogo, SwingConstants.LEFT);
-        logoyNombre.setForeground(Color.WHITE);
-        logoyNombre.setFont(new Font("SansSerif", Font.BOLD, 22));
-        titulo.add(logoyNombre, BorderLayout.WEST);
-
-        OpcTitulo = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
-        OpcTitulo.setOpaque(false);
-        
-        btnCerrar = new JButton("Cerrar Sesion");
-        btnCerrar.setFont(new Font("SansSerif", Font.BOLD, 15));
-        btnCerrar.setForeground(Color.WHITE);
-        btnCerrar.setContentAreaFilled(false);
-        btnCerrar.setBorderPainted(false);
-        
-        OpcTitulo.add(btnCerrar);
-        titulo.add(OpcTitulo, BorderLayout.EAST);
-
-        menu = new JPanel();
-        menu.setLayout(new BoxLayout(menu, BoxLayout.Y_AXIS));
-        menu.setBackground(COLOR_DORADO);
-        menu.setPreferredSize(new Dimension(250, 0));
-        menu.setBorder(BorderFactory.createEmptyBorder(30, 15, 10, 15)); 
-
-        btnInicio = new JButton("Inicio");
-        btnHistorialMH = new JButton("Historial Mantenimiento Herramientas");
-
-        BotonMenu(btnInicio);
-        BotonMenu(btnHistorialMH);
-
-        menu.add(btnInicio);
-        menu.add(Box.createVerticalStrut(20));
-        menu.add(btnHistorialMH);
 
         principal = new JPanel();
         principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS));
@@ -97,7 +57,7 @@ public class ReportesFinancieros extends JPanel {
         int mesActual = fechaActual.getMonthValue();
 
         comboAnio = new JComboBox<>();
-        for (int i = anioActual; i <= anioActual + 5; i++) {
+        for (int i = anioActual - 10; i <= anioActual + 5; i++) {
             comboAnio.addItem(String.valueOf(i));
         }
 
@@ -108,11 +68,31 @@ public class ReportesFinancieros extends JPanel {
         };
 
         comboMes = new JComboBox<>();
-        for (int i = mesActual - 1; i < meses.length; i++) {
-            comboMes.addItem(meses[i]);
+        for (String mes : meses) {
+            comboMes.addItem(mes);
         }
 
         btnProcesar = new JButton("Procesar Reporte");
+        // Después de filtros.add(btnProcesar);
+        btnProcesar.addActionListener(e -> {
+    String mesSeleccionado = (String) comboMes.getSelectedItem();
+    String anioSeleccionado = (String) comboAnio.getSelectedItem();
+
+    int mesNum = obtenerNumeroMes(mesSeleccionado);
+    int anioNum = Integer.parseInt(anioSeleccionado);
+
+    ReporteDao dao = new ReporteDao();
+    ReporteFinanciero reporte = dao.obtenerReporte(mesNum, anioNum);
+
+    modeloTabla.setValueAt(reporte.getSumaServicios(), 0, 0);
+    modeloTabla.setValueAt(reporte.getSumaPromociones(), 0, 1);
+    modeloTabla.setValueAt(reporte.getTotalNeto(), 0, 2);
+    modeloTabla.setValueAt(reporte.getServicioMes(), 0, 3);
+
+    actualizarGrafica();
+});
+
+
 
         filtros.add(new JLabel("Mes:"));
         filtros.add(comboMes);
@@ -132,7 +112,7 @@ public class ReportesFinancieros extends JPanel {
         modeloTabla = new DefaultTableModel(columnas, 1) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; 
+                return false;
             }
         };
 
@@ -148,32 +128,18 @@ public class ReportesFinancieros extends JPanel {
         scrollTabla.setPreferredSize(new Dimension(600, 80));
         principal.add(Box.createVerticalStrut(20));
         principal.add(scrollTabla);
-        
-        this.add(titulo, BorderLayout.NORTH);
-        this.add(menu, BorderLayout.WEST);
+        principal.add(Box.createVerticalStrut(20));
+
+        panelGrafica = new JPanel();
+        panelGrafica.setLayout(new BoxLayout(panelGrafica, BoxLayout.Y_AXIS));
+        panelGrafica.setBackground(Color.white);
+        principal.add(panelGrafica);
+
+        actualizarGrafica();
         this.add(principal, BorderLayout.CENTER);
 
         return this;
-    }
 
-    private void BotonMenu(JButton boton) {
-        boton.setFont(new Font("SansSerif", Font.BOLD, 16));
-        boton.setContentAreaFilled(false);
-        boton.setBorderPainted(false);
-        boton.setHorizontalAlignment(SwingConstants.LEFT);
-        boton.setAlignmentX(LEFT_ALIGNMENT);
-    }
-    
-    public JButton getBtnInicio() {
-        return btnInicio;
-    }
-
-    public JButton getBtnCerrar() {
-        return btnCerrar;
-    }
-
-    public JButton getBtnHistorialMH() {
-        return btnHistorialMH;
     }
 
     public JButton getBtnProcesar() {
@@ -195,4 +161,66 @@ public class ReportesFinancieros extends JPanel {
     public DefaultTableModel getModeloTabla() {
         return modeloTabla;
     }
+    
+    
+
+    private ChartPanel crearGrafica() {
+        Object val0 = modeloTabla.getValueAt(0, 0);
+        Object val1 = modeloTabla.getValueAt(0, 1);
+        Object val2 = modeloTabla.getValueAt(0, 2);
+
+        double servicios = val0 != null ? Double.parseDouble(val0.toString()) : 0;
+        double promociones = val1 != null ? Double.parseDouble(val1.toString()) : 0;
+        double total = val2 != null ? Double.parseDouble(val2.toString()) : 0;
+
+        if (servicios == 0 && promociones == 0 && total == 0) {
+            return null;
+        }
+
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        dataset.addValue(servicios, "Ingresos", "Servicios/Productos");
+        dataset.addValue(promociones, "Ingresos", "Promociones/Descuentos");
+        dataset.addValue(total, "Ingresos", "Total Neto");
+
+        JFreeChart chart = ChartFactory.createBarChart(
+                "Reporte Financiero", "Categoría", "Valor", dataset
+        );
+
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new Dimension(600, 400));
+        return chartPanel;
+    }
+
+    public void actualizarGrafica() {
+        panelGrafica.removeAll();
+
+        ChartPanel nuevaGrafica = crearGrafica();
+        if (nuevaGrafica != null) {
+            panelGrafica.add(Box.createVerticalStrut(20));
+            panelGrafica.add(nuevaGrafica);
+        }
+
+        panelGrafica.revalidate();
+        panelGrafica.repaint();
+    }
+    
+    private int obtenerNumeroMes(String mes) {
+    switch (mes) {
+        case "Enero": return 1;
+        case "Febrero": return 2;
+        case "Marzo": return 3;
+        case "Abril": return 4;
+        case "Mayo": return 5;
+        case "Junio": return 6;
+        case "Julio": return 7;
+        case "Agosto": return 8;
+        case "Septiembre": return 9;
+        case "Octubre": return 10;
+        case "Noviembre": return 11;
+        case "Diciembre": return 12;
+        default: return 0;
+    }
+}
+
+
 }

@@ -8,7 +8,7 @@ import javax.swing.JFrame;
 import nexusgo.controller.ControladorInicioSesion;
 import nexusgo.view.VistaInicioSesion;
 
-    /**
+/**
  *
  * @author USUARIO
  */

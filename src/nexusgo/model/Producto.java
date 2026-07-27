@@ -112,4 +112,9 @@ public class Producto {
         this.urlImagen = urlImagen;
     }
 
+    @Override
+    public String toString() {
+        return this.nombreProducto + " - $" + this.precioVenta;
+    }
+
 }

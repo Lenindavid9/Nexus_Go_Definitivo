@@ -19,12 +19,10 @@ import nexusgo.view.VistaPrincipalPeluquero;
  *
  * @author HOME
  */
-
 public class ControladorPrincipalPeluquero implements ActionListener {
 
     private final VistaPrincipalPeluquero vista;
     private final Usuario usuarioLogueado;
-
 
     public ControladorPrincipalPeluquero(VistaPrincipalPeluquero vista, Usuario usuarioLogueado) {
         this.vista = vista;
@@ -49,15 +47,13 @@ public class ControladorPrincipalPeluquero implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Object botonPresionado = e.getSource();
 
+        // 1. BOTÓN INICIO
         if (botonPresionado == vista.btnInicio) {
-            // A. Limpiamos cualquier subvista previa (Inventario, Citas, etc.)
             JPanel contenedorDinamico = vista.getContenidoCentralDinamico();
             contenedorDinamico.removeAll();
 
-            // B. Llamamos al método de la vista que vuelve a ensamblar la pantalla principal
             vista.restaurarComponentesPrincipales();
 
-            // C. Revalidamos y redibujamos el contenedor para que Swing renderice la vista inicial
             contenedorDinamico.revalidate();
             contenedorDinamico.repaint();
         } // 2. BOTÓN INVENTARIO
@@ -73,20 +69,24 @@ public class ControladorPrincipalPeluquero implements ActionListener {
         } // 3. BOTÓN CITAS
         else if (botonPresionado == vista.btnCitas) {
             try {
+                // Instanciación limpia del panel con las correcciones en LGoodDatePicker
                 PanelModificarCita panelCitas = new PanelModificarCita();
-                new ControladorAgendaCitasPeluquero(panelCitas, vista);
+
+                // Enlace con el controlador de citas pasando la referencia de la vista principal
+                new ControladorModificarCitas(panelCitas, usuarioLogueado.getIdUsuario(), this);
+
                 cambiarPanelCentral(panelCitas);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(vista, "Error al abrir gestión de citas: " + ex.getMessage(),
                         "Error de Navegación", JOptionPane.ERROR_MESSAGE);
             }
-        } // 4. BOTÓN CERRAR SESIÓN / REGISTRAR SALIDA
+        } // 4. BOTÓN CERRAR SESIÓN
         else if (botonPresionado == vista.btnCerrarSesion) {
             ejecutarCerrarSesion();
         }
     }
 
-    private void ejecutarCerrarSesion() {
+    public void ejecutarCerrarSesion() {
         int confirmacion = JOptionPane.showConfirmDialog(
                 vista,
                 "¿Desea cerrar la sesión y registrar su salida?",
@@ -95,9 +95,9 @@ public class ControladorPrincipalPeluquero implements ActionListener {
         );
 
         if (confirmacion == JOptionPane.YES_OPTION) {
-            vista.dispose(); // Cierra la ventana actual
+            vista.dispose(); // Cierra la ventana principal
 
-            // Abre la pantalla de Login para un nuevo inicio de sesión
+            // Retorno al Login de la aplicación
             VistaInicioSesion loginVista = new VistaInicioSesion();
             new ControladorInicioSesion(loginVista);
             loginVista.setLocationRelativeTo(null);
@@ -111,10 +111,7 @@ public class ControladorPrincipalPeluquero implements ActionListener {
         contenedorDinamico.setLayout(new BorderLayout());
         contenedorDinamico.add(nuevoPanel, BorderLayout.CENTER);
 
-        // Refresco indispensable en Swing para evitar pantallas vacías
         contenedorDinamico.revalidate();
         contenedorDinamico.repaint();
     }
-    
-    
 }

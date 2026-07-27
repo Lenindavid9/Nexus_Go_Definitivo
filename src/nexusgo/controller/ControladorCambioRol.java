@@ -12,99 +12,99 @@ import nexusgo.model.Usuario;
 import nexusgo.model.UsuarioDao;
 import nexusgo.view.VistaCambioRol;
 
+/*
+TableModelListener es una interfaz de Java Swing que se utiliza para "escuchar" o detectar cualquier cambio en los 
+datos de un modelo de tabla (TableModel). Permite que tu aplicación reaccione automáticamente (por ejemplo, recalculando totales
+o guardando cambios) cuando un usuario edita, agrega o elimina una celda en un JTable
+*/
 /**
  *
  * @author USUARIO
  */
-public class ControladorCambioRol {
+public class ControladorCambioRol implements TableModelListener{
     
-    private final VistaCambioRol vista;
+   private final VistaCambioRol vista;
     private final UsuarioDao usuarioDAO;
-    private boolean cargando = false; // Bandera para omitir eventos cuando la tabla se está poblando
+    private boolean cargando = false; 
 
     public ControladorCambioRol(VistaCambioRol vista) {
         this.vista = vista;
         this.usuarioDAO = new UsuarioDao();
 
-        // 1. Cargar usuarios al inicializar el controlador
+        // 1. Escuchar eventos de modificación en la tabla
+        if (this.vista.getModelo() != null) {
+            this.vista.getModelo().addTableModelListener(this);
+        }
+
+        // 2. Poblar la tabla de inmediato al iniciar
         cargarUsuarios();
-
-        // 2. Escuchar la edición directa en la celda de la columna ROL (Índice 3)
-        this.vista.getModelo().addTableModelListener(new TableModelListener() {
-            @Override
-            public void tableChanged(TableModelEvent e) {
-                // Ignorar si la tabla apenas se está llenando o si no es un evento de actualización
-                if (cargando || e.getType() != TableModelEvent.UPDATE) {
-                    return;
-                }
-
-                // Columna 3 = ROL
-                if (e.getColumn() == 3) {
-                    int fila = e.getFirstRow();
-
-                    String numIdentificacion = vista.getModelo().getValueAt(fila, 0).toString();
-                    String nuevoRol = vista.getModelo().getValueAt(fila, 3).toString();
-                    String nombreCompleto = vista.getModelo().getValueAt(fila, 1).toString() + " " 
-                                          + vista.getModelo().getValueAt(fila, 2).toString();
-
-                    int opcion = JOptionPane.showConfirmDialog(
-                        vista,
-                        "¿Desea cambiar el rol de " + nombreCompleto + " a '" + nuevoRol + "'?",
-                        "Confirmar Cambio de Rol",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE
-                    );
-
-                    if (opcion == JOptionPane.YES_OPTION) {
-                        boolean ok = usuarioDAO.actualizarRol(numIdentificacion, nuevoRol);
-
-                        if (ok) {
-                            JOptionPane.showMessageDialog(vista, 
-                                    "Rol actualizado con éxito.", 
-                                    "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(vista, 
-                                    "No se pudo actualizar el rol en la base de datos.", 
-                                    "Error BD", JOptionPane.ERROR_MESSAGE);
-                            cargarUsuarios(); // Restaurar valor previo
-                        }
-                    } else {
-                        cargarUsuarios(); // Restaurar valor previo en caso de cancelación
-                    }
-                }
-            }
-        });
     }
 
-    /**
-     * Consulta los usuarios a través de UsuarioDao y actualiza el DefaultTableModel de la vista.
-     */
     public final void cargarUsuarios() {
-        cargando = true; // Desactiva temporalmente el listener
-        vista.getModelo().setRowCount(0); // Limpia filas viejas
+        cargando = true; // Pausa el listener para que no salte durante el llenado
 
-        List<Usuario> lista = usuarioDAO.listarUsuarios();
+        try {
+            vista.getModelo().setRowCount(0); // Limpia datos previos
 
-        // Mensaje de depuración en consola para verificar qué retorna el DAO
-        if (lista == null) {
-            System.err.println("⚠️ [ControladorCambioRol]: La consulta retornó NULL. Revisa la conexión o la sintaxis SQL.");
-        } else if (lista.isEmpty()) {
-            System.out.println("ℹ️ [ControladorCambioRol]: La base de datos no devolvió registros.");
-        } else {
-            System.out.println("✅ [ControladorCambioRol]: Cargados " + lista.size() + " usuarios correctamente.");
-            for (Usuario u : lista) {
-                Object[] fila = new Object[]{
-                    u.getIdentificacion(),
-                    u.getNombre(),
-                    u.getApellido(),
-                    u.getRol(),
-                    u.getCorreo()
-                };
-                vista.getModelo().addRow(fila);
+            List<Usuario> lista = usuarioDAO.listarUsuarios();
+
+            if (lista != null && !lista.isEmpty()) {
+                for (Usuario u : lista) {
+                    Object[] fila = new Object[]{
+                        String.valueOf(u.getIdentificacion()),
+                        u.getNombre(),
+                        u.getApellido(),
+                        u.getRol(),
+                        u.getCorreo()
+                    };
+                    vista.getModelo().addRow(fila);
+                }
+                System.out.println("✅ [Controlador] " + lista.size() + " usuarios cargados.");
+            } else {
+                System.out.println("ℹ️ [Controlador] Sin datos devueltos por la BD.");
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Error al popular tabla: " + e.getMessage());
+        } finally {
+            cargando = false; // Reactiva el listener
+        }
+    }
+
+    @Override
+    public void tableChanged(TableModelEvent e) {
+        // Ignora eventos si estamos cargando o si no son de edición (UPDATE)
+        if (cargando || e.getType() != TableModelEvent.UPDATE) {
+            return;
+        }
+
+        // Solo actua si se cambió la columna ROL (Índice 3)
+        if (e.getColumn() == 3) {
+            int fila = e.getFirstRow();
+
+            String doc = vista.getModelo().getValueAt(fila, 0).toString();
+            String nuevoRol = vista.getModelo().getValueAt(fila, 3).toString();
+            String nombre = vista.getModelo().getValueAt(fila, 1).toString() + " " + vista.getModelo().getValueAt(fila, 2).toString();
+
+            int confirmacion = JOptionPane.showConfirmDialog(
+                vista,
+                "¿Deseas cambiar el rol de " + nombre + " a '" + nuevoRol + "'?",
+                "Confirmar Cambio",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (confirmacion == JOptionPane.YES_OPTION) {
+                boolean exito = usuarioDAO.actualizarRol(doc, nuevoRol);
+
+                if (exito) {
+                    JOptionPane.showMessageDialog(vista, "Rol actualizado con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(vista, "Error al actualizar en Base de Datos.", "Error", JOptionPane.ERROR_MESSAGE);
+                    cargarUsuarios(); // Revertir cambio
+                }
+            } else {
+                cargarUsuarios(); // Revertir selección
             }
         }
-        
-        cargando = false; // Reactiva la escucha de eventos
     }
-    
 }

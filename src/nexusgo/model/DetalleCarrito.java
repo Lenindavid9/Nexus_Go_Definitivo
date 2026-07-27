@@ -15,18 +15,33 @@ public class DetalleCarrito {
     private double precioUnitario;
     private int cantidad;
     private double subtotal; // Atributo opcional para asignación directa
+    private String tipo = "PRODUCTO"; // PRODUCTO, SERVICIO O COMBO
 
-    // Constructor completo
+    // Constructor completo (compatibilidad: asume tipo "PRODUCTO")
     public DetalleCarrito(int idProducto, String nombreProducto, double precioUnitario, int cantidad) {
+        this(idProducto, nombreProducto, precioUnitario, cantidad, "PRODUCTO");
+    }
+
+    // Constructor completo indicando el tipo de ítem (PRODUCTO, SERVICIO o COMBO)
+    public DetalleCarrito(int idProducto, String nombreProducto, double precioUnitario, int cantidad, String tipo) {
         this.idProducto = idProducto;
         this.nombreProducto = nombreProducto;
         this.precioUnitario = precioUnitario;
         this.cantidad = cantidad;
         this.subtotal = precioUnitario * cantidad;
+        this.tipo = tipo;
     }
 
     // Constructor vacío (necesario para instanciación mediante getters/setters)
     public DetalleCarrito() {
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
 
     // Getters y Setters

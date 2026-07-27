@@ -4,13 +4,15 @@
  */
 package nexusgo.model;
 
+import java.util.Date;
 import javax.swing.JFrame;
+import java.sql.Time;
 
 /**
  *
  * @author HOME
  */
-public class Cita extends JFrame {
+public class Cita {
 
     private int idCita;
     private int idCliente;
@@ -18,17 +20,21 @@ public class Cita extends JFrame {
     private int idServicio;
     private String fechaHoraProgramada; // Formato "yyyy-MM-dd HH:mm:ss"
     private String estado;
+    private Date fechaCita;
+    private Time horaCita;
+    private String nombreCliente;
+    private String nombreServicio;
 
     public Cita() {
         this.estado = "PENDIENTE";
     }
 
     public Cita(int idCliente, int idProfesional, int idServicio, String fechaHoraProgramada) {
+        this();
         this.idCliente = idCliente;
         this.idProfesional = idProfesional;
         this.idServicio = idServicio;
         this.fechaHoraProgramada = fechaHoraProgramada;
-        this.estado = "PENDIENTE";
     }
 
     // Getters y Setters
@@ -78,5 +84,37 @@ public class Cita extends JFrame {
 
     public void setEstado(String estado) {
         this.estado = estado;
+    }
+
+    public Date getFechaCita() {
+        return fechaCita;
+    }
+
+    public void setFechaCita(Date fechaCita) {
+        this.fechaCita = fechaCita;
+    }
+
+    public Time getHoraCita() {
+        return horaCita;
+    }
+
+    public void setHoraCita(Time horaCita) {
+        this.horaCita = horaCita;
+    }
+
+    public String getNombreCliente() {
+        return nombreCliente;
+    }
+
+    public void setNombreCliente(String nombreCliente) {
+        this.nombreCliente = nombreCliente;
+    }
+
+    public String getNombreServicio() {
+        return nombreServicio;
+    }
+
+    public void setNombreServicio(String nombreServicio) {
+        this.nombreServicio = nombreServicio;
     }
 }

@@ -8,16 +8,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-
 /**
  *
  * @author USUARIO
  */
 public class MantenimientoDao {
-    
+
     Conexion conexion = new Conexion();
-    
-    
+
+
     public boolean registrarProgramacion(Mantenimiento mant) {
         String sql = """
                      INSERT INTO mantenimientos 
@@ -25,27 +24,30 @@ public class MantenimientoDao {
                      VALUES (?, ?, ?, ?, ?)
                      """;
 
-        // Al declararse dentro del try, los recursos se cierran solos automáticamente
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, mant.getIdHerramienta());
-            // .toUpperCase() asegura cumplir con el ENUM ('PREVENTIVO' o 'CORRECTIVO') de la BD
-            ps.setString(2, mant.getTipoMantenimiento().toUpperCase()); 
-            // Conversión de java.util.Date a java.sql.Date
-            ps.setDate(3, new java.sql.Date(mant.getFechaProgramada().getTime()));
-            ps.setString(4, mant.getEvidenciaNotas());
+            // .toUpperCase() para cumplir con el ENUM de MySQL
+            ps.setString(2, mant.getTipoMantenimiento() != null ? mant.getTipoMantenimiento().toUpperCase() : "PREVENTIVO");
+
+            // Si fechaHora o fechaProgramada es un String o Date, convertir adecuadamente
+            if (mant.getFechaHora() != null) {
+                ps.setString(3, mant.getFechaHora());
+            } else {
+                ps.setDate(3, new java.sql.Date(System.currentTimeMillis()));
+            }
+
+            // Usamos observaciones que es el atributo definido en Mantenimiento.java
+            ps.setString(4, mant.getObservaciones());
             ps.setInt(5, mant.getIdTecnicoResponsable());
 
             int filasAfectadas = ps.executeUpdate();
-            return filasAfectadas > 0; // Retorna true si se insertó el registro sin problemas
+            return filasAfectadas > 0;
 
         } catch (SQLException e) {
             System.out.println("Error al registrar programación de mantenimiento: " + e.getMessage());
             return false;
         }
     }
-    
-    
-    
+
 }

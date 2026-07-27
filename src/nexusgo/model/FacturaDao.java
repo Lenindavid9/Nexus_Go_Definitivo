@@ -28,11 +28,15 @@ public class FacturaDao {
      */
     public boolean guardarFactura(Factura factura) {
         String sqlFactura = "INSERT INTO facturas (id_cita, id_cliente, id_caja, subtotal, descuento_aplicado, total) VALUES (?, ?, ?, ?, ?, ?)";
-        String sqlDetalle = "INSERT INTO detalle_factura_productos (id_factura, id_producto, cantidad, precio_unitario_historico) VALUES (?, ?, ?, ?)";
+        String sqlDetalleProductos = "INSERT INTO detalle_factura_productos (id_factura, id_producto, cantidad, precio_unitario_historico) VALUES (?, ?, ?, ?)";
+        String sqlDetalleServicios = "INSERT INTO detalle_factura_servicios (id_factura, id_servicio, cantidad, precio_unitario_historico) VALUES (?, ?, ?, ?)";
+        String sqlDetalleCombos = "INSERT INTO detalle_factura_combos (id_factura, id_promocion, cantidad, precio_unitario_historico) VALUES (?, ?, ?, ?)";
 
         Connection con = null;
         PreparedStatement psFactura = null;
-        PreparedStatement psDetalle = null;
+        PreparedStatement psDetalleProductos = null;
+        PreparedStatement psDetalleServicios = null;
+        PreparedStatement psDetalleCombos = null;
         ResultSet rsKeys = null;
 
         try {
@@ -49,7 +53,7 @@ public class FacturaDao {
 
             con.setAutoCommit(false);
 
-            // 1. Insertar Cabecera de la Factura
+            // Insertar Cabecera de la Factura
             psFactura = con.prepareStatement(sqlFactura, Statement.RETURN_GENERATED_KEYS);
 
             if (factura.getIdVenta() > 0) {
@@ -91,19 +95,57 @@ public class FacturaDao {
                 return false;
             }
 
-            // 2. Insertar Detalle de Productos
-            psDetalle = con.prepareStatement(sqlDetalle);
+            // Insertar Detalle, cada ítem del carrito va a la tabla que le
+            // corresponde según su tipo (Producto, servisio o combo).
             List<DetalleCarrito> detalles = factura.getDetalles();
 
             if (detalles != null && !detalles.isEmpty()) {
+                psDetalleProductos = con.prepareStatement(sqlDetalleProductos);
+                psDetalleServicios = con.prepareStatement(sqlDetalleServicios);
+                psDetalleCombos = con.prepareStatement(sqlDetalleCombos);
+
+                boolean hayProductos = false, hayServicios = false, hayCombos = false;
+
                 for (DetalleCarrito item : detalles) {
-                    psDetalle.setInt(1, idFacturaGenerado);
-                    psDetalle.setInt(2, item.getIdProducto());
-                    psDetalle.setInt(3, item.getCantidad());
-                    psDetalle.setDouble(4, item.getPrecioUnitario());
-                    psDetalle.addBatch();
+                    String tipo = (item.getTipo() != null) ? item.getTipo() : "PRODUCTO";
+
+                    switch (tipo) {
+                        case "SERVICIO":
+                            psDetalleServicios.setInt(1, idFacturaGenerado);
+                            psDetalleServicios.setInt(2, item.getIdProducto());
+                            psDetalleServicios.setInt(3, item.getCantidad());
+                            psDetalleServicios.setDouble(4, item.getPrecioUnitario());
+                            psDetalleServicios.addBatch();
+                            hayServicios = true;
+                            break;
+                        case "COMBO":
+                            psDetalleCombos.setInt(1, idFacturaGenerado);
+                            psDetalleCombos.setInt(2, item.getIdProducto());
+                            psDetalleCombos.setInt(3, item.getCantidad());
+                            psDetalleCombos.setDouble(4, item.getPrecioUnitario());
+                            psDetalleCombos.addBatch();
+                            hayCombos = true;
+                            break;
+                        default:
+                            psDetalleProductos.setInt(1, idFacturaGenerado);
+                            psDetalleProductos.setInt(2, item.getIdProducto());
+                            psDetalleProductos.setInt(3, item.getCantidad());
+                            psDetalleProductos.setDouble(4, item.getPrecioUnitario());
+                            psDetalleProductos.addBatch();
+                            hayProductos = true;
+                            break;
+                    }
                 }
-                psDetalle.executeBatch();
+
+                if (hayProductos) {
+                    psDetalleProductos.executeBatch();
+                }
+                if (hayServicios) {
+                    psDetalleServicios.executeBatch();
+                }
+                if (hayCombos) {
+                    psDetalleCombos.executeBatch();
+                }
             }
 
             con.commit();
@@ -128,8 +170,14 @@ public class FacturaDao {
                 if (psFactura != null) {
                     psFactura.close();
                 }
-                if (psDetalle != null) {
-                    psDetalle.close();
+                if (psDetalleProductos != null) {
+                    psDetalleProductos.close();
+                }
+                if (psDetalleServicios != null) {
+                    psDetalleServicios.close();
+                }
+                if (psDetalleCombos != null) {
+                    psDetalleCombos.close();
                 }
                 if (con != null) {
                     con.setAutoCommit(true);

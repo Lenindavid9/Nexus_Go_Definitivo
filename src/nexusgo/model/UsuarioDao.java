@@ -6,6 +6,7 @@ package nexusgo.model;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -57,7 +58,7 @@ public class UsuarioDao {
                      VALUES (?, ?, ?, ?, ?, ?, ?)
                      """;
 
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, usuario.getNombre());
             ps.setString(2, usuario.getApellido());
@@ -65,9 +66,19 @@ public class UsuarioDao {
             ps.setInt(4, usuario.getIdentificacion());
             ps.setString(5, usuario.getCorreo());
             ps.setString(6, usuario.getContrasena());
-            ps.setInt(7, 1); // Asigna por defecto el id_rol de 'Cliente'
+            ps.setInt(7, 1); 
 
-            return ps.executeUpdate();
+            int filasInsertadas = ps.executeUpdate();
+            if (filasInsertadas <= 0) {
+                return 0;
+            }
+
+            try (ResultSet rsKeys = ps.getGeneratedKeys()) {
+                if (rsKeys.next()) {
+                    return rsKeys.getInt(1); 
+                }
+            }
+            return 0;
 
         } catch (SQLException e) {
             System.err.println("Error crítico en UsuarioDao.registrar: " + e.getMessage());
@@ -96,6 +107,7 @@ public class UsuarioDao {
                     usuario.setIdUsuario(rs.getInt("id_usuario"));
                     usuario.setIdentificacion(rs.getInt("numero_identificacion"));
                     usuario.setNombre(rs.getString("nombre"));
+                    usuario.setApellido(rs.getString("apellido"));
                     usuario.setRol(rs.getString("rol"));
                     usuario.setCorreo(rs.getString("correo"));
                 }
@@ -106,20 +118,19 @@ public class UsuarioDao {
         return usuario;
     }
 
-    // LISTAR CITAS VIGENTES DE UN CLIENTE
     // LISTAR USUARIOS COMPLETO PARA JTABLE
     public List<Usuario> listarUsuarios() {
         List<Usuario> lista = new ArrayList<>();
-        String sql = """
-                 SELECT u.numero_identificacion, u.nombre, u.apellido, r.nombre_rol AS rol, u.correo
-                 FROM usuarios u
-                 INNER JOIN roles r ON u.id_rol = r.id_rol
-                 """;
+        String sql = "SELECT u.numero_identificacion, u.nombre, u.apellido, "
+                + "COALESCE(r.nombre_rol, 'Sin Rol') AS rol, u.correo "
+                + "FROM usuarios u "
+                + "LEFT JOIN roles r ON u.id_rol = r.id_rol";
 
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection con = new Conexion().getConection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Usuario u = new Usuario();
+                // ¡OJO! Usa los nombres de columna EXACTOS de tu BD:
                 u.setIdentificacion(rs.getInt("numero_identificacion"));
                 u.setNombre(rs.getString("nombre"));
                 u.setApellido(rs.getString("apellido"));
@@ -129,21 +140,18 @@ public class UsuarioDao {
                 lista.add(u);
             }
         } catch (SQLException e) {
-            System.err.println(" ERROR SQL AL LISTAR USUARIOS:");
-            e.printStackTrace(); // <--- ESTO MOSTRARÁ LA CAUSA EXACTA EN CONSOLA
+            System.err.println("❌ Error SQL: " + e.getMessage());
         }
         return lista;
     }
 
     // ACTUALIZAR ROL DEL USUARIO (Subconsulta para obtener id_rol desde el nombre_rol)
     public boolean actualizarRol(String numeroIdentificacion, String nuevoRol) {
-        String sql = """
-                     UPDATE usuarios 
-                     SET id_rol = (SELECT id_rol FROM roles WHERE nombre_rol = ?) 
-                     WHERE numero_identificacion = ?
-                     """;
+        String sql = "UPDATE usuarios "
+                + "SET id_rol = (SELECT id_rol FROM roles WHERE nombre_rol = ?) "
+                + "WHERE numero_identificacion = ?";
 
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = new Conexion().getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, nuevoRol);
             ps.setString(2, numeroIdentificacion);
@@ -152,7 +160,7 @@ public class UsuarioDao {
             return filasAfectadas > 0;
 
         } catch (SQLException e) {
-            System.err.println("Error al actualizar el rol del usuario: " + e.getMessage());
+            System.err.println("❌ Error al actualizar rol: " + e.getMessage());
             return false;
         }
     }
@@ -193,22 +201,31 @@ public class UsuarioDao {
     }
 
     public List<Producto> listarPromociones() {
-        List<Producto> lista = new ArrayList<>();
-        String sql = """
-                 SELECT p.* 
-                 FROM productos p
-                 INNER JOIN promociones pr ON p.id_producto = pr.id_producto
-                 WHERE pr.estado = 'ACTIVA'
-                 """;
+        List<Producto> promociones = new ArrayList<>();
+        String sql = "SELECT p.id_producto, p.nombre_producto, p.precio_venta, p.url_imagen, pr.porcentaje_descuento "
+                + "FROM promociones pr "
+                + "INNER JOIN productos p ON pr.id_producto = p.id_producto "
+                + "WHERE pr.estado = 'ACTIVA'";
+
         try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                // Mapear campos de Producto...
+                Producto prod = new Producto();
+                prod.setIdProducto(rs.getInt("id_producto"));
+                prod.setNombreProducto(rs.getString("nombre_producto"));
+
+                // Aplicar el descuento al precio de venta
+                double precioOriginal = rs.getDouble("precio_venta");
+                double porcentaje = rs.getDouble("porcentaje_descuento");
+                prod.setPrecioVenta(precioOriginal - (precioOriginal * (porcentaje / 100.0)));
+
+                prod.setUrlImagen(rs.getString("url_imagen"));
+                promociones.add(prod);
             }
         } catch (SQLException e) {
-            System.err.println("❌ Error al listar promociones desde ProductoDao: " + e.getMessage());
+            System.err.println("Error al listar promociones: " + e.getMessage());
         }
-        return lista;
+        return promociones;
     }
 
     public Usuario obtenerPorId(int idUsuario) {
@@ -269,5 +286,25 @@ public class UsuarioDao {
             System.err.println("Error SQL al listar citas: " + e.getMessage());
         }
         return lista;
+    }
+
+    public String obtenerCorreoPorUsuarioId(int idUsuario) {
+        String correo = null;
+
+        String sql = "SELECT correo FROM usuarios WHERE id_usuario = ?";
+
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idUsuario); // <--- Aquí debe enviar el parámetro dinámico
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    correo = rs.getString("correo");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener correo del usuario: " + e.getMessage());
+        }
+        return correo;
     }
 }
