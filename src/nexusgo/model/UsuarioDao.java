@@ -165,24 +165,7 @@ public class UsuarioDao {
         }
     }
 
-    // REGISTRAR CITA NUEVA
-    public boolean registrarCita(int idCliente, int idServicio, String fechahora) {
-        String sql = "INSERT INTO citas (id_cliente, id_servicio, fecha_hora_programada, estado) VALUES (?, ?, ?, 'Vigente')";
-
-        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setInt(1, idCliente);
-            ps.setInt(2, idServicio);
-            ps.setString(3, fechahora);
-
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            System.err.println("Error en UsuarioDao.registrarCita: " + e.getMessage());
-            return false;
-        }
-    }
-
+    
     // ACTUALIZAR CONTRASEÑA POR CORREO
     public boolean actualizarContrasena(String correo, String nuevaContrasena) {
         String sql = "UPDATE usuarios SET contrasena = ? WHERE correo = ?";

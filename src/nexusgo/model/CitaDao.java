@@ -31,11 +31,10 @@ public class CitaDao {
      */
     public boolean agendarCita(Cita cita) {
         String sql = "INSERT INTO citas (id_cliente, id_profesional, id_servicio, fecha_hora_programada, estado) "
-                   + "VALUES (?, ?, ?, ?, ?)";
+                + "VALUES (?, ?, ?, ?, ?)";
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setInt(1, cita.getIdCliente());
             ps.setInt(2, cita.getIdProfesional());
             ps.setInt(3, cita.getIdServicio());
@@ -50,14 +49,14 @@ public class CitaDao {
     }
 
     /**
-     * Valida si la fecha y hora exacta ya están ocupadas para cualquier profesional.
+     * Valida si la fecha y hora exacta ya están ocupadas para cualquier
+     * profesional.
      */
     public boolean existeCitaEnHorario(String fechaHora) {
         String sql = "SELECT COUNT(*) FROM citas WHERE fecha_hora_programada = ? AND estado != 'CANCELADA'";
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setString(1, fechaHora);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -71,13 +70,13 @@ public class CitaDao {
     }
 
     /**
-     * Valida si existe una cita para un profesional específico en un horario determinado.
+     * Valida si existe una cita para un profesional específico en un horario
+     * determinado.
      */
     public boolean existeCitaEnHorario(int idProfesional, String fechaHora) {
         String sql = "SELECT COUNT(*) FROM citas WHERE id_profesional = ? AND fecha_hora_programada = ? AND estado != 'CANCELADA'";
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idProfesional);
             ps.setString(2, fechaHora);
@@ -100,13 +99,12 @@ public class CitaDao {
         List<HorarioNegocio.RangoOcupado> rangos = new ArrayList<>();
 
         String sql = "SELECT c.fecha_hora_programada, s.duracion_minutos "
-                   + "FROM citas c "
-                   + "INNER JOIN servicios s ON c.id_servicio = s.id_servicio "
-                   + "WHERE c.id_profesional = ? AND DATE(c.fecha_hora_programada) = ? AND c.estado != 'CANCELADA'";
+                + "FROM citas c "
+                + "INNER JOIN servicios s ON c.id_servicio = s.id_servicio "
+                + "WHERE c.id_profesional = ? AND DATE(c.fecha_hora_programada) = ? AND c.estado != 'CANCELADA'";
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setInt(1, idProfesional);
             ps.setDate(2, Date.valueOf(fecha));
 
@@ -136,9 +134,7 @@ public class CitaDao {
         List<String> lista = new ArrayList<>();
         String sql = "SELECT nombre_servicio FROM servicios WHERE activo = 1";
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql); 
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 lista.add(rs.getString("nombre_servicio"));
@@ -154,9 +150,8 @@ public class CitaDao {
      */
     public int obtenerIdServicioPorNombre(String nombre) {
         String sql = "SELECT id_servicio FROM servicios WHERE nombre_servicio = ?";
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setString(1, nombre);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -174,9 +169,8 @@ public class CitaDao {
      */
     public int obtenerDuracionServicioPorNombre(String nombre) {
         String sql = "SELECT duracion_minutos FROM servicios WHERE nombre_servicio = ?";
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setString(1, nombre);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -194,17 +188,16 @@ public class CitaDao {
      */
     public List<String> obtenerListaProfesionales() {
         List<String> lista = new ArrayList<>();
-        String sql = "SELECT nombre FROM usuarios WHERE rol IN ('PROFESIONAL', 'BARBERO', 'PELUQUERO')";
+        String sql = "SELECT CONCAT(nombre, ' ', apellido) AS nombre_completo "
+                + "FROM usuarios WHERE id_rol = 5";
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql); 
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = conexion.getConection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                lista.add(rs.getString("nombre"));
+                lista.add(rs.getString("nombre_completo"));
             }
         } catch (SQLException e) {
-            System.err.println("Error obteniendo lista de profesionales: " + e.getMessage());
+            System.err.println("Error al obtener profesionales: " + e.getMessage());
         }
         return lista;
     }
@@ -212,12 +205,10 @@ public class CitaDao {
     /**
      * Obtiene el ID del profesional según su nombre.
      */
-    public int obtenerIdProfesionalPorNombre(String nombre) {
-        String sql = "SELECT id_usuario FROM usuarios WHERE nombre = ?";
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
-            ps.setString(1, nombre);
+    public int obtenerIdProfesionalPorNombre(String nombreCompleto) {
+        String sql = "SELECT id_usuario FROM usuarios WHERE CONCAT(nombre, ' ', apellido) = ? AND id_rol = 5";
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, nombreCompleto.trim());
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("id_usuario");
@@ -230,26 +221,26 @@ public class CitaDao {
     }
 
     /**
-     * Obtiene las citas asignadas a un profesional en un rango de fechas especificado.
+     * Obtiene las citas asignadas a un profesional en un rango de fechas
+     * especificado.
      */
     public List<Cita> obtenerCitasSemanaPorProfesional(int idProfesional, String fechaInicio, String fechaFin) {
         List<Cita> lista = new ArrayList<>();
 
         String sql = "SELECT c.id_cita, c.id_cliente, c.id_profesional, c.id_servicio, "
-                   + "       c.fecha_hora_programada, c.estado, "
-                   + "       CONCAT(u.nombre, ' ', u.apellido) AS cliente_nombre, "
-                   + "       s.nombre_servicio "
-                   + "FROM citas c "
-                   + "INNER JOIN usuarios u ON c.id_cliente = u.id_usuario "
-                   + "INNER JOIN servicios s ON c.id_servicio = s.id_servicio "
-                   + "WHERE c.id_profesional = ? "
-                   + "  AND c.fecha_hora_programada >= ? "
-                   + "  AND c.fecha_hora_programada <= ? "
-                   + "  AND c.estado != 'CANCELADA' "
-                   + "ORDER BY c.fecha_hora_programada ASC";
+                + "       c.fecha_hora_programada, c.estado, "
+                + "       CONCAT(u.nombre, ' ', u.apellido) AS cliente_nombre, "
+                + "       s.nombre_servicio "
+                + "FROM citas c "
+                + "INNER JOIN usuarios u ON c.id_cliente = u.id_usuario "
+                + "INNER JOIN servicios s ON c.id_servicio = s.id_servicio "
+                + "WHERE c.id_profesional = ? "
+                + "  AND c.fecha_hora_programada >= ? "
+                + "  AND c.fecha_hora_programada <= ? "
+                + "  AND c.estado != 'CANCELADA' "
+                + "ORDER BY c.fecha_hora_programada ASC";
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idProfesional);
             ps.setString(2, fechaInicio + " 00:00:00");
@@ -281,8 +272,7 @@ public class CitaDao {
     public boolean actualizarEstadoCita(int idCita, String nuevoEstado) {
         String sql = "UPDATE citas SET estado = ? WHERE id_cita = ?";
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, nuevoEstado);
             ps.setInt(2, idCita);
@@ -295,14 +285,14 @@ public class CitaDao {
     }
 
     /**
-     * Actualiza el estado de una cita filtrando por profesional y coincidencia de horario.
+     * Actualiza el estado de una cita filtrando por profesional y coincidencia
+     * de horario.
      */
     public boolean actualizarEstadoCitaPorHorario(int idProfesional, String fechaHora, String nuevoEstado) {
         String sql = "UPDATE citas SET estado = ? WHERE id_profesional = ? AND fecha_hora_programada LIKE ?";
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setString(1, nuevoEstado);
             ps.setInt(2, idProfesional);
             ps.setString(3, fechaHora + "%");
@@ -320,9 +310,8 @@ public class CitaDao {
     public boolean reagendarCita(int idCita, String nuevaFechaHora) {
         String sql = "UPDATE citas SET fecha_hora_programada = ? WHERE id_cita = ?";
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setString(1, nuevaFechaHora);
             ps.setInt(2, idCita);
 
@@ -334,16 +323,16 @@ public class CitaDao {
     }
 
     /**
-     * Obtiene los detalles de una cita específica por profesional y hora aproximada.
+     * Obtiene los detalles de una cita específica por profesional y hora
+     * aproximada.
      */
     public Cita obtenerCitaPorDetalles(int idProfesional, String fechaHora) {
         Cita cita = null;
         String sql = "SELECT id_cita, id_cliente, id_profesional, id_servicio, fecha_hora_programada, estado "
-                   + "FROM citas WHERE id_profesional = ? AND fecha_hora_programada LIKE ? LIMIT 1";
+                + "FROM citas WHERE id_profesional = ? AND fecha_hora_programada LIKE ? LIMIT 1";
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setInt(1, idProfesional);
             ps.setString(2, fechaHora + "%");
 
@@ -371,8 +360,7 @@ public class CitaDao {
         String correo = null;
         String sql = "SELECT correo FROM usuarios WHERE id_usuario = ?";
 
-        try (Connection con = conexion.getConection(); 
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idUsuario);
 
@@ -389,7 +377,7 @@ public class CitaDao {
     }
 
     /**
-     * Método fallback/auxiliar para ID por defecto.
+     * auxiliar para ID por defecto.
      */
     public int obtenerIdProfesionalPorDefecto() {
         return 5;
