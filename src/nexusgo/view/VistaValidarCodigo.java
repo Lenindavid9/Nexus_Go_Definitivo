@@ -95,3 +95,4 @@ public class VistaValidarCodigo extends JFrame {
         fondo.add(vCodigo);
     }
 }
+//
