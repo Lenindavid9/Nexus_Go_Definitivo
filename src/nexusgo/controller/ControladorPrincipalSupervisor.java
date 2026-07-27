@@ -11,6 +11,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -160,11 +161,17 @@ public class ControladorPrincipalSupervisor implements ActionListener {
     private void abrirVistaRealizacionMantenimiento() {
         VistaRealizacionMantenimiento panelRealizar = new VistaRealizacionMantenimiento();
 
-        // Cargar lista actualizada de herramientas en el JComboBox
+        // Cargar solo las herramientas que actualmente requieren mantenimiento (osea es el filtro)
         List<Herramientas> listaHerramientas = herramientaDao.listar();
-        panelRealizar.cargarHerramientas(listaHerramientas);
+        List<Herramientas> listaFiltrada = new ArrayList<>();
+        for (Herramientas h : listaHerramientas) {
+            if ("REQUIERE_MANTENIMIENTO".equalsIgnoreCase(h.getEstadoActual())) {
+                listaFiltrada.add(h);
+            }
+        }
+        panelRealizar.cargarHerramientas(listaFiltrada);
 
-        // Preseleccionar la herramienta que se clickeó en la tabla
+        // Preseleccionar la herramienta que se clickeó en la tabla (si está en la lista filtrada)
         if (idHerramientaSeleccionada > 0) {
             panelRealizar.seleccionarHerramientaPorId(idHerramientaSeleccionada);
         }
@@ -204,10 +211,10 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             String detalleNotas = "Ejecutado: " + descripcionTrabajo + " | Horas: " + horas + "h | Obs: "
                     + observaciones + " | Antes: " + nombreAntes + " | Desp: " + nombreDespues;
 
-            // 1. Guardar el registro de mantenimiento realizado
+            // Guardar el registro de mantenimiento realizado
             Mantenimiento mEjecutado = new Mantenimiento(
                     herramientaElegida.getIdHerramienta(),
-                    "Mantenimiento Realizado Inmediato",
+                    "CORRECTIVO",
                     new Date(),
                     detalleNotas,
                     usuarioLogueado.getIdUsuario()
@@ -216,13 +223,12 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             boolean guardado = mantenimientoDao.registrarProgramacion(mEjecutado);
 
             if (guardado) {
-                // 2. Cambiar el estado de la herramienta en la BD (ej. "Ocupado" o "En Mantenimiento")
-                String nuevoEstado = "Ocupado"; 
+                // Al terminar el mantenimiento, la herramienta vuelve a estar disponible en buen estado
+                String nuevoEstado = "EXCELENTE"; 
                 boolean estadoActualizado = herramientaDao.actualizarEstado(herramientaElegida.getIdHerramienta(), nuevoEstado);
 
                 String msgEstado = estadoActualizado 
-                        ? "\nEstado de la herramienta actualizado a: '" + nuevoEstado + "'." 
-                        : "\n(No se pudo actualizar el estado de la herramienta).";
+                        ? "\nEstado de la herramienta actualizado a: " + nuevoEstado : "\n(No se pudo actualizar el estado de la herramienta).";
 
                 JOptionPane.showMessageDialog(panelRealizar,
                         "¡Mantenimiento de '" + herramientaElegida.getNombreHerramienta() + "' registrado exitosamente!" + msgEstado,
@@ -460,6 +466,9 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             boolean guardadoExitoso = mantenimientoDao.registrarProgramacion(nuevoMantenimiento);
 
             if (guardadoExitoso) {
+                // Al programar un mantenimiento, la herramienta pasa a "REQUIERE_MANTENIMIENTO"
+                herramientaDao.actualizarEstado(idHerramientaSeleccionada, "REQUIERE_MANTENIMIENTO");
+
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                 JOptionPane.showMessageDialog(panelProgramarMantenimiento,
                         "¡Mantenimiento agendado exitosamente!\n\n"
@@ -467,7 +476,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                         + "Tipo: " + tipoMantenimiento + "\n"
                         + "Fecha Programada: " + sdf.format(fechaFinalProgramada) + "\n"
                         + "Adjunto: " + nombreImagen,
-                        "NEXUS GO - Éxito", JOptionPane.INFORMATION_MESSAGE);
+                        "NEXUS GO - Mantenimiento de Herramiento", JOptionPane.INFORMATION_MESSAGE);
 
                 limpiarCamposProgramacion();
                 cambiarPanelCentral(this.panelInventario);
