@@ -218,6 +218,10 @@ public class ControladorReservarCita implements ActionListener {
                 protected Boolean doInBackground() throws Exception {
                     int idProfesional = citaDao.obtenerIdProfesionalPorNombre(profesionalNombre);
 
+                    if (idProfesional == -1) {
+                        return false;
+                    }
+
                     if (citaDao.existeCitaEnHorario(idProfesional, fechaHora)) {
                         choqueHorario = true;
                         return false;
@@ -270,7 +274,7 @@ public class ControladorReservarCita implements ActionListener {
 
                             limpiarFormulario();
                         } else {
-                            JOptionPane.showMessageDialog(panelReserva, "No se pudo guardar la cita. Verifica tu conexión a la base de datos.", "Error de Registro", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(panelReserva, "No se pudo guardar la cita. Verifica que el profesional existe y tu conexión a la base de datos.", "Error de Registro", JOptionPane.ERROR_MESSAGE);
                         }
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(panelReserva, "Ocurrió un error inesperado al procesar la reserva:\n" + ex.getMessage(), "Error del Sistema", JOptionPane.ERROR_MESSAGE);
@@ -397,5 +401,4 @@ public class ControladorReservarCita implements ActionListener {
         };
         worker.execute();
     }
-
 }
