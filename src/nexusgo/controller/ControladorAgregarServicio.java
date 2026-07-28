@@ -51,14 +51,8 @@ public class ControladorAgregarServicio implements ActionListener {
             if (this.vista.btnGuardar != null) {
                 this.vista.btnGuardar.addActionListener(this);
             }
-            if (this.vista.btnVolver != null) {
-                this.vista.btnVolver.addActionListener(this);
-            }
             if (this.vista.btnCargarImagen != null) {
                 this.vista.btnCargarImagen.addActionListener(this);
-            }
-            if (this.vista.btnCerrarSesion != null) {
-                this.vista.btnCerrarSesion.addActionListener(this);
             }
         } catch (Exception e) {
             System.err.println("Error al inicializar los listeners de la vista: " + e.getMessage());
@@ -77,21 +71,10 @@ public class ControladorAgregarServicio implements ActionListener {
                 return;
             }
 
-            // Accion: Boton Volver
-            if (this.vista.btnVolver != null && e.getSource() == this.vista.btnVolver) {
-                accionVolver();
-                return;
-            }
-
             // Accion: Boton Cargar Imagen
             if (this.vista.btnCargarImagen != null && e.getSource() == this.vista.btnCargarImagen) {
                 cargarImagen();
                 return;
-            }
-
-            // Accion: Boton Cerrar Sesion
-            if (this.vista.btnCerrarSesion != null && e.getSource() == this.vista.btnCerrarSesion) {
-                cerrarSesion();
             }
 
         } catch (Exception ex) {

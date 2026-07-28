@@ -85,12 +85,6 @@ public class ControladorAgregarPromocionCombo implements ActionListener {
         if (this.vista.btnGuardar != null) {
             this.vista.btnGuardar.addActionListener(this);
         }
-        if (this.vista.btnVolver != null) {
-            this.vista.btnVolver.addActionListener(this);
-        }
-        if (this.vista.btnCerrarSesion != null) {
-            this.vista.btnCerrarSesion.addActionListener(this);
-        }
     }
 
     // Llena los JList/JComboBox con los productos y servicios desde MySQL
@@ -133,19 +127,6 @@ public class ControladorAgregarPromocionCombo implements ActionListener {
             seleccionarImagen();
         } else if (source == vista.btnGuardar) {
             procesarGuardadoCombo();
-        } else if (source == vista.btnVolver) {
-            limpiarFormulario();
-            // Regresa al panel central de bienvenida
-            if (controladorPrincipal != null) {
-                controladorPrincipal.mostrarPanelBienvenida();
-            }
-        } else if (source == vista.btnCerrarSesion) {
-            // Cierra la sesión mediante el controlador principal
-            if (controladorPrincipal != null) {
-                controladorPrincipal.ejecutarCierreSesion();
-            } else {
-                limpiarFormulario();
-            }
         }
     }
 
