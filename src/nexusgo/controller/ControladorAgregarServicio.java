@@ -4,15 +4,12 @@
  */
 package nexusgo.controller;
 
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.Date;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import nexusgo.model.ServicioDao;
 import nexusgo.model.Servicios;
@@ -51,14 +48,8 @@ public class ControladorAgregarServicio implements ActionListener {
             if (this.vista.btnGuardar != null) {
                 this.vista.btnGuardar.addActionListener(this);
             }
-            if (this.vista.btnVolver != null) {
-                this.vista.btnVolver.addActionListener(this);
-            }
             if (this.vista.btnCargarImagen != null) {
                 this.vista.btnCargarImagen.addActionListener(this);
-            }
-            if (this.vista.btnCerrarSesion != null) {
-                this.vista.btnCerrarSesion.addActionListener(this);
             }
         } catch (Exception e) {
             System.err.println("Error al inicializar los listeners de la vista: " + e.getMessage());
@@ -77,21 +68,10 @@ public class ControladorAgregarServicio implements ActionListener {
                 return;
             }
 
-            // Accion: Boton Volver
-            if (this.vista.btnVolver != null && e.getSource() == this.vista.btnVolver) {
-                accionVolver();
-                return;
-            }
-
             // Accion: Boton Cargar Imagen
             if (this.vista.btnCargarImagen != null && e.getSource() == this.vista.btnCargarImagen) {
                 cargarImagen();
                 return;
-            }
-
-            // Accion: Boton Cerrar Sesion
-            if (this.vista.btnCerrarSesion != null && e.getSource() == this.vista.btnCerrarSesion) {
-                cerrarSesion();
             }
 
         } catch (Exception ex) {
@@ -227,33 +207,6 @@ public class ControladorAgregarServicio implements ActionListener {
             JOptionPane.showMessageDialog(vista,
                     "No se pudo cargar el archivo seleccionado: " + e.getMessage(),
                     "Error al Cargar Imagen", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    /*
-     * Acción del botón Volver
-     */
-    private void accionVolver() {
-        JOptionPane.showMessageDialog(vista, "Regresando al menú principal...", "NexusGO", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    /*
-     * Acción para cerrar sesión
-     */
-    private void cerrarSesion() {
-        int confirmacion = JOptionPane.showConfirmDialog(
-                vista,
-                "¿Está seguro de que desea cerrar la sesión actual?",
-                "NexusGO - Cerrar Sesión",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-        );
-
-        if (confirmacion == JOptionPane.YES_OPTION) {
-            Window window = SwingUtilities.getWindowAncestor(vista);
-            if (window != null) {
-                window.dispose();
-            }
         }
     }
 

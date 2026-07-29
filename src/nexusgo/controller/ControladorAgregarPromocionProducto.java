@@ -57,12 +57,6 @@ public class ControladorAgregarPromocionProducto implements ActionListener {
             if (this.vista.btnCargarImagen != null) {
                 this.vista.btnCargarImagen.addActionListener(this);
             }
-            if (this.vista.btnVolver != null) {
-                this.vista.btnVolver.addActionListener(this);
-            }
-            if (this.vista.btnCerrarSesion != null) {
-                this.vista.btnCerrarSesion.addActionListener(this);
-            }
         } catch (NullPointerException e) {
             mostrarError("Error al vincular los componentes de la interfaz", e);
         } catch (Exception e) {
@@ -80,10 +74,6 @@ public class ControladorAgregarPromocionProducto implements ActionListener {
                 ejecutarRegistroPromocion();
             } else if (origen == vista.btnCargarImagen) {
                 ejecutarCargaImagen();
-            } else if (origen == vista.btnVolver) {
-                ejecutarVolver();
-            } else if (origen == vista.btnCerrarSesion) {
-                ejecutarCierreSesion();
             }
         } catch (Exception ex) {
             mostrarError("Ocurrió un fallo no controlado durante la acción", ex);
@@ -202,29 +192,6 @@ public class ControladorAgregarPromocionProducto implements ActionListener {
     }
 
     // Regresa al panel principal de administración
-    private void ejecutarVolver() {
-        try {
-            limpiarCampos();
-            if (controladorPrincipal != null) {
-                controladorPrincipal.mostrarPanelBienvenida();
-            }
-        } catch (Exception ex) {
-            mostrarError("Error al procesar el retorno.", ex);
-        }
-    }
-
-    // Cierra la sesión activa del usuario
-    private void ejecutarCierreSesion() {
-        try {
-            if (controladorPrincipal != null) {
-                controladorPrincipal.ejecutarCierreSesion();
-            } else {
-                limpiarCampos();
-            }
-        } catch (Exception ex) {
-            mostrarError("Error al cerrar la sesión.", ex);
-        }
-    }
 
     // Restablece los campos de la interfaz a sus valores por defecto
     private void limpiarCampos() {

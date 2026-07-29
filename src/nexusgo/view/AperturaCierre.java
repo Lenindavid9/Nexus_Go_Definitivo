@@ -21,10 +21,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 public class AperturaCierre extends JPanel {
-    private JPanel principal, pnlbtnVolver, apertura, cierre, confirmacion, infoCierre, infoApertura,infoConfirmacion, CalcularC;
+    private JPanel principal, apertura, cierre, confirmacion, infoCierre, infoApertura,infoConfirmacion, CalcularC;
     private JLabel imgApertura, tituloA, imgCierre, tituloC, lblsubC, lblMontoA, lbltxtMontoA,lblMontoVT, lbltxtMontoTV,
             tituloConf, lblsubConf, lblMontoF, lblsubA, lblMontoInicial;
-    private JButton btnVolver, btnApertura, btnCalcular;
+    private JButton btnApertura, btnCalcular;
     private JTextField txtMontoInicial,txtMontoF;
     
     private final Color COLOR_DORADO = new Color(184, 134, 11);

@@ -7,8 +7,6 @@ package nexusgo.controller;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -57,12 +55,6 @@ public class ControladorAgregarPromocionServicio implements ActionListener {
             if (this.vista.btnCargarImagen != null) {
                 this.vista.btnCargarImagen.addActionListener(this);
             }
-            if (this.vista.btnVolver != null) {
-                this.vista.btnVolver.addActionListener(this);
-            }
-            if (this.vista.btnCerrarSesion != null) {
-                this.vista.btnCerrarSesion.addActionListener(this);
-            }
         } catch (NullPointerException e) {
             mostrarError("Error al vincular los componentes de la interfaz", e);
         } catch (Exception e) {
@@ -79,10 +71,6 @@ public class ControladorAgregarPromocionServicio implements ActionListener {
                 ejecutarRegistroPromocion();
             } else if (origen == vista.btnCargarImagen) {
                 ejecutarCargaImagen();
-            } else if (origen == vista.btnVolver) {
-                ejecutarVolver();
-            } else if (origen == vista.btnCerrarSesion) {
-                ejecutarCierreSesion();
             }
         } catch (Exception ex) {
             mostrarError("Ocurrió un fallo no controlado durante la acción", ex);
@@ -194,29 +182,6 @@ public class ControladorAgregarPromocionServicio implements ActionListener {
             mostrarError("Permisos insuficientes para acceder al sistema de archivos.", ex);
         } catch (Exception ex) {
             mostrarError("Error inesperado al cargar el archivo de imagen.", ex);
-        }
-    }
-
-    private void ejecutarVolver() {
-        try {
-            limpiarCampos();
-            if (controladorPrincipal != null) {
-                controladorPrincipal.mostrarPanelBienvenida();
-            }
-        } catch (Exception ex) {
-            mostrarError("Error al procesar el retorno.", ex);
-        }
-    }
-
-    private void ejecutarCierreSesion() {
-        try {
-            if (controladorPrincipal != null) {
-                controladorPrincipal.ejecutarCierreSesion();
-            } else {
-                limpiarCampos();
-            }
-        } catch (Exception ex) {
-            mostrarError("Error al cerrar la sesión.", ex);
         }
     }
 
