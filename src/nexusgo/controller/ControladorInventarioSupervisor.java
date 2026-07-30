@@ -29,6 +29,7 @@ import nexusgo.view.PanelBienvenida;
 import nexusgo.view.VistaInventarioSupervisor;
 import nexusgo.view.VistaPrincipalSupervisor;
 import nexusgo.view.VistaProgramarMantenimiento;
+import nexusgo.view.VistaRealizacionMantenimiento;
 
 /**
  *
@@ -36,9 +37,10 @@ import nexusgo.view.VistaProgramarMantenimiento;
  */
 public class ControladorInventarioSupervisor implements ActionListener {
 
-   private final VistaPrincipalSupervisor vistaPrincipal;
+     private final VistaPrincipalSupervisor vistaPrincipal;
     private VistaInventarioSupervisor panelInventario;
     private VistaProgramarMantenimiento panelProgramarMantenimiento;
+    private VistaRealizacionMantenimiento panelRealizacionMantenimiento;
 
     // Instancias para el acceso a datos (DAOs)
     private final ProductoDao productoDao = new ProductoDao();
@@ -58,6 +60,7 @@ public class ControladorInventarioSupervisor implements ActionListener {
             // Inicializar las vistas
             this.panelInventario = new VistaInventarioSupervisor();
             this.panelProgramarMantenimiento = new VistaProgramarMantenimiento();
+            this.panelRealizacionMantenimiento = new VistaRealizacionMantenimiento();
 
             // Vincular listeners de la interfaz
             inicializarListeners();
@@ -85,6 +88,10 @@ public class ControladorInventarioSupervisor implements ActionListener {
             // Escuchar botones del formulario de programación
             this.panelProgramarMantenimiento.btnGuardarMantenimiento.addActionListener(this);
             this.panelProgramarMantenimiento.btnVolver.addActionListener(this);
+
+            // Escuchar botones del formulario de ejecución/registro del mantenimiento (foto de después)
+            this.panelRealizacionMantenimiento.btnGuardar.addActionListener(this);
+            this.panelRealizacionMantenimiento.btnVolver.addActionListener(this);
 
             // Evento: Selección de producto (Solo Lectura)
             this.panelInventario.tablaProductos.addMouseListener(new MouseAdapter() {
@@ -132,9 +139,11 @@ public class ControladorInventarioSupervisor implements ActionListener {
                 opciones[0]);
 
         if (seleccion == 0) {
-            JOptionPane.showMessageDialog(panelInventario,
-                    "Abriendo registro inmediato de mantenimientos ejecutados para:\n" + nombreHerramientaSeleccionada,
-                    "Módulo Herramientas", JOptionPane.INFORMATION_MESSAGE);
+            // Requerimiento #2: se abre el formulario real de ejecución del
+            // mantenimiento (antes solo mostraba un mensaje de relleno).
+            panelRealizacionMantenimiento.cargarHerramientas(herramientaDao.listar());
+            panelRealizacionMantenimiento.seleccionarHerramientaPorId(idHerramientaSeleccionada);
+            cambiarPanelCentral(this.panelRealizacionMantenimiento);
         } else if (seleccion == 1) { // Redirigir al formulario de "Programar Agenda"
             panelProgramarMantenimiento.txtEquipo.setText(nombreHerramientaSeleccionada);
             cambiarPanelCentral(this.panelProgramarMantenimiento);
@@ -160,9 +169,18 @@ public class ControladorInventarioSupervisor implements ActionListener {
                 listarHerramientasEnTabla();
             }
 
+            if (e.getSource() == panelRealizacionMantenimiento.btnVolver) {
+                cambiarPanelCentral(this.panelInventario);
+                listarHerramientasEnTabla();
+            }
+
             // --- ACCIÓN DE GUARDADO ---
             if (e.getSource() == panelProgramarMantenimiento.btnGuardarMantenimiento) {
                 ejecutarGuardadoProgramacion();
+            }
+
+            if (e.getSource() == panelRealizacionMantenimiento.btnGuardar) {
+                ejecutarGuardadoEjecucion();
             }
 
         } catch (Exception ex) {
@@ -206,7 +224,16 @@ public class ControladorInventarioSupervisor implements ActionListener {
                     ? panelProgramarMantenimiento.txtObservaciones.getText().trim() : "";
 
             File imagenAdjunta = panelProgramarMantenimiento.getArchivoImagenSeleccionado();
-            String nombreImagen = (imagenAdjunta != null) ? imagenAdjunta.getName() : "Sin imagen";
+
+            // Requerimiento #1: la foto es OBLIGATORIA al programar un mantenimiento.
+            if (imagenAdjunta == null) {
+                JOptionPane.showMessageDialog(panelProgramarMantenimiento,
+                        "Debe adjuntar una foto del equipo para poder programar el mantenimiento.",
+                        "Foto Obligatoria", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            String nombreImagen = imagenAdjunta.getName();
 
             String notasCompletas = "Falla: " + fallaProblema + " | Obs: " + observaciones + " | Img: " + nombreImagen;
 
@@ -245,10 +272,14 @@ public class ControladorInventarioSupervisor implements ActionListener {
                     notasCompletas,
                     usuarioLogueado.getIdUsuario()
             );
+            nuevoMantenimiento.setFotoReporte(imagenAdjunta.getAbsolutePath());
 
             boolean guardadoExitoso = mantenimientoDao.registrarProgramacion(nuevoMantenimiento);
 
             if (guardadoExitoso) {
+                // La herramienta queda marcada como "Requiere Mantenimiento" hasta que se registre su ejecución.
+                herramientaDao.actualizarEstado(idHerramientaSeleccionada, "REQUIERE_MANTENIMIENTO");
+
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                 JOptionPane.showMessageDialog(panelProgramarMantenimiento,
                         "¡Mantenimiento programado con éxito!\n\n"
@@ -274,6 +305,83 @@ public class ControladorInventarioSupervisor implements ActionListener {
         }
     }
 
+    /**
+     * Guarda el registro de ejecución del mantenimiento (botón "Guardar" de
+     * VistaRealizacionMantenimiento). Requerimiento #2: la foto de "después" es
+     * obligatoria; la foto de "antes" es opcional (ya se adjuntó, si se quiso,
+     * al programar el mantenimiento).
+     */
+    private void ejecutarGuardadoEjecucion() {
+        try {
+            Herramientas herramientaSeleccionada = panelRealizacionMantenimiento.getHerramientaSeleccionada();
+            if (herramientaSeleccionada == null) {
+                JOptionPane.showMessageDialog(panelRealizacionMantenimiento,
+                        "Seleccione la herramienta que fue reparada/atendida.",
+                        "Herramienta Requerida", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            String descripcionTrabajo = panelRealizacionMantenimiento.txtDescripcionTrabajo.getText().trim();
+            if (descripcionTrabajo.isEmpty()) {
+                JOptionPane.showMessageDialog(panelRealizacionMantenimiento,
+                        "Describa brevemente el trabajo realizado.",
+                        "Campo Requerido", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            File fotoDespues = panelRealizacionMantenimiento.getArchivoImagenDespues();
+
+            // Requerimiento #2: SOLO la foto de "después" es obligatoria para poder
+            // confirmar que la herramienta quedó arreglada. La de "antes" es opcional.
+            if (fotoDespues == null) {
+                JOptionPane.showMessageDialog(panelRealizacionMantenimiento,
+                        "Debe adjuntar la foto de DESPUÉS del mantenimiento para confirmar que la herramienta quedó arreglada.",
+                        "Foto de Después Obligatoria", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            double horasInvertidas;
+            try {
+                String horasTexto = panelRealizacionMantenimiento.txtHorasInvertidas.getText().trim().replace(',', '.');
+                horasInvertidas = horasTexto.isEmpty() ? 0.0 : Double.parseDouble(horasTexto);
+            } catch (NumberFormatException nfe) {
+                horasInvertidas = 0.0;
+            }
+
+            String observaciones = panelRealizacionMantenimiento.txtObservaciones.getText().trim();
+
+            boolean guardado = mantenimientoDao.registrarEjecucion(
+                    herramientaSeleccionada.getIdHerramienta(),
+                    descripcionTrabajo,
+                    fotoDespues.getAbsolutePath(),
+                    horasInvertidas,
+                    observaciones
+            );
+
+            if (guardado) {
+                // La herramienta ya quedó arreglada: vuelve a un estado óptimo.
+                herramientaDao.actualizarEstado(herramientaSeleccionada.getIdHerramienta(), "EXCELENTE");
+
+                JOptionPane.showMessageDialog(panelRealizacionMantenimiento,
+                        "¡Mantenimiento finalizado con éxito!\n\nHerramienta: " + herramientaSeleccionada.getNombreHerramienta()
+                        + "\nLa herramienta vuelve a estar disponible.",
+                        "NEXUS GO - Mantenimiento Completado", JOptionPane.INFORMATION_MESSAGE);
+
+                cambiarPanelCentral(this.panelInventario);
+                listarHerramientasEnTabla();
+            } else {
+                JOptionPane.showMessageDialog(panelRealizacionMantenimiento,
+                        "No se encontró un mantenimiento programado y pendiente para esta herramienta, o falló el guardado.",
+                        "Error de Almacenamiento", JOptionPane.ERROR_MESSAGE);
+            }
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(panelRealizacionMantenimiento,
+                    "Error al registrar la ejecución del mantenimiento: " + ex.getMessage(),
+                    "Error General", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void limpiarCamposProgramacion() {
         panelProgramarMantenimiento.cbTipoMantenimiento.setSelectedIndex(0);
         panelProgramarMantenimiento.txtFallaProblema.setText("");
@@ -284,7 +392,7 @@ public class ControladorInventarioSupervisor implements ActionListener {
 
         Date hoy = new Date();
         panelProgramarMantenimiento.fechaProgramacion.setDate(hoy);
-       
+
     }
 
     public void listarProductosEnTabla() {
@@ -319,7 +427,10 @@ public class ControladorInventarioSupervisor implements ActionListener {
             List<Herramientas> lista = herramientaDao.listar();
             if (lista != null) {
                 for (Herramientas h : lista) {
-                    modelo.addRow(new Object[]{h.getIdHerramienta(), h.getNombreHerramienta(), h.getEstadoActual(), "Activo"});
+                    // Requerimiento #3: en la columna "Tipo" se muestra Activo u Ocupado
+                    // según la disponibilidad real de la herramienta, ya no un valor fijo.
+                    String tipoDisponibilidad = "OCUPADA".equalsIgnoreCase(h.getDisponibilidad()) ? "Ocupado" : "Activo";
+                    modelo.addRow(new Object[]{h.getIdHerramienta(), h.getNombreHerramienta(), h.getEstadoActual(), tipoDisponibilidad});
                 }
             }
         } catch (Exception e) {

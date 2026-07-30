@@ -43,24 +43,23 @@ public class VistaPdV extends JPanel {
 
     public JPanel VistaNexus() {
         this.setLayout(new BorderLayout());  //aqui volvemos a "re afirmar" el layout principal
-        
+
         //Panel principal donde se va almacenar toda la interfaz
         principal = new JPanel();
         // setOpaque es para que no se va el fondo predeterminado y asi que se pueda ver la imagen asignada en 
         //la vista principal operario
         principal.setOpaque(false);
-        
+
         principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS)); // Con esto se organizan todos los componentes en la columna
         principal.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40)); //Aqui se editan los margenes internos
 
         //Siguen todos los titulos y subtitulos
         TituloPrincipal = new JLabel("Punto de Venta");
         //Aqui se cambia el color del texto con Foreground
-        TituloPrincipal.setForeground(Color.WHITE);
-        //
+        TituloPrincipal.setForeground(Color.WHITE);  
         TituloPrincipal.setFont(new Font("SansSerif", Font.BOLD, 35));
         TituloPrincipal.setAlignmentX(CENTER_ALIGNMENT);
-
+      
         estado = new JLabel("Estado: Ventas Habilitadas");
         estado.setForeground(Color.WHITE);
         estado.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -260,6 +259,7 @@ public class VistaPdV extends JPanel {
         public JButton getBtnAgregar() {
             return btnAgregar;
         }
+
         public JSpinner getSpinner() {
             return spinner;
         }
@@ -267,6 +267,5 @@ public class VistaPdV extends JPanel {
 
     public void agregarTarjeta(String nombre, String precio, int stockActual, String imagenArchivo) {
         agregarTarjetaComponentes(nombre, precio, stockActual, imagenArchivo);
-    }
-
+    }   
 }

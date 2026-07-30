@@ -27,8 +27,8 @@ import javax.swing.border.EmptyBorder;
  *
  * @author HOME
  */
-
 public class VistaPrincipalPeluquero extends JFrame {
+
     public JButton btnInicio = new JButton(new ImageIcon("src/nexusgo/img/inicio.png"));
     public JButton btnInventario = new JButton(new ImageIcon("src/nexusgo/img/inventario.png"));
     public JButton btnCitas = new JButton(new ImageIcon("src/nexusgo/img/citas.png"));
@@ -60,7 +60,6 @@ public class VistaPrincipalPeluquero extends JFrame {
         sidebar.setPreferredSize(new Dimension(200, 550));
         sidebar.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(230, 230, 230)));
 
-
         JButton[] botones = {btnInicio, btnInventario, btnCitas};
         for (JButton btn : botones) {
             btn.setContentAreaFilled(false);
@@ -75,8 +74,7 @@ public class VistaPrincipalPeluquero extends JFrame {
         // 3. Panel superior con botón cerrar sesión
         JPanel panelTop = new JPanel(new FlowLayout(FlowLayout.RIGHT, 30, 15));
         panelTop.setOpaque(false);
-        
-        
+
         btnCerrarSesion.setFont(new Font("Segoe UI", Font.BOLD, 20));
         btnCerrarSesion.setForeground(COLOR_DORADO);
         btnCerrarSesion.setBackground(Color.WHITE);

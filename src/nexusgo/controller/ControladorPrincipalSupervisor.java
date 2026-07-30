@@ -42,7 +42,7 @@ import nexusgo.view.VistaRealizacionMantenimiento;
  */
 public class ControladorPrincipalSupervisor implements ActionListener {
 
-   private final VistaPrincipalSupervisor vistaPrincipal;
+    private final VistaPrincipalSupervisor vistaPrincipal;
     private VistaInventarioSupervisor panelInventario;
     private VistaProgramarMantenimiento panelProgramarMantenimiento;
     private AperturaCierre panelAperturaCierre;
@@ -224,10 +224,10 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
             if (guardado) {
                 // Al terminar el mantenimiento, la herramienta vuelve a estar disponible en buen estado
-                String nuevoEstado = "EXCELENTE"; 
+                String nuevoEstado = "EXCELENTE";
                 boolean estadoActualizado = herramientaDao.actualizarEstado(herramientaElegida.getIdHerramienta(), nuevoEstado);
 
-                String msgEstado = estadoActualizado 
+                String msgEstado = estadoActualizado
                         ? "\nEstado de la herramienta actualizado a: " + nuevoEstado : "\n(No se pudo actualizar el estado de la herramienta).";
 
                 JOptionPane.showMessageDialog(panelRealizar,
@@ -427,7 +427,16 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                     ? panelProgramarMantenimiento.txtObservaciones.getText().trim() : "";
 
             File imagenAdjunta = panelProgramarMantenimiento.getArchivoImagenSeleccionado();
-            String nombreImagen = (imagenAdjunta != null) ? imagenAdjunta.getName() : "Sin imagen";
+
+            // Requisito: la foto de la herramienta es OBLIGATORIA para poder programar el mantenimiento.
+            if (imagenAdjunta == null) {
+                JOptionPane.showMessageDialog(panelProgramarMantenimiento,
+                        "Debe adjuntar una foto de la herramienta para poder programar el mantenimiento.",
+                        "Foto Obligatoria", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            String nombreImagen = imagenAdjunta.getName();
 
             String notasCompletas = "Falla: " + fallaProblema + " | Obs: " + observaciones + " | Img: " + nombreImagen;
 

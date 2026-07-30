@@ -20,6 +20,15 @@ public class Mantenimiento {
     private String observaciones;
     private String tipoMantenimiento;
     private Date fechaProgramada;
+    private String fotoReporte;
+
+    public String getFotoReporte() {
+        return fotoReporte;
+    }
+
+    public void setFotoReporte(String fotoReporte) {
+        this.fotoReporte = fotoReporte;
+    }
     private int idTecnicoResponsable;
 
     // --- Constructor Vacío ---

@@ -39,14 +39,14 @@ public class ControladorMetododePago {
     private String tipoCliente = "General";
     private int idClienteRealBD = 0; // Guardará el PK (id_usuario) de la BD
     private Usuario clienteRegistrado = null; // Objeto cliente cuando es Registrado
-    
+
     private UsuarioDao usuarioDao = new UsuarioDao();
     private FacturaDao facturaDao;
     private List<DetalleCarrito> carritoActual;
     private int idCajaActual = 0;
     private Usuario operarioLogueado = null; //Operario que inicio sesion para atenderlo
     private boolean cambioValidado = false; //true solo si el dinero recibido ya se calculo y alcanza  
-    
+
     public void setOperarioLogueado(Usuario operarioLogueado) {
         this.operarioLogueado = operarioLogueado;
     }
@@ -72,16 +72,16 @@ public class ControladorMetododePago {
     }
 
     private void inicializarControlador(double totalVenta) {
-        
+
         // Se guarda el valor total de la venta
         this.totalFactura = totalVenta;
 
         // Se verifica que la vista principal exista 
         if (this.vistaPrincipal != null) {
-            
+
             // Se envía el valor total de la venta a la vista
             this.vistaPrincipal.setTotal(totalFactura);
-            
+
             // Se registran los eventos correspondientes a la vista principal
             initListenersVistaPrincipal();
         }
@@ -155,7 +155,7 @@ public class ControladorMetododePago {
         if (this.vistaEfectivo.getBtnConfirmarPago() != null) {
             this.vistaEfectivo.getBtnConfirmarPago().addActionListener(e -> {
                 if (!cambioValidado) {
-                    JOptionPane.showMessageDialog(vistaEfectivo,"Debe ingresar el dinero recibido y presionar \"Calcular\" antes de confirmar el pago.",
+                    JOptionPane.showMessageDialog(vistaEfectivo, "Debe ingresar el dinero recibido y presionar \"Calcular\" antes de confirmar el pago.",
                             "Falta Validar Dinero", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
@@ -176,14 +176,14 @@ public class ControladorMetododePago {
 
         if (clienteEncontrado != null) {
             clienteIdActual = numIdentificacion;
-            idClienteRealBD = clienteEncontrado.getIdUsuario(); 
+            idClienteRealBD = clienteEncontrado.getIdUsuario();
             clienteRegistrado = clienteEncontrado; // Guardamos el objeto cliente hallado
-            
+
             JOptionPane.showMessageDialog(
-                vistaPrincipal, 
-                "Cliente verificado: " + clienteEncontrado.getNombre() + " " + clienteEncontrado.getApellido(), 
-                "Éxito", 
-                JOptionPane.INFORMATION_MESSAGE
+                    vistaPrincipal,
+                    "Cliente verificado: " + clienteEncontrado.getNombre() + " " + clienteEncontrado.getApellido(),
+                    "Éxito",
+                    JOptionPane.INFORMATION_MESSAGE
             );
         } else {
             idClienteRealBD = 0;
@@ -221,7 +221,7 @@ public class ControladorMetododePago {
                 break;
 
             default:
-                JOptionPane.showMessageDialog(vistaPrincipal, "Seleccione un método de pago válido.", 
+                JOptionPane.showMessageDialog(vistaPrincipal, "Seleccione un método de pago válido.",
                         "Advertencia", JOptionPane.WARNING_MESSAGE);
                 break;
         }
@@ -233,7 +233,7 @@ public class ControladorMetododePago {
             double dineroRecibido = Double.parseDouble(textoMonto);
 
             if (dineroRecibido < totalFactura) {
-                JOptionPane.showMessageDialog(vistaEfectivo, "El monto ingresado es menor al total a pagar.", 
+                JOptionPane.showMessageDialog(vistaEfectivo, "El monto ingresado es menor al total a pagar.",
                         "Monto Insuficiente", JOptionPane.WARNING_MESSAGE);
                 vistaEfectivo.setCambioMonto(0);
                 cambioValidado = false;
@@ -243,7 +243,7 @@ public class ControladorMetododePago {
                 cambioValidado = true;
             }
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(vistaEfectivo, "Por favor ingrese un valor numérico válido.", 
+            JOptionPane.showMessageDialog(vistaEfectivo, "Por favor ingrese un valor numérico válido.",
                     "Error de Formato", JOptionPane.ERROR_MESSAGE);
             cambioValidado = false;
         }
@@ -254,7 +254,7 @@ public class ControladorMetododePago {
             // 1. Instanciar y estructurar el objeto Factura
             Factura factura = new Factura();
             factura.setFechaVenta(new Date());
-            factura.setSubtotal(totalFactura); 
+            factura.setSubtotal(totalFactura);
             factura.setTotal(totalFactura);
             factura.setDetalles(carritoActual);
 
@@ -265,17 +265,17 @@ public class ControladorMetododePago {
             if (clienteParaFactura != null) {
                 factura.setIdCliente(clienteParaFactura.getIdUsuario());
             } else {
-                factura.setIdCliente(0); 
+                factura.setIdCliente(0);
             }
 
             // Validar estado de la caja
-            if (idCajaActual <= 0 || !new CajaDao().verificarCajaAbierta(idCajaActual)){
-                JOptionPane.showMessageDialog(null, "La caja en estos momentos se encuentra en ESTADO CERRADO.\n" +
-                        "No se puede registrar la venta. Por favor, verifique con el Supervisor encargado el estado de la caja.",
+            if (idCajaActual <= 0 || !new CajaDao().verificarCajaAbierta(idCajaActual)) {
+                JOptionPane.showMessageDialog(null, "La caja en estos momentos se encuentra en ESTADO CERRADO.\n"
+                        + "No se puede registrar la venta. Por favor, verifique con el Supervisor encargado el estado de la caja.",
                         "Caja no disponible", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            
+
             factura.setIdCaja(idCajaActual);
 
             // 2. Guardar en Base de Datos a través del DAO
@@ -300,7 +300,7 @@ public class ControladorMetododePago {
                 } catch (NoSuchMethodError | Exception ex) {
                     vistaTemporal = new VistaFactura(factura, carritoActual);
                 }
-                
+
                 final VistaFactura vistaFactura = vistaTemporal; // Variable final explícita
 
                 // Evento: Abrir o imprimir PDF
