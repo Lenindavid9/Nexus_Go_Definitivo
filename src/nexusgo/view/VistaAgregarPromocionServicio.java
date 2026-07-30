@@ -20,7 +20,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 
 import nexusgo.model.Servicios;
 
@@ -41,8 +40,8 @@ public class VistaAgregarPromocionServicio extends JPanel {
     public JButton btnCargarImagen;
     public JLabel lblNombreImagen;
     public JButton btnGuardar;
-    public JButton btnVolver;
-    public JButton btnCerrarSesion;
+    
+     private final Color COLOR_DORADO = new Color(184, 134, 11);
 
     public VistaAgregarPromocionServicio() {
         setLayout(new BorderLayout());
@@ -53,15 +52,6 @@ public class VistaAgregarPromocionServicio extends JPanel {
         panelSuperior.setOpaque(false);
         panelSuperior.setBorder(BorderFactory.createEmptyBorder(15, 20, 10, 20));
 
-        btnCerrarSesion = new JButton("cerrar sesion");
-        btnCerrarSesion.setFont(new Font("SansSerif", Font.BOLD, 13));
-        btnCerrarSesion.setForeground(Color.WHITE);
-        btnCerrarSesion.setBackground(new Color(255, 204, 0));
-        btnCerrarSesion.setFocusPainted(false);
-        btnCerrarSesion.setBorder(BorderFactory.createEmptyBorder(8, 18, 8, 18));
-        btnCerrarSesion.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        panelSuperior.add(btnCerrarSesion, BorderLayout.EAST);
         add(panelSuperior, BorderLayout.NORTH);
 
         // --- TARJETA CENTRAL BLANCA ---
@@ -86,13 +76,6 @@ public class VistaAgregarPromocionServicio extends JPanel {
 
         gbc.gridx = 1;
         gbc.anchor = GridBagConstraints.EAST;
-        btnVolver = new JButton("< Volver al inicio");
-        btnVolver.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        btnVolver.setForeground(new Color(80, 80, 80));
-        btnVolver.setContentAreaFilled(false);
-        btnVolver.setBorderPainted(false);
-        btnVolver.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        panelTarjeta.add(btnVolver, gbc);
 
         // 1. CAMPO: Nombre del servicio
         gbc.gridx = 0;
@@ -181,7 +164,7 @@ public class VistaAgregarPromocionServicio extends JPanel {
         btnGuardar = new JButton("Guardar");
         btnGuardar.setFont(new Font("SansSerif", Font.BOLD, 18));
         btnGuardar.setForeground(Color.WHITE);
-        btnGuardar.setBackground(new Color(255, 204, 0));
+        btnGuardar.setBackground(COLOR_DORADO);
         btnGuardar.setFocusPainted(false);
         btnGuardar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         btnGuardar.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -228,14 +211,6 @@ public class VistaAgregarPromocionServicio extends JPanel {
 
     public JButton getBtnGuardar() {
         return btnGuardar;
-    }
-
-    public JButton getBtnVolver() {
-        return btnVolver;
-    }
-
-    public JButton getBtnCerrarSesion() {
-        return btnCerrarSesion;
     }
 
     // --- MÉTODOS AUXILIARES ---

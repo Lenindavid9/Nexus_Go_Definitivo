@@ -15,6 +15,8 @@ import java.awt.Image;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.net.URL;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -33,12 +35,12 @@ import javax.swing.border.EmptyBorder;
 public class VistaPrincipalCliente extends JFrame {
 
     private JLabel fondo, lblBienvenida;
-    private JPanel contenidoCentralDinamico, panelGridProductos, 
+    private JPanel contenidoCentralDinamico, panelGridProductos,
             panelGridPromociones, panelGridCombos, panelGridServicios, contenedorEstructural;
     private JScrollPane scrollContenido;
     public JButton btnReservarCita, btnCerrarSesion, btnHistorial;
     public VistaBarraLateral sidebar;
-    
+
     private final Color COLOR_DORADO = new Color(184, 134, 11);
 
     public VistaPrincipalCliente() {
@@ -48,11 +50,11 @@ public class VistaPrincipalCliente extends JFrame {
     public VistaPrincipalCliente(String nombreUsuario, String rolUsuario) {
         super("Nexus GO - Cliente");
 
-        // 1. Fondo con imagen
+        // Fondo con imagen
         fondo = new JLabel(new ImageIcon("src/nexusgo/img/fondoprincipal.jpg"));
         fondo.setLayout(new BorderLayout());
         setContentPane(fondo);
-        
+
         contenedorEstructural = new JPanel(new BorderLayout());
         contenedorEstructural.setOpaque(false);
 
@@ -68,7 +70,6 @@ public class VistaPrincipalCliente extends JFrame {
         lblBienvenida = new JLabel("Hola, " + nombreUsuario + " | Bienvenid@ a Nexus GO", SwingConstants.CENTER);
         lblBienvenida.setFont(new Font("Segoe UI", Font.BOLD, 20));
         lblBienvenida.setForeground(Color.WHITE);
-        
 
         btnCerrarSesion = new JButton("cerrar sesión");
         btnCerrarSesion.setBackground(Color.white);
@@ -94,12 +95,11 @@ public class VistaPrincipalCliente extends JFrame {
         scrollContenido = new JScrollPane(contenidoCentralDinamico);
         scrollContenido.setOpaque(false);
         scrollContenido.getViewport().setOpaque(false);
-        scrollContenido.setBorder(new EmptyBorder(15,20,15,20));
+        scrollContenido.setBorder(new EmptyBorder(15, 20, 15, 20));
 
         contenedorEstructural.add(sidebar, BorderLayout.WEST);
         contenedorEstructural.add(scrollContenido, BorderLayout.CENTER);
         fondo.add(contenedorEstructural, BorderLayout.CENTER);
-        
 
         this.add(contenedorEstructural);
         this.setSize(1040, 720);
@@ -141,20 +141,19 @@ public class VistaPrincipalCliente extends JFrame {
 
 ////        contenidoCentralDinamico.add(btnReservarCita);
 //        contenidoCentralDinamico.add(Box.createVerticalStrut(20));
-
-        // 1. Promociones
+        // Promociones
         contenidoCentralDinamico.add(panelEtiquetaPromo);
         contenidoCentralDinamico.add(Box.createVerticalStrut(15));
         contenidoCentralDinamico.add(panelGridPromociones);
         contenidoCentralDinamico.add(Box.createVerticalStrut(25));
 
-        // 2. Combos
+        // Combos
         contenidoCentralDinamico.add(panelEtiquetaCombos);
         contenidoCentralDinamico.add(Box.createVerticalStrut(15));
         contenidoCentralDinamico.add(panelGridCombos);
         contenidoCentralDinamico.add(Box.createVerticalStrut(25));
 
-        // 3. Servicios
+        // Servicios
         contenidoCentralDinamico.add(panelEtiquetaServicios);
         contenidoCentralDinamico.add(Box.createVerticalStrut(15));
         contenidoCentralDinamico.add(panelGridServicios);
@@ -173,7 +172,7 @@ public class VistaPrincipalCliente extends JFrame {
     private JPanel crearBannerEtiqueta(String titulo) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         panel.setOpaque(false);
-        
+
         JLabel label = new JLabel(titulo, SwingConstants.CENTER);
         label.setOpaque(false);
         label.setForeground(Color.WHITE);
@@ -220,7 +219,7 @@ public class VistaPrincipalCliente extends JFrame {
 
         String rutaLimpia = (rutaImagen != null) ? rutaImagen.trim() : "";
 
-        /* Nos quedamos solo con el nombre del archivo (sin importar qué carpeta
+        /* se queda solo con el nombre del archivo (sin importar qué carpeta
         traiga por delante en la BD, como "img/productos/x.jpg" o "src/img/x.jpg").*/
         String nombreArchivo = rutaLimpia.isEmpty() ? "default.jpg" : new File(rutaLimpia).getName();
 
@@ -252,14 +251,14 @@ public class VistaPrincipalCliente extends JFrame {
         segundo Si el ancho de la imagen es menor o igual a cero, significa
         que la imagen no pudo cargarse correctamente.*/
         if (iconoOriginal == null || iconoOriginal.getIconWidth() <= 0) {
-            
-             /* Se intenta como "localizar" la imagen dentro de los recursos
+
+            /* Se intenta como "localizar" la imagen dentro de los recursos
              internos del proyecto utilizando su nombre de archivo.*/
             URL imgURL = getClass().getResource("/nexusgo/img/" + nombreArchivo);
-            
+
             // Se verifica que la imagen haya sido encontrada.
             if (imgURL != null) {
-                
+
                 // Si la imagen existe dentro del proyecto, se crea un nuevo objeto
                 iconoOriginal = new ImageIcon(imgURL);
             }
@@ -267,10 +266,10 @@ public class VistaPrincipalCliente extends JFrame {
 
         // Si nada de lo anterior funcionó, usamos la imagen por defecto.
         if (iconoOriginal == null || iconoOriginal.getIconWidth() <= 0) {
-            
+
             //Se usa la imagen predeterminada.
             URL defaultURL = getClass().getResource("/nexusgo/img/default.jpg");
-            
+
             /*se utiliza el operador ternario para comprobar si la imagen predeterminada fue encontrada.
             (RECUERDEN QUE!! (? :), que es una forma abreviada de escribir un if...else.)
             Si defaultURL contiene una ruta válida, se crea un nuevo
@@ -298,7 +297,10 @@ public class VistaPrincipalCliente extends JFrame {
             lblNombre.addMouseListener(listener);
         }
 
-        JLabel lblPrecio = new JLabel(String.format("$%.2f", precio), SwingConstants.CENTER);
+        DecimalFormatSymbols simbolos = new DecimalFormatSymbols();
+        simbolos.setGroupingSeparator('.');
+        DecimalFormat formatoPrecio = new DecimalFormat("#,###", simbolos);
+        JLabel lblPrecio = new JLabel("$" + formatoPrecio.format(precio), SwingConstants.CENTER);
         lblPrecio.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblPrecio.setForeground(new Color(40, 140, 40));
         lblPrecio.setAlignmentX(CENTER_ALIGNMENT);

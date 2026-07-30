@@ -4,15 +4,12 @@
  */
 package nexusgo.controller;
 
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.Date;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import nexusgo.model.ServicioDao;
 import nexusgo.model.Servicios;
@@ -28,10 +25,8 @@ public class ControladorAgregarServicio implements ActionListener {
     private final VistaAgregarServicio vista;
     private final ServicioDao servicioDao;
 
-    /*
-     * Constructor principal del controlador.
-     * Recibe e inyecta las dependencias necesarias de la vista y el DAO.
-     */
+    /*Constructor principal del controlador.
+    Recibe e inyecta las dependencias necesarias de la vista y el DAO.*/
     public ControladorAgregarServicio(VistaAgregarServicio vista, ServicioDao servicioDao) {
         if (vista == null || servicioDao == null) {
             throw new IllegalArgumentException("La vista y el ServicioDao no pueden ser nulos.");
@@ -43,31 +38,21 @@ public class ControladorAgregarServicio implements ActionListener {
         inicializarListeners();
     }
 
-    /*
-     * Suscribe los botones de la vista al listener de acciones.
-     */
+    //Suscribe los botones de la vista al listener de acciones.
     private void inicializarListeners() {
         try {
             if (this.vista.btnGuardar != null) {
                 this.vista.btnGuardar.addActionListener(this);
             }
-            if (this.vista.btnVolver != null) {
-                this.vista.btnVolver.addActionListener(this);
-            }
             if (this.vista.btnCargarImagen != null) {
                 this.vista.btnCargarImagen.addActionListener(this);
-            }
-            if (this.vista.btnCerrarSesion != null) {
-                this.vista.btnCerrarSesion.addActionListener(this);
             }
         } catch (Exception e) {
             System.err.println("Error al inicializar los listeners de la vista: " + e.getMessage());
         }
     }
 
-    /*
-     * Captura y despacha los eventos generados en la interfaz gráfica.
-     */
+    //Captura y despacha los eventos generados en la interfaz gráfica.
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
@@ -77,21 +62,10 @@ public class ControladorAgregarServicio implements ActionListener {
                 return;
             }
 
-            // Accion: Boton Volver
-            if (this.vista.btnVolver != null && e.getSource() == this.vista.btnVolver) {
-                accionVolver();
-                return;
-            }
-
             // Accion: Boton Cargar Imagen
             if (this.vista.btnCargarImagen != null && e.getSource() == this.vista.btnCargarImagen) {
                 cargarImagen();
                 return;
-            }
-
-            // Accion: Boton Cerrar Sesion
-            if (this.vista.btnCerrarSesion != null && e.getSource() == this.vista.btnCerrarSesion) {
-                cerrarSesion();
             }
 
         } catch (Exception ex) {
@@ -101,9 +75,7 @@ public class ControladorAgregarServicio implements ActionListener {
         }
     }
 
-    /*
-     * Método encargado del procesamiento, validación y almacenamiento del servicio en la BD.
-     */
+    //Método encargado del procesamiento, validación y almacenamiento del servicio en la BD.
     private void guardarServicio() {
         try {
             // Control de existencia de los componentes requeridos en la vista
@@ -133,7 +105,7 @@ public class ControladorAgregarServicio implements ActionListener {
 
             int totalDuracionMinutos = (horas * 60) + minutos;
 
-            // 1. Validar campos obligatorios
+            // Validar campos obligatorios
             if (nombre.isEmpty() || precioTexto.isEmpty()) {
                 JOptionPane.showMessageDialog(vista,
                         "Por favor complete los campos obligatorios: Nombre del servicio y Precio.",
@@ -141,7 +113,7 @@ public class ControladorAgregarServicio implements ActionListener {
                 return;
             }
 
-            // 2. Validación de conversión para el precio
+            // Validación de conversión para el precio
             double precio;
             try {
                 precio = Double.parseDouble(precioTexto.replace(',', '.'));
@@ -192,9 +164,8 @@ public class ControladorAgregarServicio implements ActionListener {
         }
     }
 
-    /*
-     * Método auxiliar para evitar que los textos del placeholder de la vista se lean como datos reales.
-     */
+    /*Método auxiliar para evitar que los textos del placeholder
+    de la vista se lean como datos reales.*/
     private String obtenerTextoValido(JTextField txtField, String placeholder) {
         if (txtField == null) {
             return "";
@@ -203,9 +174,7 @@ public class ControladorAgregarServicio implements ActionListener {
         return texto.equals(placeholder) ? "" : texto;
     }
 
-    /*
-     * Acción para examinar y cargar la imagen del servicio.
-     */
+    //Acción para examinar y cargar la imagen del servicio.
     private void cargarImagen() {
         try {
             JFileChooser fileChooser = new JFileChooser();
@@ -230,36 +199,7 @@ public class ControladorAgregarServicio implements ActionListener {
         }
     }
 
-    /*
-     * Acción del botón Volver
-     */
-    private void accionVolver() {
-        JOptionPane.showMessageDialog(vista, "Regresando al menú principal...", "NexusGO", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    /*
-     * Acción para cerrar sesión
-     */
-    private void cerrarSesion() {
-        int confirmacion = JOptionPane.showConfirmDialog(
-                vista,
-                "¿Está seguro de que desea cerrar la sesión actual?",
-                "NexusGO - Cerrar Sesión",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-        );
-
-        if (confirmacion == JOptionPane.YES_OPTION) {
-            Window window = SwingUtilities.getWindowAncestor(vista);
-            if (window != null) {
-                window.dispose();
-            }
-        }
-    }
-
-    /*
-     * Restablece los campos de texto, el spinner y los combos a sus valores iniciales.
-     */
+    //Restablece los campos de texto, el spinner y los combos a sus valores iniciales.
     private void limpiarCampos() {
         try {
             if (vista.txtNombreServicio != null) {

@@ -9,6 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -246,7 +248,7 @@ public class UsuarioDao {
     public List<Object[]> listarCitasPorCliente(int idCliente) {
         List<Object[]> lista = new ArrayList<>();
 
-        // Ajusta los nombres de tablas/columnas según tu DB de Nexus GO
+        // Ajusta los nombres de tablas según la bases de datos
         String sql = "SELECT s.nombre_servicio, c.fecha_hora_programada, s.precio "
                 + "FROM citas c "
                 + "JOIN servicios s ON c.id_servicio = s.id_servicio "
@@ -257,10 +259,13 @@ public class UsuarioDao {
             ps.setInt(1, idCliente);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
+                    DecimalFormatSymbols simbolos = new DecimalFormatSymbols();
+                    simbolos.setGroupingSeparator('.');
+                    DecimalFormat formatoPrecio = new DecimalFormat("#,###", simbolos);
                     Object[] fila = new Object[]{
                         rs.getString("nombre_servicio"),
                         rs.getString("fecha_hora_programada"),
-                        "$ " + String.format("%.2f", rs.getDouble("precio"))
+                        "$ " + formatoPrecio.format(rs.getDouble("precio"))
                     };
                     lista.add(fila);
                 }

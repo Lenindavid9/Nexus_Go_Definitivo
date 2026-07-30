@@ -33,6 +33,7 @@ public class VistaPdV extends JPanel {
     private JPanel principal, panelproductos, panelServicios, panelCombos, panelBusqueda;
     private JLabel TituloPrincipal, estado, seccion;
     private JButton facturar, btnReiniciar;
+    private final Color COLOR_DORADO = new Color(184, 134, 11);
 
     public VistaPdV() {
         setLayout(new BorderLayout()); //Aqui definimosel layout del panel principal
@@ -55,11 +56,10 @@ public class VistaPdV extends JPanel {
         //Siguen todos los titulos y subtitulos
         TituloPrincipal = new JLabel("Punto de Venta");
         //Aqui se cambia el color del texto con Foreground
-        TituloPrincipal.setForeground(Color.WHITE);
-        //
+        TituloPrincipal.setForeground(Color.WHITE);  
         TituloPrincipal.setFont(new Font("SansSerif", Font.BOLD, 35));
         TituloPrincipal.setAlignmentX(CENTER_ALIGNMENT);
-
+      
         estado = new JLabel("Estado: Ventas Habilitadas");
         estado.setForeground(Color.WHITE);
         estado.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -132,7 +132,7 @@ public class VistaPdV extends JPanel {
 
     private JLabel crearEncabezadoSeccion(String titulo) {
         JLabel lbl = new JLabel(titulo);
-        lbl.setForeground(Color.WHITE);
+        lbl.setForeground(COLOR_DORADO);
         lbl.setFont(new Font("SansSerif", Font.BOLD, 20));
         lbl.setAlignmentX(LEFT_ALIGNMENT);
         lbl.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 0));
@@ -267,7 +267,5 @@ public class VistaPdV extends JPanel {
 
     public void agregarTarjeta(String nombre, String precio, int stockActual, String imagenArchivo) {
         agregarTarjetaComponentes(nombre, precio, stockActual, imagenArchivo);
-    }
-
-   
+    }   
 }

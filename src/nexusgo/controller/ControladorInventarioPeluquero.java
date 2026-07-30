@@ -13,12 +13,9 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
-import nexusgo.model.HerramientaDao;
-import nexusgo.model.Herramientas;
 import nexusgo.model.Producto;
 import nexusgo.model.ProductoDao;
 import nexusgo.view.PanelInventarioProductosPeluquero;
-import nexusgo.view.VistaInicioSesion;
 import nexusgo.view.VistaPrincipalPeluquero;
 
 import nexusgo.view.VistaRegistrarSalida;
@@ -78,11 +75,6 @@ public class ControladorInventarioPeluquero implements ActionListener {
                 }
             }
 
-            // 3. Listener para el botón volver de la vista principal del inventario
-            if (this.panelInventario.getBtnVolver() != null) {
-                this.panelInventario.getBtnVolver().addActionListener(this);
-            }
-
         } catch (NullPointerException npe) {
             System.err.println("Error al enlazar listeners en ControladorInventarioPeluquero: " + npe.getMessage());
         }
@@ -120,13 +112,6 @@ public class ControladorInventarioPeluquero implements ActionListener {
             if (panelSalidaInsumo != null && e.getSource() == panelSalidaInsumo.btnVolver) {
                 cambiarPanelCentral(this.panelInventario);
                 cargarTablaInventario();
-            }
-
-            // Botón volver del panel de inventario
-            if (e.getSource() == panelInventario.getBtnVolver()) {
-                if (vistaPrincipal != null) {
-                    vistaPrincipal.restaurarComponentesPrincipales();
-                }
             }
 
         } catch (Exception ex) {
