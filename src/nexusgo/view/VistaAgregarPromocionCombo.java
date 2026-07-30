@@ -5,16 +5,9 @@
 package nexusgo.view;
 
 import com.toedter.calendar.JDateChooser;
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.util.Date;
-import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -52,6 +45,8 @@ public class VistaAgregarPromocionCombo extends JPanel {
     public JButton btnCargarImagen;
     public JButton btnGuardar;
     public JLabel lblNombreImagen;
+    
+    private final Color COLOR_DORADO = new Color(184, 134, 11);
 
     public VistaAgregarPromocionCombo() {
         setLayout(null);
