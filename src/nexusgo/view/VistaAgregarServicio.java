@@ -57,14 +57,14 @@ public class VistaAgregarServicio extends JPanel {
         setLayout(new BorderLayout());
         setOpaque(false);
 
-        // 1. PANEL SUPERIOR
+        // PANEL SUPERIOR
         JPanel panelSuperiorDerecho = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         panelSuperiorDerecho.setOpaque(false);
         panelSuperiorDerecho.setBorder(new EmptyBorder(15, 0, 0, 25));
 
         add(panelSuperiorDerecho, BorderLayout.NORTH);
 
-        // 2. PANEL CONTENIDO (Centrado absoluto)
+        // PANEL CONTENIDO (Centrado absoluto)
         JPanel panelContenido = new JPanel(new GridBagLayout());
         panelContenido.setOpaque(false);
         

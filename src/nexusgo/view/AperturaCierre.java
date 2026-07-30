@@ -260,6 +260,5 @@ public class AperturaCierre extends JPanel {
 
     public JLabel getLbltxtMontoTV() {
         return lbltxtMontoTV;
-    }
-    
+    }   
 }
