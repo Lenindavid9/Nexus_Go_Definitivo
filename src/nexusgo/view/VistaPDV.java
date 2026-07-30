@@ -33,7 +33,6 @@ public class VistaPdV extends JPanel {
     private JPanel principal, panelproductos, panelServicios, panelCombos, panelBusqueda;
     private JLabel TituloPrincipal, estado, seccion;
     private JButton facturar, btnReiniciar;
-    
     private final Color COLOR_DORADO = new Color(184, 134, 11);
 
     public VistaPdV() {
@@ -270,13 +269,4 @@ public class VistaPdV extends JPanel {
         agregarTarjetaComponentes(nombre, precio, stockActual, imagenArchivo);
     }
 
-//    // --- Tarjetas para Servicios y Combos ---
-//    // Todavia no se pueden vender aun me falta crear las tablas de detalle de factura
-//    public void agregarTarjetaServicio(String nombre, String precio, String imagenArchivo) {
-//        agregarTarjetaNoDisponible(panelServicios, nombre, precio, imagenArchivo, "Servicio");
-//    }
-//
-//    public void agregarTarjetaCombo(String nombre, String precio, String imagenArchivo) {
-//        agregarTarjetaNoDisponible(panelCombos, nombre, precio, imagenArchivo, "Combo");
-//    }
 }

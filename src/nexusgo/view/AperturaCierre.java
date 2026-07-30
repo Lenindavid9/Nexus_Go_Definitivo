@@ -24,7 +24,7 @@ public class AperturaCierre extends JPanel {
     private JPanel principal, apertura, cierre, confirmacion, infoCierre, infoApertura,infoConfirmacion, CalcularC;
     private JLabel imgApertura, tituloA, imgCierre, tituloC, lblsubC, lblMontoA, lbltxtMontoA,lblMontoVT, lbltxtMontoTV,
             tituloConf, lblsubConf, lblMontoF, lblsubA, lblMontoInicial;
-    private JButton btnApertura, btnCalcular;
+    private JButton  btnApertura, btnCalcular;
     private JTextField txtMontoInicial,txtMontoF;
     
     private final Color COLOR_DORADO = new Color(184, 134, 11);

@@ -55,8 +55,8 @@ public class VistaPrincipalSupervisor extends JFrame {
         sidebar.setBackground(Color.WHITE);
 
         // Visibilidad de opciones del menú
-        sidebar.bCasa.setVisible(true);        // Inicio
-        sidebar.bInventario.setVisible(false); // Oculto para supervisor
+        sidebar.bCasa.setVisible(true);        
+        sidebar.bInventario.setVisible(false);
         sidebar.misCitas.setVisible(true); 
         
         btnCaja = new JButton(new ImageIcon("src/nexusgo/img/caja.png"));

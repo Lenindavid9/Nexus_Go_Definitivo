@@ -75,24 +75,22 @@ public class ReportesFinancieros extends JPanel {
         btnProcesar = new JButton("Procesar Reporte");
         // Después de filtros.add(btnProcesar);
         btnProcesar.addActionListener(e -> {
-    String mesSeleccionado = (String) comboMes.getSelectedItem();
-    String anioSeleccionado = (String) comboAnio.getSelectedItem();
+            String mesSeleccionado = (String) comboMes.getSelectedItem();
+            String anioSeleccionado = (String) comboAnio.getSelectedItem();
 
-    int mesNum = obtenerNumeroMes(mesSeleccionado);
-    int anioNum = Integer.parseInt(anioSeleccionado);
+            int mesNum = obtenerNumeroMes(mesSeleccionado);
+            int anioNum = Integer.parseInt(anioSeleccionado);
 
-    ReporteDao dao = new ReporteDao();
-    ReporteFinanciero reporte = dao.obtenerReporte(mesNum, anioNum);
+            ReporteDao dao = new ReporteDao();
+            ReporteFinanciero reporte = dao.obtenerReporte(mesNum, anioNum);
 
-    modeloTabla.setValueAt(reporte.getSumaServicios(), 0, 0);
-    modeloTabla.setValueAt(reporte.getSumaPromociones(), 0, 1);
-    modeloTabla.setValueAt(reporte.getTotalNeto(), 0, 2);
-    modeloTabla.setValueAt(reporte.getServicioMes(), 0, 3);
+            modeloTabla.setValueAt(reporte.getSumaServicios(), 0, 0);
+            modeloTabla.setValueAt(reporte.getSumaPromociones(), 0, 1);
+            modeloTabla.setValueAt(reporte.getTotalNeto(), 0, 2);
+            modeloTabla.setValueAt(reporte.getServicioMes(), 0, 3);
 
-    actualizarGrafica();
-});
-
-
+            actualizarGrafica();
+        });
 
         filtros.add(new JLabel("Mes:"));
         filtros.add(comboMes);
@@ -161,8 +159,6 @@ public class ReportesFinancieros extends JPanel {
     public DefaultTableModel getModeloTabla() {
         return modeloTabla;
     }
-    
-    
 
     private ChartPanel crearGrafica() {
         Object val0 = modeloTabla.getValueAt(0, 0);
@@ -203,24 +199,36 @@ public class ReportesFinancieros extends JPanel {
         panelGrafica.revalidate();
         panelGrafica.repaint();
     }
-    
-    private int obtenerNumeroMes(String mes) {
-    switch (mes) {
-        case "Enero": return 1;
-        case "Febrero": return 2;
-        case "Marzo": return 3;
-        case "Abril": return 4;
-        case "Mayo": return 5;
-        case "Junio": return 6;
-        case "Julio": return 7;
-        case "Agosto": return 8;
-        case "Septiembre": return 9;
-        case "Octubre": return 10;
-        case "Noviembre": return 11;
-        case "Diciembre": return 12;
-        default: return 0;
-    }
-}
 
+    private int obtenerNumeroMes(String mes) {
+        switch (mes) {
+            case "Enero":
+                return 1;
+            case "Febrero":
+                return 2;
+            case "Marzo":
+                return 3;
+            case "Abril":
+                return 4;
+            case "Mayo":
+                return 5;
+            case "Junio":
+                return 6;
+            case "Julio":
+                return 7;
+            case "Agosto":
+                return 8;
+            case "Septiembre":
+                return 9;
+            case "Octubre":
+                return 10;
+            case "Noviembre":
+                return 11;
+            case "Diciembre":
+                return 12;
+            default:
+                return 0;
+        }
+    }
 
 }
