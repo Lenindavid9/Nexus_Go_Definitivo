@@ -98,8 +98,8 @@ public class VistaFactura extends JPanel {
 
         String textoOperario = "Operario: Nexus Admin";
         if (operario != null) {
-            String nombreOperario = (operario.getNombre() != null ? operario.getNombre() : "") + " " +
-                                    (operario.getApellido() != null ? operario.getApellido() : "");
+            String nombreOperario = (operario.getNombre() != null ? operario.getNombre() : "") + " "
+                    + (operario.getApellido() != null ? operario.getApellido() : "");
             if (!nombreOperario.trim().isEmpty()) {
                 textoOperario = "Operario: " + nombreOperario.trim();
             }
@@ -283,7 +283,6 @@ public class VistaFactura extends JPanel {
         btnAnular.setMaximumSize(new Dimension(400, 50));
         btnAnular.setBorder(BorderFactory.createLineBorder(new Color(203, 67, 53), 1));
         btnAnular.setAlignmentX(CENTER_ALIGNMENT);
-
 
         pnlOpciones.add(Box.createVerticalGlue());
         pnlOpciones.add(btnImprimir);

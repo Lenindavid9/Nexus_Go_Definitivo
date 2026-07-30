@@ -164,10 +164,11 @@ public class ControladorPdV implements ActionListener {
             }
         }
     }
+
     /* Agrega o acumula un ítem en el carrito. Sirve para productos (con límite
     real de stock) y también para servicios y combos (sin límite de stock,
     pasando stockDisponible = -1). */
-    
+
     private boolean agregarOActualizarItem(int id, String tipo, String nombre, int cantidad, double precioUnitario, int stockDisponible) {
         boolean itemExiste = false;
         int cantidadYaEnCarrito = 0;
@@ -200,6 +201,7 @@ public class ControladorPdV implements ActionListener {
         }
         return true;
     }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         // Evento Botón Facturar -> Transición hacia Método de Pago
@@ -222,7 +224,7 @@ public class ControladorPdV implements ActionListener {
 
             // 2. Instanciar su controlador pasándole la vista, los datos de la venta y el contenedor
             ControladorMetododePago controladorPago = new ControladorMetododePago(vistaPago, carrito, totalVenta, obtenerContenedorObjetivo(), idCajaActual);
-            controladorPago.setOperarioLogueado(usuarioLogueado); 
+            controladorPago.setOperarioLogueado(usuarioLogueado);
 
             // 3. Redireccionar a la pantalla de selección de Método de Pago
             cambiarPanel(vistaPago);

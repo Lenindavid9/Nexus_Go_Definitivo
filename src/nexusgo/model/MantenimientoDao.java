@@ -16,7 +16,6 @@ public class MantenimientoDao {
 
     Conexion conexion = new Conexion();
 
-
     public boolean registrarProgramacion(Mantenimiento mant) {
         String sql = """
                      INSERT INTO mantenimientos 
@@ -46,6 +45,30 @@ public class MantenimientoDao {
 
         } catch (SQLException e) {
             System.out.println("Error al registrar programación de mantenimiento: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean registrarEjecucion(int idHerramienta, String descripcionTrabajo, String fotoDespuesPath, double horasInvertidas, String observaciones) {
+        String sql = """
+                     UPDATE mantenimientos 
+                     SET descripcion_trabajo = ?, foto_despues = ?, horas_invertidas = ?, observaciones = ?, estado = 'REALIZADO' 
+                     WHERE id_herramienta = ? AND estado = 'PENDIENTE'
+                     """;
+
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, descripcionTrabajo);
+            ps.setString(2, fotoDespuesPath);
+            ps.setDouble(3, horasInvertidas);
+            ps.setString(4, observaciones);
+            ps.setInt(5, idHerramienta);
+
+            int filasAfectadas = ps.executeUpdate();
+            return filasAfectadas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al registrar ejecución de mantenimiento: " + e.getMessage());
             return false;
         }
     }

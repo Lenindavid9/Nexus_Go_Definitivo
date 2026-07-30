@@ -26,9 +26,9 @@ import nexusgo.model.Herramientas;
  *
  * @author USUARIO
  */
-public class VistaRealizacionMantenimiento extends JPanel{
-    
-   // Componentes de interfaz
+public class VistaRealizacionMantenimiento extends JPanel {
+
+    // Componentes de interfaz
     public JLabel lblTitulo;
     public JButton btnVolver;
 
@@ -50,11 +50,10 @@ public class VistaRealizacionMantenimiento extends JPanel{
     private File archivoImagenAntes;
     private File archivoImagenDespues;
     private List<Herramientas> listaHerramientasActuales;
-    
+
     private final Color COLOR_DORADO = new Color(184, 134, 11);
 
     public VistaRealizacionMantenimiento() {
-
 
         this.setBounds(150, 100, 800, 600);
         this.setBackground(Color.WHITE);
@@ -66,7 +65,6 @@ public class VistaRealizacionMantenimiento extends JPanel{
         lblTitulo.setForeground(Color.BLACK);
         lblTitulo.setBounds(0, 20, 800, 35);
         this.add(lblTitulo);
-
 
         btnVolver = new JButton("< Volver");
         btnVolver.setFont(new Font("Segoe UI", Font.PLAIN, 13));
@@ -108,7 +106,6 @@ public class VistaRealizacionMantenimiento extends JPanel{
         btnFotoAntes = crearBotonAdjuntar("Imagen de antes del mantenimiento");
         btnFotoAntes.setBounds(285, 192, 230, 32);
         this.add(btnFotoAntes);
-
 
         // Recuadro Preview Antes
         lblPreviewAntes = new JLabel("Sin foto", SwingConstants.CENTER);
@@ -174,7 +171,8 @@ public class VistaRealizacionMantenimiento extends JPanel{
     }
 
     /**
-     * Carga dinámicamente las herramientas registradas en la base de datos dentro del JComboBox.
+     * Carga dinámicamente las herramientas registradas en la base de datos
+     * dentro del JComboBox.
      */
     public void cargarHerramientas(List<Herramientas> lista) {
         this.listaHerramientasActuales = lista;
@@ -189,10 +187,13 @@ public class VistaRealizacionMantenimiento extends JPanel{
     }
 
     /**
-     * Selecciona automáticamente un ítem en el ComboBox según la herramienta elegida previamente.
+     * Selecciona automáticamente un ítem en el ComboBox según la herramienta
+     * elegida previamente.
      */
     public void seleccionarHerramientaPorId(int idHerramienta) {
-        if (listaHerramientasActuales == null) return;
+        if (listaHerramientasActuales == null) {
+            return;
+        }
         for (int i = 0; i < listaHerramientasActuales.size(); i++) {
             if (listaHerramientasActuales.get(i).getIdHerramienta() == idHerramienta) {
                 cbHerramientas.setSelectedIndex(i + 1); // +1 por el ítem por defecto

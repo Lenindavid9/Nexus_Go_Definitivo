@@ -49,6 +49,7 @@ public class GeneradorFacturaPdf {
 
     /**
      * Crea un archivo PDF con la información de la factura y del cliente.
+     *
      * @return La ruta absoluta del archivo PDF guardado en el Escritorio.
      */
     public static String generarPdf(Factura factura, Usuario cliente) {
@@ -185,15 +186,17 @@ public class GeneradorFacturaPdf {
     }
 
     /**
-     * Sobrecarga del método generarPdf por si se llama sin especificar un cliente
+     * Sobrecarga del método generarPdf por si se llama sin especificar un
+     * cliente
      */
     public static String generarPdf(Factura factura) {
         return generarPdf(factura, null);
     }
 
     /**
-     * Envía la factura PDF recién creada como archivo adjunto por correo electrónico.
-     * 
+     * Envía la factura PDF recién creada como archivo adjunto por correo
+     * electrónico.
+     *
      * @param destinatarioF Correo electrónico del cliente
      * @param rutaPdf Ruta local donde está guardado el PDF
      * @return true si se envió con éxito, false si falló.

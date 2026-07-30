@@ -42,13 +42,13 @@ public class VistaPdV extends JPanel {
 
     public JPanel VistaNexus() {
         this.setLayout(new BorderLayout());  //aqui volvemos a "re afirmar" el layout principal
-        
+
         //Panel principal donde se va almacenar toda la interfaz
         principal = new JPanel();
         // setOpaque es para que no se va el fondo predeterminado y asi que se pueda ver la imagen asignada en 
         //la vista principal operario
         principal.setOpaque(false);
-        
+
         principal.setLayout(new BoxLayout(principal, BoxLayout.Y_AXIS)); // Con esto se organizan todos los componentes en la columna
         principal.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40)); //Aqui se editan los margenes internos
 
@@ -259,6 +259,7 @@ public class VistaPdV extends JPanel {
         public JButton getBtnAgregar() {
             return btnAgregar;
         }
+
         public JSpinner getSpinner() {
             return spinner;
         }
@@ -268,13 +269,5 @@ public class VistaPdV extends JPanel {
         agregarTarjetaComponentes(nombre, precio, stockActual, imagenArchivo);
     }
 
-//    // --- Tarjetas para Servicios y Combos ---
-//    // Todavia no se pueden vender aun me falta crear las tablas de detalle de factura
-//    public void agregarTarjetaServicio(String nombre, String precio, String imagenArchivo) {
-//        agregarTarjetaNoDisponible(panelServicios, nombre, precio, imagenArchivo, "Servicio");
-//    }
-//
-//    public void agregarTarjetaCombo(String nombre, String precio, String imagenArchivo) {
-//        agregarTarjetaNoDisponible(panelCombos, nombre, precio, imagenArchivo, "Combo");
-//    }
+   
 }
