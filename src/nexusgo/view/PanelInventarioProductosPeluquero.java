@@ -26,8 +26,6 @@ import javax.swing.table.DefaultTableModel;
  */
 public class PanelInventarioProductosPeluquero extends JPanel {
     private JTable tablaInventario;
-    private JButton btnCerrarSesion;
-    private JButton btnVolver;
     private JScrollPane scrollTabla;
     private JPanel tarjetaBlanca;
 
@@ -39,15 +37,6 @@ public class PanelInventarioProductosPeluquero extends JPanel {
         // --- Barra superior con buscador y cerrar sesión ---
         JPanel panelTop = new JPanel(new BorderLayout(10, 10));
         panelTop.setOpaque(false);
-
-
-        btnCerrarSesion = new JButton("Cerrar Sesión");
-        btnCerrarSesion.setFont(new Font("SansSerif", Font.BOLD, 18));
-        btnCerrarSesion.setForeground(COLOR_DORADO);
-        btnCerrarSesion.setBackground(Color.WHITE);
-        btnCerrarSesion.setFocusPainted(false);
-        btnCerrarSesion.setPreferredSize(new Dimension(160, 45));
-        panelTop.add(btnCerrarSesion, BorderLayout.EAST);
         
          
 
@@ -62,14 +51,6 @@ public class PanelInventarioProductosPeluquero extends JPanel {
         // --- Botón volver arriba a la derecha dentro de la tarjeta ---
         JPanel panelSuperiorTarjeta = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         panelSuperiorTarjeta.setOpaque(false);
-
-        btnVolver = new JButton("< Volver");
-        btnVolver.setFont(new Font("SansSerif", Font.BOLD, 18));
-        btnVolver.setForeground(Color.WHITE);
-        btnVolver.setContentAreaFilled(false);
-        btnVolver.setBorderPainted(false);
-        btnVolver.setFocusPainted(false);
-        panelSuperiorTarjeta.add(btnVolver);
 
         tarjetaBlanca.add(panelSuperiorTarjeta, BorderLayout.NORTH);
 
@@ -121,6 +102,4 @@ public class PanelInventarioProductosPeluquero extends JPanel {
 
     // --- Getters ---
     public JTable getTablaInventario() { return tablaInventario; }
-    public JButton getBtnCerrarSesion() { return btnCerrarSesion; }
-    public JButton getBtnVolver() { return btnVolver; }
 }

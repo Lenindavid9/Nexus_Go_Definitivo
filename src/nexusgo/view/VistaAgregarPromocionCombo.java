@@ -5,16 +5,9 @@
 package nexusgo.view;
 
 import com.toedter.calendar.JDateChooser;
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.util.Date;
-import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -51,9 +44,9 @@ public class VistaAgregarPromocionCombo extends JPanel {
     // Botones e Indicadores
     public JButton btnCargarImagen;
     public JButton btnGuardar;
-    public JButton btnVolver;
-    public JButton btnCerrarSesion;
     public JLabel lblNombreImagen;
+    
+    private final Color COLOR_DORADO = new Color(184, 134, 11);
 
     public VistaAgregarPromocionCombo() {
         setLayout(null);
@@ -71,19 +64,6 @@ public class VistaAgregarPromocionCombo extends JPanel {
         lblTitulo.setFont(fontTitulo);
         lblTitulo.setBounds(40, 20, 400, 30);
         add(lblTitulo);
-
-        btnVolver = new JButton("< Volver al inicio");
-        btnVolver.setBounds(460, 25, 140, 25);
-        btnVolver.setContentAreaFilled(false);
-        btnVolver.setBorderPainted(false);
-        btnVolver.setFont(fontTexto);
-        add(btnVolver);
-
-        btnCerrarSesion = new JButton("Cerrar Sesión");
-        btnCerrarSesion.setBounds(610, 25, 120, 25);
-        btnCerrarSesion.setBackground(new Color(220, 53, 69));
-        btnCerrarSesion.setForeground(Color.WHITE);
-        add(btnCerrarSesion);
 
         // --- NOMBRE DEL COMBO ---
         JLabel lblNombre = new JLabel("Nombre del Kit / Combo");
@@ -182,7 +162,7 @@ public class VistaAgregarPromocionCombo extends JPanel {
         // --- BOTÓN DE GUARDADO ---
         btnGuardar = new JButton("Guardar Promo Combo");
         btnGuardar.setBounds(40, 565, 230, 40);
-        btnGuardar.setBackground(new Color(255, 193, 7)); // Color corporativo NexusGO
+        btnGuardar.setBackground(COLOR_DORADO);
         btnGuardar.setFont(new Font("SansSerif", Font.BOLD, 14));
         btnGuardar.setFocusPainted(false);
         add(btnGuardar);

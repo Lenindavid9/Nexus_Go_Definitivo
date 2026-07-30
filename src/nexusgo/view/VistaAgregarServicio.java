@@ -49,28 +49,22 @@ public class VistaAgregarServicio extends JPanel {
     public JButton btnCargarImagen;
     public JLabel lblNombreImagen;
     public JButton btnGuardar;
-    public JButton btnVolver;
-    public JButton btnCerrarSesion;
 
     // Constantes
     private final Color COLOR_DORADO = new Color(184, 134, 11);
-    private static final Dimension TAMAÑO_BOTON = new Dimension(200, 45);
 
     public VistaAgregarServicio() {
         setLayout(new BorderLayout());
         setOpaque(false);
 
-        // 1. PANEL SUPERIOR
+        // PANEL SUPERIOR
         JPanel panelSuperiorDerecho = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         panelSuperiorDerecho.setOpaque(false);
         panelSuperiorDerecho.setBorder(new EmptyBorder(15, 0, 0, 25));
 
-        btnCerrarSesion = new JButton("Cerrar Sesión");
-        estiloBotones(btnCerrarSesion);
-        panelSuperiorDerecho.add(btnCerrarSesion);
         add(panelSuperiorDerecho, BorderLayout.NORTH);
 
-        // 2. PANEL CONTENIDO (Centrado absoluto)
+        // PANEL CONTENIDO (Centrado absoluto)
         JPanel panelContenido = new JPanel(new GridBagLayout());
         panelContenido.setOpaque(false);
         
@@ -91,16 +85,8 @@ public class VistaAgregarServicio extends JPanel {
         JLabel lblTitulo = new JLabel("Registrar servicio");
         lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 26));
         lblTitulo.setForeground(Color.WHITE);
-        
-        btnVolver = new JButton("< Volver");
-        btnVolver.setForeground(Color.WHITE);
-        btnVolver.setContentAreaFilled(false);
-        btnVolver.setBorderPainted(false);
-        btnVolver.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnVolver.setFont(new Font("SansSerif", Font.PLAIN, 15));
 
         panelHeader.add(lblTitulo, BorderLayout.WEST);
-        panelHeader.add(btnVolver, BorderLayout.EAST);
         gbc.gridy = row++; tarjetaBlanca.add(panelHeader, gbc);
 
         // Campos

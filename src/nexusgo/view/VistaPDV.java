@@ -33,6 +33,8 @@ public class VistaPdV extends JPanel {
     private JPanel principal, panelproductos, panelServicios, panelCombos, panelBusqueda;
     private JLabel TituloPrincipal, estado, seccion;
     private JButton facturar, btnReiniciar;
+    
+    private final Color COLOR_DORADO = new Color(184, 134, 11);
 
     public VistaPdV() {
         setLayout(new BorderLayout()); //Aqui definimosel layout del panel principal
@@ -132,7 +134,7 @@ public class VistaPdV extends JPanel {
 
     private JLabel crearEncabezadoSeccion(String titulo) {
         JLabel lbl = new JLabel(titulo);
-        lbl.setForeground(Color.WHITE);
+        lbl.setForeground(COLOR_DORADO);
         lbl.setFont(new Font("SansSerif", Font.BOLD, 20));
         lbl.setAlignmentX(LEFT_ALIGNMENT);
         lbl.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 0));
