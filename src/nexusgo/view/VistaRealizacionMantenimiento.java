@@ -28,16 +28,11 @@ import nexusgo.model.Herramientas;
  */
 public class VistaRealizacionMantenimiento extends JPanel {
 
-    // Componentes de interfaz
     public JLabel lblTitulo;
     public JButton btnVolver;
 
-    // Cambiado de JTextField a JComboBox para evitar errores de tipeo
     public JComboBox<String> cbHerramientas;
-    public JTextField txtDescripcionTrabajo; // Campo para detallar la labor realizada
-
-    public JButton btnFotoAntes;
-    public JLabel lblPreviewAntes;
+    public JTextField txtDescripcionTrabajo;
 
     public JButton btnFotoDespues;
     public JLabel lblPreviewDespues;
@@ -46,8 +41,6 @@ public class VistaRealizacionMantenimiento extends JPanel {
     public JTextField txtObservaciones;
     public JButton btnGuardar;
 
-    // Referencias a archivos
-    private File archivoImagenAntes;
     private File archivoImagenDespues;
     private List<Herramientas> listaHerramientasActuales;
 
@@ -59,7 +52,6 @@ public class VistaRealizacionMantenimiento extends JPanel {
         this.setBackground(Color.WHITE);
         this.setLayout(null);
 
-        // --- ENCABEZADO ---
         lblTitulo = new JLabel("Realización del mantenimiento", SwingConstants.CENTER);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTitulo.setForeground(Color.BLACK);
@@ -76,7 +68,6 @@ public class VistaRealizacionMantenimiento extends JPanel {
         btnVolver.setBounds(520, 25, 150, 25);
         this.add(btnVolver);
 
-        // --- CAMPO 1: SELECCIÓN DE HERRAMIENTA (JComboBox) ---
         JLabel lblHerramienta = new JLabel("Seleccione la herramienta:");
         lblHerramienta.setFont(new Font("Segoe UI", Font.BOLD, 12));
         lblHerramienta.setForeground(Color.BLACK);
@@ -89,7 +80,6 @@ public class VistaRealizacionMantenimiento extends JPanel {
         cbHerramientas.setBounds(190, 88, 420, 32);
         this.add(cbHerramientas);
 
-        // --- CAMPO 2: DESCRIPCIÓN DEL TRABAJO REALIZADO ---
         JLabel lblDescripcion = new JLabel("Descripción del trabajo realizado:");
         lblDescripcion.setFont(new Font("Segoe UI", Font.BOLD, 12));
         lblDescripcion.setForeground(Color.BLACK);
@@ -102,59 +92,41 @@ public class VistaRealizacionMantenimiento extends JPanel {
         txtDescripcionTrabajo.setBounds(190, 148, 420, 32);
         this.add(txtDescripcionTrabajo);
 
-        // --- CAMPO 3: IMAGEN ANTES ---
-        btnFotoAntes = crearBotonAdjuntar("Imagen de antes del mantenimiento");
-        btnFotoAntes.setBounds(285, 192, 230, 32);
-        this.add(btnFotoAntes);
-
-        // Recuadro Preview Antes
-        lblPreviewAntes = new JLabel("Sin foto", SwingConstants.CENTER);
-        lblPreviewAntes.setFont(new Font("Segoe UI", Font.ITALIC, 10));
-        lblPreviewAntes.setForeground(Color.GRAY);
-        lblPreviewAntes.setBorder(new LineBorder(new Color(220, 220, 220), 1, true));
-        lblPreviewAntes.setBounds(373, 230, 55, 55);
-        this.add(lblPreviewAntes);
-
-        // --- CAMPO 4: IMAGEN DESPUÉS ---
-        btnFotoDespues = crearBotonAdjuntar("Imagen de después del mantenimiento");
-        btnFotoDespues.setBounds(278, 292, 245, 32);
+        btnFotoDespues = crearBotonAdjuntar("Imagen de después del mantenimiento (obligatoria)");
+        btnFotoDespues.setBounds(255, 192, 295, 32);
         this.add(btnFotoDespues);
 
-        // Recuadro Preview Después
         lblPreviewDespues = new JLabel("Sin foto", SwingConstants.CENTER);
         lblPreviewDespues.setFont(new Font("Segoe UI", Font.ITALIC, 10));
         lblPreviewDespues.setForeground(Color.GRAY);
         lblPreviewDespues.setBorder(new LineBorder(new Color(220, 220, 220), 1, true));
-        lblPreviewDespues.setBounds(373, 330, 55, 55);
+        lblPreviewDespues.setBounds(373, 230, 55, 55);
         this.add(lblPreviewDespues);
 
-        // --- CAMPO 5: HORAS INVERTIDAS ---
         JLabel lblHoras = new JLabel("Horas invertidas en el mantenimiento:");
         lblHoras.setFont(new Font("Segoe UI", Font.BOLD, 12));
         lblHoras.setForeground(Color.BLACK);
-        lblHoras.setBounds(240, 365, 320, 20);
+        lblHoras.setBounds(240, 305, 320, 20);
         this.add(lblHoras);
 
         txtHorasInvertidas = new JTextField();
         txtHorasInvertidas.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         txtHorasInvertidas.setBorder(new LineBorder(new Color(210, 210, 210), 1, true));
-        txtHorasInvertidas.setBounds(190, 388, 420, 32);
+        txtHorasInvertidas.setBounds(190, 328, 420, 32);
         this.add(txtHorasInvertidas);
 
-        // --- CAMPO 6: OBSERVACIONES ---
         JLabel lblObs = new JLabel("Observaciones:");
         lblObs.setFont(new Font("Segoe UI", Font.BOLD, 12));
         lblObs.setForeground(Color.BLACK);
-        lblObs.setBounds(240, 428, 320, 20);
+        lblObs.setBounds(240, 368, 320, 20);
         this.add(lblObs);
 
         txtObservaciones = new JTextField();
         txtObservaciones.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         txtObservaciones.setBorder(new LineBorder(new Color(210, 210, 210), 1, true));
-        txtObservaciones.setBounds(190, 451, 420, 35);
+        txtObservaciones.setBounds(190, 391, 420, 35);
         this.add(txtObservaciones);
 
-        // --- BOTÓN GUARDAR ---
         btnGuardar = new JButton("Guardar");
         btnGuardar.setFont(new Font("Segoe UI", Font.BOLD, 16));
         btnGuardar.setForeground(Color.WHITE);
@@ -162,18 +134,12 @@ public class VistaRealizacionMantenimiento extends JPanel {
         btnGuardar.setFocusPainted(false);
         btnGuardar.setBorderPainted(false);
         btnGuardar.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnGuardar.setBounds(310, 500, 180, 42);
+        btnGuardar.setBounds(310, 450, 180, 42);
         this.add(btnGuardar);
 
-        // Listeners para selección de archivos
-        btnFotoAntes.addActionListener(e -> seleccionarImagenAntes());
         btnFotoDespues.addActionListener(e -> seleccionarImagenDespues());
     }
 
-    /**
-     * Carga dinámicamente las herramientas registradas en la base de datos
-     * dentro del JComboBox.
-     */
     public void cargarHerramientas(List<Herramientas> lista) {
         this.listaHerramientasActuales = lista;
         cbHerramientas.removeAllItems();
@@ -186,25 +152,18 @@ public class VistaRealizacionMantenimiento extends JPanel {
         }
     }
 
-    /**
-     * Selecciona automáticamente un ítem en el ComboBox según la herramienta
-     * elegida previamente.
-     */
     public void seleccionarHerramientaPorId(int idHerramienta) {
         if (listaHerramientasActuales == null) {
             return;
         }
         for (int i = 0; i < listaHerramientasActuales.size(); i++) {
             if (listaHerramientasActuales.get(i).getIdHerramienta() == idHerramienta) {
-                cbHerramientas.setSelectedIndex(i + 1); // +1 por el ítem por defecto
+                cbHerramientas.setSelectedIndex(i + 1);
                 break;
             }
         }
     }
 
-    /**
-     * Obtiene el objeto Herramientas seleccionado en el ComboBox.
-     */
     public Herramientas getHerramientaSeleccionada() {
         int index = cbHerramientas.getSelectedIndex();
         if (index > 0 && listaHerramientasActuales != null && (index - 1) < listaHerramientasActuales.size()) {
@@ -222,16 +181,6 @@ public class VistaRealizacionMantenimiento extends JPanel {
         btn.setFocusPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         return btn;
-    }
-
-    private void seleccionarImagenAntes() {
-        JFileChooser chooser = new JFileChooser();
-        chooser.setDialogTitle("Seleccionar Imagen Antes del Mantenimiento");
-        chooser.setFileFilter(new FileNameExtensionFilter("Imágenes PNG & JPG", "png", "jpg", "jpeg"));
-        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            archivoImagenAntes = chooser.getSelectedFile();
-            mostrarVistaPrevia(archivoImagenAntes, lblPreviewAntes);
-        }
     }
 
     private void seleccionarImagenDespues() {
@@ -257,10 +206,6 @@ public class VistaRealizacionMantenimiento extends JPanel {
         } catch (Exception e) {
             lblContenedor.setText("Error");
         }
-    }
-
-    public File getArchivoImagenAntes() {
-        return archivoImagenAntes;
     }
 
     public File getArchivoImagenDespues() {

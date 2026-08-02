@@ -28,7 +28,10 @@ public class ControladorPrincipalPeluquero implements ActionListener {
         this.vista = vista;
         this.usuarioLogueado = usuarioLogueado;
 
-        // Registrar Listeners
+        if (this.usuarioLogueado != null) {
+            this.vista.setNombrePeluquero(this.usuarioLogueado.getNombre());
+        }
+
         if (this.vista.btnInicio != null) {
             this.vista.btnInicio.addActionListener(this);
         }
@@ -47,7 +50,6 @@ public class ControladorPrincipalPeluquero implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         Object botonPresionado = e.getSource();
 
-        // 1. BOTÓN INICIO
         if (botonPresionado == vista.btnInicio) {
             JPanel contenedorDinamico = vista.getContenidoCentralDinamico();
             contenedorDinamico.removeAll();
@@ -56,8 +58,7 @@ public class ControladorPrincipalPeluquero implements ActionListener {
 
             contenedorDinamico.revalidate();
             contenedorDinamico.repaint();
-        } // 2. BOTÓN INVENTARIO
-        else if (botonPresionado == vista.btnInventario) {
+        } else if (botonPresionado == vista.btnInventario) {
             try {
                 PanelInventarioProductosPeluquero panelInventario = new PanelInventarioProductosPeluquero();
                 new ControladorInventarioPeluquero(panelInventario, vista);
@@ -66,13 +67,10 @@ public class ControladorPrincipalPeluquero implements ActionListener {
                 JOptionPane.showMessageDialog(vista, "Error al abrir el inventario: " + ex.getMessage(),
                         "Error de Navegación", JOptionPane.ERROR_MESSAGE);
             }
-        } // 3. BOTÓN CITAS
-        else if (botonPresionado == vista.btnCitas) {
+        } else if (botonPresionado == vista.btnCitas) {
             try {
-                // Instanciación limpia del panel con las correcciones en LGoodDatePicker
                 PanelModificarCita panelCitas = new PanelModificarCita();
 
-                // Enlace con el controlador de citas pasando la referencia de la vista principal
                 new ControladorModificarCitas(panelCitas, usuarioLogueado.getIdUsuario(), this);
 
                 cambiarPanelCentral(panelCitas);
@@ -80,8 +78,7 @@ public class ControladorPrincipalPeluquero implements ActionListener {
                 JOptionPane.showMessageDialog(vista, "Error al abrir gestión de citas: " + ex.getMessage(),
                         "Error de Navegación", JOptionPane.ERROR_MESSAGE);
             }
-        } // 4. BOTÓN CERRAR SESIÓN
-        else if (botonPresionado == vista.btnCerrarSesion) {
+        } else if (botonPresionado == vista.btnCerrarSesion) {
             ejecutarCerrarSesion();
         }
     }
@@ -95,9 +92,8 @@ public class ControladorPrincipalPeluquero implements ActionListener {
         );
 
         if (confirmacion == JOptionPane.YES_OPTION) {
-            vista.dispose(); // Cierra la ventana principal
+            vista.dispose();
 
-            // Retorno al Login de la aplicación
             VistaInicioSesion loginVista = new VistaInicioSesion();
             new ControladorInicioSesion(loginVista);
             loginVista.setLocationRelativeTo(null);

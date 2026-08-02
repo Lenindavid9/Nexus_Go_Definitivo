@@ -19,7 +19,7 @@ import java.util.List;
  */
 public class FacturaDao {
 
-    private final Conexion conexion = new Conexion();
+   private final Conexion conexion = new Conexion();
 
     /**
      * Guarda una nueva factura en la base de datos junto con el detalle de sus
@@ -187,6 +187,22 @@ public class FacturaDao {
                 e.printStackTrace();
             }
         }
+    }
+
+    public int contarFacturasPorCliente(int idCliente) {
+        String sql = "SELECT COUNT(*) AS total FROM facturas WHERE id_cliente = ?";
+
+        try (Connection con = conexion.getConection(); PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, idCliente);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("total");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al contar facturas del cliente: " + e.getMessage());
+        }
+        return 0;
     }
 
     /**

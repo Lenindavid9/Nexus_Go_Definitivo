@@ -38,14 +38,15 @@ public class VistaFactura extends JPanel {
     private JButton btnImprimir, btnEnviar, btnAnular;
 
     private final Color COLOR_DORADO = new Color(184, 149, 78);
+    private final Color COLOR_VERDE_DESCUENTO = new Color(40, 167, 69);
     private final Color COLOR_GRIS_CLARITO = new Color(220, 220, 220);
 
-    // 1. Nuevo constructor principal: recibe también el cliente Y el operario que atendió
+    // 1. Constructor principal
     public VistaFactura(Factura factura, List<DetalleCarrito> carrito, Usuario cliente, Usuario operario) {
         crearVistaFactura(factura, carrito, cliente, operario);
     }
 
-    // 1.1 Constructor de compatibilidad (sin operario, por si no se tiene ese dato)
+    // 1.1 Constructor de compatibilidad (sin operario)
     public VistaFactura(Factura factura, List<DetalleCarrito> carrito, Usuario cliente) {
         this(factura, carrito, cliente, null);
     }
@@ -105,7 +106,7 @@ public class VistaFactura extends JPanel {
             }
         }
         lblOperario = new JLabel(textoOperario);
-        lblOperario.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        lblOperario.setFont(new Font("SansSerif", Font.PLAIN, 15));
 
         // Determinar dinámicamente los datos del cliente
         String textoCliente = "Cliente: Cliente General";
@@ -115,7 +116,6 @@ public class VistaFactura extends JPanel {
             String nombreCompleto = (cliente.getNombre() != null ? cliente.getNombre() : "") + " "
                     + (cliente.getApellido() != null ? cliente.getApellido() : "");
 
-            // Conversión directa de int a String
             String doc = String.valueOf(cliente.getIdentificacion());
 
             textoCliente = "Cliente: " + nombreCompleto.trim() + " (" + doc + ")";
@@ -123,13 +123,13 @@ public class VistaFactura extends JPanel {
         }
 
         lblCliente = new JLabel(textoCliente);
-        lblCliente.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        lblCliente.setFont(new Font("SansSerif", Font.PLAIN, 15));
 
         lblFecha = new JLabel("Fecha/Hora: " + fechaTexto);
-        lblFecha.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        lblFecha.setFont(new Font("SansSerif", Font.PLAIN, 15));
 
         lblEstado = new JLabel("Tipo: " + textoTipoCliente);
-        lblEstado.setFont(new Font("SansSerif", Font.PLAIN, 16));
+        lblEstado.setFont(new Font("SansSerif", Font.PLAIN, 15));
 
         lblOperario.setAlignmentX(LEFT_ALIGNMENT);
         lblCliente.setAlignmentX(LEFT_ALIGNMENT);
@@ -137,11 +137,11 @@ public class VistaFactura extends JPanel {
         lblEstado.setAlignmentX(LEFT_ALIGNMENT);
 
         pnlDatos.add(lblOperario);
-        pnlDatos.add(Box.createVerticalStrut(10));
+        pnlDatos.add(Box.createVerticalStrut(8));
         pnlDatos.add(lblCliente);
-        pnlDatos.add(Box.createVerticalStrut(10));
+        pnlDatos.add(Box.createVerticalStrut(8));
         pnlDatos.add(lblFecha);
-        pnlDatos.add(Box.createVerticalStrut(10));
+        pnlDatos.add(Box.createVerticalStrut(8));
         pnlDatos.add(lblEstado);
 
         // LÍNEA DE ENCABEZADO DE TABLA
@@ -218,25 +218,61 @@ public class VistaFactura extends JPanel {
         lblFelicidades.setForeground(COLOR_DORADO);
         lblFelicidades.setAlignmentX(CENTER_ALIGNMENT);
 
-        pnlTotal = new JPanel(new BorderLayout());
+        // PANEL DE TOTALES DESGLOSADO (Subtotal, Descuento y Total Final)
+        pnlTotal = new JPanel();
+        pnlTotal.setLayout(new BoxLayout(pnlTotal, BoxLayout.Y_AXIS));
         pnlTotal.setOpaque(false);
-        pnlTotal.setMaximumSize(new Dimension(450, 40));
+        pnlTotal.setMaximumSize(new Dimension(450, 80));
         pnlTotal.setAlignmentX(CENTER_ALIGNMENT);
 
-        double totalPagar = (factura != null) ? factura.getTotal() : 0.0;
+        double subtotalVal = (factura != null) ? factura.getSubtotal() : 0.0;
+        double descuentoVal = (factura != null) ? factura.getDescuentoAplicado() : 0.0;
+        double totalVal = (factura != null) ? factura.getTotal() : 0.0;
 
-        lbltxtPagar = new JLabel("PRECIO TOTAL A PAGAR");
-        lbltxtPagar.setFont(new Font("SansSerif", Font.BOLD, 15));
-        lblMonto = new JLabel(String.format("$%.0f", totalPagar));
+        // Fila 1: Subtotal
+        JPanel filaSubtotal = new JPanel(new BorderLayout());
+        filaSubtotal.setOpaque(false);
+        JLabel lblSubtotalTxt = new JLabel("Subtotal:");
+        lblSubtotalTxt.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        JLabel lblSubtotalMonto = new JLabel(String.format("$%.0f", subtotalVal));
+        lblSubtotalMonto.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        filaSubtotal.add(lblSubtotalTxt, BorderLayout.WEST);
+        filaSubtotal.add(lblSubtotalMonto, BorderLayout.EAST);
+
+        // Fila 2: Descuento Aplicado
+        JPanel filaDescuento = new JPanel(new BorderLayout());
+        filaDescuento.setOpaque(false);
+        JLabel lblDescTxt = new JLabel("Descuento Aplicado:");
+        lblDescTxt.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        lblDescTxt.setForeground(COLOR_VERDE_DESCUENTO);
+        JLabel lblDescMonto = new JLabel(String.format("-$%.0f", descuentoVal));
+        lblDescMonto.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        lblDescMonto.setForeground(COLOR_VERDE_DESCUENTO);
+        filaDescuento.add(lblDescTxt, BorderLayout.WEST);
+        filaDescuento.add(lblDescMonto, BorderLayout.EAST);
+
+        // Fila 3: Total A Pagar
+        JPanel filaTotal = new JPanel(new BorderLayout());
+        filaTotal.setOpaque(false);
+        lbltxtPagar = new JLabel("TOTAL A PAGAR");
+        lbltxtPagar.setFont(new Font("SansSerif", Font.BOLD, 16));
+        lblMonto = new JLabel(String.format("$%.0f", totalVal));
         lblMonto.setFont(new Font("SansSerif", Font.BOLD, 22));
-        pnlTotal.add(lbltxtPagar, BorderLayout.WEST);
-        pnlTotal.add(lblMonto, BorderLayout.EAST);
+        filaTotal.add(lbltxtPagar, BorderLayout.WEST);
+        filaTotal.add(lblMonto, BorderLayout.EAST);
 
+        pnlTotal.add(filaSubtotal);
+        pnlTotal.add(Box.createVerticalStrut(3));
+        pnlTotal.add(filaDescuento);
+        pnlTotal.add(Box.createVerticalStrut(6));
+        pnlTotal.add(filaTotal);
+
+        // CONSTRUCCIÓN DEL PANEL IZQUIERDO (COMPROBANTE)
         infoFactura.add(lblEmpresa);
         infoFactura.add(lblGiro);
-        infoFactura.add(Box.createVerticalStrut(30));
-        infoFactura.add(pnlDatos);
         infoFactura.add(Box.createVerticalStrut(20));
+        infoFactura.add(pnlDatos);
+        infoFactura.add(Box.createVerticalStrut(15));
         infoFactura.add(linea1);
         infoFactura.add(Box.createVerticalStrut(8));
         infoFactura.add(tablaC);
@@ -244,9 +280,9 @@ public class VistaFactura extends JPanel {
         infoFactura.add(scrollTabla);
         infoFactura.add(Box.createVerticalStrut(8));
         infoFactura.add(linea2);
-        infoFactura.add(Box.createVerticalStrut(15));
+        infoFactura.add(Box.createVerticalStrut(12));
         infoFactura.add(lblFelicidades);
-        infoFactura.add(Box.createVerticalStrut(15));
+        infoFactura.add(Box.createVerticalStrut(12));
         infoFactura.add(pnlTotal);
 
         // PANEL OPCIONES (DERECHA)
@@ -303,7 +339,7 @@ public class VistaFactura extends JPanel {
 
     public void setClienteRegistrado(String nombre, String numeroId) {
         if (lblCliente != null && lblEstado != null) {
-            lblCliente.setText("Cliente: " + nombre + " / " + numeroId);
+            lblCliente.setText("Cliente: " + nombre + " (" + numeroId + ")");
             lblEstado.setText("Tipo: Cliente Registrado");
         }
     }

@@ -33,6 +33,7 @@ public class VistaPrincipalPeluquero extends JFrame {
     public JButton btnInventario = new JButton(new ImageIcon("src/nexusgo/img/inventario.png"));
     public JButton btnCitas = new JButton(new ImageIcon("src/nexusgo/img/citas.png"));
     public JButton btnCerrarSesion = new JButton("Cerrar Sesión");
+    public JLabel lblSaludo;
 
     private JPanel contenidoCentralDinamico;
     private final Color COLOR_DORADO = new Color(184, 134, 11);
@@ -40,7 +41,6 @@ public class VistaPrincipalPeluquero extends JFrame {
     public VistaPrincipalPeluquero() {
         super("NexusGO - Panel de Peluquero");
 
-        // 1. Panel de fondo con imagen
         JPanel fondo = new JPanel() {
             private Image imagen = new ImageIcon("src/nexusgo/img/fondoprincipal.jpg").getImage();
 
@@ -53,7 +53,6 @@ public class VistaPrincipalPeluquero extends JFrame {
         fondo.setLayout(new BorderLayout());
         setContentPane(fondo);
 
-        // 2. Sidebar lateral
         JPanel sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
         sidebar.setBackground(Color.WHITE);
@@ -71,7 +70,6 @@ public class VistaPrincipalPeluquero extends JFrame {
             sidebar.add(Box.createVerticalStrut(70));
         }
 
-        // 3. Panel superior con botón cerrar sesión
         JPanel panelTop = new JPanel(new FlowLayout(FlowLayout.RIGHT, 30, 15));
         panelTop.setOpaque(false);
 
@@ -83,17 +81,15 @@ public class VistaPrincipalPeluquero extends JFrame {
         btnCerrarSesion.setBorder(new EmptyBorder(5, 15, 5, 15));
         panelTop.add(btnCerrarSesion);
 
-        // 4. Panel central dinámico transparente
         contenidoCentralDinamico = new JPanel(new BorderLayout());
         contenidoCentralDinamico.setOpaque(false);
 
-        // Tarjeta de bienvenida
         JPanel tarjetaBienvenida = new JPanel();
         tarjetaBienvenida.setLayout(new BoxLayout(tarjetaBienvenida, BoxLayout.Y_AXIS));
         tarjetaBienvenida.setOpaque(false);
         tarjetaBienvenida.setBorder(BorderFactory.createEmptyBorder(20, 40, 40, 40));
 
-        JLabel lblSaludo = new JLabel("Hola, Peluquer@ Bienvenido a Nexus GO");
+        lblSaludo = new JLabel("Hola, Peluquer@ Bienvenido a Nexus GO");
         lblSaludo.setFont(new Font("Segoe UI", Font.BOLD, 30));
         lblSaludo.setAlignmentX(CENTER_ALIGNMENT);
         lblSaludo.setForeground(Color.WHITE);
@@ -114,11 +110,9 @@ public class VistaPrincipalPeluquero extends JFrame {
         contenidoCentralDinamico.add(panelTop, BorderLayout.NORTH);
         contenidoCentralDinamico.add(panelContenedorTarjeta, BorderLayout.CENTER);
 
-        // Ensamblaje final
         fondo.add(sidebar, BorderLayout.WEST);
         fondo.add(contenidoCentralDinamico, BorderLayout.CENTER);
 
-        // Configuración de la ventana
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 550);
         setLocationRelativeTo(null);
@@ -133,5 +127,11 @@ public class VistaPrincipalPeluquero extends JFrame {
         contenidoCentralDinamico.removeAll();
         contenidoCentralDinamico.revalidate();
         contenidoCentralDinamico.repaint();
+    }
+
+    public void setNombrePeluquero(String nombre) {
+        if (lblSaludo != null && nombre != null && !nombre.isEmpty()) {
+            lblSaludo.setText("Hola, " + nombre + " Bienvenido a Nexus GO");
+        }
     }
 }

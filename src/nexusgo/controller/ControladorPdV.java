@@ -21,6 +21,9 @@ import nexusgo.view.VistaPdV;
 
 public class ControladorPdV implements ActionListener {
 
+    private static final int UMBRAL_DESCUENTO_UNIDADES = 10;
+    private static final double PORCENTAJE_DESCUENTO = 0.10;
+
     private final VistaPdV vista;
     private final FacturaDao facturaDao;
     private final ProductoDao productoDao;
@@ -29,23 +32,19 @@ public class ControladorPdV implements ActionListener {
     private final PromocionComboDao comboDao = new PromocionComboDao();
     private JPanel contenedorCentral;
 
-    // ID de la caja abierta con la que se está operando (0 = ninguna)
     private int idCajaActual = 0;
 
-    // Usuario que inició sesión (el operario/supervisor que está haciendo la venta)
     private nexusgo.model.Usuario usuarioLogueado = null;
 
     public void setUsuarioLogueado(nexusgo.model.Usuario usuarioLogueado) {
         this.usuarioLogueado = usuarioLogueado;
     }
 
-    // Estado del Carrito y Vista
     private final List<DetalleCarrito> carrito = new ArrayList<>();
     private final List<VistaPdV.TarjetaProductoComponentes> componentesTarjetas = new ArrayList<>();
     private double totalVenta = 0.0;
     private int contadorProductos = 0;
 
-    // Constructor Principal (recibe el contenedor y el id de la caja abierta)
     public ControladorPdV(VistaPdV vista, JPanel contenedorCentral, int idCajaActual) {
         this.vista = vista;
         this.contenedorCentral = contenedorCentral;
@@ -53,27 +52,22 @@ public class ControladorPdV implements ActionListener {
         this.productoDao = new ProductoDao();
         this.idCajaActual = idCajaActual;
 
-        // Respaldo: si no nos pasaron una caja abierta explícita, buscamos la más reciente
         if (this.idCajaActual <= 0) {
             this.idCajaActual = cajaDao.obtenerCajaAbierta();
         }
 
-        // Enlazar eventos de los botones principales
         this.vista.getFacturarButton().addActionListener(this);
         this.vista.getReiniciarButton().addActionListener(this);
 
-        // Cargar los productos dinámicamente desde el DAO
         cargarProductos();
         cargarServicios();
         cargarCombos();
     }
 
-    // Constructor Sobrecargado (recibe el contenedor, sin id de caja explícito)
     public ControladorPdV(VistaPdV vista, JPanel contenedorCentral) {
         this(vista, contenedorCentral, 0);
     }
 
-    // Constructor Sobrecargado (Compatibilidad cuando no se pasa el contenedor)
     public ControladorPdV(VistaPdV vista) {
         this(vista, null, 0);
     }
@@ -136,7 +130,6 @@ public class ControladorPdV implements ActionListener {
                         ? p.getUrlImagen()
                         : "tratamiento.png";
 
-                // Crear la tarjeta en la vista y recibir sus componentes interactivos
                 VistaPdV.TarjetaProductoComponentes componentes = vista.agregarTarjetaComponentes(
                         p.getNombreProducto(),
                         precioFormateado,
@@ -146,28 +139,20 @@ public class ControladorPdV implements ActionListener {
 
                 componentesTarjetas.add(componentes);
 
-                // Configurar el listener del botón Agregar (+) para acumular dinámicamente
                 componentes.getBtnAgregar().addActionListener(e -> {
                     int cantidadIngresada = (int) componentes.getSpinner().getValue();
                     double precioUnitario = p.getPrecioCompra();
 
-                    // Sumar o actualizar en la lista del carrito, solo si hay stock suficiente
                     if (agregarOActualizarItem(p.getIdProducto(), "PRODUCTO", p.getNombreProducto(), cantidadIngresada, precioUnitario, p.getStockActual())) {
-                        // Actualizar contadores globales del punto de venta
                         totalVenta += (precioUnitario * cantidadIngresada);
                         contadorProductos += cantidadIngresada;
 
-                        // Actualizar el estado del botón Facturar en la vista
                         vista.actualizarTextoFacturar(contadorProductos);
                     }
                 });
             }
         }
     }
-
-    /* Agrega o acumula un ítem en el carrito. Sirve para productos (con límite
-    real de stock) y también para servicios y combos (sin límite de stock,
-    pasando stockDisponible = -1). */
 
     private boolean agregarOActualizarItem(int id, String tipo, String nombre, int cantidad, double precioUnitario, int stockDisponible) {
         boolean itemExiste = false;
@@ -202,9 +187,19 @@ public class ControladorPdV implements ActionListener {
         return true;
     }
 
+    private boolean aplicaDescuentoPorVolumen() {
+        return contadorProductos >= UMBRAL_DESCUENTO_UNIDADES;
+    }
+
+    private double calcularTotalConDescuento() {
+        if (aplicaDescuentoPorVolumen()) {
+            return totalVenta - (totalVenta * PORCENTAJE_DESCUENTO);
+        }
+        return totalVenta;
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        // Evento Botón Facturar -> Transición hacia Método de Pago
         if (e.getSource() == vista.getFacturarButton()) {
 
             if (carrito.isEmpty()) {
@@ -219,17 +214,22 @@ public class ControladorPdV implements ActionListener {
                 return;
             }
 
-            // 1. Instanciar la vista del Método de Pago
+            double totalFinal = calcularTotalConDescuento();
+
+            if (aplicaDescuentoPorVolumen()) {
+                JOptionPane.showMessageDialog(vista,
+                        "¡Se aplicó un " + (int) (PORCENTAJE_DESCUENTO * 100) + "% de descuento por llevar "
+                        + contadorProductos + " o más productos/servicios!",
+                        "Descuento Aplicado", JOptionPane.INFORMATION_MESSAGE);
+            }
+
             VistaMetododePago vistaPago = new VistaMetododePago();
 
-            // 2. Instanciar su controlador pasándole la vista, los datos de la venta y el contenedor
-            ControladorMetododePago controladorPago = new ControladorMetododePago(vistaPago, carrito, totalVenta, obtenerContenedorObjetivo(), idCajaActual);
+            ControladorMetododePago controladorPago = new ControladorMetododePago(vistaPago, carrito, totalFinal, obtenerContenedorObjetivo(), idCajaActual);
             controladorPago.setOperarioLogueado(usuarioLogueado);
 
-            // 3. Redireccionar a la pantalla de selección de Método de Pago
             cambiarPanel(vistaPago);
-        } // Evento Botón Reiniciar / Limpiar Carrito
-        else if (e.getSource() == vista.getReiniciarButton()) {
+        } else if (e.getSource() == vista.getReiniciarButton()) {
             reiniciarCarrito();
             JOptionPane.showMessageDialog(
                     vista,
@@ -246,7 +246,6 @@ public class ControladorPdV implements ActionListener {
         contadorProductos = 0;
         vista.actualizarTextoFacturar(0);
 
-        // Restablecer spinners de las tarjetas de productos
         for (VistaPdV.TarjetaProductoComponentes comp : componentesTarjetas) {
             comp.getBtnAgregar().setEnabled(true);
             comp.getSpinner().setValue(1);

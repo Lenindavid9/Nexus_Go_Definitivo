@@ -16,12 +16,11 @@ public class Servicios {
     private int duracionMinutos;
     private double precio;
     private boolean activo;
+    private String urlImagen;
 
-    // Constructor vacío
     public Servicios() {
     }
 
-    // Constructor completo
     public Servicios(int idServicio, String nombreServicio, String descripcion, int duracionMinutos, double precio, boolean activo) {
         this.idServicio = idServicio;
         this.nombreServicio = nombreServicio;
@@ -31,7 +30,16 @@ public class Servicios {
         this.activo = activo;
     }
 
-    // Getters y Setters
+    public Servicios(int idServicio, String nombreServicio, String descripcion, int duracionMinutos, double precio, boolean activo, String urlImagen) {
+        this.idServicio = idServicio;
+        this.nombreServicio = nombreServicio;
+        this.descripcion = descripcion;
+        this.duracionMinutos = duracionMinutos;
+        this.precio = precio;
+        this.activo = activo;
+        this.urlImagen = urlImagen;
+    }
+
     public int getIdServicio() {
         return idServicio;
     }
@@ -78,6 +86,14 @@ public class Servicios {
 
     public void setActivo(boolean activo) {
         this.activo = activo;
+    }
+
+    public String getUrlImagen() {
+        return urlImagen;
+    }
+
+    public void setUrlImagen(String urlImagen) {
+        this.urlImagen = urlImagen;
     }
 
     @Override

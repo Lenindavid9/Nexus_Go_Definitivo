@@ -21,12 +21,10 @@ import nexusgo.view.VistaAgregarServicio;
  */
 public class ControladorAgregarServicio implements ActionListener {
 
-    // Referencias al modelo y la vista
     private final VistaAgregarServicio vista;
     private final ServicioDao servicioDao;
+    private File archivoImagenSeleccionado;
 
-    /*Constructor principal del controlador.
-    Recibe e inyecta las dependencias necesarias de la vista y el DAO.*/
     public ControladorAgregarServicio(VistaAgregarServicio vista, ServicioDao servicioDao) {
         if (vista == null || servicioDao == null) {
             throw new IllegalArgumentException("La vista y el ServicioDao no pueden ser nulos.");
@@ -34,11 +32,9 @@ public class ControladorAgregarServicio implements ActionListener {
         this.vista = vista;
         this.servicioDao = servicioDao;
 
-        // Enlazar los componentes activos de la vista
         inicializarListeners();
     }
 
-    //Suscribe los botones de la vista al listener de acciones.
     private void inicializarListeners() {
         try {
             if (this.vista.btnGuardar != null) {
@@ -52,17 +48,14 @@ public class ControladorAgregarServicio implements ActionListener {
         }
     }
 
-    //Captura y despacha los eventos generados en la interfaz gráfica.
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            // Accion: Boton Guardar
             if (this.vista.btnGuardar != null && e.getSource() == this.vista.btnGuardar) {
                 guardarServicio();
                 return;
             }
 
-            // Accion: Boton Cargar Imagen
             if (this.vista.btnCargarImagen != null && e.getSource() == this.vista.btnCargarImagen) {
                 cargarImagen();
                 return;
@@ -75,20 +68,16 @@ public class ControladorAgregarServicio implements ActionListener {
         }
     }
 
-    //Método encargado del procesamiento, validación y almacenamiento del servicio en la BD.
     private void guardarServicio() {
         try {
-            // Control de existencia de los componentes requeridos en la vista
             if (vista.txtNombreServicio == null || vista.txtPrecio == null) {
                 throw new NullPointerException("Los componentes de entrada de la vista no han sido instanciados.");
             }
 
-            // Extracción de datos con limpieza de placeholders
             String nombre = obtenerTextoValido(vista.txtNombreServicio, "");
             String descripcion = obtenerTextoValido(vista.txtDescripcion, "Ingrese una breve descripción");
             String precioTexto = obtenerTextoValido(vista.txtPrecio, "Ingrese el precio ");
 
-            // --- CÁLCULO DE DURACIÓN EN MINUTOS ---
             int horas = 0;
             if (vista.spinDuracionHoras != null) {
                 horas = (Integer) vista.spinDuracionHoras.getValue();
@@ -105,7 +94,6 @@ public class ControladorAgregarServicio implements ActionListener {
 
             int totalDuracionMinutos = (horas * 60) + minutos;
 
-            // Validar campos obligatorios
             if (nombre.isEmpty() || precioTexto.isEmpty()) {
                 JOptionPane.showMessageDialog(vista,
                         "Por favor complete los campos obligatorios: Nombre del servicio y Precio.",
@@ -113,7 +101,13 @@ public class ControladorAgregarServicio implements ActionListener {
                 return;
             }
 
-            // Validación de conversión para el precio
+            if (archivoImagenSeleccionado == null) {
+                JOptionPane.showMessageDialog(vista,
+                        "Debe adjuntar una imagen del servicio.",
+                        "Imagen Obligatoria", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
             double precio;
             try {
                 precio = Double.parseDouble(precioTexto.replace(',', '.'));
@@ -131,15 +125,14 @@ public class ControladorAgregarServicio implements ActionListener {
                 return;
             }
 
-            // Construcción del objeto modelo Servicios
             Servicios nuevoServicio = new Servicios();
             nuevoServicio.setNombreServicio(nombre);
             nuevoServicio.setDescripcion(descripcion);
             nuevoServicio.setDuracionMinutos(totalDuracionMinutos);
             nuevoServicio.setPrecio(precio);
-            nuevoServicio.setActivo(true); // Se garantiza que ingrese como servicio activo (1)
+            nuevoServicio.setActivo(true);
+            nuevoServicio.setUrlImagen(archivoImagenSeleccionado.getAbsolutePath());
 
-            // Invocación del DAO para persistencia en base de datos
             boolean registrado = servicioDao.registrarServicio(nuevoServicio);
 
             if (registrado) {
@@ -164,8 +157,6 @@ public class ControladorAgregarServicio implements ActionListener {
         }
     }
 
-    /*Método auxiliar para evitar que los textos del placeholder
-    de la vista se lean como datos reales.*/
     private String obtenerTextoValido(JTextField txtField, String placeholder) {
         if (txtField == null) {
             return "";
@@ -174,22 +165,20 @@ public class ControladorAgregarServicio implements ActionListener {
         return texto.equals(placeholder) ? "" : texto;
     }
 
-    //Acción para examinar y cargar la imagen del servicio.
     private void cargarImagen() {
         try {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Seleccionar imagen del servicio");
 
-            // Filtro para formatos de imagen
             FileNameExtensionFilter filtro
                     = new FileNameExtensionFilter("Archivos de Imagen (*.png, *.jpg, *.jpeg)", "png", "jpg", "jpeg");
             fileChooser.setFileFilter(filtro);
 
             int resultado = fileChooser.showOpenDialog(vista);
             if (resultado == JFileChooser.APPROVE_OPTION) {
-                File archivoSeleccionado = fileChooser.getSelectedFile();
+                archivoImagenSeleccionado = fileChooser.getSelectedFile();
                 if (vista.lblNombreImagen != null) {
-                    vista.lblNombreImagen.setText(archivoSeleccionado.getName());
+                    vista.lblNombreImagen.setText(archivoImagenSeleccionado.getName());
                 }
             }
         } catch (Exception e) {
@@ -199,7 +188,6 @@ public class ControladorAgregarServicio implements ActionListener {
         }
     }
 
-    //Restablece los campos de texto, el spinner y los combos a sus valores iniciales.
     private void limpiarCampos() {
         try {
             if (vista.txtNombreServicio != null) {
@@ -218,10 +206,10 @@ public class ControladorAgregarServicio implements ActionListener {
                 vista.txtPrecio.setText("Ingrese el precio ");
             }
             if (vista.lblNombreImagen != null) {
-                vista.lblNombreImagen.setText("imagenservicio.png");
+                vista.lblNombreImagen.setText("Ninguna imagen seleccionada");
             }
+            archivoImagenSeleccionado = null;
 
-            // Dejar el cursor en el primer campo
             if (vista.txtNombreServicio != null) {
                 vista.txtNombreServicio.requestFocus();
             }
