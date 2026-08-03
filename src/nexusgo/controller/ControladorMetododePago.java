@@ -30,6 +30,9 @@ import nexusgo.model.UsuarioDao;
  */
 public class ControladorMetododePago {
 
+    private static final int VISITAS_PARA_FIDELIDAD = 10;
+    private static final double PORCENTAJE_DESCUENTO_FIDELIDAD = 0.10;
+
     private VistaMetododePago vistaPrincipal;
     private DineroEfectivo vistaEfectivo;
     private JPanel panelContenedor;
@@ -251,15 +254,33 @@ public class ControladorMetododePago {
 
     private void finalizarVenta(String metodoPago) {
         try {
+            // Determinar si hay un cliente registrado activo
+            Usuario clienteParaFactura = ("Registrado".equals(tipoCliente) && idClienteRealBD > 0) ? clienteRegistrado : null;
+
+            double descuentoFidelidad = 0.0;
+
+            if (clienteParaFactura != null) {
+                int visitasPrevias = facturaDao.contarFacturasPorCliente(clienteParaFactura.getIdUsuario());
+                int numeroVisitaActual = visitasPrevias + 1;
+
+                if (numeroVisitaActual % VISITAS_PARA_FIDELIDAD == 0) {
+                    descuentoFidelidad = totalFactura * PORCENTAJE_DESCUENTO_FIDELIDAD;
+                    JOptionPane.showMessageDialog(null,
+                            "¡" + clienteParaFactura.getNombre() + " llegó a su visita número " + numeroVisitaActual
+                            + " y obtiene un " + (int) (PORCENTAJE_DESCUENTO_FIDELIDAD * 100) + "% de descuento por fidelidad!",
+                            "Descuento por Fidelidad", JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+
+            double totalConDescuento = totalFactura - descuentoFidelidad;
+
             // 1. Instanciar y estructurar el objeto Factura
             Factura factura = new Factura();
             factura.setFechaVenta(new Date());
             factura.setSubtotal(totalFactura);
-            factura.setTotal(totalFactura);
+            factura.setDescuentoAplicado(descuentoFidelidad);
+            factura.setTotal(totalConDescuento);
             factura.setDetalles(carritoActual);
-
-            // Determinar si hay un cliente registrado activo
-            Usuario clienteParaFactura = ("Registrado".equals(tipoCliente) && idClienteRealBD > 0) ? clienteRegistrado : null;
 
             // Asignar id_cliente según corresponda (0 para Cliente General -> NULL en BD)
             if (clienteParaFactura != null) {

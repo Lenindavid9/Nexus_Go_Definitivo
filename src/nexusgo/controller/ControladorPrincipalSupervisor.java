@@ -202,14 +202,14 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 return;
             }
 
-            File imgAntes = panelRealizar.getArchivoImagenAntes();
+          
             File imgDespues = panelRealizar.getArchivoImagenDespues();
 
-            String nombreAntes = (imgAntes != null) ? imgAntes.getName() : "Sin foto";
+            
             String nombreDespues = (imgDespues != null) ? imgDespues.getName() : "Sin foto";
 
             String detalleNotas = "Ejecutado: " + descripcionTrabajo + " | Horas: " + horas + "h | Obs: "
-                    + observaciones + " | Antes: " + nombreAntes + " | Desp: " + nombreDespues;
+                    + observaciones + "  Desp: " + nombreDespues;
 
             // Guardar el registro de mantenimiento realizado
             Mantenimiento mEjecutado = new Mantenimiento(
