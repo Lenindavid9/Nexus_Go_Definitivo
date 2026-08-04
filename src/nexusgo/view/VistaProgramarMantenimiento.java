@@ -19,15 +19,16 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerDateModel;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 /**
  *
  * @author USUARIO
  */
-public class VistaProgramarMantenimiento extends JPanel{
-    
-  // Componentes públicos accesibles desde el controlador
+public class VistaProgramarMantenimiento extends JPanel {
+
+    // Componentes públicos accesibles desde el controlador
     public JDateChooser fechaProgramacion; // Fecha de registro/agenda
-    public JSpinner spinnerHora;       
+    public JSpinner spinnerHora;
 
     public JComboBox<String> cbTipoMantenimiento;
     public JTextField txtFallaProblema, txtObservaciones;
@@ -63,7 +64,6 @@ public class VistaProgramarMantenimiento extends JPanel{
         add(txtEquipo);
 
         // --- 1. SECCIÓN DE FECHA PROGRAMACIÓN Y HORA ---
-        
         // Fecha Programación
         JLabel lblFechaProg = new JLabel("Fecha Programación:");
         lblFechaProg.setFont(new Font("Arial", Font.BOLD, 13));
@@ -72,21 +72,23 @@ public class VistaProgramarMantenimiento extends JPanel{
 
         fechaProgramacion = new JDateChooser();
         fechaProgramacion.setDateFormatString("yyyy-MM-dd");
-        fechaProgramacion.setDate(new Date()); 
+        fechaProgramacion.setDate(new Date());
         fechaProgramacion.setBounds(40, 93, 160, 30);
         add(fechaProgramacion);
 
-        // Hora
-        JLabel lblHora = new JLabel("Hora (HH:mm):");
+        // Hora Label
+        JLabel lblHora = new JLabel("Hora (hh:mm a):");
         lblHora.setFont(new Font("Arial", Font.BOLD, 13));
-        lblHora.setBounds(220, 70, 110, 20);
+        lblHora.setBounds(220, 70, 130, 20); // Se amplió el ancho para que quepa bien el texto AM/PM
         add(lblHora);
 
         SpinnerDateModel modeloHora = new SpinnerDateModel(new Date(), null, null, java.util.Calendar.MINUTE);
         spinnerHora = new JSpinner(modeloHora);
-        JSpinner.DateEditor editorHora = new JSpinner.DateEditor(spinnerHora, "HH:mm");
+
+        // formato a 12 horas con AM/PM usando "hh:mm a"
+        JSpinner.DateEditor editorHora = new JSpinner.DateEditor(spinnerHora, "hh:mm a");
         spinnerHora.setEditor(editorHora);
-        spinnerHora.setBounds(220, 93, 110, 30);
+        spinnerHora.setBounds(220, 93, 120, 30); // Ancho sugerido: 120px para visualizar 'AM/PM'
         add(spinnerHora);
 
         // --- 2. Tipo de Mantenimiento ---
@@ -143,7 +145,7 @@ public class VistaProgramarMantenimiento extends JPanel{
     private void abrirExploradorArchivos() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Seleccionar imagen de evidencia");
-        
+
         FileNameExtensionFilter filtro = new FileNameExtensionFilter("Archivos de Imagen (*.jpg, *.jpeg, *.png)", "jpg", "jpeg", "png");
         fileChooser.setFileFilter(filtro);
 
@@ -151,7 +153,7 @@ public class VistaProgramarMantenimiento extends JPanel{
         if (resultado == JFileChooser.APPROVE_OPTION) {
             archivoImagenSeleccionado = fileChooser.getSelectedFile();
             lblNombreImagen.setText(archivoImagenSeleccionado.getName());
-            lblNombreImagen.setForeground(new Color(0, 128, 0)); 
+            lblNombreImagen.setForeground(new Color(0, 128, 0));
         }
     }
 
