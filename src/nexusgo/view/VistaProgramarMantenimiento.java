@@ -27,19 +27,21 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class VistaProgramarMantenimiento extends JPanel {
 
     // Componentes públicos accesibles desde el controlador
-    public JDateChooser fechaProgramacion; // Fecha de registro/agenda
-    public JSpinner spinnerHora;
-
+    public JDateChooser fechaProgramacion;
+    public JComboBox<String> comboHora;
     public JComboBox<String> cbTipoMantenimiento;
-    public JTextField txtFallaProblema, txtObservaciones;
-    public JButton btnImagen, btnGuardarMantenimiento, btnVolver;
+    public JTextField txtFallaProblema;
+    public JTextField txtObservaciones;
+    public JButton btnImagen;
+    public JButton btnGuardarMantenimiento;
+    public JButton btnVolver;
     public JLabel lblNombreImagen;
+
+    // Campo oculto para el equipo/herramienta seleccionada
+    public JTextField txtEquipo;
 
     // Archivo de imagen seleccionado
     private File archivoImagenSeleccionado;
-
-    // Campo oculto para el equipo/herramienta
-    public JTextField txtEquipo;
 
     public VistaProgramarMantenimiento() {
         // Configuración dinámica del Panel
@@ -64,7 +66,6 @@ public class VistaProgramarMantenimiento extends JPanel {
         add(txtEquipo);
 
         // --- 1. SECCIÓN DE FECHA PROGRAMACIÓN Y HORA ---
-        // Fecha Programación
         JLabel lblFechaProg = new JLabel("Fecha Programación:");
         lblFechaProg.setFont(new Font("Arial", Font.BOLD, 13));
         lblFechaProg.setBounds(40, 70, 160, 20);
@@ -76,22 +77,23 @@ public class VistaProgramarMantenimiento extends JPanel {
         fechaProgramacion.setBounds(40, 93, 160, 30);
         add(fechaProgramacion);
 
-        // Hora Label
-        JLabel lblHora = new JLabel("Hora (hh:mm a):");
+        JLabel lblHora = new JLabel("Hora de Atención:");
         lblHora.setFont(new Font("Arial", Font.BOLD, 13));
-        lblHora.setBounds(220, 70, 130, 20); // Se amplió el ancho para que quepa bien el texto AM/PM
+        lblHora.setBounds(220, 70, 140, 20);
         add(lblHora);
 
-        SpinnerDateModel modeloHora = new SpinnerDateModel(new Date(), null, null, java.util.Calendar.MINUTE);
-        spinnerHora = new JSpinner(modeloHora);
+        // Franjas horarias operativas fijas (6:00 a. m. a 9:00 p. m.)
+        String[] horasLaborales = {
+            "-- Seleccione Hora --",
+            "06:00 a. m.", "07:00 a. m.", "08:00 a. m.", "09:00 a. m.", "10:00 a. m.", "11:00 a. m.",
+            "12:00 p. m.", "01:00 p. m.", "02:00 p. m.", "03:00 p. m.", "04:00 p. m.", "05:00 p. m.",
+            "06:00 p. m.", "07:00 p. m.", "08:00 p. m.", "09:00 p. m."
+        };
+        comboHora = new JComboBox<>(horasLaborales);
+        comboHora.setBounds(220, 93, 150, 30);
+        add(comboHora);
 
-        // formato a 12 horas con AM/PM usando "hh:mm a"
-        JSpinner.DateEditor editorHora = new JSpinner.DateEditor(spinnerHora, "hh:mm a");
-        spinnerHora.setEditor(editorHora);
-        spinnerHora.setBounds(220, 93, 120, 30); // Ancho sugerido: 120px para visualizar 'AM/PM'
-        add(spinnerHora);
-
-        // --- 2. Tipo de Mantenimiento ---
+        // --- 2. TIPO DE MANTENIMIENTO ---
         JLabel lblTipo = new JLabel("Tipo de mantenimiento");
         lblTipo.setFont(new Font("Arial", Font.BOLD, 13));
         lblTipo.setBounds(40, 145, 200, 20);
@@ -99,30 +101,30 @@ public class VistaProgramarMantenimiento extends JPanel {
 
         String[] opciones = {"Seleccione su tipo de mantenimiento", "Preventivo", "Correctivo"};
         cbTipoMantenimiento = new JComboBox<>(opciones);
-        cbTipoMantenimiento.setBounds(40, 168, 320, 30);
+        cbTipoMantenimiento.setBounds(40, 168, 330, 30);
         add(cbTipoMantenimiento);
 
-        // --- 3. Falla o Problema ---
+        // --- 3. FALLA O PROBLEMA ---
         JLabel lblFalla = new JLabel("Falla o problema que tiene la herramienta");
         lblFalla.setFont(new Font("Arial", Font.BOLD, 13));
         lblFalla.setBounds(40, 215, 400, 20);
         add(lblFalla);
 
         txtFallaProblema = new JTextField();
-        txtFallaProblema.setBounds(40, 238, 320, 35);
+        txtFallaProblema.setBounds(40, 238, 330, 35);
         add(txtFallaProblema);
 
-        // --- 4. Observaciones ---
+        // --- 4. OBSERVACIONES ---
         JLabel lblObs = new JLabel("Observaciones");
         lblObs.setFont(new Font("Arial", Font.BOLD, 13));
         lblObs.setBounds(40, 290, 200, 20);
         add(lblObs);
 
         txtObservaciones = new JTextField();
-        txtObservaciones.setBounds(40, 313, 320, 35);
+        txtObservaciones.setBounds(40, 313, 330, 35);
         add(txtObservaciones);
 
-        // --- 5. Botón Adjuntar Imagen ---
+        // --- 5. BOTÓN ADJUNTAR IMAGEN ---
         btnImagen = new JButton("Imagen del equipo");
         btnImagen.setBounds(40, 370, 160, 30);
         add(btnImagen);
@@ -134,7 +136,7 @@ public class VistaProgramarMantenimiento extends JPanel {
 
         btnImagen.addActionListener(e -> abrirExploradorArchivos());
 
-        // --- 6. Botón Guardar ---
+        // --- 6. BOTÓN GUARDAR ---
         btnGuardarMantenimiento = new JButton("Guardar");
         btnGuardarMantenimiento.setBackground(new Color(255, 215, 0));
         btnGuardarMantenimiento.setFont(new Font("Arial", Font.BOLD, 14));
@@ -160,4 +162,31 @@ public class VistaProgramarMantenimiento extends JPanel {
     public File getArchivoImagenSeleccionado() {
         return archivoImagenSeleccionado;
     }
+
+    /**
+     * Permite al controlador establecer o resetear la imagen seleccionada.
+     *
+     * @param archivoImagenSeleccionado Archivo File de la imagen o null para
+     * resetear.
+     */
+    public void setArchivoImagenSeleccionado(File archivoImagenSeleccionado) {
+        this.archivoImagenSeleccionado = archivoImagenSeleccionado;
+    }
+
+    /**
+     * Limpia y reinicia todos los componentes del formulario a sus valores por
+     * defecto.
+     */
+    public void limpiarCampos() {
+        fechaProgramacion.setDate(new Date());
+        comboHora.setSelectedIndex(0);
+        cbTipoMantenimiento.setSelectedIndex(0);
+        txtFallaProblema.setText("");
+        txtObservaciones.setText("");
+        txtEquipo.setText("");
+        archivoImagenSeleccionado = null;
+        lblNombreImagen.setText("Ninguna imagen seleccionada");
+        lblNombreImagen.setForeground(Color.DARK_GRAY);
+    }
+
 }

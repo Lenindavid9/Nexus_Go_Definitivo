@@ -95,6 +95,8 @@ public class VistaRealizacionMantenimiento extends JPanel {
         btnFotoDespues = crearBotonAdjuntar("Imagen de después del mantenimiento (obligatoria)");
         btnFotoDespues.setBounds(255, 192, 295, 32);
         this.add(btnFotoDespues);
+        
+        //Cuadro de foto previa 
 
         lblPreviewDespues = new JLabel("Sin foto", SwingConstants.CENTER);
         lblPreviewDespues.setFont(new Font("Segoe UI", Font.ITALIC, 10));

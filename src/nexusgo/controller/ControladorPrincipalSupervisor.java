@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -45,6 +46,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
     private final VistaPrincipalSupervisor vistaPrincipal;
     private VistaInventarioSupervisor panelInventario;
     private VistaProgramarMantenimiento panelProgramarMantenimiento;
+    private VistaRealizacionMantenimiento panelRealizarMantenimiento;
     private AperturaCierre panelAperturaCierre;
 
     // DAOs y Sesión
@@ -66,6 +68,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
         try {
             this.panelInventario = new VistaInventarioSupervisor();
             this.panelProgramarMantenimiento = new VistaProgramarMantenimiento();
+            this.panelRealizarMantenimiento = new VistaRealizacionMantenimiento();
             this.panelAperturaCierre = new AperturaCierre();
 
             this.idCajaActual = cajaDao.obtenerCajaAbierta();
@@ -91,6 +94,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
     private void inicializarListeners() {
         try {
+            // Sidebar y Navegación Principal
             this.vistaPrincipal.sidebar.bCasa.addActionListener(this);
             this.vistaPrincipal.sidebar.bInventario.addActionListener(this);
             this.vistaPrincipal.sidebar.misCitas.addActionListener(this);
@@ -100,12 +104,23 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 this.vistaPrincipal.btnCaja.addActionListener(this);
             }
 
+            // Módulo Caja
             this.panelAperturaCierre.getBtnApertura().addActionListener(this);
             this.panelAperturaCierre.getBtnCalcular().addActionListener(this);
 
+            // Módulo Programar Mantenimiento
             this.panelProgramarMantenimiento.btnGuardarMantenimiento.addActionListener(this);
             this.panelProgramarMantenimiento.btnVolver.addActionListener(this);
 
+            // Módulo Realizar Mantenimiento
+            this.panelRealizarMantenimiento.btnVolver.addActionListener(e -> {
+                cambiarPanelCentral(this.panelInventario);
+                listarHerramientasEnTabla();
+            });
+
+            this.panelRealizarMantenimiento.btnGuardar.addActionListener(e -> ejecutarGuardadoRealizaciónMantenimiento());
+
+            // Listeners de Tablas
             this.panelInventario.tablaProductos.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
@@ -137,7 +152,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
     }
 
     private void lanzarMenuDecisionMantenimiento() {
-        String[] opciones = {"Confirmacion de Mantenimiento", "Programar de Mantenimiento", "Cancelar"};
+        String[] opciones = {"Confirmación de Mantenimiento", "Programar Mantenimiento", "Cancelar"};
 
         int seleccion = JOptionPane.showOptionDialog(panelInventario,
                 "¿Qué acción desea ejecutar para la herramienta:\n" + nombreHerramientaSeleccionada + "?",
@@ -149,115 +164,104 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 opciones[0]);
 
         if (seleccion == 0) {
-            // Opción 1: Realizar Mantenimiento (Ejecución inmediata)
             abrirVistaRealizacionMantenimiento();
         } else if (seleccion == 1) {
-            // Opción 2: Registrar Mantenimiento (Programación a futuro)
             panelProgramarMantenimiento.txtEquipo.setText(nombreHerramientaSeleccionada);
             cambiarPanelCentral(this.panelProgramarMantenimiento);
         }
     }
 
     private void abrirVistaRealizacionMantenimiento() {
-        VistaRealizacionMantenimiento panelRealizar = new VistaRealizacionMantenimiento();
-
-        // Cargar únicamente las herramientas que están pendientes/requieren mantenimiento
         List<Herramientas> listaHerramientas = herramientaDao.listar();
         List<Herramientas> listaFiltrada = new ArrayList<>();
-        for (Herramientas h : listaHerramientas) {
-            if ("REQUIERE_MANTENIMIENTO".equalsIgnoreCase(h.getEstadoActual())) {
-                listaFiltrada.add(h);
+
+        if (listaHerramientas != null) {
+            for (Herramientas h : listaHerramientas) {
+                if ("REQUIERE_MANTENIMIENTO".equalsIgnoreCase(h.getEstadoActual())) {
+                    listaFiltrada.add(h);
+                }
             }
         }
-        panelRealizar.cargarHerramientas(listaFiltrada);
 
-        // Preseleccionar la herramienta si venía de un clic en la tabla
+        this.panelRealizarMantenimiento.cargarHerramientas(listaFiltrada);
+
         if (idHerramientaSeleccionada > 0) {
-            panelRealizar.seleccionarHerramientaPorId(idHerramientaSeleccionada);
+            this.panelRealizarMantenimiento.seleccionarHerramientaPorId(idHerramientaSeleccionada);
         }
 
-        panelRealizar.btnVolver.addActionListener(e -> {
+        cambiarPanelCentral(this.panelRealizarMantenimiento);
+    }
+
+    private void ejecutarGuardadoRealizaciónMantenimiento() {
+        Herramientas herramientaElegida = panelRealizarMantenimiento.getHerramientaSeleccionada();
+
+        if (herramientaElegida == null) {
+            JOptionPane.showMessageDialog(panelRealizarMantenimiento,
+                    "Por favor seleccione una herramienta de la lista desplegable.",
+                    "Selección Requerida", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String descripcionTrabajo = panelRealizarMantenimiento.txtDescripcionTrabajo.getText().trim();
+        if (descripcionTrabajo.isEmpty()) {
+            JOptionPane.showMessageDialog(panelRealizarMantenimiento,
+                    "Por favor describa el trabajo realizado.",
+                    "Campo Requerido", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (panelRealizarMantenimiento.cbHorasInvertidas.getSelectedIndex() <= 0) {
+            JOptionPane.showMessageDialog(panelRealizarMantenimiento,
+                    "Por favor seleccione las horas invertidas en el mantenimiento.",
+                    "Horas Requeridas", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        String horas = panelRealizarMantenimiento.cbHorasInvertidas.getSelectedItem().toString();
+
+        File imgDespues = panelRealizarMantenimiento.getArchivoImagenDespues();
+        if (imgDespues == null || !imgDespues.exists()) {
+            JOptionPane.showMessageDialog(panelRealizarMantenimiento,
+                    "¡ATENCIÓN: LA FOTO DE DESPUÉS ES OBLIGATORIA!\n\n"
+                    + "Para completar la ejecución debe adjuntar la imagen\n"
+                    + "que evidencia el trabajo realizado en la herramienta.",
+                    "Foto Requerida", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String observaciones = panelRealizarMantenimiento.txtObservaciones.getText().trim();
+        String detalleNotas = "Ejecutado: " + descripcionTrabajo + " | Horas: " + horas + "h | Obs: "
+                + observaciones + " | Desp: " + imgDespues.getName();
+
+        Mantenimiento mEjecutado = new Mantenimiento(
+                herramientaElegida.getIdHerramienta(),
+                "CORRECTIVO",
+                new Date(),
+                detalleNotas,
+                usuarioLogueado.getIdUsuario()
+        );
+
+        boolean guardado = mantenimientoDao.registrarProgramacion(mEjecutado);
+
+        if (guardado) {
+            String nuevoEstado = "EXCELENTE";
+            boolean estadoActualizado = herramientaDao.actualizarEstado(herramientaElegida.getIdHerramienta(), nuevoEstado);
+
+            String msgEstado = estadoActualizado
+                    ? "\nEstado de la herramienta actualizado a: " + nuevoEstado
+                    : "\n(No se pudo actualizar el estado de la herramienta).";
+
+            JOptionPane.showMessageDialog(panelRealizarMantenimiento,
+                    "¡Mantenimiento de '" + herramientaElegida.getNombreHerramienta() + "' registrado exitosamente!" + msgEstado,
+                    "Registro Exitoso", JOptionPane.INFORMATION_MESSAGE);
+
+            panelRealizarMantenimiento.limpiarFormulario();
             cambiarPanelCentral(this.panelInventario);
             listarHerramientasEnTabla();
-        });
-
-        panelRealizar.btnGuardar.addActionListener(e -> {
-            Herramientas herramientaElegida = panelRealizar.getHerramientaSeleccionada();
-
-            if (herramientaElegida == null) {
-                JOptionPane.showMessageDialog(panelRealizar,
-                        "Por favor seleccione una herramienta de la lista desplegable.",
-                        "Selección Requerida", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            String descripcionTrabajo = panelRealizar.txtDescripcionTrabajo.getText().trim();
-            if (descripcionTrabajo.isEmpty()) {
-                JOptionPane.showMessageDialog(panelRealizar,
-                        "Por favor describa el trabajo realizado.",
-                        "Campo Requerido", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            // Validar selección de horas en el ComboBox
-            if (panelRealizar.cbHorasInvertidas.getSelectedIndex() <= 0) {
-                JOptionPane.showMessageDialog(panelRealizar,
-                        "Por favor seleccione las horas invertidas en el mantenimiento.",
-                        "Horas Requeridas", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-            String horas = panelRealizar.cbHorasInvertidas.getSelectedItem().toString();
-
-            // VALIDACIÓN OBLIGATORIA DE LA FOTO
-            File imgDespues = panelRealizar.getArchivoImagenDespues();
-            if (imgDespues == null || !imgDespues.exists()) {
-                JOptionPane.showMessageDialog(panelRealizar,
-                        "¡ATENCIÓN: LA FOTO DE DESPUÉS ES OBLIGATORIA!\n\n"
-                        + "Para completar la ejecución debe adjuntar la imagen\n"
-                        + "que evidencia el trabajo realizado en la herramienta.",
-                        "Foto Requerida", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            String observaciones = panelRealizar.txtObservaciones.getText().trim();
-            String detalleNotas = "Ejecutado: " + descripcionTrabajo + " | Horas: " + horas + "h | Obs: "
-                    + observaciones + " | Desp: " + imgDespues.getName();
-
-            // Guardar el registro de mantenimiento finalizado
-            Mantenimiento mEjecutado = new Mantenimiento(
-                    herramientaElegida.getIdHerramienta(),
-                    "CORRECTIVO",
-                    new Date(),
-                    detalleNotas,
-                    usuarioLogueado.getIdUsuario()
-            );
-
-            boolean guardado = mantenimientoDao.registrarProgramacion(mEjecutado);
-
-            if (guardado) {
-                // Cambia estado a EXCELENTE (Herramienta arreglada)
-                String nuevoEstado = "EXCELENTE";
-                boolean estadoActualizado = herramientaDao.actualizarEstado(herramientaElegida.getIdHerramienta(), nuevoEstado);
-
-                String msgEstado = estadoActualizado
-                        ? "\nEstado de la herramienta actualizado a: " + nuevoEstado
-                        : "\n(No se pudo actualizar el estado de la herramienta).";
-
-                JOptionPane.showMessageDialog(panelRealizar,
-                        "¡Mantenimiento de '" + herramientaElegida.getNombreHerramienta() + "' registrado exitosamente!" + msgEstado,
-                        "Registro Exitoso", JOptionPane.INFORMATION_MESSAGE);
-
-                panelRealizar.limpiarFormulario();
-                cambiarPanelCentral(this.panelInventario);
-                listarHerramientasEnTabla();
-            } else {
-                JOptionPane.showMessageDialog(panelRealizar,
-                        "Error al guardar el registro del mantenimiento en la base de datos.",
-                        "Error de BD", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-
-        cambiarPanelCentral(panelRealizar);
+        } else {
+            JOptionPane.showMessageDialog(panelRealizarMantenimiento,
+                    "Error al guardar el registro del mantenimiento en la base de datos.",
+                    "Error de BD", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void mostrarInicio() {
@@ -314,77 +318,11 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             }
 
             if (e.getSource() == panelAperturaCierre.getBtnApertura()) {
-                if (idCajaActual > 0) {
-                    JOptionPane.showMessageDialog(vistaPrincipal,
-                            "Ya existe una caja abierta. Debe realizar el cierre antes de registrar una nueva apertura.",
-                            "Caja en Uso", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-
-                String montoStr = panelAperturaCierre.getTxtMontoInicial().getText();
-                if (!montoStr.trim().isEmpty()) {
-                    double monto;
-                    try {
-                        monto = parsearMonto(montoStr);
-                    } catch (NumberFormatException nfe) {
-                        JOptionPane.showMessageDialog(vistaPrincipal,
-                                "El monto ingresado no es un número válido.",
-                                "Formato Inválido", JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-
-                    if (monto <= 0 || monto > 99999999.99) {
-                        JOptionPane.showMessageDialog(vistaPrincipal,
-                                "El monto debe ser mayor a $0 y no superar $99.999.999,99.",
-                                "Monto Fuera de Rango", JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-
-                    idCajaActual = cajaDao.guardarApertura(monto, usuarioLogueado.getIdUsuario());
-
-                    if (idCajaActual > 0) {
-                        panelAperturaCierre.getLbltxtMontoA().setText(String.format("$%,.2f", monto));
-                        JOptionPane.showMessageDialog(vistaPrincipal,
-                                "Apertura de caja realizada con: $" + String.format("%,.2f", monto),
-                                "Caja Registrada", JOptionPane.INFORMATION_MESSAGE);
-
-                        refrescarVistaDinamica();
-                    } else {
-                        JOptionPane.showMessageDialog(vistaPrincipal,
-                                "No se pudo registrar la apertura de caja en la base de datos.",
-                                "Error de BD", JOptionPane.ERROR_MESSAGE);
-                    }
-                }
+                ejecutarAperturaCaja();
             }
 
             if (e.getSource() == panelAperturaCierre.getBtnCalcular()) {
-                String montoFisicoStr = panelAperturaCierre.getTxtMontoF().getText();
-
-                if (!montoFisicoStr.trim().isEmpty() && idCajaActual > 0) {
-                    try {
-                        double montoFisico = parsearMonto(montoFisicoStr);
-                        cajaDao.guardarCierre(idCajaActual, montoFisico, montoFisico);
-
-                        JOptionPane.showMessageDialog(vistaPrincipal,
-                                "Cierre procesado exitosamente.\nMonto en caja: $" + String.format("%,.2f", montoFisico),
-                                "Cierre de Caja", JOptionPane.INFORMATION_MESSAGE);
-
-                        idCajaActual = 0;
-                        panelAperturaCierre.getLbltxtMontoA().setText("");
-                        panelAperturaCierre.getTxtMontoF().setText("");
-                        panelAperturaCierre.getTxtMontoInicial().setText("");
-
-                        refrescarVistaDinamica();
-                    } catch (NumberFormatException nfe) {
-                        JOptionPane.showMessageDialog(vistaPrincipal,
-                                "Ingrese un monto físico válido para realizar el cierre.",
-                                "Monto Inválido", JOptionPane.WARNING_MESSAGE);
-                    }
-                } else if (idCajaActual <= 0) {
-                    JOptionPane.showMessageDialog(vistaPrincipal,
-                            "No hay ninguna caja abierta actualmente para cerrar.",
-                            "Atención", JOptionPane.WARNING_MESSAGE);
-                }
+                ejecutarCierreCaja();
             }
 
             if (e.getSource() == panelProgramarMantenimiento.btnVolver) {
@@ -398,6 +336,80 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
         } catch (Exception ex) {
             System.err.println("Error general en eventos del Supervisor: " + ex.getMessage());
+        }
+    }
+
+    private void ejecutarAperturaCaja() {
+        if (idCajaActual > 0) {
+            JOptionPane.showMessageDialog(vistaPrincipal,
+                    "Ya existe una caja abierta. Debe realizar el cierre antes de registrar una nueva apertura.",
+                    "Caja en Uso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String montoStr = panelAperturaCierre.getTxtMontoInicial().getText();
+        if (!montoStr.trim().isEmpty()) {
+            double monto;
+            try {
+                monto = parsearMonto(montoStr);
+            } catch (NumberFormatException nfe) {
+                JOptionPane.showMessageDialog(vistaPrincipal,
+                        "El monto ingresado no es un número válido.",
+                        "Formato Inválido", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            if (monto <= 0 || monto > 99999999.99) {
+                JOptionPane.showMessageDialog(vistaPrincipal,
+                        "El monto debe ser mayor a $0 y no superar $99.999.999,99.",
+                        "Monto Fuera de Rango", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            idCajaActual = cajaDao.guardarApertura(monto, usuarioLogueado.getIdUsuario());
+
+            if (idCajaActual > 0) {
+                panelAperturaCierre.getLbltxtMontoA().setText(String.format("$%,.2f", monto));
+                JOptionPane.showMessageDialog(vistaPrincipal,
+                        "Apertura de caja realizada con: $" + String.format("%,.2f", monto),
+                        "Caja Registrada", JOptionPane.INFORMATION_MESSAGE);
+
+                refrescarVistaDinamica();
+            } else {
+                JOptionPane.showMessageDialog(vistaPrincipal,
+                        "No se pudo registrar la apertura de caja en la base de datos.",
+                        "Error de BD", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void ejecutarCierreCaja() {
+        String montoFisicoStr = panelAperturaCierre.getTxtMontoF().getText();
+
+        if (!montoFisicoStr.trim().isEmpty() && idCajaActual > 0) {
+            try {
+                double montoFisico = parsearMonto(montoFisicoStr);
+                cajaDao.guardarCierre(idCajaActual, montoFisico, montoFisico);
+
+                JOptionPane.showMessageDialog(vistaPrincipal,
+                        "Cierre procesado exitosamente.\nMonto en caja: $" + String.format("%,.2f", montoFisico),
+                        "Cierre de Caja", JOptionPane.INFORMATION_MESSAGE);
+
+                idCajaActual = 0;
+                panelAperturaCierre.getLbltxtMontoA().setText("");
+                panelAperturaCierre.getTxtMontoF().setText("");
+                panelAperturaCierre.getTxtMontoInicial().setText("");
+
+                refrescarVistaDinamica();
+            } catch (NumberFormatException nfe) {
+                JOptionPane.showMessageDialog(vistaPrincipal,
+                        "Ingrese un monto físico válido para realizar el cierre.",
+                        "Monto Inválido", JOptionPane.WARNING_MESSAGE);
+            }
+        } else if (idCajaActual <= 0) {
+            JOptionPane.showMessageDialog(vistaPrincipal,
+                    "No hay ninguna caja abierta actualmente para cerrar.",
+                    "Atención", JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -419,18 +431,34 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                 return;
             }
 
+            // Validar selección de la hora en el JComboBox comboHora
+            if (panelProgramarMantenimiento.comboHora == null 
+                    || panelProgramarMantenimiento.comboHora.getSelectedIndex() <= 0) {
+                JOptionPane.showMessageDialog(panelProgramarMantenimiento,
+                        "Por favor seleccione una hora válida para el mantenimiento.",
+                        "Hora Requerida", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            String horaSeleccionada = (String) panelProgramarMantenimiento.comboHora.getSelectedItem();
+
             Calendar calFechaElegida = Calendar.getInstance();
             calFechaElegida.setTime(fechaCalendario);
 
-            if (panelProgramarMantenimiento.spinnerHora != null) {
-                Date horaSpinner = (Date) panelProgramarMantenimiento.spinnerHora.getValue();
+            // Mapeo del String del JComboBox (ej: "08:00 a. m.") a la fecha seleccionada
+            try {
+                SimpleDateFormat sdfFormat = new SimpleDateFormat("hh:mm a", new Locale("es", "CO"));
+                Date horaParsed = sdfFormat.parse(horaSeleccionada.replace(".", ""));
+
                 Calendar calHora = Calendar.getInstance();
-                calHora.setTime(horaSpinner);
+                calHora.setTime(horaParsed);
 
                 calFechaElegida.set(Calendar.HOUR_OF_DAY, calHora.get(Calendar.HOUR_OF_DAY));
                 calFechaElegida.set(Calendar.MINUTE, calHora.get(Calendar.MINUTE));
                 calFechaElegida.set(Calendar.SECOND, 0);
                 calFechaElegida.set(Calendar.MILLISECOND, 0);
+            } catch (Exception exHora) {
+                System.err.println("No se pudo parsear el formato de la hora: " + exHora.getMessage());
             }
 
             Date fechaFinalProgramada = calFechaElegida.getTime();
@@ -442,7 +470,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
             File imagenAdjunta = panelProgramarMantenimiento.getArchivoImagenSeleccionado();
 
-            // Requisito: la foto de la herramienta es OBLIGATORIA para poder programar el mantenimiento.
             if (imagenAdjunta == null) {
                 JOptionPane.showMessageDialog(panelProgramarMantenimiento,
                         "Debe adjuntar una foto de la herramienta para poder programar el mantenimiento.",
@@ -451,7 +478,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             }
 
             String nombreImagen = imagenAdjunta.getName();
-
             String notasCompletas = "Falla: " + fallaProblema + " | Obs: " + observaciones + " | Img: " + nombreImagen;
 
             if (tipoMantenimiento.equals("Seleccione su tipo de mantenimiento") || fallaProblema.isEmpty()) {
@@ -489,7 +515,6 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             boolean guardadoExitoso = mantenimientoDao.registrarProgramacion(nuevoMantenimiento);
 
             if (guardadoExitoso) {
-                // Al programar un mantenimiento, la herramienta pasa a "REQUIERE_MANTENIMIENTO"
                 herramientaDao.actualizarEstado(idHerramientaSeleccionada, "REQUIERE_MANTENIMIENTO");
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -499,7 +524,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
                         + "Tipo: " + tipoMantenimiento + "\n"
                         + "Fecha Programada: " + sdf.format(fechaFinalProgramada) + "\n"
                         + "Adjunto: " + nombreImagen,
-                        "NEXUS GO - Mantenimiento de Herramiento", JOptionPane.INFORMATION_MESSAGE);
+                        "NEXUS GO - Mantenimiento de Herramienta", JOptionPane.INFORMATION_MESSAGE);
 
                 limpiarCamposProgramacion();
                 cambiarPanelCentral(this.panelInventario);
@@ -519,6 +544,9 @@ public class ControladorPrincipalSupervisor implements ActionListener {
 
     private void limpiarCamposProgramacion() {
         panelProgramarMantenimiento.cbTipoMantenimiento.setSelectedIndex(0);
+        if (panelProgramarMantenimiento.comboHora != null) {
+            panelProgramarMantenimiento.comboHora.setSelectedIndex(0);
+        }
         panelProgramarMantenimiento.txtFallaProblema.setText("");
         if (panelProgramarMantenimiento.txtObservaciones != null) {
             panelProgramarMantenimiento.txtObservaciones.setText("");
@@ -578,7 +606,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             List<Herramientas> lista = herramientaDao.listar();
             if (lista != null) {
                 for (Herramientas h : lista) {
-                    modelo.addRow(new Object[]{h.getIdHerramienta(), h.getNombreHerramienta(), h.getEstadoActual(), "Activo"});
+                    modelo.addRow(new Object[]{h.getIdHerramienta(), h.getEstadoActual(), h.getNombreHerramienta() != null ? h.getNombreHerramienta() : "", "Activo"});
                 }
             }
         } catch (Exception e) {
