@@ -17,32 +17,32 @@ import nexusgo.view.VistaChecklistHerramientas;
  * @author USUARIO
  */
 public class ControladorChecklistHerramientas {
-    
-     private final VistaChecklistHerramientas vista;
+
+    private final VistaChecklistHerramientas vista;
     private final HerramientaDao herramientaDao;
     private final int idCita;
- 
+
     public ControladorChecklistHerramientas(Frame owner, int idCita, String infoCita) {
         this.idCita = idCita;
         this.herramientaDao = new HerramientaDao();
         this.vista = new VistaChecklistHerramientas(owner, infoCita);
- 
+
         inicializarListeners();
         cargarHerramientasDisponibles();
     }
- 
+
     private void inicializarListeners() {
         vista.getBtnGuardar().addActionListener(e -> guardarChecklist());
         vista.getBtnCancelar().addActionListener(e -> vista.dispose());
     }
- 
+
     private void cargarHerramientasDisponibles() {
         SwingWorker<List<Herramientas>, Void> worker = new SwingWorker<>() {
             @Override
             protected List<Herramientas> doInBackground() {
                 return herramientaDao.listar();
             }
- 
+
             @Override
             protected void done() {
                 try {
@@ -56,24 +56,24 @@ public class ControladorChecklistHerramientas {
         };
         worker.execute();
     }
- 
+
     private void guardarChecklist() {
         List<Integer> seleccionadas = vista.getIdsHerramientasSeleccionadas();
- 
+
         SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
             @Override
             protected Boolean doInBackground() {
                 return herramientaDao.reservarHerramientasParaCita(idCita, seleccionadas);
             }
- 
+
             @Override
             protected void done() {
                 try {
                     if (get()) {
                         JOptionPane.showMessageDialog(vista,
                                 seleccionadas.isEmpty()
-                                        ? "No se reservó ninguna herramienta para esta cita."
-                                        : "Herramientas reservadas correctamente. Quedan en estado OCUPADA.",
+                                ? "No se reservó ninguna herramienta para esta cita."
+                                : "Herramientas reservadas correctamente. Quedan en estado OCUPADA.",
                                 "NexusGO", JOptionPane.INFORMATION_MESSAGE);
                         vista.dispose();
                     } else {
@@ -90,9 +90,9 @@ public class ControladorChecklistHerramientas {
         };
         worker.execute();
     }
- 
+
     public void mostrar() {
         vista.setVisible(true);
     }
-    
+
 }
