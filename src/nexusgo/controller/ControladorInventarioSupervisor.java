@@ -37,7 +37,7 @@ import nexusgo.view.VistaRealizacionMantenimiento;
  */
 public class ControladorInventarioSupervisor implements ActionListener {
 
-     private final VistaPrincipalSupervisor vistaPrincipal;
+    private final VistaPrincipalSupervisor vistaPrincipal;
     private VistaInventarioSupervisor panelInventario;
     private VistaProgramarMantenimiento panelProgramarMantenimiento;
     private VistaRealizacionMantenimiento panelRealizacionMantenimiento;
@@ -331,13 +331,14 @@ public class ControladorInventarioSupervisor implements ActionListener {
 
             File fotoDespues = panelRealizacionMantenimiento.getArchivoImagenDespues();
 
-            // Requerimiento #2: SOLO la foto de "después" es obligatoria para poder
-            // confirmar que la herramienta quedó arreglada. La de "antes" es opcional.
-            if (fotoDespues == null) {
+            //VALIDACIÓN : FOTO DE "DESPUÉS" 
+            if (fotoDespues == null || !fotoDespues.exists() || !fotoDespues.isFile() || fotoDespues.getAbsolutePath().trim().isEmpty()) {
                 JOptionPane.showMessageDialog(panelRealizacionMantenimiento,
-                        "Debe adjuntar la foto de DESPUÉS del mantenimiento para confirmar que la herramienta quedó arreglada.",
-                        "Foto de Después Obligatoria", JOptionPane.WARNING_MESSAGE);
-                return;
+                        "¡ATENCIÓN: LA FOTO DE DESPUÉS ES OBLIGATORIA!\n\n"
+                        + "Para completar la ejecución del mantenimiento debe adjuntar la imagen\n"
+                        + "que evidencia el estado final de la herramienta reparada.",
+                        "Foto de Después Requerida", JOptionPane.ERROR_MESSAGE);
+                return; // Se detiene inmediatamente la ejecución
             }
 
             double horasInvertidas;
