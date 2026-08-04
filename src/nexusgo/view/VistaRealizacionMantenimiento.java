@@ -206,6 +206,7 @@ public class VistaRealizacionMantenimiento extends JPanel {
                     lblContenedor.getWidth(),
                     lblContenedor.getHeight(),
                     Image.SCALE_SMOOTH
+            // Image.SCALE_SMOOTH asegura que la imagen no pierda calidad visual al reducirse
             );
             lblContenedor.setText("");
             lblContenedor.setIcon(new ImageIcon(imgEscalada));
