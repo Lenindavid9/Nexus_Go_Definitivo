@@ -37,7 +37,7 @@ public class VistaRealizacionMantenimiento extends JPanel {
     public JButton btnFotoDespues;
     public JLabel lblPreviewDespues;
 
-    public JTextField txtHorasInvertidas;
+    public JComboBox<String> cbHorasInvertidas;
     public JTextField txtObservaciones;
     public JButton btnGuardar;
 
@@ -109,11 +109,17 @@ public class VistaRealizacionMantenimiento extends JPanel {
         lblHoras.setBounds(240, 305, 320, 20);
         this.add(lblHoras);
 
-        txtHorasInvertidas = new JTextField();
-        txtHorasInvertidas.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        txtHorasInvertidas.setBorder(new LineBorder(new Color(210, 210, 210), 1, true));
-        txtHorasInvertidas.setBounds(190, 328, 420, 32);
-        this.add(txtHorasInvertidas);
+        String[] opcionesHoras = {
+            "-- Seleccione las horas --",
+            "0.5", "1.0", "1.5", "2.0", "2.5", "3.0",
+            "3.5", "4.0", "4.5", "5.0", "6.0", "8.0", "10.0"
+        };
+
+        cbHorasInvertidas = new JComboBox<>(opcionesHoras);
+        cbHorasInvertidas.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        cbHorasInvertidas.setBackground(Color.WHITE);
+        cbHorasInvertidas.setBounds(190, 328, 420, 32);
+        this.add(cbHorasInvertidas);
 
         JLabel lblObs = new JLabel("Observaciones:");
         lblObs.setFont(new Font("Segoe UI", Font.BOLD, 12));
@@ -210,5 +216,17 @@ public class VistaRealizacionMantenimiento extends JPanel {
 
     public File getArchivoImagenDespues() {
         return archivoImagenDespues;
+    }
+
+    public void limpiarFormulario() {
+        if (cbHerramientas.getItemCount() > 0) {
+            cbHerramientas.setSelectedIndex(0);
+        }
+        txtDescripcionTrabajo.setText("");
+        cbHorasInvertidas.setSelectedIndex(0);
+        txtObservaciones.setText("");
+        this.archivoImagenDespues = null;
+        lblPreviewDespues.setIcon(null);
+        lblPreviewDespues.setText("Sin foto");
     }
 }
