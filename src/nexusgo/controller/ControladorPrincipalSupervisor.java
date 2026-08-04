@@ -161,7 +161,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
     private void abrirVistaRealizacionMantenimiento() {
         VistaRealizacionMantenimiento panelRealizar = new VistaRealizacionMantenimiento();
 
-        // Cargar solo las herramientas que actualmente requieren mantenimiento (osea es el filtro)
+        // Cargar únicamente las herramientas que están pendientes/requieren mantenimiento
         List<Herramientas> listaHerramientas = herramientaDao.listar();
         List<Herramientas> listaFiltrada = new ArrayList<>();
         for (Herramientas h : listaHerramientas) {
@@ -171,7 +171,7 @@ public class ControladorPrincipalSupervisor implements ActionListener {
         }
         panelRealizar.cargarHerramientas(listaFiltrada);
 
-        // Preseleccionar la herramienta que se clickeó en la tabla (si está en la lista filtrada)
+        // Preseleccionar la herramienta si venía de un clic en la tabla
         if (idHerramientaSeleccionada > 0) {
             panelRealizar.seleccionarHerramientaPorId(idHerramientaSeleccionada);
         }
@@ -192,26 +192,38 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             }
 
             String descripcionTrabajo = panelRealizar.txtDescripcionTrabajo.getText().trim();
-            String horas = panelRealizar.txtHorasInvertidas.getText().trim();
-            String observaciones = panelRealizar.txtObservaciones.getText().trim();
-
-            if (descripcionTrabajo.isEmpty() || horas.isEmpty()) {
+            if (descripcionTrabajo.isEmpty()) {
                 JOptionPane.showMessageDialog(panelRealizar,
-                        "Por favor complete la descripción del trabajo realizado y las horas invertidas.",
-                        "Campos Requeridos", JOptionPane.WARNING_MESSAGE);
+                        "Por favor describa el trabajo realizado.",
+                        "Campo Requerido", JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
-          
+            // Validar selección de horas en el ComboBox
+            if (panelRealizar.cbHorasInvertidas.getSelectedIndex() <= 0) {
+                JOptionPane.showMessageDialog(panelRealizar,
+                        "Por favor seleccione las horas invertidas en el mantenimiento.",
+                        "Horas Requeridas", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            String horas = panelRealizar.cbHorasInvertidas.getSelectedItem().toString();
+
+            // VALIDACIÓN OBLIGATORIA DE LA FOTO
             File imgDespues = panelRealizar.getArchivoImagenDespues();
+            if (imgDespues == null || !imgDespues.exists()) {
+                JOptionPane.showMessageDialog(panelRealizar,
+                        "¡ATENCIÓN: LA FOTO DE DESPUÉS ES OBLIGATORIA!\n\n"
+                        + "Para completar la ejecución debe adjuntar la imagen\n"
+                        + "que evidencia el trabajo realizado en la herramienta.",
+                        "Foto Requerida", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
-            
-            String nombreDespues = (imgDespues != null) ? imgDespues.getName() : "Sin foto";
-
+            String observaciones = panelRealizar.txtObservaciones.getText().trim();
             String detalleNotas = "Ejecutado: " + descripcionTrabajo + " | Horas: " + horas + "h | Obs: "
-                    + observaciones + "  Desp: " + nombreDespues;
+                    + observaciones + " | Desp: " + imgDespues.getName();
 
-            // Guardar el registro de mantenimiento realizado
+            // Guardar el registro de mantenimiento finalizado
             Mantenimiento mEjecutado = new Mantenimiento(
                     herramientaElegida.getIdHerramienta(),
                     "CORRECTIVO",
@@ -223,17 +235,19 @@ public class ControladorPrincipalSupervisor implements ActionListener {
             boolean guardado = mantenimientoDao.registrarProgramacion(mEjecutado);
 
             if (guardado) {
-                // Al terminar el mantenimiento, la herramienta vuelve a estar disponible en buen estado
+                // Cambia estado a EXCELENTE (Herramienta arreglada)
                 String nuevoEstado = "EXCELENTE";
                 boolean estadoActualizado = herramientaDao.actualizarEstado(herramientaElegida.getIdHerramienta(), nuevoEstado);
 
                 String msgEstado = estadoActualizado
-                        ? "\nEstado de la herramienta actualizado a: " + nuevoEstado : "\n(No se pudo actualizar el estado de la herramienta).";
+                        ? "\nEstado de la herramienta actualizado a: " + nuevoEstado
+                        : "\n(No se pudo actualizar el estado de la herramienta).";
 
                 JOptionPane.showMessageDialog(panelRealizar,
                         "¡Mantenimiento de '" + herramientaElegida.getNombreHerramienta() + "' registrado exitosamente!" + msgEstado,
                         "Registro Exitoso", JOptionPane.INFORMATION_MESSAGE);
 
+                panelRealizar.limpiarFormulario();
                 cambiarPanelCentral(this.panelInventario);
                 listarHerramientasEnTabla();
             } else {

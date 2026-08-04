@@ -210,6 +210,9 @@ public class ControladorReservarCita implements ActionListener {
             String servicioNombre = (String) panelReserva.comboServicios.getSelectedItem();
             String profesionalNombre = (String) panelReserva.comboProfesionales.getSelectedItem();
 
+            // Captura de las observaciones ingresadas por el cliente
+            String observaciones = (panelReserva.txtObservaciones != null) ? panelReserva.txtObservaciones.getText().trim() : "";
+
             // SwingWorker para validar y registrar la cita sin congelar la interfaz
             SwingWorker<Boolean, Void> workerReserva = new SwingWorker<>() {
                 private boolean choqueHorario = false;
@@ -251,25 +254,38 @@ public class ControladorReservarCita implements ActionListener {
                         }
 
                         if (exito) {
-                            // Enviar correo en un hilo independiente
+                            // Hilo independiente para envío de correos (Cliente + Profesional)
                             new Thread(() -> {
-                                System.out.println("🔍 [Depuración] ID Usuario Logueado recibido: " + idUsuarioLogueado);
-
                                 UsuarioDao usuarioDao = new UsuarioDao();
-                                Usuario usuarioActual = usuarioDao.obtenerPorId(idUsuarioLogueado);
-                                String correoCliente = (usuarioActual != null) ? usuarioActual.getCorreo() : null;
 
-                                System.out.println("🔍 [Depuración] Correo recuperado de la BD: " + correoCliente);
+                                // 1. Obtener datos del Cliente
+                                Usuario clienteActual = usuarioDao.obtenerPorId(idUsuarioLogueado);
+                                String correoCliente = (clienteActual != null) ? clienteActual.getCorreo() : null;
+                                String nombreCliente = (clienteActual != null) ? clienteActual.getNombre() : "Cliente";
 
+                                // Enviar correo al cliente
                                 if (correoCliente != null && !correoCliente.trim().isEmpty()) {
-                                    enviarCorreoConfirmacion(correoCliente, servicioNombre, profesionalNombre, fechaHora);
+                                    enviarCorreoConfirmacion(correoCliente, servicioNombre, profesionalNombre, fechaHora, observaciones);
                                 } else {
-                                    System.err.println("⚠️ [Advertencia] No se encontró correo electrónico para el ID de usuario: " + idUsuarioLogueado);
+                                    System.err.println("⚠️ [Advertencia] No se encontró correo para el cliente ID: " + idUsuarioLogueado);
                                 }
+
+                                // 2. Obtener datos del Profesional
+                                int idProfesional = citaDao.obtenerIdProfesionalPorNombre(profesionalNombre);
+                                Usuario profesionalActual = usuarioDao.obtenerPorId(idProfesional);
+                                String correoProfesional = (profesionalActual != null) ? profesionalActual.getCorreo() : null;
+
+                                // Enviar correo al profesional
+                                if (correoProfesional != null && !correoProfesional.trim().isEmpty()) {
+                                    enviarCorreoProfesional(correoProfesional, nombreCliente, servicioNombre, fechaHora, observaciones);
+                                } else {
+                                    System.err.println("⚠️ [Advertencia] No se encontró correo para el profesional: " + profesionalNombre + " (ID: " + idProfesional + ")");
+                                }
+
                             }).start();
 
                             JOptionPane.showMessageDialog(panelReserva,
-                                    "¡Cita agendada con éxito!\n\nServicio: " + servicioNombre + "\nProfesional: " + profesionalNombre + "\nFecha y Hora: " + fechaHora + "\n\nSe ha enviado un correo de confirmación.",
+                                    "¡Cita agendada con éxito!\n\nServicio: " + servicioNombre + "\nProfesional: " + profesionalNombre + "\nFecha y Hora: " + fechaHora + "\n\nSe han enviado las notificaciones por correo electrónico.",
                                     "Reserva Exitosa", JOptionPane.INFORMATION_MESSAGE);
 
                             limpiarFormulario();
@@ -291,18 +307,12 @@ public class ControladorReservarCita implements ActionListener {
         }
     }
 
-    private boolean enviarCorreoConfirmacion(String destinatario, String servicio, String profesional, String fechaHora) {
+    // Correo enviado al CLIENTE
+    private boolean enviarCorreoConfirmacion(String destinatario, String servicio, String profesional, String fechaHora, String observaciones) {
         final String miCorreoRemitente = "liliannysbaptistap@gmail.com";
         final String miClaveDeCorreo = "rksuumvzhnomirzf";
 
-        Properties propiedades = new Properties();
-        propiedades.put("mail.smtp.auth", "true");
-        propiedades.put("mail.smtp.starttls.enable", "true");
-        propiedades.put("mail.smtp.starttls.required", "true");
-        propiedades.put("mail.smtp.host", "smtp.gmail.com");
-        propiedades.put("mail.smtp.port", "587");
-        propiedades.put("mail.smtp.ssl.protocols", "TLSv1.2");
-        propiedades.put("mail.smtp.ssl.trust", "smtp.gmail.com");
+        Properties propiedades = crearPropiedadesSmtp();
 
         Session sesionMail = Session.getInstance(propiedades, new Authenticator() {
             @Override
@@ -311,7 +321,7 @@ public class ControladorReservarCita implements ActionListener {
             }
         });
 
-        sesionMail.setDebug(true);
+        sesionMail.setDebug(false);
 
         try {
             Message mensaje = new MimeMessage(sesionMail);
@@ -319,25 +329,86 @@ public class ControladorReservarCita implements ActionListener {
             mensaje.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatario));
             mensaje.setSubject("✨ ¡Tu reserva en NexusGO ha sido confirmada! ✨");
 
+            String textoNotas = observaciones.isEmpty() ? "Sin observaciones específicas." : observaciones;
+
             String cuerpoTexto = "¡Hola! 👋\n\n"
                     + "🎉 ¡Buenas noticias! Tu cita ha sido agendada con éxito en NexusGO.\n\n"
                     + "📍 === DETALLES DE TU RESERVA ===\n"
                     + "🛠️ Servicio: " + servicio + "\n"
                     + "💈 Profesional: " + profesional + "\n"
-                    + "📅 Fecha y Hora: " + fechaHora + "\n\n"
+                    + "📅 Fecha y Hora: " + fechaHora + "\n"
+                    + "📝 Tus Observaciones: " + textoNotas + "\n\n"
                     + "💡 Recuerda llegar con unos minutos de anticipación.\n\n"
                     + "✨ ¡Muchas gracias por confiar en nosotros! Nos alegra mucho atenderte.\n\n"
                     + "Atentamente,\nEl equipo de NexusGO 🚀";
 
             mensaje.setText(cuerpoTexto);
             Transport.send(mensaje);
-            System.out.println("✅ Correo enviado exitosamente a: " + destinatario);
+            System.out.println("✅ Correo de confirmación enviado al cliente: " + destinatario);
             return true;
         } catch (Exception e) {
-            System.err.println("❌ Error crítico al enviar el correo a " + destinatario + ": " + e.getMessage());
+            System.err.println("❌ Error crítico al enviar el correo al cliente " + destinatario + ": " + e.getMessage());
             e.printStackTrace();
             return false;
         }
+    }
+
+    // Correo enviado al PROFESIONAL / PELUQUERO
+    private boolean enviarCorreoProfesional(String destinatario, String clienteNombre, String servicio, String fechaHora, String observaciones) {
+        final String miCorreoRemitente = "liliannysbaptistap@gmail.com";
+        final String miClaveDeCorreo = "rksuumvzhnomirzf";
+
+        Properties propiedades = crearPropiedadesSmtp();
+
+        Session sesionMail = Session.getInstance(propiedades, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(miCorreoRemitente, miClaveDeCorreo);
+            }
+        });
+
+        sesionMail.setDebug(false);
+
+        try {
+            Message mensaje = new MimeMessage(sesionMail);
+            mensaje.setFrom(new InternetAddress(miCorreoRemitente, "NexusGO Notificaciones 💈"));
+            mensaje.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatario));
+            mensaje.setSubject("🗓️ ¡Nueva cita asignada en NexusGO!");
+
+            String textoNotas = observaciones.isEmpty() ? "El cliente no dejó notas adicionales." : observaciones;
+
+            String cuerpoTexto = "¡Hola! 💈\n\n"
+                    + "Se ha agendado una nueva cita asignada a tu agenda en NexusGO:\n\n"
+                    + "📍 === DETALLES DEL CLIENTE Y RESERVA ===\n"
+                    + "👤 Cliente: " + clienteNombre + "\n"
+                    + "🛠️ Servicio: " + servicio + "\n"
+                    + "📅 Fecha y Hora: " + fechaHora + "\n"
+                    + "📝 Indicaciones / Recomendaciones del cliente: " + textoNotas + "\n\n"
+                    + "Por favor asegúrate de estar disponible para atender al cliente a la hora estipulada.\n\n"
+                    + "Atentamente,\nSistema NexusGO 🚀";
+
+            mensaje.setText(cuerpoTexto);
+            Transport.send(mensaje);
+            System.out.println("✅ Correo de notificación enviado al profesional: " + destinatario);
+            return true;
+        } catch (Exception e) {
+            System.err.println("❌ Error crítico al enviar correo al profesional " + destinatario + ": " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Configuración compartida de parámetros SMTP
+    private Properties crearPropiedadesSmtp() {
+        Properties propiedades = new Properties();
+        propiedades.put("mail.smtp.auth", "true");
+        propiedades.put("mail.smtp.starttls.enable", "true");
+        propiedades.put("mail.smtp.starttls.required", "true");
+        propiedades.put("mail.smtp.host", "smtp.gmail.com");
+        propiedades.put("mail.smtp.port", "587");
+        propiedades.put("mail.smtp.ssl.protocols", "TLSv1.2");
+        propiedades.put("mail.smtp.ssl.trust", "smtp.gmail.com");
+        return propiedades;
     }
 
     private void limpiarFormulario() {
