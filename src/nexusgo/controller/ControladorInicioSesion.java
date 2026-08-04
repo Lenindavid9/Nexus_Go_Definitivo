@@ -378,7 +378,8 @@ public class ControladorInicioSesion implements ActionListener {
             } else {
                 /*Se informa al usuario que los datos ingresados son incorrectos
                 para que pueda verificarlos e intentar nuevamente.*/
-                JOptionPane.showMessageDialog(vistaLogin, "Número de identificación o contraseña incorrectos.\nInténtelo nuevamente.", "Acceso Denegado", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(vistaLogin, "Número de identificación o contraseña incorrectos.\nInténtelo nuevamente.", 
+                        "Acceso Denegado", JOptionPane.ERROR_MESSAGE);
             }
 
         } catch (Exception ex) {

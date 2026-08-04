@@ -51,7 +51,7 @@ public class ControladorValidarIdentificacion implements ActionListener {
 
     private void ejecutarFlujoValidacion() {
 
-        // Se obtiene el contenido del campo que ongreso la identificación.
+        // Se obtiene el contenido del campo que ingreso la identificación.
         String documento = vista.tIdentificacion.getText();
 
         // Se verifica si el campo de identificación quedó vacío.

@@ -48,16 +48,37 @@ public class ControladorNuevaContrasena implements ActionListener {
             /*Se verifica que ambos campos hayan sido diligenciados.
             Si alguno está vacío, el sistema no podra continuar*/
             if (pass.isEmpty() || confirmarPass.isEmpty()) {
-                JOptionPane.showMessageDialog(vista, "Por favor, complete todos los campos de contraseña.", 
+                JOptionPane.showMessageDialog(vista, "Por favor, complete todos los campos de contraseña.",
                         "Campos Vacíos", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            /*Se verifica que la contraseña cumpla con los requisitos mínimos de seguridad
+        
+        La exprecion se LEE asi:
+        ^ = Indica el inicio del texto.
+        (?=.*[A-Z]) = Comprueba que exista al menos una letra mayúscula (A-Z).
+        (?=.*\\d) = Comprueba que exista al menos un número del 0 al 9.
+        (?=.*[^A-Za-z0-9]) = Comprueba que exista al menos un símbolo o carácter especial
+        como @, #, %, &, !, etc.
+        .{8,} = Indica que la contraseña debe tener como mínimo 8 caracteres.
+        $ = Indica que el texto debe terminar aquí.
+        Si la contraseña no cumple alguno de estos requisitos,
+        el método matches() devolverá false.*/
+            if (!pass.matches("^(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$")) {
+
+                //se informa que la contraseña no cumple con las condiciones establecidas
+                JOptionPane.showMessageDialog(
+                        vista, "La contraseña debe tener mínimo 8 caracteres, una mayúscula, un número y un símbolo.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
             // Se comparan ambas contraseñas para verificar que sean iguales.
             if (!pass.equals(confirmarPass)) {
-                JOptionPane.showMessageDialog(vista, "Las contraseñas ingresadas no coinciden. Inténtelo de nuevo.", 
+                JOptionPane.showMessageDialog(vista, "Las contraseñas ingresadas no coinciden. Inténtelo de nuevo.",
                         "Error de Coincidencia", JOptionPane.ERROR_MESSAGE);
-                
+
                 // Se limpia el primer campo de contraseña para que el usuario vuelva a escribirla.
                 vista.tContrasena.setText("");
 
@@ -74,7 +95,6 @@ public class ControladorNuevaContrasena implements ActionListener {
             /*Si ambas contraseñas coinciden y las validaciones fueron
             aceptadas  correctamente, se llama al método encargado
             de actualizar la contraseña en la base de datos.*/
-
             boolean exito = usuarioDAO.actualizarContrasena(correoUsuario, pass);
 
             if (exito) {

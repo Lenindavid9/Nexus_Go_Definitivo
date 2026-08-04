@@ -13,6 +13,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Image;
+import java.io.File;
+import java.net.URL;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -165,25 +168,25 @@ public class VistaPdV extends JPanel {
         lblImagen.setHorizontalAlignment(JLabel.CENTER);
 
         String nombreArchivoImg = (imagenArchivo != null && !imagenArchivo.trim().isEmpty())
-                ? new java.io.File(imagenArchivo.trim()).getName() : "default.jpg";
+                ? new File(imagenArchivo.trim()).getName() : "default.jpg";
 
         ImageIcon iconoItem = null;
-        java.io.File archivoEnDisco = new java.io.File("img", nombreArchivoImg);
+        File archivoEnDisco = new File("img", nombreArchivoImg);
         if (archivoEnDisco.exists()) {
             iconoItem = new ImageIcon(archivoEnDisco.getPath());
         }
         if (iconoItem == null || iconoItem.getIconWidth() <= 0) {
-            java.net.URL imgURL = getClass().getResource("/nexusgo/img/" + nombreArchivoImg);
+            URL imgURL = getClass().getResource("/nexusgo/img/" + nombreArchivoImg);
             if (imgURL != null) {
                 iconoItem = new ImageIcon(imgURL);
             }
         }
         if (iconoItem == null || iconoItem.getIconWidth() <= 0) {
-            java.net.URL defaultURL = getClass().getResource("/nexusgo/img/default.jpg");
+            URL defaultURL = getClass().getResource("/nexusgo/img/default.jpg");
             iconoItem = (defaultURL != null) ? new ImageIcon(defaultURL) : null;
         }
         if (iconoItem != null && iconoItem.getIconWidth() > 0) {
-            java.awt.Image imgEscalada = iconoItem.getImage().getScaledInstance(200, 180, java.awt.Image.SCALE_SMOOTH);
+            Image imgEscalada = iconoItem.getImage().getScaledInstance(200, 180, java.awt.Image.SCALE_SMOOTH);
             lblImagen.setIcon(new ImageIcon(imgEscalada));
         } else {
             lblImagen.setText("[Sin Foto]");

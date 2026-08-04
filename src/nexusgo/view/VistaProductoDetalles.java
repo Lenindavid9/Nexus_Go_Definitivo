@@ -123,7 +123,7 @@ public class VistaProductoDetalles extends JPanel {
         this.add(panelContenedorCentral, BorderLayout.CENTER);
     }
 
-    /* Método visual puro: Recibe solo datos primitivos enviadas por el controlador
+    /* Método visual: Recibe solo datos primitivos enviadas por el controlador
     para actualizar la interfaz dinámicamente según el producto seleccionado.*/
     public void mostrarDetalleProducto(String nombre, double precio, String descripcion, String rutaImagen) {
         
